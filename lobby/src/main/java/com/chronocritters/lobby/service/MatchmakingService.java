@@ -19,18 +19,6 @@ public class MatchmakingService {
         playerQueue.add(playerId);
     }
 
-    public String dequeue() {
-        return playerQueue.poll();
-    }
-
-    public int size() {
-        return playerQueue.size();
-    }
-
-    public boolean isEmpty() {
-        return playerQueue.isEmpty();
-    }
-
     public Optional<Match> tryMatch() {
         if (playerQueue.size() < 2) {
             return Optional.empty();
