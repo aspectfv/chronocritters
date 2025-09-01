@@ -73,12 +73,14 @@ public class DatabaseSeeder {
 
             // Players
             Player blueOak = Player.builder()
+                .id("p1")
                 .username("BlueOak")
                 .password(PasswordUtil.hashPassword("password1"))
                 .stats(blueOakStats)
                 .roster(List.of(aquaLing))
                 .build();
             Player redAsh = Player.builder()
+                .id("p2")
                 .username("RedAsh")
                 .password(PasswordUtil.hashPassword("password2"))
                 .stats(redAshStats)
