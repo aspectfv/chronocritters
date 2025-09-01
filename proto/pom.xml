@@ -47,21 +47,30 @@
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
-                <version>1.7.1</version>
             </extension>
         </extensions>
 
         <plugins>
-            <!-- Protocol Buffers Maven Plugin -->
+            <!-- Protocol Buffers Maven Plugin - inherits configuration from parent -->
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Maven Compiler Plugin -->
+            <!-- Maven Compiler Plugin - Suppress ALL warnings for generated code -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <failOnWarning>false</failOnWarning>
+                    <compilerArgs>
+                        <arg>-Xlint:none</arg>
+                        <arg>-nowarn</arg>
+                    </compilerArgs>
+                    <showWarnings>false</showWarnings>
+                    <showDeprecation>false</showDeprecation>
+                    <verbose>false</verbose>
+                </configuration>
             </plugin>
         </plugins>
     </build>
