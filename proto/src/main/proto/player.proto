@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package chronocritters.player;
+
+option java_package = "com.chronocritters.proto.player";
+option java_outer_classname = "PlayerProto";
+
+// Enum for critter types
+enum CritterType {
+  CRITTER_TYPE_UNSPECIFIED = 0;
+  FIRE = 1;
+  WATER = 2;
+  GRASS = 3;
+  ELECTRIC = 4;
+}
+
+// Enum for ability types
+enum AbilityType {
+  ABILITY_TYPE_UNSPECIFIED = 0;
+  ATTACK = 1;
+  DEFENSE = 2;
+  SUPPORT = 3;
+}
+
+// Service definition for player-related operations
+service PlayerService {
+  // Retrieves a player including roster and stats
+  rpc GetPlayer(PlayerRequest) returns (PlayerResponse);
+
+  // Updates win/loss statistics for both players after a battle concludes
+  rpc UpdateMatchHistory(MatchHistoryRequest) returns (MatchHistoryResponse);
+}
+
+// Request message for getting player profile
+message PlayerRequest {
+  string player_id = 1;
+}
+
+// Response message containing player profile data
+message PlayerResponse {
+  string id = 1;
+  string username = 2;
+  repeated CritterProto roster = 4; // A list of the player's critters
+}
+
+// Player statistics
+message PlayerStatsProto {
+  int32 wins = 1;
+  int32 losses = 2;
+}
+
+// Critter definition
+message CritterProto {
+  string id = 1;
+  string name = 2;
+  CritterType type = 3; // Using enum instead of string
+  BaseStatsProto base_stats = 4;
+  repeated AbilityProto abilities = 5;
+}
+
+// Critter base statistics
+message BaseStatsProto {
+  int32 health = 1;
+  int32 attack = 2;
+  int32 defense = 3;
+}
+
+// Ability definition
+message AbilityProto {
+  string id = 1;
+  string name = 2;
+  AbilityType type = 3; // Using enum instead of string
+  int32 power = 4;
+}
+
+// Request message for updating match history
+message MatchHistoryRequest {
+  string winning_player_id = 1;
+  string losing_player_id = 2;
+}
+
+// Response message for match history update
+message MatchHistoryResponse {
+  bool success = 1;
+  string message = 2; // e.g., "Player stats updated." or "Error: Player not found."
+}
