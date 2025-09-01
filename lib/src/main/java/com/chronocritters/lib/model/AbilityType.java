@@ -1,4 +1,4 @@
-package com.chronocritters.lib;
+package com.chronocritters.lib.model;
 
 public enum AbilityType {
     ATTACK,
