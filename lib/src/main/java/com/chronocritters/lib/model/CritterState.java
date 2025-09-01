@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CritterState {
-    private int id;
+    private String id;
     private String name;
     private CritterType type;
     private int maxHp;

@@ -6,7 +6,7 @@ option java_package = "com.chronocritters.proto.player";
 option java_outer_classname = "PlayerProto";
 
 // Enum for critter types
-enum CritterType {
+enum CritterTypeProto {
   CRITTER_TYPE_UNSPECIFIED = 0;
   FIRE = 1;
   WATER = 2;
@@ -15,7 +15,7 @@ enum CritterType {
 }
 
 // Enum for ability types
-enum AbilityType {
+enum AbilityTypeProto {
   ABILITY_TYPE_UNSPECIFIED = 0;
   ATTACK = 1;
   DEFENSE = 2;
@@ -53,7 +53,7 @@ message PlayerStatsProto {
 message CritterProto {
   string id = 1;
   string name = 2;
-  CritterType type = 3; // Using enum instead of string
+  CritterTypeProto type = 3;
   BaseStatsProto base_stats = 4;
   repeated AbilityProto abilities = 5;
 }
@@ -69,7 +69,7 @@ message BaseStatsProto {
 message AbilityProto {
   string id = 1;
   string name = 2;
-  AbilityType type = 3; // Using enum instead of string
+  AbilityTypeProto type = 3;
   int32 power = 4;
 }
 
