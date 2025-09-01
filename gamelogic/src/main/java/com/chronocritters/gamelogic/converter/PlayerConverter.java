@@ -3,8 +3,6 @@ package com.chronocritters.gamelogic.converter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
-
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.BaseStats;
@@ -20,18 +18,22 @@ import com.chronocritters.proto.player.PlayerProto.CritterProto;
 import com.chronocritters.proto.player.PlayerProto.CritterTypeProto;
 import com.chronocritters.proto.player.PlayerProto.PlayerResponse;
 
-@Component
-public class PlayerConverter {
+public final class PlayerConverter {
     
-    public PlayerState convertToPlayerState(PlayerResponse playerResponse) {
+    // Private constructor to prevent instantiation
+    private PlayerConverter() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+    
+    public static PlayerState convertToPlayerState(PlayerResponse playerResponse) {
         // Convert roster from proto to Critter models
         List<Critter> critterRoster = playerResponse.getRosterList().stream()
-            .map(this::convertCritter)
+            .map(PlayerConverter::convertCritter)
             .collect(Collectors.toList());
         
         // Convert Critter models to CritterState for battle
         List<CritterState> battleRoster = critterRoster.stream()
-            .map(this::convertCritterToState)
+            .map(PlayerConverter::convertCritterToState)
             .collect(Collectors.toList());
         
         // Build Player from proto response (for reference)
@@ -51,19 +53,19 @@ public class PlayerConverter {
             .build();
     }
     
-    private Critter convertCritter(CritterProto critterProto) {
+    private static Critter convertCritter(CritterProto critterProto) {
         return Critter.builder()
             .id(critterProto.getId())
             .name(critterProto.getName())
             .type(convertCritterType(critterProto.getType()))
             .baseStats(convertBaseStats(critterProto.getBaseStats()))
             .abilities(critterProto.getAbilitiesList().stream()
-                .map(this::convertAbility)
+                .map(PlayerConverter::convertAbility)
                 .collect(Collectors.toList()))
             .build();
     }
     
-    private CritterState convertCritterToState(Critter critter) {
+    private static CritterState convertCritterToState(Critter critter) {
         // Convert from persistent Critter to battle CritterState
         int maxHp = critter.getBaseStats().getHealth();
         
@@ -77,7 +79,7 @@ public class PlayerConverter {
             .build();
     }
     
-    private BaseStats convertBaseStats(BaseStatsProto baseStatsProto) {
+    private static BaseStats convertBaseStats(BaseStatsProto baseStatsProto) {
         return BaseStats.builder()
             .health(baseStatsProto.getHealth())
             .attack(baseStatsProto.getAttack())
@@ -85,7 +87,7 @@ public class PlayerConverter {
             .build();
     }
     
-    private Ability convertAbility(AbilityProto abilityProto) {
+    private static Ability convertAbility(AbilityProto abilityProto) {
         return Ability.builder()
             .id(abilityProto.getId())
             .name(abilityProto.getName())
@@ -94,7 +96,7 @@ public class PlayerConverter {
             .build();
     }
     
-    private CritterType convertCritterType(CritterTypeProto protoType) {
+    private static CritterType convertCritterType(CritterTypeProto protoType) {
         return switch (protoType) {
             case FIRE -> CritterType.FIRE;
             case WATER -> CritterType.WATER;
@@ -105,7 +107,7 @@ public class PlayerConverter {
         };
     }
     
-    private AbilityType convertAbilityType(AbilityTypeProto protoType) {
+    private static AbilityType convertAbilityType(AbilityTypeProto protoType) {
         return switch (protoType) {
             case ATTACK -> AbilityType.ATTACK;
             case DEFENSE -> AbilityType.DEFENSE;

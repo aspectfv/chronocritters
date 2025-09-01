@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.chronocritters.proto.player.PlayerProto.PlayerRequest;
 import com.chronocritters.proto.player.PlayerProto.PlayerResponse;
-import com.chronocritters.proto.player.PlayerServiceGrpc;
+import com.chronocritters.proto.player.PlayerServiceGrpc.PlayerServiceBlockingStub;
 
 import net.devh.boot.grpc.client.inject.GrpcClient;
 
@@ -12,8 +12,8 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 public class PlayerGrpcClient {
     
     @GrpcClient("user-service")
-    private PlayerServiceGrpc.PlayerServiceBlockingStub playerServiceStub;
-    
+    private PlayerServiceBlockingStub playerServiceStub;
+
     public PlayerResponse getPlayer(String playerId) {
         PlayerRequest request = PlayerRequest.newBuilder()
             .setPlayerId(playerId)
