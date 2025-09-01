@@ -3,41 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChronoCritters Roster</title>
+    <title>ChronoCritters</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        #battleId { font-weight: bold; color: #007bff; }
+    </style>
 </head>
 <body>
-    <h1>Player's Critter Roster</h1>
-    <input type="text" id="playerId" placeholder="Enter Player ID" />
-    <button onclick="fetchRoster()">Show Roster</button>
-    <br><br>
-    <button onclick="selectPreset('p1')">Show BlueOak's Roster</button>
-    <button onclick="selectPreset('p2')">Show RedAsh's Roster</button>
-    <div id="roster"></div>
+    <h1>ChronoCritters Game</h1>
+    
+    <!-- Authentication Section -->
+    <div class="section">
+        <h2>Authentication</h2>
+        <div id="authStatus" class="status info">Not logged in</div>
+        <button class="button" onclick="loginPreset('BlueOak', 'password1')">Login as BlueOak</button>
+        <button class="button" onclick="loginPreset('RedAsh', 'password2')">Login as RedAsh</button>
+        <button class="button" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Roster Section -->
+    <div class="section">
+        <h2>Player's Critter Roster</h2>
+        <input type="text" id="playerId" placeholder="Enter Player ID" />
+        <button class="button" onclick="fetchRoster()">Show Roster</button>
+        <br><br>
+        <button class="button" onclick="selectPreset('p1')">Show BlueOak's Roster</button>
+        <button class="button" onclick="selectPreset('p2')">Show RedAsh's Roster</button>
+        <div id="roster"></div>
+    </div>
+
+    <!-- Matchmaking Section -->
+    <div class="section">
+        <h2>Matchmaking</h2>
+        <div id="matchmakingStatus" class="status info">Not connected to matchmaking</div>
+        <button class="button" id="joinMatchmakingBtn" onclick="joinMatchmaking()" disabled>Join Matchmaking</button>
+        <button class="button" onclick="connectWebSocket()" disabled id="connectBtn">Connect to Lobby</button>
+        <div id="battleId"></div>
+    </div>
+
     <script>
+        let jwtToken = null;
+        let stompClient = null;
+        let currentUser = null;
+
+        // Authentication Functions
+        async function loginPreset(username, password) {
+            try {
+                const response = await fetch('http://localhost:8080/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    jwtToken = await response.text();
+                    currentUser = username;
+                    localStorage.setItem('jwtToken', jwtToken);
+                    localStorage.setItem('currentUser', currentUser);
+                    
+                    document.getElementById('authStatus').textContent = `Logged in as ${username}`;
+                    document.getElementById('authStatus').className = 'status success';
+                    document.getElementById('connectBtn').disabled = false;
+                } else {
+                    throw new Error('Login failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('authStatus').textContent = 'Login failed';
+                document.getElementById('authStatus').className = 'status error';
+            }
+        }
+
+        function logout() {
+            jwtToken = null;
+            currentUser = null;
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('currentUser');
+            
+            if (stompClient && stompClient.connected) {
+                stompClient.disconnect();
+            }
+            
+            document.getElementById('authStatus').textContent = 'Not logged in';
+            document.getElementById('authStatus').className = 'status info';
+            document.getElementById('connectBtn').disabled = true;
+            document.getElementById('joinMatchmakingBtn').disabled = true;
+            document.getElementById('matchmakingStatus').textContent = 'Not connected to matchmaking';
+            document.getElementById('matchmakingStatus').className = 'status info';
+            document.getElementById('battleId').textContent = '';
+        }
+
+        // WebSocket Functions
+        function connectWebSocket() {
+            if (!jwtToken) {
+                alert('Please login first');
+                return;
+            }
+
+            const socket = new SockJS('http://localhost:8081/ws');
+            stompClient = Stomp.over(socket);
+
+            const headers = {
+                'Authorization': 'Bearer ' + jwtToken
+            };
+
+            stompClient.connect(headers, function(frame) {
+                console.log('Connected: ' + frame);
+                document.getElementById('matchmakingStatus').textContent = 'Connected to lobby';
+                document.getElementById('matchmakingStatus').className = 'status success';
+                document.getElementById('joinMatchmakingBtn').disabled = false;
+                
+                // Subscribe to user-specific matchmaking updates using the current username
+                const userDestination = `/user/${currentUser}/matchmaking`;
+                console.log('Subscribing to:', userDestination);
+                
+                stompClient.subscribe(userDestination, function(message) {
+                    const response = JSON.parse(message.body);
+                    handleMatchmakingResponse(response);
+                });
+                
+            }, function(error) {
+                console.error('Connection error:', error);
+                document.getElementById('matchmakingStatus').textContent = 'Connection failed: ' + error;
+                document.getElementById('matchmakingStatus').className = 'status error';
+            });
+        }
+
+        function joinMatchmaking() {
+            if (stompClient && stompClient.connected) {
+                stompClient.send('/app/matchmaking/join', {}, {});
+                document.getElementById('matchmakingStatus').textContent = 'Joining matchmaking...';
+                document.getElementById('matchmakingStatus').className = 'status warning';
+                document.getElementById('joinMatchmakingBtn').disabled = true;
+            } else {
+                alert('Please connect to lobby first');
+            }
+        }
+
+        function handleMatchmakingResponse(response) {
+            const statusDiv = document.getElementById('matchmakingStatus');
+            const battleDiv = document.getElementById('battleId');
+            
+            if (response.status === 'QUEUED') {
+                statusDiv.textContent = 'In matchmaking queue - waiting for opponent...';
+                statusDiv.className = 'status warning';
+                battleDiv.textContent = '';
+            } else if (response.status === 'MATCH_FOUND') {
+                statusDiv.textContent = 'Match found! Preparing battle...';
+                statusDiv.className = 'status success';
+                battleDiv.innerHTML = `<div>Battle ID: <span id="battleIdValue">${response.battleId}</span></div>`;
+                
+                // Auto-redirect to battle after 3 seconds (you can implement battle page later)
+                setTimeout(() => {
+                    if (confirm(`Battle ready! Battle ID: ${response.battleId}\n\nClick OK to proceed to battle (feature coming soon)`)) {
+                        // window.location.href = `/battle.html?battleId=${response.battleId}`;
+                        console.log('Battle would start with ID:', response.battleId);
+                    }
+                }, 2000);
+                
+            } else if (response.status === 'ERROR') {
+                statusDiv.textContent = 'Matchmaking error: Authentication required';
+                statusDiv.className = 'status error';
+                battleDiv.textContent = '';
+                document.getElementById('joinMatchmakingBtn').disabled = false;
+            }
+        }
+
+        // Roster Functions (existing)
         function selectPreset(playerId) {
             document.getElementById('playerId').value = playerId;
             fetchRoster();
         }
+
         async function fetchRoster() {
             const playerId = document.getElementById('playerId').value;
             const query = `query($id: ID!) { getPlayer(id: $id) { roster { name type baseStats { health attack defense } } } }`;
-            const response = await fetch('http://localhost:8080/graphql', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query, variables: { id: playerId } })
-            });
-            const result = await response.json();
-            const roster = result.data?.getPlayer?.roster || [];
-            const rosterDiv = document.getElementById('roster');
-            if (roster.length === 0) {
-                rosterDiv.innerHTML = '<p>No critters found.</p>';
-                return;
+            
+            try {
+                const response = await fetch('http://localhost:8080/graphql', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, variables: { id: playerId } })
+                });
+                
+                const result = await response.json();
+                const roster = result.data?.getPlayer?.roster || [];
+                const rosterDiv = document.getElementById('roster');
+                
+                if (roster.length === 0) {
+                    rosterDiv.innerHTML = '<p>No critters found.</p>';
+                    return;
+                }
+                
+                rosterDiv.innerHTML = '<ul>' + roster.map(critter =>
+                    `<li><strong>${critter.name}</strong> (${critter.type})<br>
+                    Health: ${critter.baseStats.health}, Attack: ${critter.baseStats.attack}, Defense: ${critter.baseStats.defense}</li>`
+                ).join('') + '</ul>';
+            } catch (error) {
+                console.error('Error fetching roster:', error);
+                document.getElementById('roster').innerHTML = '<p>Error loading roster.</p>';
             }
-            rosterDiv.innerHTML = '<ul>' + roster.map(critter =>
-                `<li><strong>${critter.name}</strong> (${critter.type})<br>
-                Health: ${critter.baseStats.health}, Attack: ${critter.baseStats.attack}, Defense: ${critter.baseStats.defense}</li>`
-            ).join('') + '</ul>';
         }
+
+        // Load saved session on page load
+        window.onload = function() {
+            const savedToken = localStorage.getItem('jwtToken');
+            const savedUser = localStorage.getItem('currentUser');
+            
+            if (savedToken && savedUser) {
+                jwtToken = savedToken;
+                currentUser = savedUser;
+                document.getElementById('authStatus').textContent = `Logged in as ${savedUser}`;
+                document.getElementById('authStatus').className = 'status success';
+                document.getElementById('connectBtn').disabled = false;
+            }
+        };
     </script>
 </body>
 </html>
