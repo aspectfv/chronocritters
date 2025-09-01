@@ -13,6 +13,7 @@ import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.CritterType;
 import com.chronocritters.lib.model.Player;
 import com.chronocritters.lib.model.PlayerStats;
+import com.chronocritters.lib.util.PasswordUtil;
 import com.chronocritters.user.repository.AbilityRepository;
 import com.chronocritters.user.repository.CritterRepository;
 import com.chronocritters.user.repository.PlayerRepository;
@@ -22,6 +23,10 @@ public class DatabaseSeeder {
     @Bean
     public CommandLineRunner seedDatabase(AbilityRepository abilityRepository, CritterRepository critterRepository, PlayerRepository playerRepository) {
         return args -> {
+            // Reset database state
+            abilityRepository.deleteAll();
+            critterRepository.deleteAll();
+            playerRepository.deleteAll();
             // Abilities
             Ability tidalWave = Ability.builder()
                 .name("Tidal Wave")
@@ -46,13 +51,13 @@ public class DatabaseSeeder {
             Critter aquaLing = Critter.builder()
                 .name("Aqua-ling")
                 .type(CritterType.WATER)
-                .baseStats(new BaseStats(120, 60, 70))
+                .baseStats(BaseStats.builder().health(120).attack(60).defense(70).build())
                 .abilities(List.of(tidalWave, healPulse))
                 .build();
             Critter voltHound = Critter.builder()
                 .name("Volt-hound")
                 .type(CritterType.ELECTRIC)
-                .baseStats(new BaseStats(100, 90, 60))
+                .baseStats(BaseStats.builder().health(100).attack(90).defense(60).build())
                 .abilities(List.of(thunderStrike))
                 .build();
 
@@ -69,13 +74,13 @@ public class DatabaseSeeder {
             // Players
             Player blueOak = Player.builder()
                 .username("BlueOak")
-                .password("password1")
+                .password(PasswordUtil.hashPassword("password1"))
                 .stats(blueOakStats)
                 .roster(List.of(aquaLing))
                 .build();
             Player redAsh = Player.builder()
                 .username("RedAsh")
-                .password("password2")
+                .password(PasswordUtil.hashPassword("password2"))
                 .stats(redAshStats)
                 .roster(List.of(voltHound))
                 .build();
