@@ -1,4 +1,4 @@
-package com.chronocritters.controller;
+package com.chronocritters.user.controller;
 
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -15,7 +15,7 @@ public class GraphQLController {
 	private final PlayerService playerService;
 
 	@QueryMapping
-	public Player getPlayer(@Argument String playerId) {
-		return playerService.findById(playerId);
+	public Player getPlayer(@Argument("id") String id) {
+		return playerService.findById(id);
 	}
 }
