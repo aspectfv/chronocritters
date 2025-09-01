@@ -1,7 +1,6 @@
 package com.chronocritters.user.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -19,8 +18,8 @@ public class AbilityService {
         return abilityRepository.findAll();
     }
 
-    public Optional<Ability> findById(String id) {
-        return Optional.ofNullable(abilityRepository.findById(id).orElse(null));
+    public Ability findById(String id) {
+        return abilityRepository.findById(id).orElse(null);
     }
 
     public Ability save(Ability ability) {

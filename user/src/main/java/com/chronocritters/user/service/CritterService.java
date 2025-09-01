@@ -1,7 +1,6 @@
 package com.chronocritters.user.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -19,8 +18,8 @@ public class CritterService {
         return critterRepository.findAll();
     }
 
-    public Optional<Critter> findById(String id) {
-        return Optional.ofNullable(critterRepository.findById(id).orElse(null));
+    public Critter findById(String id) {
+        return critterRepository.findById(id).orElse(null);
     }
 
     public Critter save(Critter critter) {

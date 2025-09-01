@@ -1,0 +1,28 @@
+type PlayerStats {
+    wins: Int
+    losses: Int
+}
+
+type BaseStats {
+    healthPoints: Int
+    attack: Int
+    defense: Int
+}
+
+type Critter {
+    id: ID
+    name: String
+    type: String
+    baseStats: BaseStats
+}
+
+type Player {
+    _id: ID
+    username: String
+    stats: PlayerStats
+    roster: [Critter]
+}
+
+type Query {
+    getPlayer(id: ID!): Player
+}

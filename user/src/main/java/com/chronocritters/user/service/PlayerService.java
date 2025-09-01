@@ -1,7 +1,6 @@
 package com.chronocritters.user.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -19,8 +18,8 @@ public class PlayerService {
         return playerRepository.findAll();
     }
 
-    public Optional<Player> findById(String id) {
-        return Optional.ofNullable(playerRepository.findById(id).orElse(null));
+    public Player findById(String id) {
+        return playerRepository.findById(id).orElse(null);
     }
 
     public Player save(Player player) {
