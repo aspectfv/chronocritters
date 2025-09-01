@@ -2,12 +2,12 @@ package com.chronocritters.user.service;
 
 import org.springframework.stereotype.Service;
 
-import com.chronocritters.user.auth.JwtUtil;
 import com.chronocritters.user.repository.PlayerRepository;
 
 import lombok.RequiredArgsConstructor;
 
 import com.chronocritters.lib.model.Player;
+import com.chronocritters.lib.util.JwtUtil;
 import com.chronocritters.lib.util.PasswordUtil;
 
 @Service

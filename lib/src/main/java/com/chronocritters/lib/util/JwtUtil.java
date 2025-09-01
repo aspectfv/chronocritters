@@ -1,4 +1,4 @@
-package com.chronocritters.user.auth;
+package com.chronocritters.lib.util;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
