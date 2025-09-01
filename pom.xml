@@ -12,6 +12,7 @@
         <module>lib</module>
         <module>user</module>
         <module>lobby</module>
+        <module>gamelogic</module>
     </modules>
 
     <properties>
