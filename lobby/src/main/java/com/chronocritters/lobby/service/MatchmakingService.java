@@ -1,17 +1,14 @@
 package com.chronocritters.lobby.service;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.UUID;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.springframework.stereotype.Service;
 
 import com.chronocritters.lobby.dto.Match;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class MatchmakingService {
     private final ConcurrentLinkedQueue<String> playerQueue = new ConcurrentLinkedQueue<>();
 

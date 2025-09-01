@@ -1,4 +1,4 @@
-package com.chronocritters.gamelogic.model;
+package com.chronocritters.lib.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class BattleState {
     private String battleId;
     private String activePlayerId;
-    private String playerOne;
-    private String playerTwo;
+    private PlayerState playerOne;
+    private PlayerState playerTwo;
     private String lastActionLog;
 }

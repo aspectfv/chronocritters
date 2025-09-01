@@ -1,4 +1,4 @@
-package com.chronocritters.gamelogic.model;
+package com.chronocritters.lib.model;
 
 import java.util.List;
 
@@ -12,9 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PlayerState {
-    private int id;
+    private String id;
     private String username;
     private Boolean hasTurn;
     private String activeCritterId;
-    private List<CritterState> capturedCritters;
+    private List<CritterState> roster;
+    
 }

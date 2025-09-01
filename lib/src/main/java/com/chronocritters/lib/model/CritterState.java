@@ -1,9 +1,6 @@
-package com.chronocritters.gamelogic.model;
+package com.chronocritters.lib.model;
 
 import java.util.List;
-
-import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.CritterType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
