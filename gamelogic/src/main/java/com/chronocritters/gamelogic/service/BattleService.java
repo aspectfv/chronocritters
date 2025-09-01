@@ -23,16 +23,18 @@ public class BattleService {
         PlayerState playerOne = PlayerConverter.convertToPlayerState(playerGrpcClient.getPlayer(playerOneId));
         PlayerState playerTwo = PlayerConverter.convertToPlayerState(playerGrpcClient.getPlayer(playerTwoId));
 
+        playerOne.setHasTurn(true);
+        playerTwo.setHasTurn(false);
+
         BattleState battleState = BattleState.builder()
                 .battleId(battleId)
                 .activePlayerId(playerOneId)
                 .playerOne(playerOne)
                 .playerTwo(playerTwo)
-                .lastActionLog("")
+                .lastActionLog("Battle started between " + playerOne.getUsername() + " and " + playerTwo.getUsername())
                 .build();
 
         activeBattles.add(battleState);
-
         return battleState;
     }
 }
