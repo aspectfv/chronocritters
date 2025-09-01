@@ -10,6 +10,7 @@
 
     <modules>
         <module>lib</module>
+        <module>user</module>
     </modules>
 
     <properties>
