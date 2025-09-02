@@ -19,7 +19,6 @@ public class BattleService {
     private final PlayerGrpcClient playerGrpcClient;
 
     public BattleState createBattle(String battleId, String playerOneId, String playerTwoId) {
-        // Initialize player states with actual players from GRPC fetch
         PlayerState playerOne = PlayerConverter.convertToPlayerState(playerGrpcClient.getPlayer(playerOneId));
         PlayerState playerTwo = PlayerConverter.convertToPlayerState(playerGrpcClient.getPlayer(playerTwoId));
 
