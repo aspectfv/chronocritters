@@ -27,4 +27,12 @@ public class BattleStateService {
             throw new RuntimeException("Failed to create battle with battleId: " + battleId, e);
         }
     }
+
+    public BattleState executeAbility(String battleId, String playerId, String abilityId) {
+        try {
+            return gameLogicWebClient.executeAbility(battleId, playerId, abilityId).block();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to execute ability for battleId: " + battleId, e);
+        }
+    }
 }

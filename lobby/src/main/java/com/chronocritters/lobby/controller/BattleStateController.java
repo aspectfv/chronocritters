@@ -1,6 +1,7 @@
 package com.chronocritters.lobby.controller;
 
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
@@ -17,5 +18,10 @@ public class BattleStateController {
     @SubscribeMapping("/topic/battle/{battleId}")
     public BattleState subscribeToBattle(@DestinationVariable String battleId) {
         return battleStateService.getBattleState(battleId);
+    }
+
+    @MessageMapping("/battle/{battleId}/ability")
+    public BattleState executeAbility(@DestinationVariable String battleId, String playerId, String abilityId) {
+        return battleStateService.executeAbility(battleId, playerId, abilityId);
     }
 }
