@@ -15,7 +15,7 @@ public class PlayerState {
     private String id;
     private String username;
     private Boolean hasTurn;
-    private String activeCritterId;
+    private int activeCritterIndex;
     private List<CritterState> roster;
     
 }

@@ -1,7 +1,5 @@
 package com.chronocritters.lib.model;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,10 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CritterState {
-    private String id;
-    private String name;
-    private CritterType type;
-    private CurrentStats stats;
-    private List<Ability> abilities;
+public class CurrentStats {
+    private int maxHp;
+    private int currentHp;
+    private int currentAtk;
+    private int currentDef;
 }

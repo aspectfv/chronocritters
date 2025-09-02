@@ -9,6 +9,7 @@ import com.chronocritters.lib.model.BaseStats;
 import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.CritterType;
+import com.chronocritters.lib.model.CurrentStats;
 import com.chronocritters.lib.model.Player;
 import com.chronocritters.lib.model.PlayerState;
 import com.chronocritters.proto.player.PlayerProto.AbilityProto;
@@ -48,7 +49,7 @@ public final class PlayerConverter {
             .id(player.getId())
             .username(player.getUsername())
             .hasTurn(false) // Initially false, will be set by battle logic
-            .activeCritterId(battleRoster.isEmpty() ? null : battleRoster.get(0).getId())
+            .activeCritterIndex(battleRoster.isEmpty() ? -1 : 0)
             .roster(battleRoster)
             .build();
     }
@@ -66,19 +67,24 @@ public final class PlayerConverter {
     }
     
     private static CritterState convertCritterToState(Critter critter) {
-        // Convert from persistent Critter to battle CritterState
-        int maxHp = critter.getBaseStats().getHealth();
-        
         return CritterState.builder()
-            .id(critter.getId()) // CritterState uses String ID
+            .id(critter.getId())
             .name(critter.getName())
             .type(critter.getType())
-            .maxHp(maxHp)
-            .currentHp(maxHp) // Start with full health
+            .stats(convertCurrentStats(critter.getBaseStats()))
             .abilities(critter.getAbilities())
             .build();
     }
-    
+
+    private static CurrentStats convertCurrentStats(BaseStats baseStats) {
+        return CurrentStats.builder()
+            .maxHp(baseStats.getHealth())
+            .currentHp(baseStats.getHealth())
+            .currentAtk(baseStats.getAttack())
+            .currentDef(baseStats.getDefense())
+            .build();
+    }
+
     private static BaseStats convertBaseStats(BaseStatsProto baseStatsProto) {
         return BaseStats.builder()
             .health(baseStatsProto.getHealth())
