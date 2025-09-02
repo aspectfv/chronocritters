@@ -76,14 +76,13 @@ public class BattleService {
                 return executeAttackAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
             }
             case DEFENSE -> {
+                return executeDefenseAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
             }
             case SUPPORT -> {
-                
+                return executeSupportAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
             }
             default -> throw new IllegalArgumentException("Unexpected value: " + ability.getType());
         }
-
-        return currentBattle;
     }
 
     private BattleState executeAttackAbility(BattleState currentBattle, PlayerState currentPlayer, 
@@ -138,4 +137,45 @@ public class BattleService {
 
         return currentBattle;
     }
+
+    private BattleState executeDefenseAbility(BattleState currentBattle, PlayerState currentPlayer, 
+                                           PlayerState opponent, CritterState activeCritter, Ability ability) {
+        // Apply defense effect to the active critter
+        CurrentStats critterStats = activeCritter.getStats();
+        
+        // Increase defense stat temporarily (could be permanent for this battle)
+        int defenseBoost = ability.getPower();
+        int newDefense = critterStats.getCurrentDef() + defenseBoost;
+        critterStats.setCurrentDef(newDefense);
+        
+        // Update battle log
+        String actionLog = String.format("%s's %s used %s! %s's defense increased by %d (now %d).",
+            currentPlayer.getUsername(),
+            activeCritter.getName(),
+            ability.getName(),
+            activeCritter.getName(),
+            defenseBoost,
+            newDefense);
+        
+        currentBattle.setLastActionLog(actionLog);
+        
+        // Switch turns
+        String nextPlayerId = currentPlayer.getId().equals(currentBattle.getPlayerOne().getId()) 
+            ? currentBattle.getPlayerTwo().getId() 
+            : currentBattle.getPlayerOne().getId();
+        currentBattle.setActivePlayerId(nextPlayerId);
+        
+        // Update turn flags
+        currentPlayer.setHasTurn(false);
+        opponent.setHasTurn(true);
+
+        return currentBattle;
+    }
+
+    private BattleState executeSupportAbility(BattleState currentBattle, PlayerState currentPlayer, 
+                                           PlayerState opponent, CritterState activeCritter, Ability ability) {
+        // Implement support ability logic
+        return currentBattle;
+    }
+
 }
