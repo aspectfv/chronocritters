@@ -9,6 +9,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.chronocritters.lobby.dto.Match;
+import com.chronocritters.lobby.service.BattleStateService;
 import com.chronocritters.lobby.service.MatchmakingService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class MatchmakingController {
     private final MatchmakingService matchmakingService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final BattleStateService battleStateService;
     
     @MessageMapping("/matchmaking/join")
     public void joinMatchmaking(SimpMessageHeaderAccessor headerAccessor) {
@@ -41,6 +43,14 @@ public class MatchmakingController {
         if (match.isPresent()) {
             Match foundMatch = match.get();
             
+            // Create battle
+            battleStateService.createBattle(
+                foundMatch.battleId(),
+                foundMatch.playerOneId(),
+                foundMatch.playerTwoId()
+            );
+            
+            // Notify players
             messagingTemplate.convertAndSendToUser(
                     foundMatch.playerOneId(),
                     "/matchmaking/status",

@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.chronocritters.lib.dto.BattleRequest;
-import com.chronocritters.lib.dto.ExecuteAbilityRequest;
 import com.chronocritters.lib.model.BattleState;
 
 import lombok.RequiredArgsConstructor;
@@ -37,15 +36,5 @@ public class GameLogicWebClient {
                 .bodyValue(battleRequest)
                 .retrieve()
                 .bodyToMono(Void.class);
-    }
-
-    public Mono<BattleState> executeAbility(String battleId, String playerId, String abilityId) {
-        ExecuteAbilityRequest request = new ExecuteAbilityRequest(playerId, abilityId);
-        
-        return webClient.post()
-                .uri("/battle/{battleId}/ability", battleId)
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(BattleState.class);
     }
 }
