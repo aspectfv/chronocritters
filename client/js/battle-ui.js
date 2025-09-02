@@ -67,7 +67,7 @@ class BattleUI {
         if (!activeCritter) return;
 
         const stats = activeCritter.stats;
-        const maxHp = activeCritter.baseStats.health;
+        const maxHp = stats.maxHp; // Change this line - use stats.maxHp instead of baseStats.health
         const healthPercentage = (stats.currentHp / maxHp) * 100;
 
         // Update critter name

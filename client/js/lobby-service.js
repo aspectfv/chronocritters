@@ -93,15 +93,21 @@ class LobbyService {
 
     subscribeToBattleUpdates(battleId, callback) {
         if (!this.stompClient || !this.stompClient.connected) {
-            console.error('Not connected to lobby service');
+            console.error('STOMP client not connected');
             return;
         }
 
-        // Subscribe to battle state updates
+        console.log(`Subscribing to battle updates for battle ${battleId}`);
+        
+        // Subscribe to the topic first
         this.stompClient.subscribe(`/topic/battle/${battleId}`, (message) => {
+            console.log('Received battle update:', message.body);
             const battleState = JSON.parse(message.body);
             callback(battleState);
         });
+        
+        // Send a join message to get the initial state
+        this.stompClient.send(`/app/battle/${battleId}/join`, {}, '{}');
     }
 
     executeAbility(battleId, playerId, abilityId) {
