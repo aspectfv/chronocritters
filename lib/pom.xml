@@ -12,7 +12,6 @@
     <groupId>com.chronocritters</groupId>
     <artifactId>lib</artifactId>
       <dependencies>
-            <!-- Core dependencies -->
             <dependency>
                   <groupId>org.projectlombok</groupId>
                   <artifactId>lombok</artifactId>
@@ -23,7 +22,6 @@
                   <artifactId>spring-boot-starter-data-mongodb</artifactId>
             </dependency>
 
-            <!-- JWT dependencies -->
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-api</artifactId>

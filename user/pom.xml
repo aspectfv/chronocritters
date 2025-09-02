@@ -68,7 +68,6 @@
 			<optional>true</optional>
 		</dependency>
 		
-		<!-- gRPC Server -->
 		<dependency>
 			<groupId>net.devh</groupId>
 			<artifactId>grpc-server-spring-boot-starter</artifactId>

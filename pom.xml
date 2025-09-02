@@ -60,7 +60,6 @@
                 <scope>runtime</scope>
             </dependency>
             
-            <!-- Protocol Buffers & gRPC -->
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
@@ -88,7 +87,6 @@
                 <scope>provided</scope>
             </dependency>
             
-            <!-- gRPC Spring Boot Starters -->
             <dependency>
                 <groupId>net.devh</groupId>
                 <artifactId>grpc-server-spring-boot-starter</artifactId>
@@ -135,14 +133,12 @@
                     </configuration>
                 </plugin>
                 
-                <!-- OS Maven Plugin -->
                 <plugin>
                     <groupId>kr.motd.maven</groupId>
                     <artifactId>os-maven-plugin</artifactId>
                     <version>${os-maven-plugin.version}</version>
                 </plugin>
                 
-                <!-- Protobuf Maven Plugin -->
                 <plugin>
                     <groupId>org.xolstice.maven.plugins</groupId>
                     <artifactId>protobuf-maven-plugin</artifactId>
