@@ -27,8 +27,6 @@ class LobbyService {
             'Authorization': `Bearer ${token}`
         };
 
-        console.log('Connecting with Bearer token...');
-
         this.stompClient.connect(headers, (frame) => {
             const userId = currentUser.userId;
             
@@ -73,7 +71,7 @@ class LobbyService {
         const statusDiv = document.getElementById('matchmakingStatus');
         const battleDiv = document.getElementById('battleId');
         
-        statusDiv.textContent = 'Match found! Preparing battle...';
+        statusDiv.textContent = 'Match found! Entering battle...';
         statusDiv.className = 'status success';
         battleDiv.innerHTML = `<div>Battle ID: <span id="battleIdValue">${match.battleId}</span></div>`;
         
@@ -82,12 +80,9 @@ class LobbyService {
         const opponent = match.playerOneId === currentUserId ? match.playerTwoId : match.playerOneId;
         const opponentName = opponent === 'p1' ? 'BlueOak' : 'RedAsh';
         
-        // Immediately show confirmation dialog
-        if (confirm(`Match found!\n\nYou vs ${opponentName}\nBattle ID: ${match.battleId}\n\nClick OK to proceed to battle`)) {
-            // Show battle UI
-            if (this.battleUI) {
-                this.battleUI.showBattle(match.battleId);
-            }
+        // Immediately show battle UI without confirmation
+        if (this.battleUI) {
+            this.battleUI.showBattle(match.battleId);
         }
     }
 
@@ -96,12 +91,9 @@ class LobbyService {
             console.error('STOMP client not connected');
             return;
         }
-
-        console.log(`Subscribing to battle updates for battle ${battleId}`);
         
         // Subscribe to the topic first
         this.stompClient.subscribe(`/topic/battle/${battleId}`, (message) => {
-            console.log('Received battle update:', message.body);
             const battleState = JSON.parse(message.body);
             callback(battleState);
         });

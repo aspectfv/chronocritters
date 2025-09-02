@@ -40,5 +40,4 @@ public class BattleController {
     public BattleState executeAbility(@PathVariable String battleId, @RequestBody ExecuteAbilityRequest request) {
         return battleService.executeAbility(battleId, request.playerId(), request.abilityId());
     }
-    
 }
