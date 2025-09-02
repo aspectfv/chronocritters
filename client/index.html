@@ -16,6 +16,24 @@
         .info { background-color: #d1ecf1; color: #0c5460; }
         .warning { background-color: #fff3cd; color: #856404; }
         #battleId { font-weight: bold; color: #007bff; }
+        
+        /* Battle UI Styles */
+        .battle-container { display: none; }
+        .battle-field { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .player-side { border: 2px solid #ccc; padding: 15px; border-radius: 8px; }
+        .player-side.active { border-color: #007bff; background-color: #f8f9fa; }
+        .player-side.inactive { opacity: 0.7; }
+        .critter-card { border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px; background: white; }
+        .critter-stats { display: flex; justify-content: space-between; margin: 5px 0; }
+        .stat { font-size: 0.9em; }
+        .health-bar { width: 100%; height: 20px; background: #eee; border-radius: 10px; overflow: hidden; margin: 5px 0; }
+        .health-fill { height: 100%; background: linear-gradient(90deg, #28a745, #ffc107, #dc3545); transition: width 0.3s; }
+        .abilities { margin: 10px 0; }
+        .ability-btn { padding: 8px 12px; margin: 2px; border: 1px solid #007bff; background: #007bff; color: white; border-radius: 4px; cursor: pointer; }
+        .ability-btn:disabled { background: #6c757d; border-color: #6c757d; cursor: not-allowed; }
+        .ability-btn:hover:not(:disabled) { background: #0056b3; }
+        .battle-log { height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f8f9fa; margin: 10px 0; }
+        .log-entry { margin: 5px 0; padding: 5px; border-left: 3px solid #007bff; background: white; }
     </style>
 </head>
 <body>
@@ -50,10 +68,65 @@
         <div id="battleId"></div>
     </div>
 
+    <!-- Battle Section -->
+    <div class="section battle-container" id="battleSection">
+        <h2>Battle Arena</h2>
+        <div id="battleInfo" class="status info"></div>
+        
+        <div class="battle-field">
+            <!-- Player One Side -->
+            <div id="playerOneSide" class="player-side">
+                <h3 id="playerOneName">Player One</h3>
+                <div id="playerOneCritter" class="critter-card">
+                    <div id="playerOneCritterName" class="critter-name">No Critter</div>
+                    <div class="health-bar">
+                        <div id="playerOneHealthFill" class="health-fill" style="width: 100%;"></div>
+                    </div>
+                    <div id="playerOneStats" class="critter-stats">
+                        <span class="stat">HP: <span id="playerOneHp">0/0</span></span>
+                        <span class="stat">ATK: <span id="playerOneAtk">0</span></span>
+                        <span class="stat">DEF: <span id="playerOneDef">0</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Player Two Side -->
+            <div id="playerTwoSide" class="player-side">
+                <h3 id="playerTwoName">Player Two</h3>
+                <div id="playerTwoCritter" class="critter-card">
+                    <div id="playerTwoCritterName" class="critter-name">No Critter</div>
+                    <div class="health-bar">
+                        <div id="playerTwoHealthFill" class="health-fill" style="width: 100%;"></div>
+                    </div>
+                    <div id="playerTwoStats" class="critter-stats">
+                        <span class="stat">HP: <span id="playerTwoHp">0/0</span></span>
+                        <span class="stat">ATK: <span id="playerTwoAtk">0</span></span>
+                        <span class="stat">DEF: <span id="playerTwoDef">0</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Current Player's Abilities -->
+        <div id="playerAbilities" class="abilities">
+            <h3>Your Abilities</h3>
+            <div id="abilityButtons"></div>
+        </div>
+        
+        <!-- Battle Log -->
+        <div class="battle-log">
+            <h4>Battle Log</h4>
+            <div id="battleLogContent"></div>
+        </div>
+        
+        <button class="button" onclick="leaveBattle()">Leave Battle</button>
+    </div>
+
     <!-- Load scripts in dependency order -->
     <script src="js/auth-service.js"></script>
     <script src="js/user-service.js"></script>
     <script src="js/lobby-service.js"></script>
+    <script src="js/battle-ui.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

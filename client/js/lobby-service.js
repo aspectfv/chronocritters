@@ -2,46 +2,45 @@ class LobbyService {
     constructor(authService) {
         this.authService = authService;
         this.stompClient = null;
-        this.baseUrl = 'http://localhost:8081';
+        this.battleUI = null;
+    }
+
+    setBattleUI(battleUI) {
+        this.battleUI = battleUI;
     }
 
     connectWebSocket() {
-        if (!this.authService.isAuthenticated()) {
-            alert('Please login first');
-            return;
-        }
-
-        const socket = new SockJS(`${this.baseUrl}/ws`);
+        const socket = new SockJS('http://localhost:8081/ws');
         this.stompClient = Stomp.over(socket);
-
+        
         const headers = {
-            'Authorization': 'Bearer ' + this.authService.getToken()
+            'userId': this.authService.getCurrentUser().userId,
+            'username': this.authService.getCurrentUser().username
         };
 
         this.stompClient.connect(headers, (frame) => {
-            // Set session attributes after connection
-            if (frame.headers['session-id']) {
-                const user = this.authService.getCurrentUser();
-                this.stompClient.send('/app/session/set', {}, JSON.stringify({
-                    userId: user.userId,
-                    username: user.username
-                }));
-            }
-
-            document.getElementById('matchmakingStatus').textContent = 'Connected to lobby';
-            document.getElementById('matchmakingStatus').className = 'status success';
-            document.getElementById('joinMatchmakingBtn').disabled = false;
+            console.log('Connected to lobby: ' + frame);
             
-            // Subscribe to personal matchmaking status updates
-            const user = this.authService.getCurrentUser();
-            this.stompClient.subscribe(`/user/${user.userId}/matchmaking/status`, (message) => {
+            // Subscribe to matchmaking status updates
+            this.stompClient.subscribe('/user/matchmaking/status', (message) => {
                 const match = JSON.parse(message.body);
                 this.handleMatchFound(match);
             });
+
+            this.stompClient.subscribe('/user/matchmaking/error', (message) => {
+                const error = message.body;
+                document.getElementById('matchmakingStatus').textContent = 'Error: ' + error;
+                document.getElementById('matchmakingStatus').className = 'status error';
+                document.getElementById('joinMatchmakingBtn').disabled = false;
+            });
             
+            // Update UI
+            document.getElementById('matchmakingStatus').textContent = 'Connected to matchmaking';
+            document.getElementById('matchmakingStatus').className = 'status success';
+            document.getElementById('joinMatchmakingBtn').disabled = false;
         }, (error) => {
-            console.error('Connection error:', error);
-            document.getElementById('matchmakingStatus').textContent = 'Connection failed: ' + error;
+            console.error('STOMP error:', error);
+            document.getElementById('matchmakingStatus').textContent = 'Connection failed';
             document.getElementById('matchmakingStatus').className = 'status error';
         });
     }
@@ -74,29 +73,53 @@ class LobbyService {
         
         // Immediately show confirmation dialog
         if (confirm(`Match found!\n\nYou vs ${opponentName}\nBattle ID: ${match.battleId}\n\nClick OK to proceed to battle`)) {
-            // Subscribe to battle updates
-            this.subscribeToBattle(match.battleId);
+            // Show battle UI
+            if (this.battleUI) {
+                this.battleUI.showBattle(match.battleId);
+            }
         }
     }
 
-    subscribeToBattle(battleId) {
-        // Subscribe to specific battle updates
-        this.stompClient.subscribe(`/app/battle/${battleId}`, (battleState) => {
-            if (battleState) {
-                // Handle battle state updates
-                document.getElementById('matchmakingStatus').textContent = 'Battle started!';
-                document.getElementById('matchmakingStatus').className = 'status success';
-            }
-        });
-        
-        // Also listen for battle events
+    subscribeToBattleUpdates(battleId, callback) {
+        if (!this.stompClient || !this.stompClient.connected) {
+            console.error('Not connected to lobby service');
+            return;
+        }
+
+        // Subscribe to battle state updates
         this.stompClient.subscribe(`/topic/battle/${battleId}`, (message) => {
-            const event = JSON.parse(message.body);
-            
-            if (event.battleState) {
-                document.getElementById('matchmakingStatus').textContent = 'Battle is ready!';
-                document.getElementById('matchmakingStatus').className = 'status success';
+            const battleState = JSON.parse(message.body);
+            callback(battleState);
+        });
+    }
+
+    executeAbility(battleId, playerId, abilityId) {
+        return new Promise((resolve, reject) => {
+            if (!this.stompClient || !this.stompClient.connected) {
+                reject(new Error('Not connected to lobby service'));
+                return;
             }
+
+            // Subscribe to the response for this specific action
+            const subscription = this.stompClient.subscribe(`/user/battle/${battleId}/result`, (message) => {
+                const battleState = JSON.parse(message.body);
+                subscription.unsubscribe();
+                resolve(battleState);
+            });
+
+            // Send ability execution request
+            const request = {
+                playerId: playerId,
+                abilityId: abilityId
+            };
+
+            this.stompClient.send(`/app/battle/${battleId}/ability`, {}, JSON.stringify(request));
+
+            // Set timeout for request
+            setTimeout(() => {
+                subscription.unsubscribe();
+                reject(new Error('Request timeout'));
+            }, 10000);
         });
     }
 
