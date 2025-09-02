@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.chronocritters.gamelogic.service.BattleService;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.gamelogic.dto.BattleRequest;
+import com.chronocritters.gamelogic.dto.ExecuteAbilityRequest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,4 +35,10 @@ public class BattleController {
         );
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @PostMapping("/battle/{battleId}/ability")
+    public BattleState executeAbility(@PathVariable String battleId, @RequestBody ExecuteAbilityRequest request) {
+        return battleService.executeAbility(battleId, request.playerId(), request.abilityId());
+    }
+    
 }

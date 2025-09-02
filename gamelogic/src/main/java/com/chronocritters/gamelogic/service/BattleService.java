@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.chronocritters.gamelogic.converter.PlayerConverter;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
+import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.PlayerState;
 
 import lombok.RequiredArgsConstructor;
@@ -41,5 +43,42 @@ public class BattleService {
                 .build();
 
         activeBattles.add(battleState);
+    }
+
+    public BattleState executeAbility(String battleId, String playerId, String abilityId) {
+        BattleState currentBattle = getBattle(battleId);
+        if (currentBattle == null) {
+            throw new IllegalArgumentException("Invalid battle ID");
+        }
+
+        if (!currentBattle.getActivePlayerId().equals(playerId)) {
+            throw new IllegalStateException("It's not the player's turn");
+        }
+
+        PlayerState currentPlayer = playerId.equals(currentBattle.getPlayerOne().getId()) 
+            ? currentBattle.getPlayerOne() 
+            : currentBattle.getPlayerTwo();
+
+        PlayerState opponent = playerId.equals(currentBattle.getPlayerOne().getId()) 
+            ? currentBattle.getPlayerTwo() 
+            : currentBattle.getPlayerOne();
+
+        CritterState activeCritter = currentPlayer.getActiveCritter();
+
+        Ability ability = activeCritter.getAbilityById(abilityId);
+        if (ability == null) {
+            throw new IllegalArgumentException("Invalid ability ID");
+        }
+
+        switch (ability.getType()) {
+            case ATTACK -> {
+
+            }
+            case DEFENSE -> {
+            }
+            default -> throw new IllegalArgumentException("Unexpected value: " + ability.getType());
+        }
+
+        return currentBattle;
     }
 }

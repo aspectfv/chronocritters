@@ -17,4 +17,11 @@ public class CritterState {
     private CritterType type;
     private CurrentStats stats;
     private List<Ability> abilities;
+
+    public Ability getAbilityById(String abilityId) {
+        return abilities.stream()
+            .filter(ability -> ability.getId().equals(abilityId))
+            .findFirst()
+            .orElse(null);
+    }
 }
