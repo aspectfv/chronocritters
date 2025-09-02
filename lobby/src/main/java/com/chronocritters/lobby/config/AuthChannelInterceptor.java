@@ -21,7 +21,7 @@ import com.chronocritters.lib.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.security.SignatureException;
 
 @Component
 public class AuthChannelInterceptor implements ChannelInterceptor {
@@ -86,13 +86,10 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
             } catch (ExpiredJwtException e) {
                 logger.warn("Expired JWT token");
                 throw new IllegalArgumentException("JWT token has expired");
-            } catch (MalformedJwtException e) {
-                logger.warn("Malformed JWT token");
-                throw new IllegalArgumentException("JWT token is malformed");
-            } catch (SignatureException e) {
-                logger.warn("Invalid JWT signature");
-                throw new IllegalArgumentException("JWT token signature is invalid");
-            } catch (Exception e) {
+            } catch (MalformedJwtException | SignatureException e) {
+                logger.warn("Invalid JWT token: {}", e.getClass().getSimpleName());
+                throw new IllegalArgumentException("JWT token is invalid");
+            } catch (IllegalArgumentException | IllegalStateException e) {
                 logger.error("JWT validation error: {}", e.getMessage());
                 throw new RuntimeException("Authentication failed due to unexpected error");
             }
