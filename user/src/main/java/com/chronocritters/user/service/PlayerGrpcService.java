@@ -1,7 +1,5 @@
 package com.chronocritters.user.service;
 
-import org.springframework.stereotype.Service;
-
 import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.Player;
 import com.chronocritters.proto.player.PlayerProto.CritterProto;
