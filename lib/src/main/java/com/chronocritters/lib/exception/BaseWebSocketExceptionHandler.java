@@ -1,9 +1,7 @@
-package com.chronocritters.lobby.exception;
+package com.chronocritters.lib.exception;
 
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,25 +9,18 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
-@Controller
-public class WebSocketExceptionHandler {
+public abstract class BaseWebSocketExceptionHandler {
     
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketExceptionHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     
     @MessageExceptionHandler
     @SendToUser("/error")
     public Map<String, Object> handleException(Exception exception, Principal principal) {
         logger.error("WebSocket error for user {}: {}", 
             principal != null ? principal.getName() : "unknown", 
-            exception.getMessage(), exception);
+            exception.getMessage());
         
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("error", true);
-        errorResponse.put("message", exception.getMessage());
-        errorResponse.put("timestamp", System.currentTimeMillis());
-        
-        return errorResponse;
+        return createErrorResponse(exception.getMessage(), null);
     }
     
     @MessageExceptionHandler(IllegalArgumentException.class)
@@ -39,13 +30,7 @@ public class WebSocketExceptionHandler {
             principal != null ? principal.getName() : "unknown", 
             exception.getMessage());
         
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("error", true);
-        errorResponse.put("message", "Invalid request: " + exception.getMessage());
-        errorResponse.put("type", "VALIDATION_ERROR");
-        errorResponse.put("timestamp", System.currentTimeMillis());
-        
-        return errorResponse;
+        return createErrorResponse(exception.getMessage(), "VALIDATION_ERROR");
     }
     
     @MessageExceptionHandler(RuntimeException.class)
@@ -53,13 +38,20 @@ public class WebSocketExceptionHandler {
     public Map<String, Object> handleRuntimeException(RuntimeException exception, Principal principal) {
         logger.error("Runtime error for user {}: {}", 
             principal != null ? principal.getName() : "unknown", 
-            exception.getMessage(), exception);
+            exception.getMessage());
         
+        return createErrorResponse("An unexpected error occurred", "RUNTIME_ERROR");
+    }
+    
+    protected Map<String, Object> createErrorResponse(String message, String type) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("error", true);
-        errorResponse.put("message", "An unexpected error occurred");
-        errorResponse.put("type", "RUNTIME_ERROR");
+        errorResponse.put("message", message);
         errorResponse.put("timestamp", System.currentTimeMillis());
+        
+        if (type != null) {
+            errorResponse.put("type", type);
+        }
         
         return errorResponse;
     }
