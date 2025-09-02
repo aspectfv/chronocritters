@@ -26,16 +26,21 @@ public class MatchmakingController {
         Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
         
         if (sessionAttributes == null) {
-            return;
+            throw new IllegalStateException("Session attributes not found");
         }
         
         String userId = (String) sessionAttributes.get("userId");
         String username = (String) sessionAttributes.get("username");
         
-        if (userId == null || username == null) {
-            return;
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID is required for matchmaking");
         }
         
+        if (username == null) {
+            throw new IllegalArgumentException("Username is required for matchmaking");
+        }
+        
+        // This will throw exceptions that the global handler will catch
         matchmakingService.enqueue(userId);
         
         Optional<Match> match = matchmakingService.tryMatch();
@@ -43,7 +48,7 @@ public class MatchmakingController {
         if (match.isPresent()) {
             Match foundMatch = match.get();
             
-            // Create battle
+            // Create battle - this could also throw exceptions
             battleStateService.createBattle(
                 foundMatch.battleId(),
                 foundMatch.playerOneId(),

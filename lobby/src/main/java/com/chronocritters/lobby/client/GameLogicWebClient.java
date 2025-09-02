@@ -1,5 +1,6 @@
 package com.chronocritters.lobby.client;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -17,7 +18,7 @@ public class GameLogicWebClient {
     public GameLogicWebClient() {
         this.webClient = WebClient.builder()
                 .baseUrl("http://localhost:8082")
-                .defaultHeader("X-Service-Auth", "lobby-service") // Service-to-service auth
+                .defaultHeader("X-Service-Auth", "lobby-service")
                 .build();
     }
 
@@ -25,6 +26,12 @@ public class GameLogicWebClient {
         return webClient.get()
                 .uri("/battle/{battleId}", battleId)
                 .retrieve()
+                .onStatus(status -> status.equals(HttpStatus.NOT_FOUND), 
+                    response -> Mono.error(new IllegalArgumentException("Battle not found: " + battleId)))
+                .onStatus(status -> status.is4xxClientError(),
+                    response -> Mono.error(new IllegalArgumentException("Invalid request for battle: " + battleId)))
+                .onStatus(status -> status.is5xxServerError(),
+                    response -> Mono.error(new RuntimeException("Game logic service is unavailable")))
                 .bodyToMono(BattleState.class);
     }    
 
@@ -35,6 +42,12 @@ public class GameLogicWebClient {
                 .uri("/battle/{battleId}", battleId)
                 .bodyValue(battleRequest)
                 .retrieve()
+                .onStatus(status -> status.equals(HttpStatus.CONFLICT),
+                    response -> Mono.error(new IllegalStateException("Battle already exists: " + battleId)))
+                .onStatus(status -> status.is4xxClientError(),
+                    response -> Mono.error(new IllegalArgumentException("Invalid battle creation request")))
+                .onStatus(status -> status.is5xxServerError(),
+                    response -> Mono.error(new RuntimeException("Failed to create battle - service unavailable")))
                 .bodyToMono(Void.class);
     }
 
@@ -45,6 +58,14 @@ public class GameLogicWebClient {
                 .uri("/battle/{battleId}/ability", battleId)
                 .bodyValue(request)
                 .retrieve()
+                .onStatus(status -> status.equals(HttpStatus.NOT_FOUND),
+                    response -> Mono.error(new IllegalArgumentException("Battle or ability not found")))
+                .onStatus(status -> status.equals(HttpStatus.FORBIDDEN),
+                    response -> Mono.error(new IllegalStateException("Player cannot execute this ability")))
+                .onStatus(status -> status.is4xxClientError(),
+                    response -> Mono.error(new IllegalArgumentException("Invalid ability execution request")))
+                .onStatus(status -> status.is5xxServerError(),
+                    response -> Mono.error(new RuntimeException("Failed to execute ability - service unavailable")))
                 .bodyToMono(BattleState.class);
     }
 }

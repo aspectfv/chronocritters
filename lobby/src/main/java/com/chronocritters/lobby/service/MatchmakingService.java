@@ -13,6 +13,14 @@ public class MatchmakingService {
     private final ConcurrentLinkedQueue<String> playerQueue = new ConcurrentLinkedQueue<>();
 
     public void enqueue(String playerId) {
+        if (playerId == null || playerId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Player ID cannot be null or empty");
+        }
+        
+        if (playerQueue.contains(playerId)) {
+            throw new IllegalStateException("Player is already in the matchmaking queue");
+        }
+        
         playerQueue.add(playerId);
     }
 
@@ -23,6 +31,15 @@ public class MatchmakingService {
         
         String playerOneId = playerQueue.poll();
         String playerTwoId = playerQueue.poll();
+        
+        if (playerOneId == null || playerTwoId == null) {
+            throw new RuntimeException("Failed to retrieve players from queue");
+        }
+        
+        if (playerOneId.equals(playerTwoId)) {
+            throw new IllegalStateException("Cannot match a player with themselves");
+        }
+        
         String battleId = UUID.randomUUID().toString();
 
         return Optional.of(new Match(playerOneId, playerTwoId, battleId));

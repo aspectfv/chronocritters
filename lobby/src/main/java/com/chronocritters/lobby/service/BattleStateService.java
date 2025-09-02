@@ -13,26 +13,14 @@ public class BattleStateService {
     private final GameLogicWebClient gameLogicWebClient;
     
     public BattleState getBattleState(String battleId) {
-        try {
-            return gameLogicWebClient.getBattle(battleId).block();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to retrieve battle state for battleId: " + battleId, e);
-        }
+        return gameLogicWebClient.getBattle(battleId).block();
     }
     
     public void createBattle(String battleId, String playerOneId, String playerTwoId) {
-        try {
-            gameLogicWebClient.createBattle(battleId, playerOneId, playerTwoId).block();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create battle with battleId: " + battleId, e);
-        }
+        gameLogicWebClient.createBattle(battleId, playerOneId, playerTwoId).block();
     }
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
-        try {
-            return gameLogicWebClient.executeAbility(battleId, playerId, abilityId).block();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to execute ability for battleId: " + battleId, e);
-        }
+        return gameLogicWebClient.executeAbility(battleId, playerId, abilityId).block();
     }
 }
