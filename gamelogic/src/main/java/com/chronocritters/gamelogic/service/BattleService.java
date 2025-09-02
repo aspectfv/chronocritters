@@ -110,14 +110,17 @@ public class BattleService {
         
         // Check if opponent's critter fainted
         if (newHealth == 0) {
-            // Switch to next available critter or end battle
-            CritterState nextCritter = opponent.getRoster().get(opponent.getActiveCritterIndex() + 1);
-            if (nextCritter != null) {
-                opponent.setActiveCritterIndex(opponent.getActiveCritterIndex() + 1);
+            // Check if opponent has more critters available
+            int nextCritterIndex = opponent.getActiveCritterIndex() + 1;
+            
+            if (nextCritterIndex < opponent.getRoster().size()) {
+                // Switch to next available critter
+                CritterState nextCritter = opponent.getRoster().get(nextCritterIndex);
+                opponent.setActiveCritterIndex(nextCritterIndex);
                 currentBattle.setLastActionLog(actionLog + " " + opponentActiveCritter.getName() + " fainted! " + 
                     opponent.getUsername() + " sent out " + nextCritter.getName() + "!");
             } else {
-                // Battle ends - current player wins
+                // No more critters - battle ends, current player wins
                 currentBattle.setActivePlayerId(null);
                 currentBattle.setLastActionLog(actionLog + " " + opponentActiveCritter.getName() + " fainted! " + 
                     currentPlayer.getUsername() + " wins the battle!");
