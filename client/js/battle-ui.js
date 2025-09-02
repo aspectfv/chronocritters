@@ -64,7 +64,13 @@ class BattleUI {
         const maxHp = stats.maxHp;
         const healthPercentage = (stats.currentHp / maxHp) * 100;
 
-        // Fix the IDs to match your HTML
+        // Update player name
+        const playerNameElement = document.getElementById(`${playerPrefix}Name`);
+        if (playerNameElement) {
+            playerNameElement.textContent = playerState.username;
+        }
+
+        // Update critter display
         const critterNameElement = document.getElementById(`${playerPrefix}CritterName`);
         const healthFillElement = document.getElementById(`${playerPrefix}HealthFill`);
         const hpElement = document.getElementById(`${playerPrefix}Hp`);
@@ -97,7 +103,7 @@ class BattleUI {
             atkElement.textContent = stats.currentAtk;
         }
         if (defElement) {
-            defElement.textContent = stats.currentDef;
+            atkElement.textContent = stats.currentDef;
         }
     }
 

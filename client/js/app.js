@@ -83,7 +83,5 @@ function joinMatchmaking() {
 }
 
 function leaveBattle() {
-    if (battleUI) {
-        battleUI.hideBattle();
-    }
+    battleUI.leaveBattle();
 }
