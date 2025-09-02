@@ -174,7 +174,31 @@ public class BattleService {
 
     private BattleState executeSupportAbility(BattleState currentBattle, PlayerState currentPlayer, 
                                            PlayerState opponent, CritterState activeCritter, Ability ability) {
-        // Implement support ability logic
+        CurrentStats critterStats = activeCritter.getStats();
+
+        int heal = ability.getPower();
+        int newHealth = critterStats.getCurrentHp() + heal;
+
+        critterStats.setCurrentHp(newHealth);
+        String actionLog = String.format("%s's %s used %s! %s healed for %d (now %d health).",
+            currentPlayer.getUsername(),
+            activeCritter.getName(),
+            ability.getName(),
+            activeCritter.getName(),
+            heal,
+            newHealth);
+        currentBattle.setLastActionLog(actionLog);
+
+        // Switch turns
+        String nextPlayerId = currentPlayer.getId().equals(currentBattle.getPlayerOne().getId())
+            ? currentBattle.getPlayerTwo().getId()
+            : currentBattle.getPlayerOne().getId();
+        currentBattle.setActivePlayerId(nextPlayerId);
+
+        // Update turn flags
+        currentPlayer.setHasTurn(false);
+        opponent.setHasTurn(true);
+
         return currentBattle;
     }
 
