@@ -103,26 +103,21 @@ class LobbyService {
     }
 
     executeAbility(battleId, playerId, abilityId) {
-        return new Promise((resolve, reject) => {
-            if (!this.stompClient || !this.stompClient.connected) {
-                reject(new Error('Not connected to lobby service'));
-                return;
-            }
+        if (!this.stompClient || !this.stompClient.connected) {
+            throw new Error('Not connected to lobby service');
+        }
 
-            // Send ability execution request
-            const request = {
-                playerId: playerId,
-                abilityId: abilityId
-            };
+        // Send ability execution request
+        const request = {
+            playerId: playerId,
+            abilityId: abilityId
+        };
 
-            this.stompClient.send(`/app/battle/${battleId}/ability`, {}, JSON.stringify(request));
-
-            // Set timeout for request
-            setTimeout(() => {
-                subscription.unsubscribe();
-                reject(new Error('Request timeout'));
-            }, 10000);
-        });
+        console.log('Sending request:', JSON.stringify(request));
+        this.stompClient.send(`/app/battle/${battleId}/ability`, {}, JSON.stringify(request));
+        
+        // Return a resolved promise since the response comes through the existing subscription
+        return Promise.resolve();
     }
 
     disconnect() {
