@@ -18,7 +18,7 @@ public class BattleService {
     private final List<BattleState> activeBattles = new ArrayList<>();
     private final PlayerGrpcClient playerGrpcClient;
 
-    public BattleState createBattle(String battleId, String playerOneId, String playerTwoId) {
+    public void createBattle(String battleId, String playerOneId, String playerTwoId) {
         PlayerState playerOne = PlayerConverter.convertToPlayerState(playerGrpcClient.getPlayer(playerOneId));
         PlayerState playerTwo = PlayerConverter.convertToPlayerState(playerGrpcClient.getPlayer(playerTwoId));
 
@@ -34,6 +34,5 @@ public class BattleService {
                 .build();
 
         activeBattles.add(battleState);
-        return battleState;
     }
 }
