@@ -17,20 +17,13 @@ public class BattleStateController {
     
     @MessageMapping("/battle/{battleId}/join")
     @SendTo("/topic/battle/{battleId}")
-    public BattleState joinBattle(@DestinationVariable String battleId) {
-        System.out.println("=== JOIN BATTLE MESSAGE RECEIVED ===");
-        System.out.println("Battle ID: " + battleId);
-        
-        BattleState battleState = battleStateService.getBattleState(battleId);
-        System.out.println("Battle state retrieved: " + (battleState != null ? "found" : "null"));
-        
-        return battleState;
+    public BattleState joinBattle(@DestinationVariable String battleId) { 
+        return battleStateService.getBattleState(battleId);
     }
 
     @MessageMapping("/battle/{battleId}/ability")
     @SendTo("/topic/battle/{battleId}")
     public BattleState executeAbility(@DestinationVariable String battleId, String playerId, String abilityId) {
-        System.out.println("=== EXECUTE ABILITY CALLED ===");
         return battleStateService.executeAbility(battleId, playerId, abilityId);
     }
 }

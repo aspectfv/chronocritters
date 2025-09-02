@@ -52,6 +52,8 @@ public class BattleService {
             throw new IllegalArgumentException("Invalid battle ID");
         }
 
+        System.out.println("Current Battle State: " + currentBattle);
+
         if (!currentBattle.getActivePlayerId().equals(playerId)) {
             throw new IllegalStateException("It's not the player's turn");
         }
