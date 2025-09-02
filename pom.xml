@@ -9,8 +9,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>lib</module>
         <module>proto</module>
+        <module>lib</module>
         <module>user</module>
         <module>lobby</module>
         <module>gamelogic</module>
@@ -20,7 +20,7 @@
         <java.version>21</java.version>
         <spring-boot.version>3.5.5</spring-boot.version>
         <grpc.version>1.60.1</grpc.version>
-        <grpc-spring-boot.version>2.15.0.RELEASE</grpc-spring-boot.version>
+        <grpc-spring-boot.version>3.1.0.RELEASE</grpc-spring-boot.version>
         <protobuf.version>3.25.1</protobuf.version>
         <protoc.version>3.25.1</protoc.version>
         <os-maven-plugin.version>1.7.1</os-maven-plugin.version>

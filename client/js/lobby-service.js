@@ -13,21 +13,32 @@ class LobbyService {
         const socket = new SockJS('http://localhost:8081/ws');
         this.stompClient = Stomp.over(socket);
         
+        const currentUser = this.authService.getCurrentUser();
+        const token = this.authService.getToken();
+        
+        if (!token) {
+            console.error('No JWT token available');
+            document.getElementById('matchmakingStatus').textContent = 'Authentication required';
+            document.getElementById('matchmakingStatus').className = 'status error';
+            return;
+        }
+        
         const headers = {
-            'userId': this.authService.getCurrentUser().userId,
-            'username': this.authService.getCurrentUser().username
+            'Authorization': `Bearer ${token}`
         };
 
+        console.log('Connecting with Bearer token...');
+
         this.stompClient.connect(headers, (frame) => {
-            console.log('Connected to lobby: ' + frame);
+            const userId = currentUser.userId;
             
             // Subscribe to matchmaking status updates
-            this.stompClient.subscribe('/user/matchmaking/status', (message) => {
+            this.stompClient.subscribe(`/user/${userId}/matchmaking/status`, (message) => {
                 const match = JSON.parse(message.body);
                 this.handleMatchFound(match);
             });
 
-            this.stompClient.subscribe('/user/matchmaking/error', (message) => {
+            this.stompClient.subscribe(`/user/${userId}/matchmaking/error`, (message) => {
                 const error = message.body;
                 document.getElementById('matchmakingStatus').textContent = 'Error: ' + error;
                 document.getElementById('matchmakingStatus').className = 'status error';
@@ -40,7 +51,7 @@ class LobbyService {
             document.getElementById('joinMatchmakingBtn').disabled = false;
         }, (error) => {
             console.error('STOMP error:', error);
-            document.getElementById('matchmakingStatus').textContent = 'Connection failed';
+            document.getElementById('matchmakingStatus').textContent = 'Connection failed - Check authentication';
             document.getElementById('matchmakingStatus').className = 'status error';
         });
     }
@@ -99,13 +110,6 @@ class LobbyService {
                 reject(new Error('Not connected to lobby service'));
                 return;
             }
-
-            // Subscribe to the response for this specific action
-            const subscription = this.stompClient.subscribe(`/user/battle/${battleId}/result`, (message) => {
-                const battleState = JSON.parse(message.body);
-                subscription.unsubscribe();
-                resolve(battleState);
-            });
 
             // Send ability execution request
             const request = {

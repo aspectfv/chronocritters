@@ -22,7 +22,7 @@ public class BattleController {
 
     @GetMapping("/battle/{battleId}")
     public BattleState getBattle(@PathVariable String battleId) {
-        return battleService.getBattle(battleId);
+        return battleService.getBattleState(battleId);
     }
     
 

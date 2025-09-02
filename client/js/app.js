@@ -14,8 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set battle UI reference in lobby service
     lobbyService.setBattleUI(battleUI);
     
-    // Check if user is already logged in
-    if (authService.isLoggedIn()) {
+    // Check if user is already logged in - FIX: use correct method name
+    if (authService.isAuthenticated()) {
+        authService.loadSavedSession(); // Load the saved session data
         updateAuthUI();
         document.getElementById('connectBtn').disabled = false;
     }
@@ -23,7 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Authentication functions
 function loginPreset(username, password) {
-    authService.login(username, password)
+    // FIX: use correct method name
+    authService.loginPreset(username, password)
         .then(() => {
             updateAuthUI();
             document.getElementById('connectBtn').disabled = false;
@@ -45,7 +47,7 @@ function updateAuthUI() {
     const user = authService.getCurrentUser();
     const authStatus = document.getElementById('authStatus');
     
-    if (user) {
+    if (user && user.username) {
         authStatus.textContent = `Logged in as: ${user.username} (ID: ${user.userId})`;
         authStatus.className = 'status success';
     } else {
@@ -56,61 +58,32 @@ function updateAuthUI() {
 
 // Roster functions
 function fetchRoster() {
-    const playerId = document.getElementById('playerId').value;
-    if (!playerId) {
-        alert('Please enter a player ID');
-        return;
-    }
-    
-    userService.getPlayer(playerId)
-        .then(player => displayRoster(player))
-        .catch(error => {
-            document.getElementById('roster').innerHTML = `<div class="status error">Error: ${error.message}</div>`;
-        });
+    userService.fetchRoster();
 }
 
 function selectPreset(playerId) {
-    document.getElementById('playerId').value = playerId;
-    fetchRoster();
+    userService.selectPreset(playerId);
 }
 
 function displayRoster(player) {
-    const rosterDiv = document.getElementById('roster');
-    
-    let html = `<h3>${player.username}'s Roster:</h3>`;
-    
-    if (player.roster && player.roster.length > 0) {
-        player.roster.forEach((critter, index) => {
-            html += `
-                <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                    <h4>${critter.name} (${critter.type})</h4>
-                    <p><strong>Base Stats:</strong> HP: ${critter.baseStats.health}, ATK: ${critter.baseStats.attack}, DEF: ${critter.baseStats.defense}</p>
-                    <p><strong>Abilities:</strong></p>
-                    <ul>
-                        ${critter.abilities.map(ability => 
-                            `<li>${ability.name} (${ability.type}) - Power: ${ability.power}</li>`
-                        ).join('')}
-                    </ul>
-                </div>
-            `;
-        });
-    } else {
-        html += '<p>No critters in roster</p>';
-    }
-    
-    rosterDiv.innerHTML = html;
+    // Implementation for displaying roster
 }
 
 // Matchmaking functions
 function connectWebSocket() {
-    lobbyService.connectWebSocket();
+    if (authService.isAuthenticated()) {
+        lobbyService.connectWebSocket();
+    } else {
+        alert('Please login first');
+    }
 }
 
 function joinMatchmaking() {
     lobbyService.joinMatchmaking();
 }
 
-// Battle functions
 function leaveBattle() {
-    battleUI.leaveBattle();
+    if (battleUI) {
+        battleUI.hideBattle();
+    }
 }

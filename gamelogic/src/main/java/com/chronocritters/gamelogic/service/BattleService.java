@@ -21,7 +21,7 @@ public class BattleService {
     private final List<BattleState> activeBattles = new ArrayList<>();
     private final PlayerGrpcClient playerGrpcClient;
 
-    public BattleState getBattle(String battleId) {
+    public BattleState getBattleState(String battleId) {
         return activeBattles.stream()
                 .filter(battle -> battle.getBattleId().equals(battleId))
                 .findFirst()
@@ -47,7 +47,7 @@ public class BattleService {
     }
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
-        BattleState currentBattle = getBattle(battleId);
+        BattleState currentBattle = getBattleState(battleId);
         if (currentBattle == null) {
             throw new IllegalArgumentException("Invalid battle ID");
         }

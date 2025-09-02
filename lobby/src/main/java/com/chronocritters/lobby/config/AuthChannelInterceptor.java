@@ -1,5 +1,8 @@
 package com.chronocritters.lobby.config;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -12,10 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import com.chronocritters.lib.util.JwtUtil;
-import io.jsonwebtoken.Claims;
 
-import java.util.List;
-import java.util.Map;
+import io.jsonwebtoken.Claims;
 
 @Component
 public class AuthChannelInterceptor implements ChannelInterceptor {
@@ -35,9 +36,9 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                     
                     try {
                         Claims claims = JwtUtil.validateToken(token);
-                        String username = claims.get("username", String.class);
                         String userId = claims.getSubject();
-                        
+                        String username = claims.get("username", String.class);
+
                         Authentication auth = new UsernamePasswordAuthenticationToken(
                             username, null, List.of()
                         );

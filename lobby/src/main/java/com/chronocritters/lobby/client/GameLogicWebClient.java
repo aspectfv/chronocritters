@@ -7,18 +7,17 @@ import com.chronocritters.lib.dto.BattleRequest;
 import com.chronocritters.lib.dto.ExecuteAbilityRequest;
 import com.chronocritters.lib.model.BattleState;
 
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Service
-@RequiredArgsConstructor
 public class GameLogicWebClient {
     
     private final WebClient webClient;
     
     public GameLogicWebClient() {
         this.webClient = WebClient.builder()
-                .baseUrl("http://localhost:8082") // gamelogic service port
+                .baseUrl("http://localhost:8082")
+                .defaultHeader("X-Service-Auth", "lobby-service") // Service-to-service auth
                 .build();
     }
 
