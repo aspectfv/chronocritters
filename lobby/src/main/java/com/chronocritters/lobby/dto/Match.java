@@ -1,3 +1,3 @@
 package com.chronocritters.lobby.dto;
 
-public record Match(String player1, String player2, String battleId) {}
+public record Match(String playerOneId, String playerTwoId, String battleId) {}

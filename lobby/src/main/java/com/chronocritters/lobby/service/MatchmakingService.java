@@ -21,10 +21,10 @@ public class MatchmakingService {
             return Optional.empty();
         }
         
-        String player1 = playerQueue.poll();
-        String player2 = playerQueue.poll();
+        String playerOneId = playerQueue.poll();
+        String playerTwoId = playerQueue.poll();
         String battleId = UUID.randomUUID().toString();
-        
-        return Optional.of(new Match(player1, player2, battleId));
+
+        return Optional.of(new Match(playerOneId, playerTwoId, battleId));
     }
 }
