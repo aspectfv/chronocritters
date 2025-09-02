@@ -72,13 +72,11 @@ class LobbyService {
         const opponent = match.playerOneId === currentUserId ? match.playerTwoId : match.playerOneId;
         const opponentName = opponent === 'p1' ? 'BlueOak' : 'RedAsh';
         
-        // Auto-redirect to battle after showing match details
-        setTimeout(() => {
-            if (confirm(`Match found!\n\nYou vs ${opponentName}\nBattle ID: ${match.battleId}\n\nClick OK to proceed to battle`)) {
-                // Subscribe to battle updates
-                this.subscribeToBattle(match.battleId);
-            }
-        }, 2000);
+        // Immediately show confirmation dialog
+        if (confirm(`Match found!\n\nYou vs ${opponentName}\nBattle ID: ${match.battleId}\n\nClick OK to proceed to battle`)) {
+            // Subscribe to battle updates
+            this.subscribeToBattle(match.battleId);
+        }
     }
 
     subscribeToBattle(battleId) {
