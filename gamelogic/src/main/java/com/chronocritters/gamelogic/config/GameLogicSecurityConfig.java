@@ -7,6 +7,6 @@ import com.chronocritters.lib.config.BaseReactiveSecurityConfig;
 
 @Configuration
 @EnableWebFluxSecurity
-public class SecurityConfig extends BaseReactiveSecurityConfig {
+public class GameLogicSecurityConfig extends BaseReactiveSecurityConfig {
     // Inherits reactive security configuration
 }
