@@ -33,6 +33,6 @@ public class AuthService {
         if (!PasswordUtil.checkPassword(password, player.getPassword())) {
             throw new RuntimeException("Invalid username or password");
         }
-        return JwtUtil.generateToken(username, username);
+        return JwtUtil.generateToken(player.getId(), username);
     }
 }

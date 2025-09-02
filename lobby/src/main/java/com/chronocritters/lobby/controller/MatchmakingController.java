@@ -36,14 +36,20 @@ public class MatchmakingController {
         
         matchmakingService.enqueue(userId);
         
-        // Try to find a match
         Optional<Match> match = matchmakingService.tryMatch();
         
         if (match.isPresent()) {
             Match foundMatch = match.get();
             
-            messagingTemplate.convertAndSend(
-                "/topic/battle/" + foundMatch.battleId(), foundMatch
+            messagingTemplate.convertAndSendToUser(
+                    foundMatch.playerOneId(),
+                    "/matchmaking/status",
+                    foundMatch
+            );
+            messagingTemplate.convertAndSendToUser(
+                    foundMatch.playerTwoId(),
+                    "/matchmaking/status",
+                    foundMatch
             );
         }
     }
