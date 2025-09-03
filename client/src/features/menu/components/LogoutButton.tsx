@@ -3,15 +3,10 @@ import { useAuthStore } from '@features/auth/store/useAuthStore';
 export function LogoutButton() {
   const logout = useAuthStore((state) => state.logout);
 
-  const handleLogout = () => {
-    logout();
-    // Navigation will be handled by the auth protection system
-  };
-
   return (
     <div className="text-center">
       <button 
-        onClick={handleLogout}
+        onClick={logout}
         className="text-gray-500 hover:text-gray-700 font-medium transition-colors flex items-center justify-center gap-2 mx-auto"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
