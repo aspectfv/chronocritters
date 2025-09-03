@@ -1,3 +1,6 @@
+export type AbilityType = 'ATTACK' | 'DEFENSE' | 'SUPPORT';
+export type CritterType = 'FIRE' | 'WATER' | 'GRASS' | 'ELECTRIC';
+
 export interface CurrentStatsResponse {
   maxHp: number;
   currentHp: number;
@@ -9,13 +12,13 @@ export interface AbilityResponse {
   id: string;
   name: string;
   power: number;
-  type: 'ATTACK' | 'DEFENSE' | 'SUPPORT';
+  type: AbilityType;
 }
 
 export interface CritterStateResponse {
   id: string;
   name: string;
-  type: 'FIRE' | 'WATER' | 'GRASS' | 'ELECTRIC';
+  type: CritterType;
   stats: CurrentStatsResponse;
   abilities: AbilityResponse[];
 }
@@ -44,10 +47,9 @@ export interface BattleCritter {
   stats: {
     atk: number;
     def: number;
-    spd: number;
+    spd: number; // Note: 'spd' is not in backend CurrentStatsResponse, will default to 0 in mapping.
   };
 }
-
 export interface TeamCritter {
   name: string;
   type: string;
@@ -56,6 +58,7 @@ export interface TeamCritter {
 }
 
 export interface Ability {
+  id: string;
   name: string;
   description: string;
   type: string;
@@ -77,6 +80,7 @@ export interface BattleState {
   battleLog: string[];
   setBattleState: (newState: Partial<BattleState>) => void;
   addLogMessage: (message: string) => void;
+  updateBattleStateFromServer: (serverBattleState: BattleStateResponse, currentUserId: string) => void;
 }
 
 export interface executeAbilityRequest {

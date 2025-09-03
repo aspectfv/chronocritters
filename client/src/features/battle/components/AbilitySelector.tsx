@@ -2,11 +2,11 @@ import type { Ability } from '@store/battle/types';
 
 interface AbilitySelectorProps {
   abilities: Ability[];
-  onAbilityClick: (abilityName: string) => void;
+  onAbilityClick: (abilityId: string) => void; // Changed prop to expect an ID
   isPlayerTurn: boolean;
 }
 
-// sub component for single ability button
+// Sub-component for a single ability button
 const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: boolean }> = ({ ability, onClick, disabled }) => (
   <button
     onClick={onClick}
@@ -19,7 +19,11 @@ const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: b
         <p className="text-xs text-gray-500 mt-1">{ability.description}</p>
       </div>
       <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${
-        ability.type === 'Fire' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+        ability.type === 'FIRE' ? 'bg-red-100 text-red-800' : 
+        ability.type === 'WATER' ? 'bg-blue-100 text-blue-800' :
+        ability.type === 'GRASS' ? 'bg-green-100 text-green-800' :
+        ability.type === 'ELECTRIC' ? 'bg-yellow-100 text-yellow-800' :
+        'bg-gray-100 text-gray-800'
       }`}>
         PWR: {ability.power}
       </span>
@@ -35,9 +39,9 @@ export function AbilitySelector({ abilities, onAbilityClick, isPlayerTurn }: Abi
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {abilities.map(ability => (
             <AbilityCard 
-              key={ability.name} 
+              key={ability.id} // Use the unique ID for the key
               ability={ability} 
-              onClick={() => onAbilityClick(ability.name)}
+              onClick={() => onAbilityClick(ability.id)} // Pass the ability ID on click
               disabled={!isPlayerTurn}
             />
           ))}
