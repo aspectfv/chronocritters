@@ -40,3 +40,8 @@ export interface BattleState {
   setBattleState: (newState: Partial<BattleState>) => void;
   addLogMessage: (message: string) => void;
 }
+
+export interface executeAbilityRequest {
+  playerId: string;
+  abilityId: string;
+}

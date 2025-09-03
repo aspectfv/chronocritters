@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
     private final PlayerRepository playerRepository;
 
-    public String register(String username, String password) {
+    public LoginResponse register(String username, String password) {
         // Validation
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be empty");
@@ -35,7 +35,12 @@ public class AuthService {
         player.setPassword(PasswordUtil.hashPassword(password));
         playerRepository.save(player);
         
-        return "User registered successfully";
+        LoginResponse loginResponse = new LoginResponse(
+            new User(player.getId(), player.getUsername()),
+            JwtUtil.generateToken(player.getId(), player.getUsername())
+        );
+
+        return loginResponse;
     }
 
     public LoginResponse login(String username, String password) {
