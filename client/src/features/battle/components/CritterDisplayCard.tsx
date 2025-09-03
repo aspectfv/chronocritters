@@ -1,4 +1,3 @@
-
 import type { CritterDisplayCardProps } from '@features/battle/types';
 
 export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardProps) {
@@ -8,7 +7,17 @@ export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardPr
     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
       <div className="flex justify-between items-center text-sm mb-4">
         <span className="font-bold text-green-800">{playerName}</span>
-        <span className="bg-white border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-xs">{critter.type}</span>
+        <span
+          className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${
+            critter.type === 'FIRE' ? 'bg-red-100 text-red-800' :
+            critter.type === 'WATER' ? 'bg-blue-100 text-blue-800' :
+            critter.type === 'GRASS' ? 'bg-green-100 text-green-800' :
+            critter.type === 'ELECTRIC' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-gray-100 text-gray-800'
+          }`}
+        >
+          {critter.type}
+        </span>
       </div>
       <div className="text-center">
         <div className="w-24 h-24 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-2">
