@@ -18,7 +18,6 @@ export interface LoginCredentials {
 
 export interface RegisterCredentials {
   username: string;
-  email: string;
   password: string;
   confirmPassword: string;
 }
@@ -31,4 +30,12 @@ export interface AuthResponse {
 export interface AuthError {
   message: string;
   field?: string;
+}
+
+export interface RegisterFormProps {
+  onSwitchToLogin: () => void;
+}
+
+export  interface LoginFormProps {
+  onSwitchToRegister: () => void;
 }

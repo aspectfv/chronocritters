@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
+import { loginAction, registerAction } from '@features/auth/actions';
 
 const AuthPage = lazy(() => import('@features/auth/routes/AuthPage'));
 const MenuPage = lazy(() => import('@features/menu/routes/MenuPage'));
@@ -8,7 +9,20 @@ const BattlePage = lazy(() => import('@features/battle/routes/BattlePage'));
 const ResultsPage = lazy(() => import('@features/results/routes/ResultsPage'));
 
 const router = createBrowserRouter([
-  { path: '/', element: <AuthPage /> },
+  { 
+    path: '/', 
+    element: <AuthPage />,
+    children: [
+      {
+        path: 'login',
+        action: loginAction,
+      },
+      {
+        path: 'register', 
+        action: registerAction,
+      }
+    ]
+  },
   { path: '/menu', element: <MenuPage /> },
   { path: '/profile', element: <ProfilePage /> },
   { path: '/battle', element: <BattlePage /> },

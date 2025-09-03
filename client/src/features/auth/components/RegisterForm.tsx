@@ -1,21 +1,17 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@features/auth/store/useAuthStore';
-import type { RegisterCredentials, User } from '@features/auth/types';
-
-interface RegisterFormProps {
-  onSwitchToLogin: () => void;
-}
+import { Form, useActionData, useNavigation } from 'react-router-dom';
+import type { RegisterCredentials, AuthError, RegisterFormProps } from '@features/auth/types';
 
 function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   const [formData, setFormData] = useState<RegisterCredentials>({
     username: '',
-    email: '',
     password: '',
     confirmPassword: ''
   });
-  const navigate = useNavigate();
-  const { login } = useAuthStore();
+  
+  const actionData = useActionData() as AuthError | undefined;
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === 'submitting';
 
   const handleInputChange = (field: keyof RegisterCredentials) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -24,33 +20,19 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
     }));
   };
 
-  const handleRegister = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Basic validation
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
-      return;
-    }
-    
-    if (formData.username && formData.email && formData.password) {
-      // Simulate registration and auto-login
-      const user: User = { 
-        id: '1', 
-        username: formData.username,
-      };
-      login(user, 'mock-token-123');
-      navigate('/menu');
-    }
-  };
-
   return (
     <>
       <h1 className="text-2xl font-bold text-green-700 text-center mb-8">
         Join Chrono-Critters
       </h1>
       
-      <form onSubmit={handleRegister} className="space-y-6">
+      {actionData?.message && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {actionData.message}
+        </div>
+      )}
+      
+      <Form method="post" action="/register" className="space-y-6">
         <div>
           <label htmlFor="reg-username" className="block text-sm font-medium text-green-700 mb-2">
             Username
@@ -63,11 +45,14 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             </div>
             <input
               id="reg-username"
+              name="username"
               type="text"
               value={formData.username}
               onChange={handleInputChange('username')}
               placeholder="Choose a username"
-              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
+              className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300 ${
+                actionData?.field === 'username' ? 'border-red-400' : 'border-gray-200'
+              }`}
               required
             />
           </div>
@@ -85,11 +70,14 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             </div>
             <input
               id="reg-password"
+              name="password"
               type="password"
               value={formData.password}
               onChange={handleInputChange('password')}
               placeholder="Create a password"
-              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
+              className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300 ${
+                actionData?.field === 'password' ? 'border-red-400' : 'border-gray-200'
+              }`}
               required
             />
           </div>
@@ -107,11 +95,14 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             </div>
             <input
               id="confirm-password"
+              name="confirmPassword"
               type="password"
               value={formData.confirmPassword}
               onChange={handleInputChange('confirmPassword')}
               placeholder="Confirm your password"
-              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
+              className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300 ${
+                actionData?.field === 'confirmPassword' ? 'border-red-400' : 'border-gray-200'
+              }`}
               required
             />
           </div>
@@ -119,11 +110,12 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
 
         <button
           type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          disabled={isSubmitting}
+          className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
         >
-          Register
+          {isSubmitting ? 'Creating Account...' : 'Register'}
         </button>
-      </form>
+      </Form>
 
       <p className="mt-6 text-center text-sm text-gray-600">
         Already have an account?{' '}

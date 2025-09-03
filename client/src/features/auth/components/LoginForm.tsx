@@ -1,24 +1,22 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/useAuthStore';
-
-interface LoginFormProps {
-  onSwitchToRegister: () => void;
-}
+import { Form, useActionData, useNavigation } from 'react-router-dom';
+import type { LoginCredentials, AuthError, LoginFormProps } from '@features/auth/types';
 
 function LoginForm({ onSwitchToRegister }: LoginFormProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const [formData, setFormData] = useState<LoginCredentials>({
+    username: '',
+    password: ''
+  });
+  
+  const actionData = useActionData() as AuthError | undefined;
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === 'submitting';
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simulate login - in real app, you'd validate with backend
-    if (username && password) {
-      login({ id: '1', username }, 'mock-token-123');
-      navigate('/menu');
-    }
+  const handleInputChange = (field: keyof LoginCredentials) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
   };
 
   return (
@@ -27,7 +25,13 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         Login to Chrono-Critters
       </h1>
       
-      <form onSubmit={handleLogin} className="space-y-6">
+      {actionData?.message && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {actionData.message}
+        </div>
+      )}
+      
+      <Form method="post" action="/login" className="space-y-6">
         <div>
           <label htmlFor="username" className="block text-sm font-medium text-green-700 mb-2">
             Username
@@ -40,11 +44,14 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             </div>
             <input
               id="username"
+              name="username"
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={formData.username}
+              onChange={handleInputChange('username')}
               placeholder="Enter your username"
-              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
+              className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300 ${
+                actionData?.field === 'username' ? 'border-red-400' : 'border-gray-200'
+              }`}
               required
             />
           </div>
@@ -62,11 +69,14 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             </div>
             <input
               id="password"
+              name="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleInputChange('password')}
               placeholder="Enter your password"
-              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
+              className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300 ${
+                actionData?.field === 'password' ? 'border-red-400' : 'border-gray-200'
+              }`}
               required
             />
           </div>
@@ -74,11 +84,12 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
 
         <button
           type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          disabled={isSubmitting}
+          className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
         >
-          Login
+          {isSubmitting ? 'Logging in...' : 'Login'}
         </button>
-      </form>
+      </Form>
 
       <p className="mt-6 text-center text-sm text-gray-600">
         Don't have an account?{' '}
