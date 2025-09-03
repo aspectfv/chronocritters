@@ -45,7 +45,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoute><ProfilePage /></ProtectedRoute>,
       },
       {
-        path: 'battle',
+        path: 'battle/:battleId', // <-- Changed to a dynamic path
         element: <ProtectedRoute><BattlePage /></ProtectedRoute>,
       },
       {
