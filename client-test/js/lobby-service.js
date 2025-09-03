@@ -113,7 +113,6 @@ class LobbyService {
             abilityId: abilityId
         };
 
-        console.log('Sending request:', JSON.stringify(request));
         this.stompClient.send(`/app/battle/${battleId}/ability`, {}, JSON.stringify(request));
         
         // Return a resolved promise since the response comes through the existing subscription

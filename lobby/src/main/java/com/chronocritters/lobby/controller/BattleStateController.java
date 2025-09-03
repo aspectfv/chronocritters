@@ -26,7 +26,6 @@ public class BattleStateController {
     @MessageMapping("/battle/{battleId}/ability")
     @SendTo("/topic/battle/{battleId}")
     public BattleState executeAbility(@DestinationVariable String battleId, @Payload ExecuteAbilityRequest request) {
-        System.out.println("Lobby received: playerId=" + request.playerId() + ", abilityId=" + request.abilityId());
         return battleStateService.executeAbility(battleId, request.playerId(), request.abilityId());
     }
 }
