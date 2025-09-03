@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Form, useActionData, useNavigation } from 'react-router-dom';
-import type { RegisterCredentials, AuthError, RegisterFormProps } from '@features/auth/types';
+import { Form, useActionData, useNavigation, Link } from 'react-router-dom';
+import type { RegisterCredentials, AuthError } from '@features/auth/types';
 
-function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
+function RegisterForm() {
   const [formData, setFormData] = useState<RegisterCredentials>({
     username: '',
     password: '',
@@ -32,7 +32,7 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
         </div>
       )}
       
-      <Form method="post" action="/register" className="space-y-6">
+      <Form method="post" action="/auth/register" className="space-y-6">
         <div>
           <label htmlFor="reg-username" className="block text-sm font-medium text-green-700 mb-2">
             Username
@@ -119,12 +119,12 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
 
       <p className="mt-6 text-center text-sm text-gray-600">
         Already have an account?{' '}
-        <button 
-          onClick={onSwitchToLogin}
+        <Link 
+          to="/auth/login"
           className="text-green-600 hover:text-green-700 font-medium"
         >
           Login here
-        </button>
+        </Link>
       </p>
     </>
   );

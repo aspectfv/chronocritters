@@ -1,32 +1,61 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { Suspense } from 'react';
 import { loginAction, registerAction } from '@features/auth/actions';
-
-const AuthPage = lazy(() => import('@features/auth/routes/AuthPage'));
-const MenuPage = lazy(() => import('@features/menu/routes/MenuPage'));
-const ProfilePage = lazy(() => import('@features/profile/routes/ProfilePage'));
-const BattlePage = lazy(() => import('@features/battle/routes/BattlePage'));
-const ResultsPage = lazy(() => import('@features/results/routes/ResultsPage'));
+import AuthPage from '@features/auth/routes/AuthPage';
+import LoginForm from '@features/auth/components/LoginForm';
+import RegisterForm from '@features/auth/components/RegisterForm';
+import MenuPage from '@features/menu/routes/MenuPage';
+import ProfilePage from '@features/profile/routes/ProfilePage';
+import BattlePage from '@features/battle/routes/BattlePage';
+import ResultsPage from '@features/results/routes/ResultsPage';
 
 const router = createBrowserRouter([
-  { 
-    path: '/', 
-    element: <AuthPage />,
+  {
+    path: '/',
     children: [
       {
-        path: 'login',
-        action: loginAction,
+        index: true,
+        element: <Navigate to="/auth" replace />,
       },
       {
-        path: 'register', 
-        action: registerAction,
-      }
-    ]
+        path: 'auth',
+        element: <AuthPage />,
+        children: [
+          {
+            index: true,
+            element: <LoginForm />,
+            action: loginAction,
+          },
+          {
+            path: 'login',
+            element: <LoginForm />,
+            action: loginAction,
+          },
+          {
+            path: 'register',
+            element: <RegisterForm />,
+            action: registerAction,
+          },
+        ],
+      },
+      {
+        path: 'menu',
+        element: <MenuPage />,
+      },
+      {
+        path: 'profile',
+        element: <ProfilePage />,
+      },
+      {
+        path: 'battle',
+        element: <BattlePage />,
+      },
+      {
+        path: 'results',
+        element: <ResultsPage />,
+      },
+    ],
   },
-  { path: '/menu', element: <MenuPage /> },
-  { path: '/profile', element: <ProfilePage /> },
-  { path: '/battle', element: <BattlePage /> },
-  { path: '/results', element: <ResultsPage /> },
 ]);
 
 export const AppRouter = () => (
