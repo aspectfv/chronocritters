@@ -22,6 +22,7 @@ const defaultEmptyBattlePlayer: BattlePlayer = {
   activeCritter: defaultEmptyCritter,
   team: [],
   abilities: [],
+  hasTurn: false,
 };
 
 const getAbilityDescription = (ability: Ability): string => {
@@ -80,6 +81,7 @@ const mapPlayerStateToBattlePlayer = (
     activeCritter,
     team,
     abilities,
+    hasTurn: playerState.hasTurn,
   };
 };
 
@@ -115,7 +117,6 @@ export const useBattleStore = create<BattleState>((set, get) => ({
     set({
       player,
       opponent,
-      isPlayerTurn: serverBattleState.activePlayerId === currentUserId,
       timeRemaining: 30,
       battleLog: newLog,
     });

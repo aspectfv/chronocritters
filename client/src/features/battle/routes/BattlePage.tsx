@@ -22,6 +22,7 @@ const defaultConnectingPlayer: BattlePlayer = {
   },
   team: [],
   abilities: [],
+  hasTurn: false
 };
 
 function BattlePage() {
@@ -30,7 +31,7 @@ function BattlePage() {
   const user = useAuthStore((state) => state.user);
 
   const isConnected = useLobbyStore((state) => state.isConnected);
-  const { player, opponent, isPlayerTurn, timeRemaining, battleLog } = useBattleStore();
+  const { player, opponent, timeRemaining, battleLog } = useBattleStore();
 
   useEffect(() => {
     const { subscribe, publish } = useLobbyStore.getState();
@@ -59,9 +60,9 @@ function BattlePage() {
 
   const handleAbilityClick = useCallback((abilityId: string) => {
     const { publish } = useLobbyStore.getState();
-    const { isPlayerTurn } = useBattleStore.getState();
+    const { player } = useBattleStore.getState();
 
-    if (!isPlayerTurn || !battleId || !user?.id) {
+    if (!player.hasTurn || !battleId || !user?.id) {
       return;
     }
 
@@ -76,7 +77,7 @@ function BattlePage() {
   return (
     <div className="min-h-screen bg-[#F8FFF8] p-4 sm:p-6 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <BattleHeader isPlayerTurn={isPlayerTurn} />
+        <BattleHeader isPlayerTurn={player.hasTurn} />
         <TimerBar timeRemaining={timeRemaining} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
@@ -94,7 +95,7 @@ function BattlePage() {
         <AbilitySelector 
           abilities={player.abilities} 
           onAbilityClick={handleAbilityClick}
-          isPlayerTurn={isPlayerTurn} 
+          isPlayerTurn={player.hasTurn} 
           critterType={player.activeCritter.type}
         />
       </div>

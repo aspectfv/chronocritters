@@ -63,6 +63,7 @@ export interface PlayerState {
 
 export interface BattlePlayer {
   name: string;
+  hasTurn: boolean;
   activeCritter: BattleCritter;
   team: TeamCritter[];
   abilities: Ability[];
@@ -79,7 +80,6 @@ export interface BattleStateResponse {
 export interface BattleState {
   player: BattlePlayer;
   opponent: BattlePlayer;
-  isPlayerTurn: boolean;
   timeRemaining: number;
   battleLog: string[];
   setBattleState: (newState: Partial<BattleState>) => void;
