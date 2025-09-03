@@ -1,3 +1,41 @@
+export interface CurrentStatsResponse {
+  maxHp: number;
+  currentHp: number;
+  currentAtk: number;
+  currentDef: number;
+}
+
+export interface AbilityResponse {
+  id: string;
+  name: string;
+  power: number;
+  type: 'ATTACK' | 'DEFENSE' | 'SUPPORT';
+}
+
+export interface CritterStateResponse {
+  id: string;
+  name: string;
+  type: 'FIRE' | 'WATER' | 'GRASS' | 'ELECTRIC';
+  stats: CurrentStatsResponse;
+  abilities: AbilityResponse[];
+}
+
+export interface PlayerStateResponse {
+  id: string;
+  username: string;
+  hasTurn: boolean;
+  activeCritterIndex: number;
+  roster: CritterStateResponse[];
+}
+
+export interface BattleStateResponse {
+  battleId: string;
+  activePlayerId: string | null; // Null when the battle is over
+  playerOne: PlayerStateResponse;
+  playerTwo: PlayerStateResponse;
+  lastActionLog: string;
+}
+
 export interface BattleCritter {
   name: string;
   type: string;
