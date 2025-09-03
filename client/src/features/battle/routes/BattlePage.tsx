@@ -4,7 +4,7 @@ import { useAuthStore } from '@store/auth/useAuthStore';
 import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import { useBattleStore } from '@store/battle/useBattleStore';
 import { CritterType } from '@store/battle/types';
-import type { BattleStateResponse } from '@store/battle/types';
+import type { BattlePlayer, BattleStateResponse } from '@store/battle/types';
 
 import { BattleHeader } from '../components/BattleHeader';
 import { TimerBar } from '../components/TimerBar';
@@ -12,6 +12,17 @@ import { CritterDisplayCard } from '../components/CritterDisplayCard';
 import { TeamDisplay } from '../components/TeamDisplay';
 import { BattleLog } from '../components/BattleLog';
 import { AbilitySelector } from '../components/AbilitySelector';
+
+const defaultConnectingPlayer: BattlePlayer = {
+  name: 'Connecting...',
+  activeCritter: {
+    name: '',
+    type: CritterType.UNKNOWN,
+    stats: { maxHp: 100, currentHp: 0, atk: 0, def: 0 },
+  },
+  team: [],
+  abilities: [],
+};
 
 function BattlePage() {
   const { battleId } = useParams<{ battleId: string }>();
@@ -27,8 +38,8 @@ function BattlePage() {
 
     if (!isConnected || !battleId || !user?.id) {
       setBattleState({
-        player: { name: 'Connecting...', activeCritter: { name: '', currentHp: 0, maxHp: 100, stats: { atk: 0, def: 0 }, type: CritterType.UNKNOWN }, team: [], abilities: [] },
-        opponent: { name: 'Connecting...', activeCritter: { name: '', currentHp: 0, maxHp: 100, stats: { atk: 0, def: 0 }, type: CritterType.UNKNOWN }, team: [], abilities: [] },
+        player: defaultConnectingPlayer,
+        opponent: defaultConnectingPlayer,
         battleLog: ['Connecting to battle...'],
       });
       return;

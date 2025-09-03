@@ -8,16 +8,13 @@ import type {
   Ability,
   BattleStateResponse,
   PlayerStateResponse,
-  CritterStateResponse,
-  AbilityResponse,
+  CritterState,
 } from '@store/battle/types';
 
 const defaultEmptyCritter: BattleCritter = {
   name: 'No Critter',
   type: CritterType.UNKNOWN,
-  currentHp: 0,
-  maxHp: 100,
-  stats: { atk: 0, def: 0 },
+  stats: { maxHp: 100, currentHp: 0, atk: 0, def: 0 },
 };
 
 const defaultEmptyBattlePlayer: BattlePlayer = {
@@ -27,7 +24,7 @@ const defaultEmptyBattlePlayer: BattlePlayer = {
   abilities: [],
 };
 
-const getAbilityDescription = (ability: AbilityResponse): string => {
+const getAbilityDescription = (ability: Ability): string => {
   switch (ability.type) {
     case 'ATTACK':
       return `A powerful strike dealing ${ability.power} damage.`;
@@ -40,31 +37,21 @@ const getAbilityDescription = (ability: AbilityResponse): string => {
   }
 };
 
-const mapAbilityResponseToAbility = (
-  abilityResponse: AbilityResponse,
-): Ability => ({
-  id: abilityResponse.id,
-  name: abilityResponse.name,
-  description: getAbilityDescription(abilityResponse),
-  type: abilityResponse.type,
-  power: abilityResponse.power,
-});
-
-const mapCritterStateResponseToBattleCritter = (
-  critterState: CritterStateResponse
+const mapCritterStateToBattleCritter = (
+  critterState: CritterState
 ): BattleCritter => ({
   name: critterState.name,
   type: critterState.type,
-  currentHp: critterState.stats.currentHp,
-  maxHp: critterState.stats.maxHp,
   stats: {
+    currentHp: critterState.stats.currentHp,
+    maxHp: critterState.stats.maxHp,
     atk: critterState.stats.currentAtk,
     def: critterState.stats.currentDef,
   },
 });
 
-const mapCritterStateResponseToTeamCritter = (
-  critterState: CritterStateResponse
+const mapCritterStateToTeamCritter = (
+  critterState: CritterState
 ): TeamCritter => ({
   name: critterState.name,
   type: critterState.type,
@@ -79,14 +66,14 @@ const mapPlayerStateResponseToBattlePlayer = (
   const activeCritterState = playerStateResponse.roster[playerStateResponse.activeCritterIndex];
 
   const activeCritter: BattleCritter = activeCritterState
-    ? mapCritterStateResponseToBattleCritter(activeCritterState)
+    ? mapCritterStateToBattleCritter(activeCritterState)
     : defaultEmptyCritter;
 
   const abilities: Ability[] = (isCurrentUser && activeCritterState?.abilities)
-    ? activeCritterState.abilities.map(ab => mapAbilityResponseToAbility(ab))
+    ? activeCritterState.abilities.map(ab => ({ ...ab, description: getAbilityDescription(ab) }))
     : [];
 
-  const team: TeamCritter[] = playerStateResponse.roster.map(mapCritterStateResponseToTeamCritter);
+  const team: TeamCritter[] = playerStateResponse.roster.map(mapCritterStateToTeamCritter);
 
   return {
     name: playerStateResponse.username,

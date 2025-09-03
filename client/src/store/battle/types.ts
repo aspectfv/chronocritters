@@ -4,6 +4,7 @@ export enum AbilityType {
   SUPPORT = 'SUPPORT',
   UNKNOWN = 'UNKNOWN'
 }
+
 export enum CritterType {
   FIRE = 'FIRE',
   WATER = 'WATER',
@@ -12,41 +13,35 @@ export enum CritterType {
   UNKNOWN = 'UNKNOWN'
 }
 
-export interface CurrentStatsResponse {
+export interface CurrentStats {
   maxHp: number;
   currentHp: number;
   currentAtk: number;
   currentDef: number;
 }
 
-export interface AbilityResponse {
-  id: string;
-  name: string;
-  power: number;
-  type: AbilityType;
-}
-
 export interface Ability {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   type: AbilityType;
   power: number;
 }
-export interface CritterStateResponse {
+
+export interface CritterState {
   id: string;
   name: string;
   type: CritterType;
-  stats: CurrentStatsResponse;
-  abilities: AbilityResponse[];
+  stats: CurrentStats;
+  abilities: Ability[];
 }
 
 export interface BattleCritter {
   name: string;
   type: CritterType;
-  currentHp: number;
-  maxHp: number;
   stats: {
+    currentHp: number;
+    maxHp: number;
     atk: number;
     def: number;
   };
@@ -63,7 +58,7 @@ export interface PlayerStateResponse {
   username: string;
   hasTurn: boolean;
   activeCritterIndex: number;
-  roster: CritterStateResponse[];
+  roster: CritterState[];
 }
 
 export interface BattlePlayer {
@@ -75,7 +70,7 @@ export interface BattlePlayer {
 
 export interface BattleStateResponse {
   battleId: string;
-  activePlayerId: string | null; // Null when the battle is over
+  activePlayerId: string | null;
   playerOne: PlayerStateResponse;
   playerTwo: PlayerStateResponse;
   lastActionLog: string;
