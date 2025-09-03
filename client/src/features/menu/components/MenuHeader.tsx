@@ -1,7 +1,7 @@
 import { useAuthStore } from '@features/auth/store/useAuthStore';
-import type { HeaderProps } from '@features/menu/styles';
+import type { MenuHeaderProps } from '@features/menu/styles';
 
-export function Header({ username }: HeaderProps) {
+export function MenuHeader({ username }: MenuHeaderProps) {
   const user = useAuthStore((state) => state.user);
   const displayName = username || user?.username || 'Trainer';
 
