@@ -38,7 +38,6 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
       const user: User = { 
         id: '1', 
         username: formData.username,
-        email: formData.email 
       };
       login(user, 'mock-token-123');
       navigate('/menu');
@@ -68,28 +67,6 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               value={formData.username}
               onChange={handleInputChange('username')}
               placeholder="Choose a username"
-              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
-              required
-            />
-          </div>
-        </div>
-
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-green-700 mb-2">
-            Email
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-              </svg>
-            </div>
-            <input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange('email')}
-              placeholder="Enter your email"
               className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
               required
             />
