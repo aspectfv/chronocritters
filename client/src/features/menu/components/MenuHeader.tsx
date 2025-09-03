@@ -1,5 +1,5 @@
 import { useAuthStore } from '@features/auth/store/useAuthStore';
-import type { MenuHeaderProps } from '@features/menu/styles';
+import type { MenuHeaderProps } from '@features/menu/types';
 
 export function MenuHeader({ username }: MenuHeaderProps) {
   const user = useAuthStore((state) => state.user);

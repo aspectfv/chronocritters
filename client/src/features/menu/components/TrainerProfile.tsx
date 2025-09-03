@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { TrainerProfileProps } from '@features/menu/styles';
+import type { TrainerProfileProps } from '@features/menu/types';
 
 export function TrainerProfile({ wins = 12, losses = 3 }: TrainerProfileProps) {
   return (

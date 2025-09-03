@@ -1,5 +1,5 @@
-import type { NotificationsProps } from '@features/menu/styles';
-import { defaultNotifications } from '@features/menu/styles';
+import type { NotificationsProps } from '@features/menu/types';
+import { defaultNotifications } from '@features/menu/types';
 
 export function Notifications({ notifications = defaultNotifications }: NotificationsProps) {
   return (
