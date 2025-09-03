@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chronocritters.user.dto.LoginRequest;
 import com.chronocritters.user.dto.RegisterRequest;
+import com.chronocritters.user.dto.User;
 import com.chronocritters.user.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class AuthController {
     }
 
     @PostMapping("auth/login")
-    public String loginUser(@RequestBody LoginRequest loginRequest) {
+    public User loginUser(@RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest.username(), loginRequest.password());
     }
 }
