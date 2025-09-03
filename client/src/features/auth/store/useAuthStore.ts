@@ -21,7 +21,6 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isAuthenticated: false,
       login: (user, token) => {
-        // In a real app, you would fetch user data from an API
         set({ user, token, isAuthenticated: true });
       },
       logout: () => {
@@ -29,8 +28,8 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'auth-storage', // Name for the localStorage item
-      storage: createJSONStorage(() => localStorage), // Use localStorage for persistence
+      name: 'auth-storage', // localStorage name
+      storage: createJSONStorage(() => localStorage), // localStorage for persistence
     }
   )
 );
