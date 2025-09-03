@@ -36,3 +36,18 @@ export interface MatchResponse {
   playerTwoId: string;
   battleId: string;
 }
+
+export interface GetPlayerStatsVars {
+  id: string;
+}
+
+export interface GetPlayerStatsData {
+  getPlayer: {
+    __typename?: 'Player';
+    stats: {
+      __typename?: 'PlayerStats';
+      wins: number;
+      losses: number;
+    };
+  };
+}
