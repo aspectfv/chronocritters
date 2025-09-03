@@ -1,8 +1,5 @@
 import { useAuthStore } from '@features/auth/store/useAuthStore';
-
-interface HeaderProps {
-  username?: string;
-}
+import type { HeaderProps } from '@features/menu/styles';
 
 export function Header({ username }: HeaderProps) {
   const user = useAuthStore((state) => state.user);

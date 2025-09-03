@@ -1,25 +1,5 @@
-interface NotificationItem {
-  id: string;
-  message: string;
-  type: 'welcome' | 'shop' | 'battle' | 'general';
-}
-
-interface NotificationsProps {
-  notifications?: NotificationItem[];
-}
-
-const defaultNotifications: NotificationItem[] = [
-  {
-    id: '1',
-    message: 'Welcome back, trainer!',
-    type: 'welcome'
-  },
-  {
-    id: '2', 
-    message: 'New critters available in the shop!',
-    type: 'shop'
-  }
-];
+import type { NotificationsProps } from '@features/menu/styles';
+import { defaultNotifications } from '@features/menu/styles';
 
 export function Notifications({ notifications = defaultNotifications }: NotificationsProps) {
   return (

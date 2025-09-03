@@ -1,14 +1,7 @@
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '@features/auth/store/useAuthStore';
-
-interface TrainerProfileProps {
-  wins?: number;
-  losses?: number;
-}
+import type { TrainerProfileProps } from '@features/menu/styles';
 
 export function TrainerProfile({ wins = 12, losses = 3 }: TrainerProfileProps) {
-  const user = useAuthStore((state) => state.user);
-
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6">
       <div className="flex items-center gap-2 text-green-700 mb-4">
