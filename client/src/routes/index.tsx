@@ -8,6 +8,7 @@ import MenuPage from '@features/menu/routes/MenuPage';
 import ProfilePage from '@features/profile/routes/ProfilePage';
 import BattlePage from '@features/battle/routes/BattlePage';
 import ResultsPage from '@features/results/routes/ResultsPage';
+import { ProtectedRoute } from '../components/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
@@ -40,19 +41,19 @@ const router = createBrowserRouter([
       },
       {
         path: 'menu',
-        element: <MenuPage />,
+        element: <ProtectedRoute><MenuPage /></ProtectedRoute>,
       },
       {
         path: 'profile',
-        element: <ProfilePage />,
+        element: <ProtectedRoute><ProfilePage /></ProtectedRoute>,
       },
       {
         path: 'battle',
-        element: <BattlePage />,
+        element: <ProtectedRoute><BattlePage /></ProtectedRoute>,
       },
       {
         path: 'results',
-        element: <ResultsPage />,
+        element: <ProtectedRoute><ResultsPage /></ProtectedRoute>,
       },
     ],
   },
