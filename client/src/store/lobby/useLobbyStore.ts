@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { Client, type IFrame, type IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { useAuthStore } from '@features/auth/store/useAuthStore';
-import type { LobbyState } from '@features/lobby/types';
+import { useAuthStore } from '@store/auth/useAuthStore';
+import type { LobbyState } from '@store/lobby/types';
 
 export const useLobbyStore = create<LobbyState>((set, get) => ({
   stompClient: null,

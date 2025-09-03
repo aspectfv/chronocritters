@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Form, useActionData, useNavigation, Link } from 'react-router-dom';
-import type { RegisterCredentials, AuthError } from '@features/auth/types';
+import type { RegisterCredentials, AuthError } from '@store/auth/types';
 
 function RegisterForm() {
   const [formData, setFormData] = useState<RegisterCredentials>({

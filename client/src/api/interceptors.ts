@@ -1,5 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import { useAuthStore } from '@features/auth/store/useAuthStore';
+import { useAuthStore } from '@store/auth/useAuthStore';
 
 export const applyAuthTokenInterceptor = (apiClient: AxiosInstance) => {
   apiClient.interceptors.request.use(

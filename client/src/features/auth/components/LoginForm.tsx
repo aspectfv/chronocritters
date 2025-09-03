@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Form, useActionData, useNavigation, Link } from 'react-router-dom';
-import type { LoginCredentials, AuthError } from '@features/auth/types';
+import type { LoginCredentials, AuthError } from '@store/auth/types';
 
 function LoginForm() {
   const [formData, setFormData] = useState<LoginCredentials>({

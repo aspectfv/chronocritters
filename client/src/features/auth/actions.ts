@@ -1,7 +1,7 @@
 import { redirect } from 'react-router-dom';
-import { useAuthStore } from '@features/auth/store/useAuthStore';
+import { useAuthStore } from '@store/auth/useAuthStore';
 import { login as apiLogin, register as apiRegister } from '@api/user';
-import type { LoginCredentials, RegisterCredentials } from '@features/auth/types';
+import type { LoginCredentials, RegisterCredentials } from '@store/auth/types';
 
 export async function loginAction({ request }: { request: Request }) {
   const formData = await request.formData();

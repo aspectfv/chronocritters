@@ -13,6 +13,7 @@ export default defineConfig({
       '@routes': '/src/routes',
       '@types': '/src/types',
       '@components': '/src/components',
+      '@store': '/src/store',
     },
   },
   define: {

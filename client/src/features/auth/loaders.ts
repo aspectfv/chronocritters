@@ -1,5 +1,5 @@
 import { redirect } from 'react-router-dom';
-import { useAuthStore } from '@features/auth/store/useAuthStore';
+import { useAuthStore } from '@store/auth/useAuthStore';
 
 export function loginLoader() {
   const { isAuthenticated } = useAuthStore.getState();

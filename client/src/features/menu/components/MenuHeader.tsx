@@ -1,4 +1,4 @@
-import { useAuthStore } from '@features/auth/store/useAuthStore';
+import { useAuthStore } from '@store/auth/useAuthStore';
 import type { MenuHeaderProps } from '@features/menu/types';
 
 export function MenuHeader({ username }: MenuHeaderProps) {

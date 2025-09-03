@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { applyAuthTokenInterceptor } from '@api/interceptors';
-import type { LoginCredentials, RegisterCredentials } from '@features/auth/types';
+import type { LoginCredentials, RegisterCredentials } from '@store/auth/types';
 
 const userClient = axios.create({
   baseURL: import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:8080',
