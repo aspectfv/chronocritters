@@ -11,7 +11,6 @@ export async function loginAction({ request }: { request: Request }) {
     password: formData.get('password') as string,
   };
 
-  // Basic validation
   if (!credentials.username || !credentials.password) {
     return {
       message: 'Username and password are required',
@@ -20,15 +19,12 @@ export async function loginAction({ request }: { request: Request }) {
   }
 
   try {
-    // Call actual login API
     const response = await apiLogin(credentials);
     const { user, token } = response.data;
 
-    // Get the auth store and login
     const { login } = useAuthStore.getState();
     login(user, token);
 
-    // Redirect to menu page
     return redirect('/menu');
   } catch (error) {
     return {
@@ -47,7 +43,6 @@ export async function registerAction({ request }: { request: Request }) {
     confirmPassword: formData.get('confirmPassword') as string,
   };
 
-  // Basic validation
   if (!credentials.username || !credentials.password || !credentials.confirmPassword) {
     return {
       message: 'All fields are required',
@@ -71,15 +66,12 @@ export async function registerAction({ request }: { request: Request }) {
   }
 
   try {
-    // Call actual register API
     const response = await apiRegister(credentials);
     const { user, token } = response.data;
 
-    // Get the auth store and login the user after registration
     const { login } = useAuthStore.getState();
     login(user, token);
 
-    // Redirect to menu page
     return redirect('/menu');
   } catch (error) {
     return {
