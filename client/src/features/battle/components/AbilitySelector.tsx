@@ -1,13 +1,8 @@
-import type { Ability } from '@store/battle/types';
+import { type Ability, CritterType, type AbilitySelectorProps } from '@store/battle/types';
 
-interface AbilitySelectorProps {
-  abilities: Ability[];
-  onAbilityClick: (abilityId: string) => void; // Changed prop to expect an ID
-  isPlayerTurn: boolean;
-}
-
-// Sub-component for a single ability button
-const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: boolean }> = ({ ability, onClick, disabled }) => (
+// sub component for single ability button
+const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: boolean; critterType: CritterType }> = 
+  ({ ability, onClick, disabled, critterType }) => (
   <button
     onClick={onClick}
     disabled={disabled}
@@ -19,10 +14,10 @@ const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: b
         <p className="text-xs text-gray-500 mt-1">{ability.description}</p>
       </div>
       <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${
-        ability.type === 'FIRE' ? 'bg-red-100 text-red-800' : 
-        ability.type === 'WATER' ? 'bg-blue-100 text-blue-800' :
-        ability.type === 'GRASS' ? 'bg-green-100 text-green-800' :
-        ability.type === 'ELECTRIC' ? 'bg-yellow-100 text-yellow-800' :
+        critterType === CritterType.FIRE ? 'bg-red-100 text-red-800' : 
+        critterType === CritterType.WATER ? 'bg-blue-100 text-blue-800' :
+        critterType === CritterType.GRASS ? 'bg-green-100 text-green-800' :
+        critterType === CritterType.ELECTRIC ? 'bg-yellow-100 text-yellow-800' :
         'bg-gray-100 text-gray-800'
       }`}>
         PWR: {ability.power}
@@ -31,7 +26,8 @@ const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: b
   </button>
 );
 
-export function AbilitySelector({ abilities, onAbilityClick, isPlayerTurn }: AbilitySelectorProps) {
+export function AbilitySelector({ abilities, onAbilityClick, isPlayerTurn, critterType }: AbilitySelectorProps) {
+  // You can now use critterType in your rendering logic
   return (
     <div className="my-6">
       <h3 className="text-center font-bold text-green-800 mb-4">Choose Your Ability</h3>
@@ -43,6 +39,7 @@ export function AbilitySelector({ abilities, onAbilityClick, isPlayerTurn }: Abi
               ability={ability} 
               onClick={() => onAbilityClick(ability.id)} // Pass the ability ID on click
               disabled={!isPlayerTurn}
+              critterType={critterType} // Pass critterType to AbilityCard
             />
           ))}
         </div>

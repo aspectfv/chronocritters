@@ -1,5 +1,16 @@
-export type AbilityType = 'ATTACK' | 'DEFENSE' | 'SUPPORT';
-export type CritterType = 'FIRE' | 'WATER' | 'GRASS' | 'ELECTRIC';
+export enum AbilityType {
+  ATTACK = 'ATTACK',
+  DEFENSE = 'DEFENSE',
+  SUPPORT = 'SUPPORT',
+  UNKNOWN = 'UNKNOWN'
+}
+export enum CritterType {
+  FIRE = 'FIRE',
+  WATER = 'WATER',
+  GRASS = 'GRASS',
+  ELECTRIC = 'ELECTRIC',
+  UNKNOWN = 'UNKNOWN'
+}
 
 export interface CurrentStatsResponse {
   maxHp: number;
@@ -41,7 +52,7 @@ export interface BattleStateResponse {
 
 export interface BattleCritter {
   name: string;
-  type: string;
+  type: CritterType;
   currentHp: number;
   maxHp: number;
   stats: {
@@ -52,7 +63,7 @@ export interface BattleCritter {
 }
 export interface TeamCritter {
   name: string;
-  type: string;
+  type: CritterType;
   currentHp: number;
   maxHp: number;
 }
@@ -61,7 +72,7 @@ export interface Ability {
   id: string;
   name: string;
   description: string;
-  type: string;
+  type: AbilityType;
   power: number;
 }
 
@@ -87,4 +98,16 @@ export interface executeAbilityRequest {
   battleId: string;
   playerId: string;
   abilityId: string;
+}
+
+export type AbilitySelectorProps = {
+  abilities: Ability[];
+  onAbilityClick: (abilityId: string) => void;
+  isPlayerTurn: boolean;
+  critterType: CritterType; // Add this line
+};
+
+export interface CritterDisplayCardProps {
+  playerName: string;
+  critter: BattleCritter;
 }

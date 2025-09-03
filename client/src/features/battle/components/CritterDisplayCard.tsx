@@ -1,10 +1,5 @@
 
-import type { BattleCritter } from '@store/battle/types';
-
-interface CritterDisplayCardProps {
-  playerName: string;
-  critter: BattleCritter;
-}
+import type { CritterDisplayCardProps } from '@store/battle/types';
 
 export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardProps) {
   const healthPercentage = (critter.currentHp / critter.maxHp) * 100;

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { CritterType } from '@store/battle/types';
 import type {
   BattleState,
   BattlePlayer,
@@ -13,7 +14,7 @@ import type {
 
 const defaultEmptyCritter: BattleCritter = {
   name: 'No Critter',
-  type: 'UNKNOWN',
+  type: CritterType.UNKNOWN,
   currentHp: 0,
   maxHp: 100,
   stats: { atk: 0, def: 0, spd: 0 },
@@ -41,12 +42,11 @@ const getAbilityDescription = (ability: AbilityResponse): string => {
 
 const mapAbilityResponseToAbility = (
   abilityResponse: AbilityResponse,
-  critterElementalType: string
 ): Ability => ({
   id: abilityResponse.id,
   name: abilityResponse.name,
   description: getAbilityDescription(abilityResponse),
-  type: critterElementalType,
+  type: abilityResponse.type,
   power: abilityResponse.power,
 });
 
@@ -84,7 +84,7 @@ const mapPlayerStateResponseToBattlePlayer = (
     : defaultEmptyCritter;
 
   const abilities: Ability[] = (isCurrentUser && activeCritterState?.abilities)
-    ? activeCritterState.abilities.map(ab => mapAbilityResponseToAbility(ab, activeCritter.type))
+    ? activeCritterState.abilities.map(ab => mapAbilityResponseToAbility(ab))
     : [];
 
   const team: TeamCritter[] = playerStateResponse.roster.map(mapCritterStateResponseToTeamCritter);
