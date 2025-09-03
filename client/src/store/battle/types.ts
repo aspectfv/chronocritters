@@ -26,28 +26,19 @@ export interface AbilityResponse {
   type: AbilityType;
 }
 
+export interface Ability {
+  id: string;
+  name: string;
+  description: string;
+  type: AbilityType;
+  power: number;
+}
 export interface CritterStateResponse {
   id: string;
   name: string;
   type: CritterType;
   stats: CurrentStatsResponse;
   abilities: AbilityResponse[];
-}
-
-export interface PlayerStateResponse {
-  id: string;
-  username: string;
-  hasTurn: boolean;
-  activeCritterIndex: number;
-  roster: CritterStateResponse[];
-}
-
-export interface BattleStateResponse {
-  battleId: string;
-  activePlayerId: string | null; // Null when the battle is over
-  playerOne: PlayerStateResponse;
-  playerTwo: PlayerStateResponse;
-  lastActionLog: string;
 }
 
 export interface BattleCritter {
@@ -67,12 +58,12 @@ export interface TeamCritter {
   maxHp: number;
 }
 
-export interface Ability {
+export interface PlayerStateResponse {
   id: string;
-  name: string;
-  description: string;
-  type: AbilityType;
-  power: number;
+  username: string;
+  hasTurn: boolean;
+  activeCritterIndex: number;
+  roster: CritterStateResponse[];
 }
 
 export interface BattlePlayer {
@@ -80,6 +71,14 @@ export interface BattlePlayer {
   activeCritter: BattleCritter;
   team: TeamCritter[];
   abilities: Ability[];
+}
+
+export interface BattleStateResponse {
+  battleId: string;
+  activePlayerId: string | null; // Null when the battle is over
+  playerOne: PlayerStateResponse;
+  playerTwo: PlayerStateResponse;
+  lastActionLog: string;
 }
 
 export interface BattleState {
@@ -97,16 +96,4 @@ export interface executeAbilityRequest {
   battleId: string;
   playerId: string;
   abilityId: string;
-}
-
-export type AbilitySelectorProps = {
-  abilities: Ability[];
-  onAbilityClick: (abilityId: string) => void;
-  isPlayerTurn: boolean;
-  critterType: CritterType; // Add this line
-};
-
-export interface CritterDisplayCardProps {
-  playerName: string;
-  critter: BattleCritter;
 }
