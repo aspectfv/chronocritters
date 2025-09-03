@@ -7,7 +7,7 @@ import type {
   TeamCritter,
   Ability,
   BattleStateResponse,
-  PlayerStateResponse,
+  PlayerState,
   CritterState,
 } from '@store/battle/types';
 
@@ -59,11 +59,11 @@ const mapCritterStateToTeamCritter = (
   maxHp: critterState.stats.maxHp,
 });
 
-const mapPlayerStateResponseToBattlePlayer = (
-  playerStateResponse: PlayerStateResponse,
+const mapPlayerStateToBattlePlayer = (
+  playerState: PlayerState,
   isCurrentUser: boolean
 ): BattlePlayer => {
-  const activeCritterState = playerStateResponse.roster[playerStateResponse.activeCritterIndex];
+  const activeCritterState = playerState.roster[playerState.activeCritterIndex];
 
   const activeCritter: BattleCritter = activeCritterState
     ? mapCritterStateToBattleCritter(activeCritterState)
@@ -73,10 +73,10 @@ const mapPlayerStateResponseToBattlePlayer = (
     ? activeCritterState.abilities.map(ab => ({ ...ab, description: getAbilityDescription(ab) }))
     : [];
 
-  const team: TeamCritter[] = playerStateResponse.roster.map(mapCritterStateToTeamCritter);
+  const team: TeamCritter[] = playerState.roster.map(mapCritterStateToTeamCritter);
 
   return {
-    name: playerStateResponse.username,
+    name: playerState.username,
     activeCritter,
     team,
     abilities,
@@ -103,8 +103,8 @@ export const useBattleStore = create<BattleState>((set, get) => ({
     const userPlayerState = isPlayerOneUser ? serverBattleState.playerOne : serverBattleState.playerTwo;
     const opponentPlayerState = isPlayerOneUser ? serverBattleState.playerTwo : serverBattleState.playerOne;
 
-    const player = mapPlayerStateResponseToBattlePlayer(userPlayerState, true);
-    const opponent = mapPlayerStateResponseToBattlePlayer(opponentPlayerState, false);
+    const player = mapPlayerStateToBattlePlayer(userPlayerState, true);
+    const opponent = mapPlayerStateToBattlePlayer(opponentPlayerState, false);
 
     const currentLog = get().battleLog;
     const lastLogFromServer = serverBattleState.lastActionLog;

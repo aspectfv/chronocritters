@@ -53,7 +53,7 @@ export interface TeamCritter {
   maxHp: number;
 }
 
-export interface PlayerStateResponse {
+export interface PlayerState {
   id: string;
   username: string;
   hasTurn: boolean;
@@ -71,8 +71,8 @@ export interface BattlePlayer {
 export interface BattleStateResponse {
   battleId: string;
   activePlayerId: string | null;
-  playerOne: PlayerStateResponse;
-  playerTwo: PlayerStateResponse;
+  playerOne: PlayerState;
+  playerTwo: PlayerState;
   lastActionLog: string;
 }
 
