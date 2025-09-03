@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/useAuthStore';
-import type { RegisterCredentials, User } from '../types';
+import { useAuthStore } from '@features/auth/store/useAuthStore';
+import type { RegisterCredentials, User } from '@features/auth/types';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;

@@ -5,4 +5,13 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@features': '/src/features',
+      '@api': '/src/api',
+      '@assets': '/src/assets',
+      '@routes': '/src/routes',
+      '@types': '/src/types',
+    },
+  },
 })
