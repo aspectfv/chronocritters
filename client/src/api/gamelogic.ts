@@ -8,4 +8,4 @@ const gamelogicClient = axios.create({
 
 applyAuthTokenInterceptor(gamelogicClient);
 
-export const getBattleState = (request: executeAbilityRequest) => gamelogicClient.post<BattleState>('/battle/state', request);
+export const getBattleState = (request: executeAbilityRequest) => gamelogicClient.post<BattleState>(`/battle/${request.battleId}`, request);

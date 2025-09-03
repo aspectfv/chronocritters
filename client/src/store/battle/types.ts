@@ -42,6 +42,7 @@ export interface BattleState {
 }
 
 export interface executeAbilityRequest {
+  battleId: string;
   playerId: string;
   abilityId: string;
 }
