@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.chronocritters.lib.model.Player;
 import com.chronocritters.lib.util.JwtUtil;
 import com.chronocritters.lib.util.PasswordUtil;
+import com.chronocritters.user.dto.LoginResponse;
 import com.chronocritters.user.dto.User;
 import com.chronocritters.user.repository.PlayerRepository;
 
@@ -37,7 +38,7 @@ public class AuthService {
         return "User registered successfully";
     }
 
-    public User login(String username, String password) {
+    public LoginResponse login(String username, String password) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be empty");
         }
@@ -51,7 +52,8 @@ public class AuthService {
         if (!PasswordUtil.checkPassword(password, player.getPassword())) {
             throw new IllegalArgumentException("Invalid username or password");
         }
-        
-        return new User(player.getId(), player.getUsername(), JwtUtil.generateToken(player.getId(), player.getUsername()));
+
+        User user = new User(player.getId(), player.getUsername());
+        return new LoginResponse(user, JwtUtil.generateToken(player.getId(), player.getUsername()));
     }
 }
