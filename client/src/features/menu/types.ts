@@ -30,3 +30,9 @@ export const defaultNotifications: NotificationItem[] = [
     type: 'shop'
   }
 ];
+
+export interface MatchResponse {
+  playerOneId: string;
+  playerTwoId: string;
+  battleId: string;
+}
