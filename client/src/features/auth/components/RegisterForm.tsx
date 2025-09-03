@@ -1,31 +1,46 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
+import type { RegisterCredentials, User } from '../types';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
 }
 
 function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState<RegisterCredentials>({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const navigate = useNavigate();
   const { login } = useAuthStore();
+
+  const handleInputChange = (field: keyof RegisterCredentials) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
+  };
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match!');
       return;
     }
     
-    if (username && email && password) {
+    if (formData.username && formData.email && formData.password) {
       // Simulate registration and auto-login
-      login({ id: '1', username }, 'mock-token-123');
+      const user: User = { 
+        id: '1', 
+        username: formData.username,
+        email: formData.email 
+      };
+      login(user, 'mock-token-123');
       navigate('/menu');
     }
   };
@@ -50,8 +65,8 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             <input
               id="reg-username"
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={formData.username}
+              onChange={handleInputChange('username')}
               placeholder="Choose a username"
               className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
               required
@@ -72,8 +87,8 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             <input
               id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={handleInputChange('email')}
               placeholder="Enter your email"
               className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
               required
@@ -94,8 +109,8 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             <input
               id="reg-password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleInputChange('password')}
               placeholder="Create a password"
               className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
               required
@@ -116,8 +131,8 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             <input
               id="confirm-password"
               type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={formData.confirmPassword}
+              onChange={handleInputChange('confirmPassword')}
               placeholder="Confirm your password"
               className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-300 focus:border-green-300"
               required
