@@ -1,10 +1,7 @@
 import { redirect } from 'react-router-dom';
 import { useAuthStore } from '@features/auth/store/useAuthStore';
-import type { LoginCredentials, RegisterCredentials, User } from '@features/auth/types';
-
-// Simulate API calls - replace with real API calls
-const simulateApiCall = (delay: number = 1000) => 
-  new Promise(resolve => setTimeout(resolve, delay));
+import { login as apiLogin, register as apiRegister } from '@api/user';
+import type { LoginCredentials, RegisterCredentials } from '@features/auth/types';
 
 export async function loginAction({ request }: { request: Request }) {
   const formData = await request.formData();
@@ -23,18 +20,13 @@ export async function loginAction({ request }: { request: Request }) {
   }
 
   try {
-    // Simulate API call
-    await simulateApiCall(500);
-
-    // Simulate successful login - replace with real API call
-    const user: User = {
-      id: '1',
-      username: credentials.username,
-    };
+    // Call actual login API
+    const response = await apiLogin(credentials);
+    const { user, token } = response.data;
 
     // Get the auth store and login
     const { login } = useAuthStore.getState();
-    login(user, 'mock-token-123');
+    login(user, token);
 
     // Redirect to menu page
     return redirect('/menu');
@@ -79,24 +71,19 @@ export async function registerAction({ request }: { request: Request }) {
   }
 
   try {
-    // Simulate API call
-    await simulateApiCall(1000);
-
-    // Simulate successful registration - replace with real API call
-    const user: User = {
-      id: '1',
-      username: credentials.username,
-    } as User;
+    // Call actual register API
+    const response = await apiRegister(credentials);
+    const { user, token } = response.data;
 
     // Get the auth store and login the user after registration
     const { login } = useAuthStore.getState();
-    login(user, 'mock-token-123');
+    login(user, token);
 
     // Redirect to menu page
     return redirect('/menu');
   } catch (error) {
     return {
-      error: 'Registration failed. Please try again.',
+      message: 'Registration failed. Please try again.',
       field: null
     };
   }
