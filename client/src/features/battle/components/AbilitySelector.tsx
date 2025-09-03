@@ -27,7 +27,6 @@ const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: b
 );
 
 export function AbilitySelector({ abilities, onAbilityClick, isPlayerTurn, critterType }: AbilitySelectorProps) {
-  // You can now use critterType in your rendering logic
   return (
     <div className="my-6">
       <h3 className="text-center font-bold text-green-800 mb-4">Choose Your Ability</h3>
@@ -35,11 +34,11 @@ export function AbilitySelector({ abilities, onAbilityClick, isPlayerTurn, critt
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {abilities.map(ability => (
             <AbilityCard 
-              key={ability.id} // Use the unique ID for the key
+              key={ability.id}
               ability={ability} 
-              onClick={() => onAbilityClick(ability.id)} // Pass the ability ID on click
+              onClick={() => onAbilityClick(ability.id)}
               disabled={!isPlayerTurn}
-              critterType={critterType} // Pass critterType to AbilityCard
+              critterType={critterType}
             />
           ))}
         </div>

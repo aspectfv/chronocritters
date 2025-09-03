@@ -17,7 +17,7 @@ const defaultEmptyCritter: BattleCritter = {
   type: CritterType.UNKNOWN,
   currentHp: 0,
   maxHp: 100,
-  stats: { atk: 0, def: 0, spd: 0 },
+  stats: { atk: 0, def: 0 },
 };
 
 const defaultEmptyBattlePlayer: BattlePlayer = {
@@ -60,7 +60,6 @@ const mapCritterStateResponseToBattleCritter = (
   stats: {
     atk: critterState.stats.currentAtk,
     def: critterState.stats.currentDef,
-    spd: 0,
   },
 });
 

@@ -58,7 +58,6 @@ export interface BattleCritter {
   stats: {
     atk: number;
     def: number;
-    spd: number; // Note: 'spd' is not in backend CurrentStatsResponse, will default to 0 in mapping.
   };
 }
 export interface TeamCritter {

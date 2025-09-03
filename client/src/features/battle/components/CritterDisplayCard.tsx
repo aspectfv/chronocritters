@@ -35,10 +35,6 @@ export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardPr
           <p className="font-bold">{critter.stats.def}</p>
           <p className="text-xs">DEF</p>
         </div>
-        <div>
-          <p className="font-bold">{critter.stats.spd}</p>
-          <p className="text-xs">SPD</p>
-        </div>
       </div>
     </div>
   );

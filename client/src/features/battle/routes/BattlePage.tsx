@@ -27,8 +27,8 @@ function BattlePage() {
 
     if (!isConnected || !battleId || !user?.id) {
       setBattleState({
-        player: { name: 'Connecting...', activeCritter: { name: '', currentHp: 0, maxHp: 100, stats: { atk: 0, def: 0, spd: 0 }, type: CritterType.UNKNOWN }, team: [], abilities: [] },
-        opponent: { name: 'Connecting...', activeCritter: { name: '', currentHp: 0, maxHp: 100, stats: { atk: 0, def: 0, spd: 0 }, type: CritterType.UNKNOWN }, team: [], abilities: [] },
+        player: { name: 'Connecting...', activeCritter: { name: '', currentHp: 0, maxHp: 100, stats: { atk: 0, def: 0 }, type: CritterType.UNKNOWN }, team: [], abilities: [] },
+        opponent: { name: 'Connecting...', activeCritter: { name: '', currentHp: 0, maxHp: 100, stats: { atk: 0, def: 0 }, type: CritterType.UNKNOWN }, team: [], abilities: [] },
         battleLog: ['Connecting to battle...'],
       });
       return;
