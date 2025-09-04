@@ -10,6 +10,9 @@ import ProfilePage from '@features/profile/routes/ProfilePage';
 import BattlePage from '@features/battle/routes/BattlePage';
 import ResultsPage from '@features/results/routes/ResultsPage';
 import { ProtectedRoute } from '../components/auth/ProtectedRoute';
+import { BattleHistoryTab } from '@features/profile/components/BattleHistoryTab';
+import { MyCrittersTab } from '@features/profile/components/MyCrittersTab';
+import { OverviewTab } from '@features/profile/components/OverviewTab';
 
 const router = createBrowserRouter([
   {
@@ -41,8 +44,24 @@ const router = createBrowserRouter([
         element: <ProtectedRoute><MenuPage /></ProtectedRoute>,
       },
       {
+        // This is now a parent route
         path: 'profile',
         element: <ProtectedRoute><ProfilePage /></ProtectedRoute>,
+        children: [
+          {
+            // The index route renders inside the Outlet by default
+            index: true,
+            element: <OverviewTab />,
+          },
+          {
+            path: 'critters',
+            element: <MyCrittersTab />,
+          },
+          {
+            path: 'history',
+            element: <BattleHistoryTab />,
+          },
+        ],
       },
       {
         path: 'battle/:battleId', // <-- Changed to a dynamic path

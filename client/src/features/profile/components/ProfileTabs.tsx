@@ -1,27 +1,31 @@
-import type { ProfileTab } from '../routes/ProfilePage';
+import { NavLink } from 'react-router-dom';
 
-interface ProfileTabsProps {
-  activeTab: ProfileTab;
-  setActiveTab: (tab: ProfileTab) => void;
-}
+export function ProfileTabs() {
+  const tabs = [
+    { name: 'Overview', path: '/profile' },
+    { name: 'My Critters', path: '/profile/critters' },
+    { name: 'Battle History', path: '/profile/history' },
+  ];
 
-const tabs: ProfileTab[] = ['Overview', 'My Critters', 'Battle History'];
+  const activeClass = 'bg-green-600 text-white shadow-md';
+  const inactiveClass = 'text-gray-600 hover:bg-green-50';
 
-export function ProfileTabs({ activeTab, setActiveTab }: ProfileTabsProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2 flex justify-center space-x-2">
       {tabs.map((tab) => (
-        <button
-          key={tab}
-          onClick={() => setActiveTab(tab)}
-          className={`px-6 py-2 rounded-md font-semibold text-sm transition-colors ${
-            activeTab === tab
-              ? 'bg-green-600 text-white shadow-md'
-              : 'text-gray-600 hover:bg-green-50'
-          }`}
+        <NavLink
+          key={tab.name}
+          to={tab.path}
+          // The `end` prop is important for the root tab to prevent it from matching all nested routes
+          end={tab.path === '/profile'}
+          className={({ isActive }) =>
+            `px-6 py-2 rounded-md font-semibold text-sm transition-colors ${
+              isActive ? activeClass : inactiveClass
+            }`
+          }
         >
-          {tab}
-        </button>
+          {tab.name}
+        </NavLink>
       ))}
     </div>
   );
