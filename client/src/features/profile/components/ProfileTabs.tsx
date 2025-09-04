@@ -16,7 +16,7 @@ export function ProfileTabs() {
         <NavLink
           key={tab.name}
           to={tab.path}
-          // The `end` prop is important for the root tab to prevent it from matching all nested routes
+          // end prop is important for root tab to prevent it from matching all nested routes
           end={tab.path === '/profile'}
           className={({ isActive }) =>
             `px-6 py-2 rounded-md font-semibold text-sm transition-colors ${

@@ -1,10 +1,6 @@
-interface CritterCardProps {
-  name: string;
-  level: number;
-  type: 'Fire' | 'Water' | 'Electric' | 'Ground';
-}
+import type { CritterType, CritterCardProps } from '@features/profile/types';
 
-const typeIcons: Record<CritterCardProps['type'], string> = {
+const typeIcons: Record<CritterType, string> = {
   Fire: '🔥',
   Water: '💧',
   Electric: '⚡',

@@ -1,9 +1,4 @@
-interface TrainerInfoProps {
-  name: string;
-  title: string;
-  level: number;
-  experience: number;
-}
+import type { TrainerInfoProps } from '@features/profile/types';
 
 export function TrainerInfo({ name, title, level, experience }: TrainerInfoProps) {
   return (

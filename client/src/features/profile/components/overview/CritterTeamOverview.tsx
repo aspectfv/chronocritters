@@ -1,6 +1,7 @@
 import { CritterCard } from './CritterCard';
+import type { CritterCardProps } from '@features/profile/types';
 
-const mockTeam = [
+const mockTeam: CritterCardProps[] = [
   { name: 'Flamewyrm', level: 18, type: 'Fire' },
   { name: 'Aquaflow', level: 16, type: 'Water' },
   { name: 'Thunderbeast', level: 14, type: 'Electric' },

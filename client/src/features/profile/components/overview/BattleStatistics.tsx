@@ -1,9 +1,4 @@
-interface BattleStatisticsProps {
-  wins: number;
-  losses: number;
-  totalBattles: number;
-  winRate: number;
-}
+import type { BattleStatisticsProps } from '@features/profile/types';
 
 export function BattleStatistics({ wins, losses, totalBattles, winRate }: BattleStatisticsProps) {
   return (
