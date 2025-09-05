@@ -11,3 +11,7 @@ export interface CritterDisplayCardProps {
   playerName: string;
   critter: BattleCritter;
 }
+
+export interface BattleLogProps {
+  log: string[];
+}

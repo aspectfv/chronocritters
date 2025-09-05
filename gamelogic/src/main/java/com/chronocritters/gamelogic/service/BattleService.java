@@ -35,12 +35,16 @@ public class BattleService {
         playerOne.setHasTurn(true);
         playerTwo.setHasTurn(false);
 
+        String initialLog = "Battle started between " + playerOne.getUsername() + " and " + playerTwo.getUsername();
+        List<String> logHistory = new ArrayList<>();
+        logHistory.add(initialLog);
+
         BattleState battleState = BattleState.builder()
                 .battleId(battleId)
                 .activePlayerId(playerOneId)
                 .playerOne(playerOne)
                 .playerTwo(playerTwo)
-                .lastActionLog("Battle started between " + playerOne.getUsername() + " and " + playerTwo.getUsername())
+                .actionLogHistory(logHistory)
                 .build();
 
         activeBattles.add(battleState);
@@ -52,23 +56,15 @@ public class BattleService {
             throw new IllegalArgumentException("Invalid battle ID");
         }
 
-        if (playerId == null) {
-            throw new IllegalArgumentException("Invalid player Id");
-        }
-
         if (!currentBattle.getActivePlayerId().equals(playerId)) {
             throw new IllegalStateException("It's not the player's turn");
         }
 
-        PlayerState currentPlayer = playerId.equals(currentBattle.getPlayerOne().getId()) 
-            ? currentBattle.getPlayerOne() 
-            : currentBattle.getPlayerTwo();
+        PlayerState currentPlayer = currentBattle.getCurrentPlayer();
 
-        PlayerState opponent = playerId.equals(currentBattle.getPlayerOne().getId()) 
-            ? currentBattle.getPlayerTwo() 
-            : currentBattle.getPlayerOne();
+        PlayerState opponent = currentBattle.getOpponent();
 
-        CritterState activeCritter = currentPlayer.getRoster().get(currentPlayer.getActiveCritterIndex());
+        CritterState activeCritter = currentPlayer.getCritterByIndex(currentPlayer.getActiveCritterIndex());
 
         Ability ability = activeCritter.getAbilityById(abilityId);
         if (ability == null) {
@@ -76,25 +72,24 @@ public class BattleService {
         }
 
         switch (ability.getType()) {
-            case ATTACK -> {
-                return executeAttackAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
-            }
-            case DEFENSE -> {
-                return executeDefenseAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
-            }
-            case SUPPORT -> {
-                return executeSupportAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
-            }
+            case ATTACK -> executeAttackAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
+            case DEFENSE -> executeDefenseAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
+            case SUPPORT -> executeSupportAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
             default -> throw new IllegalArgumentException("Unexpected value: " + ability.getType());
         }
+
+        return currentBattle;
     }
 
-    private BattleState executeAttackAbility(BattleState currentBattle, PlayerState currentPlayer, 
-                                           PlayerState opponent, CritterState activeCritter, Ability ability) {
+    private void executeAttackAbility(
+        BattleState currentBattle, PlayerState currentPlayer, 
+        PlayerState opponent, CritterState activeCritter, Ability ability
+    ) {
         int damage = ability.getPower();
             
-        CritterState opponentActiveCritter = opponent.getRoster().get(opponent.getActiveCritterIndex());
+        CritterState opponentActiveCritter = opponent.getCritterByIndex(opponent.getActiveCritterIndex());
         CurrentStats opponentCritterStats = opponentActiveCritter.getStats();
+
         int newHealth = Math.max(0, opponentCritterStats.getCurrentHp() - damage);
         opponentCritterStats.setCurrentHp(newHealth);
 
@@ -106,38 +101,37 @@ public class BattleService {
             opponent.getUsername(),
             opponentActiveCritter.getName(),
             newHealth);
-        
-        currentBattle.setLastActionLog(actionLog);
+
+        currentBattle.getActionLogHistory().add(actionLog);
         
         if (newHealth == 0) {
             int nextCritterIndex = opponent.getActiveCritterIndex() + 1;
             
             if (nextCritterIndex < opponent.getRoster().size()) {
-                CritterState nextCritter = opponent.getRoster().get(nextCritterIndex);
+                CritterState nextCritter = opponent.getCritterByIndex(nextCritterIndex);
                 opponent.setActiveCritterIndex(nextCritterIndex);
-                currentBattle.setLastActionLog(actionLog + " " + opponentActiveCritter.getName() + " fainted! " + 
-                    opponent.getUsername() + " sent out " + nextCritter.getName() + "!");
+                String faintLog = opponentActiveCritter.getName() + " fainted! " + 
+                    opponent.getUsername() + " sent out " + nextCritter.getName() + "!";
+                currentBattle.getActionLogHistory().add(faintLog);
             } else {
                 currentBattle.setActivePlayerId(null);
-                currentBattle.setLastActionLog(actionLog + " " + opponentActiveCritter.getName() + " fainted! " + 
-                    currentPlayer.getUsername() + " wins the battle!");
-                return currentBattle;
+                String winLog = opponentActiveCritter.getName() + " fainted! " + 
+                    currentPlayer.getUsername() + " wins the battle!";
+                currentBattle.getActionLogHistory().add(winLog);
+                return;
             }
         }
         
-        String nextPlayerId = currentPlayer.getId().equals(currentBattle.getPlayerOne().getId()) 
-            ? currentBattle.getPlayerTwo().getId() 
-            : currentBattle.getPlayerOne().getId();
-        currentBattle.setActivePlayerId(nextPlayerId);
-        
+        currentBattle.setActivePlayerId(opponent.getId());
+
         currentPlayer.setHasTurn(false);
         opponent.setHasTurn(true);
-
-        return currentBattle;
     }
 
-    private BattleState executeDefenseAbility(BattleState currentBattle, PlayerState currentPlayer, 
-                                           PlayerState opponent, CritterState activeCritter, Ability ability) {
+    private void executeDefenseAbility(
+        BattleState currentBattle, PlayerState currentPlayer, 
+        PlayerState opponent, CritterState activeCritter, Ability ability
+    ) {
         CurrentStats critterStats = activeCritter.getStats();
         
         int defenseBoost = ability.getPower();
@@ -152,20 +146,14 @@ public class BattleService {
             defenseBoost,
             newDefense);
         
-        currentBattle.setLastActionLog(actionLog);
-        
-        String nextPlayerId = currentPlayer.getId().equals(currentBattle.getPlayerOne().getId()) 
-            ? currentBattle.getPlayerTwo().getId() 
-            : currentBattle.getPlayerOne().getId();
-        currentBattle.setActivePlayerId(nextPlayerId);
+        currentBattle.getActionLogHistory().add(actionLog);
+        currentBattle.setActivePlayerId(opponent.getId());
         
         currentPlayer.setHasTurn(false);
         opponent.setHasTurn(true);
-
-        return currentBattle;
     }
 
-    private BattleState executeSupportAbility(BattleState currentBattle, PlayerState currentPlayer, 
+    private void executeSupportAbility(BattleState currentBattle, PlayerState currentPlayer, 
                                            PlayerState opponent, CritterState activeCritter, Ability ability) {
         CurrentStats critterStats = activeCritter.getStats();
 
@@ -180,17 +168,12 @@ public class BattleService {
             activeCritter.getName(),
             heal,
             newHealth);
-        currentBattle.setLastActionLog(actionLog);
 
-        String nextPlayerId = currentPlayer.getId().equals(currentBattle.getPlayerOne().getId())
-            ? currentBattle.getPlayerTwo().getId()
-            : currentBattle.getPlayerOne().getId();
-        currentBattle.setActivePlayerId(nextPlayerId);
+        currentBattle.getActionLogHistory().add(actionLog);
+        currentBattle.setActivePlayerId(opponent.getId());
 
         currentPlayer.setHasTurn(false);
         opponent.setHasTurn(true);
-
-        return currentBattle;
     }
 
 }

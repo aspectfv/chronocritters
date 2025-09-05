@@ -17,4 +17,11 @@ public class PlayerState {
     private Boolean hasTurn;
     private int activeCritterIndex;
     private List<CritterState> roster;
+
+    public CritterState getCritterByIndex(int index) {
+        if (roster == null || roster.isEmpty() || index < 0 || index >= roster.size()) {
+            return null;
+        }
+        return roster.get(index);
+    }
 }

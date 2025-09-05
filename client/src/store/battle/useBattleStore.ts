@@ -94,7 +94,7 @@ const mapPlayerStateToBattlePlayer = (
   };
 };
 
-export const useBattleStore = create<BattleState>((set, get) => ({
+export const useBattleStore = create<BattleState>((set) => ({
   ...initialState,
 
   setBattleState: (newState) => set(newState),
@@ -114,11 +114,7 @@ export const useBattleStore = create<BattleState>((set, get) => ({
     const player = mapPlayerStateToBattlePlayer(userPlayerState, true);
     const opponent = mapPlayerStateToBattlePlayer(opponentPlayerState, false);
 
-    const currentLog = get().battleLog;
-    const lastLogFromServer = serverBattleState.lastActionLog;
-    const newLog = (lastLogFromServer && !currentLog.includes(lastLogFromServer))
-      ? [...currentLog, lastLogFromServer]
-      : currentLog;
+    const newLog = serverBattleState.actionLogHistory || [];
 
     set({
       player,

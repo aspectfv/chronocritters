@@ -74,7 +74,7 @@ export interface BattleStateResponse {
   activePlayerId: string | null;
   playerOne: PlayerState;
   playerTwo: PlayerState;
-  lastActionLog: string;
+  actionLogHistory: string[];
 }
 
 export interface BattleState {
