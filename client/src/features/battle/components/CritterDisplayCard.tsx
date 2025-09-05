@@ -1,4 +1,13 @@
 import type { CritterDisplayCardProps } from '@features/battle/types';
+import type { CritterType } from '@store/battle/types';
+
+const typeIcons: Record<CritterType, string> = {
+  FIRE: '🔥',
+  WATER: '💧',
+  ELECTRIC: '⚡',
+  GRASS: '🌍',
+  UNKNOWN: '❓',
+};
 
 export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardProps) {
   const healthPercentage = (critter.stats.currentHp / critter.stats.maxHp) * 100;
@@ -21,8 +30,7 @@ export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardPr
       </div>
       <div className="text-center">
         <div className="w-24 h-24 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-2">
-          {/* Placeholder for critter image/icon */}
-          <span className="text-4xl">🔥</span> 
+          <span className="text-4xl">{typeIcons[critter.type]}</span>
         </div>
         <h2 className="text-xl font-semibold text-green-900">{critter.name}</h2>
       </div>

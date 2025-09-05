@@ -22,7 +22,6 @@ export function TrainerProfile() {
     variables: {
       id: user!.id
     },
-    // do not run the query until the user is authenticated and available
     skip: !user,
   });
 
