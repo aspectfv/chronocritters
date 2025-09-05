@@ -40,8 +40,7 @@ export function MyCrittersTab() {
     },
     skip: !user,
   });
-  
-  // Effect to set the initially selected critter once data is loaded
+
   useEffect(() => {
     const roster = data?.getPlayer?.roster;
     if (!selectedCritter && roster && roster.length > 0) {
