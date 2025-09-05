@@ -1,4 +1,4 @@
-import type { Ability, BattleCritter, CritterType } from "@store/battle/types";
+import type { Ability, CritterState, CritterType } from "@store/battle/types";
 
 export type AbilitySelectorProps = {
   abilities: Ability[];
@@ -9,9 +9,14 @@ export type AbilitySelectorProps = {
 
 export interface CritterDisplayCardProps {
   playerName: string;
-  critter: BattleCritter;
+  critter: CritterState;
 }
 
 export interface BattleLogProps {
   log: string[];
+}
+
+export interface TeamDisplayProps {
+  title: string;
+  team: CritterState[];
 }

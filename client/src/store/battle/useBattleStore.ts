@@ -1,126 +1,115 @@
 import { create } from 'zustand';
-import { CritterType } from '@store/battle/types';
+import { AbilityType, CritterType } from '@store/battle/types';
 import type {
   BattleState,
-  BattlePlayer,
-  BattleCritter,
-  TeamCritter,
   Ability,
-  BattleStateResponse,
   PlayerState,
   CritterState,
 } from '@store/battle/types';
 
-const defaultEmptyCritter: BattleCritter = {
-  name: 'No Critter',
-  type: CritterType.UNKNOWN,
-  stats: { maxHp: 100, currentHp: 100, atk: 0, def: 0 },
-};
-
-const defaultEmptyBattlePlayer: BattlePlayer = {
-  name: 'Waiting for player...',
-  activeCritter: defaultEmptyCritter,
-  team: [],
-  abilities: [],
-  hasTurn: false,
-};
-
-const initialState = {
-  player: defaultEmptyBattlePlayer,
-  opponent: defaultEmptyBattlePlayer,
-  isPlayerTurn: false,
-  timeRemaining: 30,
-  battleLog: ['Waiting for battle to start...'],
-  battleResult: null,
-};
-
 const getAbilityDescription = (ability: Ability): string => {
   switch (ability.type) {
-    case 'ATTACK':
+    case AbilityType.ATTACK:
       return `A powerful strike dealing ${ability.power} damage.`;
-    case 'DEFENSE':
+    case AbilityType.DEFENSE:
       return `Boosts defense by ${ability.power} points.`;
-    case 'SUPPORT':
+    case AbilityType.SUPPORT:
       return `Restores ${ability.power} health.`;
     default:
       return 'An ability with a mysterious effect.';
   }
 };
 
-const mapCritterStateToBattleCritter = (
-  critterState: CritterState
-): BattleCritter => ({
-  name: critterState.name,
-  type: critterState.type,
-  stats: {
-    currentHp: critterState.stats.currentHp,
-    maxHp: critterState.stats.maxHp,
-    atk: critterState.stats.currentAtk,
-    def: critterState.stats.currentDef,
-  },
-});
+function getMappedPlayers(playerOne: PlayerState, playerTwo: PlayerState, userId: string) {
+  const isPlayerOne = playerOne.id === userId;
 
-const mapCritterStateToTeamCritter = (
-  critterState: CritterState
-): TeamCritter => ({
-  name: critterState.name,
-  type: critterState.type,
-  currentHp: critterState.stats.currentHp,
-  maxHp: critterState.stats.maxHp,
-});
+  const player = isPlayerOne ? playerOne : playerTwo;
+  const opponent = isPlayerOne ? playerTwo : playerOne;
 
-const mapPlayerStateToBattlePlayer = (
-  playerState: PlayerState,
-  isCurrentUser: boolean
-): BattlePlayer => {
-  const activeCritterState = playerState.roster[playerState.activeCritterIndex];
+  return { player, opponent };
+}
 
-  const activeCritter: BattleCritter = activeCritterState
-    ? mapCritterStateToBattleCritter(activeCritterState)
-    : defaultEmptyCritter;
+const defaultEmptyCritter: CritterState = {
+  id: '',
+  name: '',
+  type: CritterType.UNKNOWN,
+  stats: { maxHp: 100, currentHp: 100, currentAtk: 0, currentDef: 0 },
+  abilities: [],
+};
 
-  const abilities: Ability[] = (isCurrentUser && activeCritterState?.abilities)
-    ? activeCritterState.abilities.map(ab => ({ ...ab, description: getAbilityDescription(ab) }))
-    : [];
+const defaultEmptyBattlePlayer: PlayerState = {
+  id: '',
+  username: '',
+  hasTurn: false,
+  activeCritterIndex: 0,
+  roster: [defaultEmptyCritter],
+  activeCritter: defaultEmptyCritter
+};
 
-  const team: TeamCritter[] = playerState.roster.map(mapCritterStateToTeamCritter);
+const initialState: BattleState = {
+  battleId: '',
+  activePlayerId: '',
+  playerOne: defaultEmptyBattlePlayer,
+  playerTwo: defaultEmptyBattlePlayer,
+  actionLogHistory: ['Waiting for battle to start...'],
 
-  return {
-    name: playerState.username,
-    activeCritter,
-    team,
-    abilities,
-    hasTurn: playerState.hasTurn,
-  };
+  player: defaultEmptyBattlePlayer,
+  opponent: defaultEmptyBattlePlayer,
+  timeRemaining: 30,
+  battleResult: null,
+  setBattleState: () => {},
+  addLogMessage: () => {},
+  resetBattleState: () => {},
 };
 
 export const useBattleStore = create<BattleState>((set) => ({
   ...initialState,
+  setBattleState: (newState, userId?) =>
+    set((prev) => {
+      const updated: Partial<BattleState> = { ...newState };
 
-  setBattleState: (newState) => set(newState),
-  addLogMessage: (message) => set((state) => ({ battleLog: [...state.battleLog, message] })),
+      if (
+        updated.playerOne &&
+        updated.playerTwo &&
+        updated.activePlayerId
+      ) {
+        const { player, opponent } = getMappedPlayers(
+          updated.playerOne ?? prev.playerOne,
+          updated.playerTwo ?? prev.playerTwo,
+          userId ?? ""
+        );
+
+        if (player.roster && typeof player.activeCritterIndex === 'number') {
+          const activeCritter = player.roster[player.activeCritterIndex];
+          if (activeCritter && activeCritter.abilities) {
+            player.activeCritter = {
+              ...activeCritter,
+              abilities: activeCritter.abilities.map((ab) => ({
+                ...ab,
+                description: getAbilityDescription(ab),
+              })),
+            };
+          }
+        }
+
+        if (opponent.roster && typeof opponent.activeCritterIndex === 'number') {
+          const activeCritter = opponent.roster[opponent.activeCritterIndex];
+          if (activeCritter && activeCritter.abilities) {
+            opponent.activeCritter = {
+              ...activeCritter,
+              abilities: activeCritter.abilities.map((ab) => ({
+                ...ab,
+                description: getAbilityDescription(ab),
+              })),
+            };
+          }
+        }
+
+        updated.player = player;
+        updated.opponent = opponent;
+      }
+
+      return { ...prev, ...updated };
+    }),
   resetBattleState: () => set(initialState),
-
-  updateBattleStateFromServer: (serverBattleState: BattleStateResponse, currentUserId: string) => {
-    if (!currentUserId) {
-      console.error("Battle state update failed: currentUserId is not provided.");
-      return;
-    }
-
-    const isPlayerOneUser = serverBattleState.playerOne.id === currentUserId;
-    const userPlayerState = isPlayerOneUser ? serverBattleState.playerOne : serverBattleState.playerTwo;
-    const opponentPlayerState = isPlayerOneUser ? serverBattleState.playerTwo : serverBattleState.playerOne;
-
-    const player = mapPlayerStateToBattlePlayer(userPlayerState, true);
-    const opponent = mapPlayerStateToBattlePlayer(opponentPlayerState, false);
-
-    const newLog = serverBattleState.actionLogHistory || [];
-
-    set({
-      player,
-      opponent,
-      timeRemaining: 30,
-      battleLog: newLog,
-    });
-  },
 }));

@@ -1,9 +1,9 @@
-import type { CritterType } from "@store/battle/types";
+import { CritterType } from "@store/battle/types";
 
 export const typeIcons: Record<CritterType, string> = {
-  FIRE: '🔥',
-  WATER: '💧',
-  ELECTRIC: '⚡',
-  GRASS: '🌿', // changed from 🌍 to 🌿
-  UNKNOWN: '❓',
+  [CritterType.FIRE]: '🔥',
+  [CritterType.WATER]: '💧',
+  [CritterType.ELECTRIC]: '⚡',
+  [CritterType.GRASS]: '🌿',
+  [CritterType.UNKNOWN]: '❓',
 };

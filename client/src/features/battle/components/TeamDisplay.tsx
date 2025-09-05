@@ -1,9 +1,5 @@
-import type { TeamCritter } from '@store/battle/types';
-
-interface TeamDisplayProps {
-  title: string;
-  team: TeamCritter[];
-}
+import type { TeamDisplayProps } from '@features/battle/types';
+import { typeIcons } from '@utils/typeIcons';
 
 export function TeamDisplay({ title, team }: TeamDisplayProps) {
   return (
@@ -13,11 +9,10 @@ export function TeamDisplay({ title, team }: TeamDisplayProps) {
         {team.map(critter => (
           <div key={critter.name} className="text-center">
             <div className="w-12 h-12 bg-green-100 rounded-full mx-auto flex items-center justify-center text-xl">
-              {/* This could be made dynamic based on critter.type */}
-              <span>💧</span> 
+              <span>{typeIcons[critter.type]}</span> 
             </div>
             <p className="text-xs mt-1 text-gray-700">{critter.name}</p>
-            <p className="text-xs text-gray-500">{critter.currentHp}/{critter.maxHp}</p>
+            <p className="text-xs text-gray-500">{critter.stats.currentHp}/{critter.stats.maxHp}</p>
           </div>
         ))}
       </div>

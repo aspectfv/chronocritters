@@ -37,11 +37,11 @@ export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardPr
       </div>
       <div className="flex justify-around text-center text-sm text-gray-700">
         <div>
-          <p className="font-bold">{critter.stats.atk}</p>
+          <p className="font-bold">{critter.stats.currentAtk}</p>
           <p className="text-xs">ATK</p>
         </div>
         <div>
-          <p className="font-bold">{critter.stats.def}</p>
+          <p className="font-bold">{critter.stats.currentDef}</p>
           <p className="text-xs">DEF</p>
         </div>
       </div>

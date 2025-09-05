@@ -3,8 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@store/auth/useAuthStore';
 import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import { useBattleStore } from '@store/battle/useBattleStore';
-import { CritterType } from '@store/battle/types';
-import type { BattlePlayer, BattleStateResponse } from '@store/battle/types';
+import type { BattleState } from '@store/battle/types';
 
 import { BattleHeader } from '../components/BattleHeader';
 import { TimerBar } from '../components/TimerBar';
@@ -13,41 +12,22 @@ import { TeamDisplay } from '../components/TeamDisplay';
 import { BattleLog } from '../components/BattleLog';
 import { AbilitySelector } from '../components/AbilitySelector';
 
-const defaultConnectingPlayer: BattlePlayer = {
-  name: 'Connecting...',
-  activeCritter: {
-    name: '',
-    type: CritterType.UNKNOWN,
-    stats: { maxHp: 100, currentHp: 100, atk: 0, def: 0 },
-  },
-  team: [],
-  abilities: [],
-  hasTurn: false
-};
-
 function BattlePage() {
   const { battleId } = useParams<{ battleId: string }>();
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
 
   const isConnected = useLobbyStore((state) => state.isConnected);
-  const { player, opponent, timeRemaining, battleLog, battleResult } = useBattleStore();
+  const { player, opponent, actionLogHistory, timeRemaining, battleResult } = useBattleStore();
 
   useEffect(() => {
     const { subscribe, publish } = useLobbyStore.getState();
-    const { updateBattleStateFromServer, setBattleState } = useBattleStore.getState();
+    const { setBattleState } = useBattleStore.getState();
 
-    if (!isConnected || !battleId || !user?.id) {
-      setBattleState({
-        player: defaultConnectingPlayer,
-        opponent: defaultConnectingPlayer,
-        battleLog: ['Connecting to battle...'],
-      });
-      return;
-    }
+    if (!isConnected || !battleId || !user?.id) return;
 
-    const subscription = subscribe(`/topic/battle/${battleId}`, (serverBattleState: BattleStateResponse) => {
-      updateBattleStateFromServer(serverBattleState, user.id);
+    const subscription = subscribe(`/topic/battle/${battleId}`, (newBattleState: BattleState) => {
+      setBattleState(newBattleState, user.id);
     });
 
     publish(`/app/battle/${battleId}/join`, {});
@@ -59,9 +39,9 @@ function BattlePage() {
   }, [isConnected, battleId, user?.id, navigate]);
 
   useEffect(() => {
-    if (opponent.team.length > 0 && opponent.team.every(critter => critter.currentHp <= 0)) {
+    if (opponent.roster.length > 0 && opponent.roster.every(critter => critter.stats.currentHp <= 0)) {
       navigate(`/results/${battleId}`, { state: { result: 'victory' } });
-    } else if (player.team.length > 0 && player.team.every(critter => critter.currentHp <= 0)) {
+    } else if (player.roster.length > 0 && player.roster.every(critter => critter.stats.currentHp <= 0)) {
       navigate(`/results/${battleId}`, { state: { result: 'defeat' } });
     }
   }, [player, opponent, navigate, battleId]);
@@ -95,19 +75,19 @@ function BattlePage() {
         <TimerBar timeRemaining={timeRemaining} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
-          <CritterDisplayCard playerName={player.name} critter={player.activeCritter} />
-          <CritterDisplayCard playerName={opponent.name} critter={opponent.activeCritter} />
+          <CritterDisplayCard playerName={player.username} critter={player.activeCritter} />
+          <CritterDisplayCard playerName={opponent.username} critter={opponent.activeCritter} />
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
-          <TeamDisplay title="Your Team" team={player.team} />
-          <TeamDisplay title="Opponent's Team" team={opponent.team} />
+          <TeamDisplay title="Your Team" team={player.roster} />
+          <TeamDisplay title="Opponent's Team" team={opponent.roster} />
         </div>
 
-        <BattleLog log={battleLog} />
+        <BattleLog log={actionLogHistory} />
         
         <AbilitySelector 
-          abilities={player.abilities} 
+          abilities={player.activeCritter.abilities} 
           onAbilityClick={handleAbilityClick}
           isPlayerTurn={player.hasTurn} 
           critterType={player.activeCritter.type}
