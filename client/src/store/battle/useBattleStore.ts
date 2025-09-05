@@ -14,7 +14,7 @@ import type {
 const defaultEmptyCritter: BattleCritter = {
   name: 'No Critter',
   type: CritterType.UNKNOWN,
-  stats: { maxHp: 100, currentHp: 0, atk: 0, def: 0 },
+  stats: { maxHp: 100, currentHp: 100, atk: 0, def: 0 },
 };
 
 const defaultEmptyBattlePlayer: BattlePlayer = {
@@ -23,6 +23,15 @@ const defaultEmptyBattlePlayer: BattlePlayer = {
   team: [],
   abilities: [],
   hasTurn: false,
+};
+
+const initialState = {
+  player: defaultEmptyBattlePlayer,
+  opponent: defaultEmptyBattlePlayer,
+  isPlayerTurn: false,
+  timeRemaining: 30,
+  battleLog: ['Waiting for battle to start...'],
+  battleResult: null,
 };
 
 const getAbilityDescription = (ability: Ability): string => {
@@ -86,14 +95,11 @@ const mapPlayerStateToBattlePlayer = (
 };
 
 export const useBattleStore = create<BattleState>((set, get) => ({
-  player: defaultEmptyBattlePlayer,
-  opponent: defaultEmptyBattlePlayer,
-  isPlayerTurn: false,
-  timeRemaining: 30,
-  battleLog: ['Waiting for battle to start...'],
+  ...initialState,
 
   setBattleState: (newState) => set(newState),
   addLogMessage: (message) => set((state) => ({ battleLog: [...state.battleLog, message] })),
+  resetBattleState: () => set(initialState),
 
   updateBattleStateFromServer: (serverBattleState: BattleStateResponse, currentUserId: string) => {
     if (!currentUserId) {

@@ -66,7 +66,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoute><BattlePage /></ProtectedRoute>,
       },
       {
-        path: 'results',
+        path: 'results/:battleId',
         element: <ProtectedRoute><ResultsPage /></ProtectedRoute>,
       },
     ],

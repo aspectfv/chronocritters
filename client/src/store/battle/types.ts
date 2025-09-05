@@ -82,8 +82,10 @@ export interface BattleState {
   opponent: BattlePlayer;
   timeRemaining: number;
   battleLog: string[];
+  battleResult: 'victory' | 'defeat' | null;
   setBattleState: (newState: Partial<BattleState>) => void;
   addLogMessage: (message: string) => void;
+  resetBattleState: () => void;
   updateBattleStateFromServer: (serverBattleState: BattleStateResponse, currentUserId: string) => void;
 }
 

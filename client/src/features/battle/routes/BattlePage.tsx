@@ -18,7 +18,7 @@ const defaultConnectingPlayer: BattlePlayer = {
   activeCritter: {
     name: '',
     type: CritterType.UNKNOWN,
-    stats: { maxHp: 100, currentHp: 0, atk: 0, def: 0 },
+    stats: { maxHp: 100, currentHp: 100, atk: 0, def: 0 },
   },
   team: [],
   abilities: [],
@@ -31,7 +31,7 @@ function BattlePage() {
   const user = useAuthStore((state) => state.user);
 
   const isConnected = useLobbyStore((state) => state.isConnected);
-  const { player, opponent, timeRemaining, battleLog } = useBattleStore();
+  const { player, opponent, timeRemaining, battleLog, battleResult } = useBattleStore();
 
   useEffect(() => {
     const { subscribe, publish } = useLobbyStore.getState();
@@ -57,6 +57,20 @@ function BattlePage() {
     };
     
   }, [isConnected, battleId, user?.id, navigate]);
+
+  useEffect(() => {
+    if (opponent.team.length > 0 && opponent.team.every(critter => critter.currentHp <= 0)) {
+      navigate(`/results/${battleId}`, { state: { result: 'victory' } });
+    } else if (player.team.length > 0 && player.team.every(critter => critter.currentHp <= 0)) {
+      navigate(`/results/${battleId}`, { state: { result: 'defeat' } });
+    }
+  }, [player, opponent, navigate, battleId]);
+
+  useEffect(() => {
+    if (battleResult) {
+      navigate(`/results/${battleId}`);
+    }
+  }, [battleResult, navigate]);
 
   const handleAbilityClick = useCallback((abilityId: string) => {
     const { publish } = useLobbyStore.getState();
