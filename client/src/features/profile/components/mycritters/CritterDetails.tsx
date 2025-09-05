@@ -1,13 +1,5 @@
 import type { CritterData } from '@features/profile/types';
-import { CritterType } from '@store/battle/types';
-
-export const typeIcons: Record<CritterType, string> = {
-  FIRE: '🔥',
-  WATER: '💧',
-  ELECTRIC: '⚡',
-  GRASS: '🌿',
-  UNKNOWN: '❓',
-};
+import { typeIcons } from '@utils/typeIcons';
 
 export const CritterDetails = ({ critter }: { critter: CritterData | null }) => {
   if (!critter) {

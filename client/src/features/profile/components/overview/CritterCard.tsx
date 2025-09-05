@@ -1,13 +1,5 @@
 import type { CritterCardProps } from '@features/profile/types';
-import type { CritterType } from '@store/battle/types';
-
-const typeIcons: Record<CritterType, string> = {
-  FIRE: '🔥',
-  WATER: '💧',
-  ELECTRIC: '⚡',
-  GRASS: '🌍',
-  UNKNOWN: '❓',
-};
+import { typeIcons } from '@utils/typeIcons';
 
 export function CritterCard({ name, level, type }: CritterCardProps) {
   return (
