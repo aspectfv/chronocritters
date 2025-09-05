@@ -1,5 +1,16 @@
 import type { CritterDisplayCardProps } from '@features/battle/types';
 import { typeIcons } from '@utils/typeIcons';
+import { CritterType } from '@store/battle/types';
+
+const critterTypeStyles: Record<CritterType, string> = {
+  [CritterType.FIRE]: 'bg-red-100 text-red-800',
+  [CritterType.WATER]: 'bg-blue-100 text-blue-800',
+  [CritterType.GRASS]: 'bg-green-100 text-green-800',
+  [CritterType.ELECTRIC]: 'bg-yellow-100 text-yellow-800',
+  [CritterType.UNKNOWN]: 'bg-gray-100 text-gray-800',
+};
+
+
 
 export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardProps) {
   const healthPercentage = (critter.stats.currentHp / critter.stats.maxHp) * 100;
@@ -10,11 +21,7 @@ export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardPr
         <span className="font-bold text-green-800">{playerName}</span>
         <span
           className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${
-            critter.type === 'FIRE' ? 'bg-red-100 text-red-800' :
-            critter.type === 'WATER' ? 'bg-blue-100 text-blue-800' :
-            critter.type === 'GRASS' ? 'bg-green-100 text-green-800' :
-            critter.type === 'ELECTRIC' ? 'bg-yellow-100 text-yellow-800' :
-            'bg-gray-100 text-gray-800'
+            critterTypeStyles[critter.type] ?? critterTypeStyles[CritterType.UNKNOWN]
           }`}
         >
           {critter.type}
