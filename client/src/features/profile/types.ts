@@ -1,11 +1,11 @@
+import type { CritterType } from '@store/battle/types';
+
 export interface BattleStatisticsProps {
   wins: number;
   losses: number;
   totalBattles: number;
   winRate: number;
 }
-
-export type CritterType = 'Fire' | 'Water' | 'Electric' | 'Ground';
 
 export interface CritterCardProps {
   name: string;
@@ -38,5 +38,21 @@ export interface GetBattleStatsData {
 }
 
 export interface GetBattleStatsVars {
+  id: string;
+}
+
+export interface RosterCritter {
+  name: string;
+  type: CritterType;
+}
+
+export interface GetCritterTeamData {
+  getPlayer: {
+    id: string;
+    roster: RosterCritter[];
+  };
+}
+
+export interface GetCritterTeamVars {
   id: string;
 }
