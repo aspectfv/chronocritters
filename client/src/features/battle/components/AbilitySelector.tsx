@@ -1,7 +1,6 @@
 import type { AbilitySelectorProps } from '@features/battle/types';
 import { type Ability, CritterType } from '@store/battle/types';
 
-// sub component for single ability button
 const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: boolean; critterType: CritterType }> = 
   ({ ability, onClick, disabled, critterType }) => (
   <button

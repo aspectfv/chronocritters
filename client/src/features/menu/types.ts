@@ -17,20 +17,6 @@ export interface TrainerProfileProps {
   losses?: number;
 }
 
-// Default data
-export const defaultNotifications: NotificationItem[] = [
-  {
-    id: '1',
-    message: 'Welcome back, trainer!',
-    type: 'welcome'
-  },
-  {
-    id: '2', 
-    message: 'New critters available in the shop!',
-    type: 'shop'
-  }
-];
-
 export interface MatchResponse {
   playerOneId: string;
   playerTwoId: string;

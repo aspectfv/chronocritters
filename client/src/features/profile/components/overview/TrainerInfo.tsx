@@ -12,7 +12,7 @@ const GET_TRAINER_INFO = gql`
   }
 `;
 
-// Mock data for fields not yet available in the backend schema
+// mock data for fields unimplemented in backend
 const mockTrainerData = {
   title: "Gold Trainer",
   level: 15,

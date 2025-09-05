@@ -33,7 +33,7 @@ export function CritterTeamOverview() {
       <h3 className="font-semibold text-green-800 mb-4">Critter Team Overview</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {roster.map((critter) => (
-          // Level is mocked as it's not in the GraphQL schema yet
+          // mock data level
           <CritterCard key={critter.name} name={critter.name} type={critter.type} level={1} />
         ))}
       </div>

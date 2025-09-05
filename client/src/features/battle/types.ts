@@ -4,7 +4,7 @@ export type AbilitySelectorProps = {
   abilities: Ability[];
   onAbilityClick: (abilityId: string) => void;
   isPlayerTurn: boolean;
-  critterType: CritterType; // Add this line
+  critterType: CritterType;
 };
 
 export interface CritterDisplayCardProps {

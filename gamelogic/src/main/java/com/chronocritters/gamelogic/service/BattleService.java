@@ -52,6 +52,10 @@ public class BattleService {
             throw new IllegalArgumentException("Invalid battle ID");
         }
 
+        if (playerId == null) {
+            throw new IllegalArgumentException("Invalid player Id");
+        }
+
         if (!currentBattle.getActivePlayerId().equals(playerId)) {
             throw new IllegalStateException("It's not the player's turn");
         }
@@ -87,16 +91,13 @@ public class BattleService {
 
     private BattleState executeAttackAbility(BattleState currentBattle, PlayerState currentPlayer, 
                                            PlayerState opponent, CritterState activeCritter, Ability ability) {
-        // Calculate damage
         int damage = ability.getPower();
             
-        // Apply damage to opponent's active critter
         CritterState opponentActiveCritter = opponent.getRoster().get(opponent.getActiveCritterIndex());
         CurrentStats opponentCritterStats = opponentActiveCritter.getStats();
         int newHealth = Math.max(0, opponentCritterStats.getCurrentHp() - damage);
         opponentCritterStats.setCurrentHp(newHealth);
 
-        // Update battle log
         String actionLog = String.format("%s's %s used %s for %d damage! %s's %s now has %d health.",
             currentPlayer.getUsername(),
             activeCritter.getName(),
@@ -108,19 +109,15 @@ public class BattleService {
         
         currentBattle.setLastActionLog(actionLog);
         
-        // Check if opponent's critter fainted
         if (newHealth == 0) {
-            // Check if opponent has more critters available
             int nextCritterIndex = opponent.getActiveCritterIndex() + 1;
             
             if (nextCritterIndex < opponent.getRoster().size()) {
-                // Switch to next available critter
                 CritterState nextCritter = opponent.getRoster().get(nextCritterIndex);
                 opponent.setActiveCritterIndex(nextCritterIndex);
                 currentBattle.setLastActionLog(actionLog + " " + opponentActiveCritter.getName() + " fainted! " + 
                     opponent.getUsername() + " sent out " + nextCritter.getName() + "!");
             } else {
-                // No more critters - battle ends, current player wins
                 currentBattle.setActivePlayerId(null);
                 currentBattle.setLastActionLog(actionLog + " " + opponentActiveCritter.getName() + " fainted! " + 
                     currentPlayer.getUsername() + " wins the battle!");
@@ -128,13 +125,11 @@ public class BattleService {
             }
         }
         
-        // Switch turns
         String nextPlayerId = currentPlayer.getId().equals(currentBattle.getPlayerOne().getId()) 
             ? currentBattle.getPlayerTwo().getId() 
             : currentBattle.getPlayerOne().getId();
         currentBattle.setActivePlayerId(nextPlayerId);
         
-        // Update turn flags
         currentPlayer.setHasTurn(false);
         opponent.setHasTurn(true);
 
@@ -143,15 +138,12 @@ public class BattleService {
 
     private BattleState executeDefenseAbility(BattleState currentBattle, PlayerState currentPlayer, 
                                            PlayerState opponent, CritterState activeCritter, Ability ability) {
-        // Apply defense effect to the active critter
         CurrentStats critterStats = activeCritter.getStats();
         
-        // Increase defense stat temporarily (could be permanent for this battle)
         int defenseBoost = ability.getPower();
         int newDefense = critterStats.getCurrentDef() + defenseBoost;
         critterStats.setCurrentDef(newDefense);
         
-        // Update battle log
         String actionLog = String.format("%s's %s used %s! %s's defense increased by %d (now %d).",
             currentPlayer.getUsername(),
             activeCritter.getName(),
@@ -162,13 +154,11 @@ public class BattleService {
         
         currentBattle.setLastActionLog(actionLog);
         
-        // Switch turns
         String nextPlayerId = currentPlayer.getId().equals(currentBattle.getPlayerOne().getId()) 
             ? currentBattle.getPlayerTwo().getId() 
             : currentBattle.getPlayerOne().getId();
         currentBattle.setActivePlayerId(nextPlayerId);
         
-        // Update turn flags
         currentPlayer.setHasTurn(false);
         opponent.setHasTurn(true);
 
@@ -192,13 +182,11 @@ public class BattleService {
             newHealth);
         currentBattle.setLastActionLog(actionLog);
 
-        // Switch turns
         String nextPlayerId = currentPlayer.getId().equals(currentBattle.getPlayerOne().getId())
             ? currentBattle.getPlayerTwo().getId()
             : currentBattle.getPlayerOne().getId();
         currentBattle.setActivePlayerId(nextPlayerId);
 
-        // Update turn flags
         currentPlayer.setHasTurn(false);
         opponent.setHasTurn(true);
 

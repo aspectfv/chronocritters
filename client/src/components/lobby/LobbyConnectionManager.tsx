@@ -11,13 +11,12 @@ export function LobbyConnectionManager() {
       connect();
     }
 
-    // This cleanup function will be called when the component unmounts
-    // or when `isAuthenticated` changes from true to false (logout).
+    // called when the component unmounts
+    // or when isAuthenticated changes from true to false (logout).
     return () => {
       disconnect();
     };
   }, [isAuthenticated, connect, disconnect]);
 
-  // This component renders nothing.
   return null;
 }

@@ -3,8 +3,6 @@ interface TimerBarProps {
 }
 
 export function TimerBar({ timeRemaining }: TimerBarProps) {
-  // Assuming a total turn time of 30 seconds for calculating the percentage.
-  // The `Math.max(0, ...)` ensures the percentage doesn't go below zero.
   const percentage = Math.max(0, (timeRemaining / 30) * 100);
 
   return (

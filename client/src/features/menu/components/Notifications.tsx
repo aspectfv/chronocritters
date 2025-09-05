@@ -1,5 +1,17 @@
-import type { NotificationsProps } from '@features/menu/types';
-import { defaultNotifications } from '@features/menu/types';
+import type { NotificationItem, NotificationsProps } from '@features/menu/types';
+
+export const defaultNotifications: NotificationItem[] = [
+  {
+    id: '1',
+    message: 'Welcome back, trainer!',
+    type: 'welcome'
+  },
+  {
+    id: '2', 
+    message: 'New critters available in the shop!',
+    type: 'shop'
+  }
+];
 
 export function Notifications({ notifications = defaultNotifications }: NotificationsProps) {
   return (

@@ -6,7 +6,6 @@ const userClient = axios.create({
   baseURL: import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:8080',
 });
 
-// Add the auth token logic to this client
 applyAuthTokenInterceptor(userClient);
 
 export const login = (credentials: LoginCredentials) => userClient.post<LoginResponse>('/auth/login', credentials);

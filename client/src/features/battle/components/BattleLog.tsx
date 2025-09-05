@@ -3,7 +3,6 @@ interface BattleLogProps {
 }
 
 export function BattleLog({ log }: BattleLogProps) {
-  // Display only the latest message from the log array
   const latestMessage = log.length > 0 ? log[log.length - 1] : 'Waiting for action...';
 
   return (
