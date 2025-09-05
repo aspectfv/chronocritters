@@ -4,7 +4,7 @@ import { useQuery } from '@apollo/client/react';
 import { useAuthStore } from '@store/auth/useAuthStore';
 import type { GetMyCrittersData, GetMyCrittersVars, CritterData } from '@features/profile/types';
 import { CritterDetails } from './CritterDetails';
-import { typeIcons } from '@utils/typeIcons';
+import { CritterList } from './CritterList';
 
 const GET_MY_CRITTERS = gql`
   query GetMyCritters($id: ID!) {
@@ -41,6 +41,7 @@ export function MyCrittersTab() {
     skip: !user,
   });
   
+  // Effect to set the initially selected critter once data is loaded
   useEffect(() => {
     const roster = data?.getPlayer?.roster;
     if (!selectedCritter && roster && roster.length > 0) {
@@ -55,27 +56,11 @@ export function MyCrittersTab() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div className="md:col-span-1 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="font-semibold text-green-800 mb-4">My Critters ({roster.length})</h3>
-        <div className="space-y-3">
-          {roster.map((critter) => (
-            <div 
-              key={critter.id} 
-              onClick={() => setSelectedCritter(critter)}
-              className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                selectedCritter?.id === critter.id 
-                  ? 'bg-green-50 border-green-400' 
-                  : 'bg-gray-50 border-gray-200 hover:border-green-400'
-              }`}
-            >
-              <p className="font-bold text-gray-800">
-                {typeIcons[critter.type]} {critter.name}
-              </p>
-              <p className="text-sm text-gray-500">{critter.type}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <CritterList 
+        roster={roster}
+        selectedCritter={selectedCritter}
+        onCritterSelect={setSelectedCritter}
+      />
 
       <div className="md:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <CritterDetails critter={selectedCritter} />

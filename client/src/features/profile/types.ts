@@ -88,3 +88,9 @@ export interface GetMyCrittersData {
 export interface GetMyCrittersVars {
   id: string;
 }
+
+export interface CritterListProps {
+  roster: CritterData[];
+  selectedCritter: CritterData | null;
+  onCritterSelect: (critter: CritterData) => void;
+}
