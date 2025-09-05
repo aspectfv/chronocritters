@@ -28,6 +28,7 @@ function BattlePage() {
 
     const subscription = subscribe(`/topic/battle/${battleId}`, (newBattleState: BattleState) => {
       setBattleState(newBattleState, user.id);
+      console.log(newBattleState)
     });
 
     publish(`/app/battle/${battleId}/join`, {});

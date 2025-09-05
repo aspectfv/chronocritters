@@ -68,11 +68,7 @@ export const useBattleStore = create<BattleState>((set) => ({
     set((prev) => {
       const updated: Partial<BattleState> = { ...newState };
 
-      if (
-        updated.playerOne &&
-        updated.playerTwo &&
-        updated.activePlayerId
-      ) {
+      if (updated.playerOne && updated.playerTwo) {
         const { player, opponent } = getMappedPlayers(
           updated.playerOne ?? prev.playerOne,
           updated.playerTwo ?? prev.playerTwo,
