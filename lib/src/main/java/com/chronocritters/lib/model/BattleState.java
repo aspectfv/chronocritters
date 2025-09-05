@@ -17,6 +17,7 @@ public class BattleState {
     private PlayerState playerOne;
     private PlayerState playerTwo;
     private List<String> actionLogHistory;
+    private int timeRemaining;
 
     public PlayerState getPlayer() {
         if (playerOne != null && playerOne.getId().equals(activePlayerId)) {

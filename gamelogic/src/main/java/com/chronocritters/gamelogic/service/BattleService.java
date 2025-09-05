@@ -21,6 +21,8 @@ public class BattleService {
     private final List<BattleState> activeBattles = new ArrayList<>();
     private final PlayerGrpcClient playerGrpcClient;
 
+    private static final int TURN_DURATION_SECONDS = 30;
+
     public BattleState getBattleState(String battleId) {
         return activeBattles.stream()
                 .filter(battle -> battle.getBattleId().equals(battleId))
@@ -45,6 +47,7 @@ public class BattleService {
                 .playerOne(playerOne)
                 .playerTwo(playerTwo)
                 .actionLogHistory(logHistory)
+                .timeRemaining(TURN_DURATION_SECONDS)
                 .build();
 
         activeBattles.add(battleState);
@@ -61,7 +64,6 @@ public class BattleService {
         }
 
         PlayerState player = currentBattle.getPlayer();
-
         PlayerState opponent = currentBattle.getOpponent();
 
         CritterState activeCritter = player.getCritterByIndex(player.getActiveCritterIndex());
@@ -77,6 +79,12 @@ public class BattleService {
             case SUPPORT -> executeSupportAbility(currentBattle, player, opponent, activeCritter, ability);
             default -> throw new IllegalArgumentException("Unexpected value: " + ability.getType());
         }
+
+        currentBattle.setActivePlayerId(opponent.getId());
+        currentBattle.setTimeRemaining(TURN_DURATION_SECONDS);
+        
+        player.setHasTurn(false);
+        opponent.setHasTurn(true);
 
         return currentBattle;
     }
@@ -121,11 +129,6 @@ public class BattleService {
                 return;
             }
         }
-        
-        currentBattle.setActivePlayerId(opponent.getId());
-
-        player.setHasTurn(false);
-        opponent.setHasTurn(true);
     }
 
     private void executeDefenseAbility(
@@ -147,10 +150,6 @@ public class BattleService {
             newDefense);
         
         currentBattle.getActionLogHistory().add(actionLog);
-        currentBattle.setActivePlayerId(opponent.getId());
-        
-        player.setHasTurn(false);
-        opponent.setHasTurn(true);
     }
 
     private void executeSupportAbility(BattleState currentBattle, PlayerState player, 
@@ -170,10 +169,6 @@ public class BattleService {
             newHealth);
 
         currentBattle.getActionLogHistory().add(actionLog);
-        currentBattle.setActivePlayerId(opponent.getId());
-
-        player.setHasTurn(false);
-        opponent.setHasTurn(true);
     }
 
 }
