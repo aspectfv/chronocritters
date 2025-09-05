@@ -49,13 +49,13 @@ public class DatabaseSeeder {
 
             // Critters
             Critter aquaLing = Critter.builder()
-                .name("Aqua-ling")
+                .name("Aqualing")
                 .type(CritterType.WATER)
                 .baseStats(BaseStats.builder().health(120).attack(60).defense(70).build())
                 .abilities(List.of(tidalWave, healPulse))
                 .build();
             Critter voltHound = Critter.builder()
-                .name("Volt-hound")
+                .name("Volthound")
                 .type(CritterType.ELECTRIC)
                 .baseStats(BaseStats.builder().health(100).attack(90).defense(60).build())
                 .abilities(List.of(thunderStrike))
