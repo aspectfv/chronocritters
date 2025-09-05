@@ -13,9 +13,14 @@ export interface CritterCardProps {
   type: CritterType;
 }
 
-export interface TrainerInfoProps {
-  name: string;
-  title: string;
-  level: number;
-  experience: number;
+export interface GetTrainerInfoData {
+  getPlayer: {
+    __typename: 'Player';
+    id: string;
+    username: string;
+  };
+}
+
+export interface GetTrainerInfoVars {
+  id: string;
 }
