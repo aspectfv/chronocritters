@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { useAuthStore } from '@store/auth/useAuthStore';
-import type { CritterType } from '@store/battle/types';
 import type { GetMyCrittersData, GetMyCrittersVars, CritterData } from '@features/profile/types';
+import { CritterDetails, typeIcons } from './CritterDetails';
 
-// Define the GraphQL query to fetch the player's full roster details
 const GET_MY_CRITTERS = gql`
   query GetMyCritters($id: ID!) {
     getPlayer(id: $id) {
@@ -29,70 +28,6 @@ const GET_MY_CRITTERS = gql`
     }
   }
 `;
-
-const typeIcons: Record<CritterType, string> = {
-  FIRE: '🔥',
-  WATER: '💧',
-  ELECTRIC: '⚡',
-  GRASS: '🌍',
-  UNKNOWN: '❓',
-};
-
-// Sub-component for displaying details of a selected critter
-const CritterDetails = ({ critter }: { critter: CritterData | null }) => {
-  // Gracefully handle the case where no critter is selected
-  if (!critter) {
-    return (
-      <div className="flex flex-col h-full items-center justify-center text-center">
-        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
-        </div>
-        <h3 className="font-semibold text-gray-800 text-xl">Select a Critter</h3>
-        <p className="text-gray-500">Select a critter from the list to view its details.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="text-left">
-      <div className="text-center mb-6">
-        <div className="w-24 h-24 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-2">
-          <span className="text-4xl">
-            {critter.type === 'FIRE' ? '🔥' : critter.type === 'WATER' ? '💧' : critter.type === 'ELECTRIC' ? '⚡' : '🌍'}
-          </span>
-        </div>
-        <h3 className="font-bold text-2xl text-gray-800">{critter.name}</h3>
-        <p className="text-sm text-gray-500">{critter.type}</p>
-      </div>
-
-      <h4 className="font-semibold text-green-800 mb-2">Base Stats</h4>
-      <div className="grid grid-cols-3 gap-4 text-center bg-gray-50 p-4 rounded-lg mb-6">
-        <div>
-          <p className="font-bold text-lg">{critter.baseStats.health}</p>
-          <p className="text-xs text-gray-500">Health</p>
-        </div>
-        <div>
-          <p className="font-bold text-lg">{critter.baseStats.attack}</p>
-          <p className="text-xs text-gray-500">Attack</p>
-        </div>
-        <div>
-          <p className="font-bold text-lg">{critter.baseStats.defense}</p>
-          <p className="text-xs text-gray-500">Defense</p>
-        </div>
-      </div>
-
-      <h4 className="font-semibold text-green-800 mb-2">Abilities</h4>
-      <div className="space-y-2">
-        {critter.abilities.map(ability => (
-          <div key={ability.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <p className="font-semibold text-sm text-gray-700">{ability.name} <span className="float-right text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">{ability.type}</span></p>
-            <p className="text-xs text-gray-500">Power: {ability.power}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 export function MyCrittersTab() {
   const user = useAuthStore((state) => state.user);
