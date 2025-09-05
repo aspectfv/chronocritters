@@ -24,3 +24,19 @@ export interface GetTrainerInfoData {
 export interface GetTrainerInfoVars {
   id: string;
 }
+
+export interface GetBattleStatsData {
+  getPlayer: {
+    __typename: 'Player';
+    id: string;
+    stats: {
+      __typename: 'PlayerStats';
+      wins: number;
+      losses: number;
+    };
+  };
+}
+
+export interface GetBattleStatsVars {
+  id: string;
+}
