@@ -60,11 +60,11 @@ public class BattleService {
             throw new IllegalStateException("It's not the player's turn");
         }
 
-        PlayerState currentPlayer = currentBattle.getCurrentPlayer();
+        PlayerState player = currentBattle.getPlayer();
 
         PlayerState opponent = currentBattle.getOpponent();
 
-        CritterState activeCritter = currentPlayer.getCritterByIndex(currentPlayer.getActiveCritterIndex());
+        CritterState activeCritter = player.getCritterByIndex(player.getActiveCritterIndex());
 
         Ability ability = activeCritter.getAbilityById(abilityId);
         if (ability == null) {
@@ -72,9 +72,9 @@ public class BattleService {
         }
 
         switch (ability.getType()) {
-            case ATTACK -> executeAttackAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
-            case DEFENSE -> executeDefenseAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
-            case SUPPORT -> executeSupportAbility(currentBattle, currentPlayer, opponent, activeCritter, ability);
+            case ATTACK -> executeAttackAbility(currentBattle, player, opponent, activeCritter, ability);
+            case DEFENSE -> executeDefenseAbility(currentBattle, player, opponent, activeCritter, ability);
+            case SUPPORT -> executeSupportAbility(currentBattle, player, opponent, activeCritter, ability);
             default -> throw new IllegalArgumentException("Unexpected value: " + ability.getType());
         }
 
@@ -82,7 +82,7 @@ public class BattleService {
     }
 
     private void executeAttackAbility(
-        BattleState currentBattle, PlayerState currentPlayer, 
+        BattleState currentBattle, PlayerState player, 
         PlayerState opponent, CritterState activeCritter, Ability ability
     ) {
         int damage = ability.getPower();
@@ -94,7 +94,7 @@ public class BattleService {
         opponentCritterStats.setCurrentHp(newHealth);
 
         String actionLog = String.format("%s's %s used %s for %d damage! %s's %s now has %d health.",
-            currentPlayer.getUsername(),
+            player.getUsername(),
             activeCritter.getName(),
             ability.getName(),
             damage,
@@ -116,7 +116,7 @@ public class BattleService {
             } else {
                 currentBattle.setActivePlayerId(null);
                 String winLog = opponentActiveCritter.getName() + " fainted! " + 
-                    currentPlayer.getUsername() + " wins the battle!";
+                    player.getUsername() + " wins the battle!";
                 currentBattle.getActionLogHistory().add(winLog);
                 return;
             }
@@ -124,12 +124,12 @@ public class BattleService {
         
         currentBattle.setActivePlayerId(opponent.getId());
 
-        currentPlayer.setHasTurn(false);
+        player.setHasTurn(false);
         opponent.setHasTurn(true);
     }
 
     private void executeDefenseAbility(
-        BattleState currentBattle, PlayerState currentPlayer, 
+        BattleState currentBattle, PlayerState player, 
         PlayerState opponent, CritterState activeCritter, Ability ability
     ) {
         CurrentStats critterStats = activeCritter.getStats();
@@ -139,7 +139,7 @@ public class BattleService {
         critterStats.setCurrentDef(newDefense);
         
         String actionLog = String.format("%s's %s used %s! %s's defense increased by %d (now %d).",
-            currentPlayer.getUsername(),
+            player.getUsername(),
             activeCritter.getName(),
             ability.getName(),
             activeCritter.getName(),
@@ -149,11 +149,11 @@ public class BattleService {
         currentBattle.getActionLogHistory().add(actionLog);
         currentBattle.setActivePlayerId(opponent.getId());
         
-        currentPlayer.setHasTurn(false);
+        player.setHasTurn(false);
         opponent.setHasTurn(true);
     }
 
-    private void executeSupportAbility(BattleState currentBattle, PlayerState currentPlayer, 
+    private void executeSupportAbility(BattleState currentBattle, PlayerState player, 
                                            PlayerState opponent, CritterState activeCritter, Ability ability) {
         CurrentStats critterStats = activeCritter.getStats();
 
@@ -162,7 +162,7 @@ public class BattleService {
 
         critterStats.setCurrentHp(newHealth);
         String actionLog = String.format("%s's %s used %s! %s healed for %d (now %d health).",
-            currentPlayer.getUsername(),
+            player.getUsername(),
             activeCritter.getName(),
             ability.getName(),
             activeCritter.getName(),
@@ -172,7 +172,7 @@ public class BattleService {
         currentBattle.getActionLogHistory().add(actionLog);
         currentBattle.setActivePlayerId(opponent.getId());
 
-        currentPlayer.setHasTurn(false);
+        player.setHasTurn(false);
         opponent.setHasTurn(true);
     }
 
