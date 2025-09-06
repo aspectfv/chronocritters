@@ -89,6 +89,28 @@ public class BattleService {
         return currentBattle;
     }
 
+    public BattleState handleTurnTimeout(String battleId) {
+        BattleState currentBattle = getBattleState(battleId);
+        if (currentBattle == null) {
+            throw new IllegalArgumentException("Invalid battle ID");
+        }
+
+        PlayerState player = currentBattle.getPlayer();
+        PlayerState opponent = currentBattle.getOpponent();
+
+        String timeoutLog = String.format("%s ran out of time!", player.getUsername());
+        currentBattle.getActionLogHistory().add(timeoutLog);
+        
+        // Switch turns
+        currentBattle.setActivePlayerId(opponent.getId());
+        currentBattle.setTimeRemaining(TURN_DURATION_SECONDS);
+        
+        player.setHasTurn(false);
+        opponent.setHasTurn(true);
+        
+        return currentBattle;
+    }
+
     private void executeAttackAbility(
         BattleState currentBattle, PlayerState player, 
         PlayerState opponent, CritterState activeCritter, Ability ability

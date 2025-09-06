@@ -2,6 +2,7 @@ package com.chronocritters.gamelogic.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +14,6 @@ import com.chronocritters.lib.dto.ExecuteAbilityRequest;
 import com.chronocritters.lib.model.BattleState;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,5 +39,10 @@ public class BattleController {
     @PostMapping("/battle/{battleId}/ability")
     public BattleState executeAbility(@PathVariable String battleId, @RequestBody ExecuteAbilityRequest request) {
         return battleService.executeAbility(battleId, request.playerId(), request.abilityId());
+    }
+
+    @PostMapping("/battle/{battleId}/timeout")
+    public BattleState handleTimeout(@PathVariable String battleId) {
+        return battleService.handleTurnTimeout(battleId);
     }
 }
