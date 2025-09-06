@@ -58,7 +58,6 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
             String winningPlayerId = request.getWinningPlayerId();
             String losingPlayerId = request.getLosingPlayerId();
 
-            // Update winning player
             Player winningPlayer = playerService.findById(winningPlayerId);
             if (winningPlayer == null) {
                 responseObserver.onNext(MatchHistoryResponse.newBuilder()
@@ -69,7 +68,6 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
                 return;
             }
 
-            // Update losing player
             Player losingPlayer = playerService.findById(losingPlayerId);
             if (losingPlayer == null) {
                 responseObserver.onNext(MatchHistoryResponse.newBuilder()
