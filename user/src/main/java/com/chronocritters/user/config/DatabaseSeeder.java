@@ -30,17 +30,17 @@ public class DatabaseSeeder {
             // Abilities
             Ability tidalWave = Ability.builder()
                 .name("Tidal Wave")
-                .power(80)
+                .power(3)
                 .type(AbilityType.ATTACK)
                 .build();
             Ability thunderStrike = Ability.builder()
                 .name("Thunder Strike")
-                .power(90)
+                .power(4)
                 .type(AbilityType.ATTACK)
                 .build();
             Ability healPulse = Ability.builder()
                 .name("Heal Pulse")
-                .power(50)
+                .power(3)
                 .type(AbilityType.SUPPORT)
                 .build();
             abilityRepository.save(tidalWave);
