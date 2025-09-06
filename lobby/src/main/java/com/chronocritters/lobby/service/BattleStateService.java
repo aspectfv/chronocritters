@@ -11,16 +11,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BattleStateService {
     private final GameLogicWebClient gameLogicWebClient;
+    private final BattleTimerService battleTimerService;
     
     public BattleState getBattleState(String battleId) {
-        return gameLogicWebClient.getBattle(battleId).block();
+        BattleState battleState = gameLogicWebClient.getBattle(battleId).block();
+        if (battleState != null) {
+            battleTimerService.startOrResetTimer(battleState);
+        }
+        return battleState;
     }
     
     public void createBattle(String battleId, String playerOneId, String playerTwoId) {
-        gameLogicWebClient.createBattle(battleId, playerOneId, playerTwoId).block();
+        gameLogicWebClient.createBattle(battleId, playerOneId, playerTwoId)
+            .then(gameLogicWebClient.getBattle(battleId))
+            .doOnSuccess(battleTimerService::startOrResetTimer)
+            .block();
     }
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
-        return gameLogicWebClient.executeAbility(battleId, playerId, abilityId).block();
+        BattleState newBattleState = gameLogicWebClient.executeAbility(battleId, playerId, abilityId).block();
+        if (newBattleState != null) {
+            battleTimerService.startOrResetTimer(newBattleState);
+        }
+        return newBattleState;
     }
 }

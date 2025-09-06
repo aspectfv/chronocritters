@@ -21,7 +21,7 @@ public class BattleService {
     private final List<BattleState> activeBattles = new ArrayList<>();
     private final PlayerGrpcClient playerGrpcClient;
 
-    private static final int TURN_DURATION_SECONDS = 30;
+    private static final int TURN_DURATION_SECONDS = 5;
 
     public BattleState getBattleState(String battleId) {
         return activeBattles.stream()
@@ -101,7 +101,6 @@ public class BattleService {
         String timeoutLog = String.format("%s ran out of time!", player.getUsername());
         currentBattle.getActionLogHistory().add(timeoutLog);
         
-        // Switch turns
         currentBattle.setActivePlayerId(opponent.getId());
         currentBattle.setTimeRemaining(TURN_DURATION_SECONDS);
         

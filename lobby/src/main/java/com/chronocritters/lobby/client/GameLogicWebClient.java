@@ -68,4 +68,17 @@ public class GameLogicWebClient {
                     response -> Mono.error(new RuntimeException("Failed to execute ability - service unavailable")))
                 .bodyToMono(BattleState.class);
     }
+
+    public Mono<BattleState> handleTurnTimeout(String battleId) {
+        return webClient.post()
+                .uri("/battle/{battleId}/timeout", battleId)
+                .retrieve()
+                .onStatus(status -> status.equals(HttpStatus.NOT_FOUND),
+                    response -> Mono.error(new IllegalArgumentException("Battle not found: " + battleId)))
+                .onStatus(status -> status.is4xxClientError(),
+                    response -> Mono.error(new IllegalArgumentException("Invalid turn timeout request")))
+                .onStatus(status -> status.is5xxServerError(),
+                    response -> Mono.error(new RuntimeException("Failed to handle turn timeout - service unavailable")))
+                .bodyToMono(BattleState.class);
+    }
 }
