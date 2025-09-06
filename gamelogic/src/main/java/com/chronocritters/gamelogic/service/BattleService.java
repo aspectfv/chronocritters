@@ -126,6 +126,8 @@ public class BattleService {
                 String winLog = opponentActiveCritter.getName() + " fainted! " + 
                     player.getUsername() + " wins the battle!";
                 currentBattle.getActionLogHistory().add(winLog);
+
+                playerGrpcClient.updateMatchHistory(player.getId(), opponent.getId());
             }
         }
     }
