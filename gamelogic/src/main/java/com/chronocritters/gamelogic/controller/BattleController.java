@@ -24,7 +24,6 @@ public class BattleController {
     public BattleState getBattle(@PathVariable String battleId) {
         return battleService.getBattleState(battleId);
     }
-    
 
     @PostMapping("/battle/{battleId}")
     public ResponseEntity<Void> createBattle(@PathVariable String battleId, @RequestBody BattleRequest battleRequest) {

@@ -16,12 +16,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BattleStateController {
     private final BattleStateService battleStateService;
-    
-    @MessageMapping("/battle/{battleId}/join")
-    @SendTo("/topic/battle/{battleId}")
-    public BattleState joinBattle(@DestinationVariable String battleId) { 
-        return battleStateService.getBattleState(battleId);
-    }
 
     @MessageMapping("/battle/{battleId}/ability")
     @SendTo("/topic/battle/{battleId}")

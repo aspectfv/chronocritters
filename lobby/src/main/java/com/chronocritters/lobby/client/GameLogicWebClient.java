@@ -22,7 +22,7 @@ public class GameLogicWebClient {
                 .build();
     }
 
-    public Mono<BattleState> getBattle(String battleId) {
+    public Mono<BattleState> getBattleState(String battleId) {
         return webClient.get()
                 .uri("/battle/{battleId}", battleId)
                 .retrieve()

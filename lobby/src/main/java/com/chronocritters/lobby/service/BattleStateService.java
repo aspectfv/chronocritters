@@ -13,17 +13,9 @@ public class BattleStateService {
     private final GameLogicWebClient gameLogicWebClient;
     private final BattleTimerService battleTimerService;
     
-    public BattleState getBattleState(String battleId) {
-        BattleState battleState = gameLogicWebClient.getBattle(battleId).block();
-        if (battleState != null) {
-            battleTimerService.startOrResetTimer(battleState);
-        }
-        return battleState;
-    }
-    
     public void createBattle(String battleId, String playerOneId, String playerTwoId) {
         gameLogicWebClient.createBattle(battleId, playerOneId, playerTwoId)
-            .then(gameLogicWebClient.getBattle(battleId))
+            .then(gameLogicWebClient.getBattleState(battleId))
             .doOnSuccess(battleTimerService::startOrResetTimer)
             .block();
     }

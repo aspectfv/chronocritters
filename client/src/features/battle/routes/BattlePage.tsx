@@ -11,6 +11,7 @@ import { CritterDisplayCard } from '../components/CritterDisplayCard';
 import { TeamDisplay } from '../components/TeamDisplay';
 import { BattleLog } from '../components/BattleLog';
 import { AbilitySelector } from '../components/AbilitySelector';
+import { getBattleState } from '@api/gamelogic';
 
 function BattlePage() {
   const { battleId } = useParams<{ battleId: string }>();
@@ -21,7 +22,7 @@ function BattlePage() {
   const { player, opponent, actionLogHistory, timeRemaining, battleResult } = useBattleStore();
 
   useEffect(() => {
-    const { subscribe, publish } = useLobbyStore.getState();
+    const { subscribe } = useLobbyStore.getState();
     const { setBattleState } = useBattleStore.getState();
 
     if (!isConnected || !battleId || !user?.id) return;
@@ -30,7 +31,12 @@ function BattlePage() {
       setBattleState(newBattleState, user.id);
     });
 
-    publish(`/app/battle/${battleId}/join`, {});
+    const fetchBattleState = async () => {
+      const response = await getBattleState(battleId);
+      setBattleState(response.data, user.id);
+    };
+
+    fetchBattleState();
 
     return () => {
       subscription?.unsubscribe();
