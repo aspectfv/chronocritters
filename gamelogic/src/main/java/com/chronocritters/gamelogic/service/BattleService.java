@@ -21,7 +21,7 @@ public class BattleService {
     private final List<BattleState> activeBattles = new ArrayList<>();
     private final PlayerGrpcClient playerGrpcClient;
 
-    private static final int TURN_DURATION_SECONDS = 5;
+    private static final int TURN_DURATION_SECONDS = 30;
 
     public BattleState getBattleState(String battleId) {
         return activeBattles.stream()

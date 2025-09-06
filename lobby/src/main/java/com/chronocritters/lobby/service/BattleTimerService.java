@@ -31,10 +31,11 @@ public class BattleTimerService {
         stopTimer(battleId);
 
         if (battleState.getActivePlayerId() == null) {
+            // Battle has ended, no need for a timer.
             return;
         }
 
-        AtomicInteger timeRemaining = new AtomicInteger(battleState.getTimeRemaining());
+        final AtomicInteger timeRemaining = new AtomicInteger(battleState.getTimeRemaining());
 
         final Runnable timerTickTask = () -> {
             int remaining = timeRemaining.decrementAndGet();
@@ -54,7 +55,14 @@ public class BattleTimerService {
         stopTimer(battleId);
         
         gameLogicWebClient.handleTurnTimeout(battleId)
-            .doOnSuccess(this::startOrResetTimer)
+            .doOnSuccess(newBattleState -> {
+                messagingTemplate.convertAndSend("/topic/battle/" + battleId, newBattleState);
+                
+                this.startOrResetTimer(newBattleState);
+            })
+            .doOnError(error -> {
+                System.err.println("Error handling timeout for battle " + battleId + ": " + error.getMessage());
+            })
             .subscribe();
     }
 
