@@ -63,9 +63,3 @@ export interface BattleState {
   addLogMessage: (message: string) => void;
   resetBattleState: () => void;
 }
-
-export interface executeAbilityRequest {
-  battleId: string;
-  playerId: string;
-  abilityId: string;
-}
