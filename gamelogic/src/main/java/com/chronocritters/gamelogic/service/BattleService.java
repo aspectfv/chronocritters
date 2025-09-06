@@ -75,8 +75,8 @@ public class BattleService {
 
         switch (ability.getType()) {
             case ATTACK -> executeAttackAbility(currentBattle, player, opponent, activeCritter, ability);
-            case DEFENSE -> executeDefenseAbility(currentBattle, player, opponent, activeCritter, ability);
-            case SUPPORT -> executeSupportAbility(currentBattle, player, opponent, activeCritter, ability);
+            case DEFENSE -> executeDefenseAbility(currentBattle, player, activeCritter, ability);
+            case SUPPORT -> executeSupportAbility(currentBattle, player, activeCritter, ability);
             default -> throw new IllegalArgumentException("Unexpected value: " + ability.getType());
         }
 
@@ -126,14 +126,12 @@ public class BattleService {
                 String winLog = opponentActiveCritter.getName() + " fainted! " + 
                     player.getUsername() + " wins the battle!";
                 currentBattle.getActionLogHistory().add(winLog);
-                return;
             }
         }
     }
 
     private void executeDefenseAbility(
-        BattleState currentBattle, PlayerState player, 
-        PlayerState opponent, CritterState activeCritter, Ability ability
+        BattleState currentBattle, PlayerState player, CritterState activeCritter, Ability ability
     ) {
         CurrentStats critterStats = activeCritter.getStats();
         
@@ -152,8 +150,9 @@ public class BattleService {
         currentBattle.getActionLogHistory().add(actionLog);
     }
 
-    private void executeSupportAbility(BattleState currentBattle, PlayerState player, 
-                                           PlayerState opponent, CritterState activeCritter, Ability ability) {
+    private void executeSupportAbility(
+    BattleState currentBattle, PlayerState player, CritterState activeCritter, Ability ability
+    ) {
         CurrentStats critterStats = activeCritter.getStats();
 
         int heal = ability.getPower();
