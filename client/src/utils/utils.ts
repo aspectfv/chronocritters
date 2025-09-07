@@ -1,6 +1,6 @@
 import { CritterType } from "@store/battle/types";
 
-export const typeIcons: Record<CritterType, string> = {
+export const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.FIRE]: '🔥',
   [CritterType.WATER]: '💧',
   [CritterType.ELECTRIC]: '⚡',

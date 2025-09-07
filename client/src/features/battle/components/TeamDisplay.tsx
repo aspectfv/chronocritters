@@ -1,5 +1,5 @@
 import type { TeamDisplayProps } from '@features/battle/types';
-import { typeIcons } from '@utils/typeIcons';
+import { critterTypeIcons } from '@utils/utils';
 
 export function TeamDisplay({ title, team, activeCritterId }: TeamDisplayProps) {
   return (
@@ -11,7 +11,7 @@ export function TeamDisplay({ title, team, activeCritterId }: TeamDisplayProps) 
           .map(critter => (
             <div key={critter.id} className="text-center">
               <div className="w-12 h-12 bg-green-100 rounded-full mx-auto flex items-center justify-center text-xl">
-                <span>{typeIcons[critter.type]}</span>
+                <span>{critterTypeIcons[critter.type]}</span>
               </div>
               <p className="text-xs mt-1 text-gray-700">{critter.name}</p>
               <p className="text-xs text-gray-500">{critter.stats.currentHp}/{critter.stats.maxHp}</p>
