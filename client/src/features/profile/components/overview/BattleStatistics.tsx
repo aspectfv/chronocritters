@@ -1,30 +1,6 @@
-import { gql } from '@apollo/client';
-import { useQuery } from '@apollo/client/react';
-import { useAuthStore } from '@store/auth/useAuthStore';
-import type { GetBattleStatsData, GetBattleStatsVars } from '@features/profile/types';
+import type { BattleStatisticsProps } from "@features/profile/types";
 
-const GET_BATTLE_STATS = gql`
-  query GetBattleStats($id: ID!) {
-    getPlayer(id: $id) {
-      id
-      stats {
-        wins
-        losses
-      }
-    }
-  }
-`;
-
-export function BattleStatistics() {
-  const user = useAuthStore((state) => state.user);
-  const { data, loading, error } = useQuery<GetBattleStatsData, GetBattleStatsVars>(GET_BATTLE_STATS, {
-    variables: { id: user!.id },
-    skip: !user,
-  });
-
-  const stats = data?.getPlayer?.stats;
-  const wins = loading || error || !stats ? 0 : stats.wins;
-  const losses = loading || error || !stats ? 0 : stats.losses;
+export function BattleStatistics({wins, losses}: BattleStatisticsProps) {
   const totalBattles = wins + losses;
   const winRate = totalBattles > 0 ? Math.round((wins / totalBattles) * 100) : 0;
 
@@ -36,17 +12,17 @@ export function BattleStatistics() {
       </h3>
       <div className="grid grid-cols-2 gap-8 mb-6">
         <div className="text-center">
-          <p className="text-4xl font-bold text-green-600">{loading ? '...' : wins}</p>
+          <p className="text-4xl font-bold text-green-600">{wins}</p>
           <p className="text-sm text-gray-500">Wins</p>
         </div>
         <div className="text-center">
-          <p className="text-4xl font-bold text-red-500">{loading ? '...' : losses}</p>
+          <p className="text-4xl font-bold text-red-500">{losses}</p>
           <p className="text-sm text-gray-500">Losses</p>
         </div>
       </div>
       <div className="space-y-4 text-sm">
-        <div className="flex justify-between"><span className="text-gray-500">Total Battles</span><span className="font-bold">{loading ? '...' : totalBattles}</span></div>
-        <div className="flex justify-between"><span className="text-gray-500">Win Rate</span><span className="font-bold">{loading ? '...' : `${winRate}%`}</span></div>
+        <div className="flex justify-between"><span className="text-gray-500">Total Battles</span><span className="font-bold">{totalBattles}</span></div>
+        <div className="flex justify-between"><span className="text-gray-500">Win Rate</span><span className="font-bold">{`${winRate}%`}</span></div>
         <div>
           <p className="text-gray-500 mb-1">Win Rate Progress</p>
           <div className="w-full bg-green-100 rounded-full h-2.5">

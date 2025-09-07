@@ -10,8 +10,6 @@ const critterTypeStyles: Record<CritterType, string> = {
   [CritterType.UNKNOWN]: 'bg-gray-100 text-gray-800',
 };
 
-
-
 export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardProps) {
   const healthPercentage = (critter.stats.currentHp / critter.stats.maxHp) * 100;
   

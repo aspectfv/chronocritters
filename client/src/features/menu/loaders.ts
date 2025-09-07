@@ -11,9 +11,9 @@ export async function menuLoader() {
 
   try {
     const stats = await getPlayerStats(user.id);
-    return { stats };
+    return stats;
   } catch (error) {
     console.error("Failed to load trainer profile stats:", error);
-    return { stats: { wins: 0, losses: 0 } };
+    return { wins: 0, losses: 0 };
   }
 }

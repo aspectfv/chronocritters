@@ -1,9 +1,7 @@
-import { Link, useLoaderData } from 'react-router-dom';
-import type { LoaderData } from '@features/menu/types';
+import { Link } from 'react-router-dom';
+import type { TrainerProfileProps } from '@features/menu/types';
 
-export function TrainerProfile() {
-  const { stats } = useLoaderData() as LoaderData;
-
+export function TrainerProfile({wins, losses}: TrainerProfileProps) {
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6">
       <div className="flex items-center gap-2 text-green-700 mb-4">
@@ -19,10 +17,10 @@ export function TrainerProfile() {
       
       <div className="flex gap-4 mb-6">
         <div className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
-          Wins: {stats.wins}
+          Wins: {wins}
         </div>
         <div className="text-gray-600 text-sm font-medium">
-          Losses: {stats.losses}
+          Losses: {losses}
         </div>
       </div>
       

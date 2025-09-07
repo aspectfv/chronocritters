@@ -12,11 +12,6 @@ export interface NotificationsProps {
   notifications?: NotificationItem[];
 }
 
-export interface TrainerProfileProps {
-  wins?: number;
-  losses?: number;
-}
-
 export interface MatchResponse {
   playerOneId: string;
   playerTwoId: string;
@@ -38,9 +33,7 @@ export interface GetPlayerStatsData {
   };
 }
 
-export interface LoaderData {
-  stats: {
-    wins: number;
-    losses: number;
-  };
+export interface TrainerProfileProps {
+  wins: number;
+  losses: number;
 }
