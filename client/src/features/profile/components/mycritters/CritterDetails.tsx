@@ -1,5 +1,5 @@
 import type { CritterData } from '@features/profile/types';
-import { critterTypeIcons } from '@utils/utils';
+import { getCritterImageUrl } from '@utils/utils';
 
 const abilityTypeColors: Record<string, string> = {
   ATTACK: 'bg-red-100 text-red-800',
@@ -25,9 +25,7 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
     <div className="text-left">
       <div className="text-center mb-6">
         <div className="w-24 h-24 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-2">
-          <span className="text-4xl">
-            {critterTypeIcons[critter.type]}
-          </span>
+          <img src={getCritterImageUrl(critter.name)} alt={critter.name} className="w-20 h-20 object-contain" />
         </div>
         <h3 className="font-bold text-2xl text-gray-800">{critter.name}</h3>
         <p className="text-sm text-gray-500">{critter.type}</p>

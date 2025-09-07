@@ -1,11 +1,13 @@
 import type { CritterCardProps, CritterTeamOverviewProps } from '@features/profile/types';
-import { critterTypeIcons } from '@utils/utils';
+import { getCritterImageUrl } from '@utils/utils';
 
 // sub component
-export function CritterCard({ name, level, type }: CritterCardProps) {
+export function CritterCard({ name, level }: CritterCardProps) {
   return (
     <div className="text-center p-4 bg-green-50/50 rounded-lg border border-green-100">
-      <div className="text-4xl mb-2">{critterTypeIcons[type]}</div>
+      <div className="h-16 flex items-center justify-center mb-2">
+        <img src={getCritterImageUrl(name)} alt={name} className="max-h-16 max-w-full object-contain" />
+      </div>
       <p className="font-bold text-gray-800">{name}</p>
       <p className="text-sm text-gray-500">Lv. {level}</p>
     </div>
