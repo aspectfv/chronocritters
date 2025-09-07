@@ -26,8 +26,8 @@ export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardPr
         </span>
       </div>
       <div className="text-center">
-        <div className="w-24 h-24 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-2">
-          <img src={getCritterImageUrl(critter.name)} alt={critter.name} className="w-20 h-20 object-contain" />
+        <div className="mx-auto flex items-center justify-center mb-2">
+          <img src={getCritterImageUrl(critter.name)} alt={critter.name} className="w-26 h-26 object-cover rounded-full" />
         </div>
         <h2 className="text-xl font-semibold text-green-900">{critter.name}</h2>
       </div>

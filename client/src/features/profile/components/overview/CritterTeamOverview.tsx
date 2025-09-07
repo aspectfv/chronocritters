@@ -5,8 +5,8 @@ import { getCritterImageUrl } from '@utils/utils';
 export function CritterCard({ name, level }: CritterCardProps) {
   return (
     <div className="text-center p-4 bg-green-50/50 rounded-lg border border-green-100">
-      <div className="h-16 flex items-center justify-center mb-2">
-        <img src={getCritterImageUrl(name)} alt={name} className="max-h-16 max-w-full object-contain" />
+      <div className="flex items-center justify-center mb-2">
+        <img src={getCritterImageUrl(name)} alt={name} className="max-h-20 max-w-full object-cover rounded-full" />
       </div>
       <p className="font-bold text-gray-800">{name}</p>
       <p className="text-sm text-gray-500">Lv. {level}</p>

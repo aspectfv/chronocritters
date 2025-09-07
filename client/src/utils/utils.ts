@@ -9,9 +9,11 @@ export const critterTypeIcons: Record<CritterType, string> = {
 };
 
 export const getCritterImageUrl = (critterName: string): string => {
-  if (!critterName) {
-    return '/src/assets/critters/Unknown.jpeg';
-  }
-  const formattedName = critterName.toLowerCase().replace(/\s+/g, '');
+  const toTitleCase = (str: string): string =>
+    str.replace(/\w\S*/g, (txt) =>
+      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
+    
+  const formattedName = toTitleCase(critterName).replace(/\s+/g, '');
   return `/src/assets/critters/${formattedName}.jpeg`;
 };

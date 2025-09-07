@@ -24,8 +24,8 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
   return (
     <div className="text-left">
       <div className="text-center mb-6">
-        <div className="w-24 h-24 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-2">
-          <img src={getCritterImageUrl(critter.name)} alt={critter.name} className="w-20 h-20 object-contain" />
+        <div className="mx-auto flex items-center justify-center mb-2">
+          <img src={getCritterImageUrl(critter.name)} alt={critter.name} className="w-26 h-26 object-cover rounded-full" />
         </div>
         <h3 className="font-bold text-2xl text-gray-800">{critter.name}</h3>
         <p className="text-sm text-gray-500">{critter.type}</p>
