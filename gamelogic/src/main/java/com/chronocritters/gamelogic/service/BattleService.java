@@ -114,19 +114,23 @@ public class BattleService {
         BattleState currentBattle, PlayerState player, 
         PlayerState opponent, CritterState activeCritter, Ability ability
     ) {
-        int damage = ability.getPower();
+        int abilityDamage = ability.getPower();
             
         CritterState opponentActiveCritter = opponent.getCritterByIndex(opponent.getActiveCritterIndex());
         CurrentStats opponentCritterStats = opponentActiveCritter.getStats();
+        int activeCritterAttack = activeCritter.getStats().getCurrentAtk();
+        int opponentCritterDefense = opponentCritterStats.getCurrentDef();
 
-        int newHealth = Math.max(0, opponentCritterStats.getCurrentHp() - damage);
+        int finalDamage = (int) Math.max(0, abilityDamage * (activeCritterAttack / (double)(activeCritterAttack + opponentCritterDefense)));
+
+        int newHealth = Math.max(0, opponentCritterStats.getCurrentHp() - finalDamage);
         opponentCritterStats.setCurrentHp(newHealth);
 
         String actionLog = String.format("%s's %s used %s for %d damage! %s's %s now has %d health.",
             player.getUsername(),
             activeCritter.getName(),
             ability.getName(),
-            damage,
+            finalDamage,
             opponent.getUsername(),
             opponentActiveCritter.getName(),
             newHealth);
@@ -183,7 +187,7 @@ public class BattleService {
         int heal = ability.getPower();
         int newHealth = Math.min(critterStats.getMaxHp(), critterStats.getCurrentHp() + heal);
         critterStats.setCurrentHp(newHealth);
-        
+
         String actionLog = String.format("%s's %s used %s! %s healed for %d (now %d health).",
             player.getUsername(),
             activeCritter.getName(),
