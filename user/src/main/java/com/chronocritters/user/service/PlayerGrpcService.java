@@ -1,5 +1,6 @@
 package com.chronocritters.user.service;
 
+import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.Player;
 import com.chronocritters.proto.player.PlayerProto.CritterProto;
@@ -8,7 +9,6 @@ import com.chronocritters.proto.player.PlayerProto.MatchHistoryResponse;
 import com.chronocritters.proto.player.PlayerProto.PlayerRequest;
 import com.chronocritters.proto.player.PlayerProto.PlayerResponse;
 import com.chronocritters.proto.player.PlayerServiceGrpc.PlayerServiceImplBase;
-import com.chronocritters.user.converter.PlayerProtoConverter;
 
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,6 @@ import net.devh.boot.grpc.server.service.GrpcService;
 @GrpcService
 @RequiredArgsConstructor
 public class PlayerGrpcService extends PlayerServiceImplBase {
-    
     private final PlayerService playerService;
 
     @Override
@@ -38,7 +37,7 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
             // Convert roster to proto format
             if (player.getRoster() != null) {
                 for (Critter critter : player.getRoster()) {
-                    CritterProto critterProto = PlayerProtoConverter.convertCritterToProto(critter);
+                    CritterProto critterProto = PlayerProtoMapper.convertCritterModelToProto(critter);
                     responseBuilder.addRoster(critterProto);
                 }
             }

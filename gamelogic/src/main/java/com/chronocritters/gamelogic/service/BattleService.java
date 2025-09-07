@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.chronocritters.gamelogic.converter.PlayerConverter;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
+import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
@@ -31,8 +31,8 @@ public class BattleService {
     }
 
     public void createBattle(String battleId, String playerOneId, String playerTwoId) {
-        PlayerState playerOne = PlayerConverter.convertToPlayerState(playerGrpcClient.getPlayer(playerOneId));
-        PlayerState playerTwo = PlayerConverter.convertToPlayerState(playerGrpcClient.getPlayer(playerTwoId));
+        PlayerState playerOne = PlayerProtoMapper.convertToPlayerState(playerGrpcClient.getPlayer(playerOneId));
+        PlayerState playerTwo = PlayerProtoMapper.convertToPlayerState(playerGrpcClient.getPlayer(playerTwoId));
 
         playerOne.setHasTurn(true);
         playerTwo.setHasTurn(false);

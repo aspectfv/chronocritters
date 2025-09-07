@@ -1,4 +1,4 @@
-package com.chronocritters.gamelogic.converter;
+package com.chronocritters.lib.mapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,53 +19,49 @@ import com.chronocritters.proto.player.PlayerProto.CritterProto;
 import com.chronocritters.proto.player.PlayerProto.CritterTypeProto;
 import com.chronocritters.proto.player.PlayerProto.PlayerResponse;
 
-public final class PlayerConverter {
-    
-    // Private constructor to prevent instantiation
-    private PlayerConverter() {
+public final class PlayerProtoMapper {
+
+    private PlayerProtoMapper() {
         throw new UnsupportedOperationException("Utility class");
     }
-    
+
+    // --- Proto to Model ---
     public static PlayerState convertToPlayerState(PlayerResponse playerResponse) {
-        // Convert roster from proto to Critter models
         List<Critter> critterRoster = playerResponse.getRosterList().stream()
-            .map(PlayerConverter::convertCritter)
+            .map(PlayerProtoMapper::convertCritterProtoToModel)
             .collect(Collectors.toList());
-        
-        // Convert Critter models to CritterState for battle
+
         List<CritterState> battleRoster = critterRoster.stream()
-            .map(PlayerConverter::convertCritterToState)
+            .map(PlayerProtoMapper::convertCritterToState)
             .collect(Collectors.toList());
-        
-        // Build Player from proto response (for reference)
+
         Player player = Player.builder()
             .id(playerResponse.getId())
             .username(playerResponse.getUsername())
             .roster(critterRoster)
             .build();
-        
-        // Build PlayerState for battle
+
         return PlayerState.builder()
             .id(player.getId())
             .username(player.getUsername())
-            .hasTurn(false) // Initially false, will be set by battle logic
+            .hasTurn(false)
             .activeCritterIndex(battleRoster.isEmpty() ? -1 : 0)
             .roster(battleRoster)
             .build();
     }
-    
-    private static Critter convertCritter(CritterProto critterProto) {
+
+    private static Critter convertCritterProtoToModel(CritterProto critterProto) {
         return Critter.builder()
             .id(critterProto.getId())
             .name(critterProto.getName())
-            .type(convertCritterType(critterProto.getType()))
-            .baseStats(convertBaseStats(critterProto.getBaseStats()))
+            .type(convertCritterTypeProtoToModel(critterProto.getType()))
+            .baseStats(convertBaseStatsProtoToModel(critterProto.getBaseStats()))
             .abilities(critterProto.getAbilitiesList().stream()
-                .map(PlayerConverter::convertAbility)
+                .map(PlayerProtoMapper::convertAbilityProtoToModel)
                 .collect(Collectors.toList()))
             .build();
     }
-    
+
     private static CritterState convertCritterToState(Critter critter) {
         return CritterState.builder()
             .id(critter.getId())
@@ -85,24 +81,24 @@ public final class PlayerConverter {
             .build();
     }
 
-    private static BaseStats convertBaseStats(BaseStatsProto baseStatsProto) {
+    private static BaseStats convertBaseStatsProtoToModel(BaseStatsProto baseStatsProto) {
         return BaseStats.builder()
             .health(baseStatsProto.getHealth())
             .attack(baseStatsProto.getAttack())
             .defense(baseStatsProto.getDefense())
             .build();
     }
-    
-    private static Ability convertAbility(AbilityProto abilityProto) {
+
+    private static Ability convertAbilityProtoToModel(AbilityProto abilityProto) {
         return Ability.builder()
             .id(abilityProto.getId())
             .name(abilityProto.getName())
-            .type(convertAbilityType(abilityProto.getType()))
+            .type(convertAbilityTypeProtoToModel(abilityProto.getType()))
             .power(abilityProto.getPower())
             .build();
     }
-    
-    private static CritterType convertCritterType(CritterTypeProto protoType) {
+
+    private static CritterType convertCritterTypeProtoToModel(CritterTypeProto protoType) {
         return switch (protoType) {
             case FIRE -> CritterType.FIRE;
             case WATER -> CritterType.WATER;
@@ -113,14 +109,69 @@ public final class PlayerConverter {
                 throw new IllegalArgumentException("Unknown critter type: " + protoType);
         };
     }
-    
-    private static AbilityType convertAbilityType(AbilityTypeProto protoType) {
+
+    private static AbilityType convertAbilityTypeProtoToModel(AbilityTypeProto protoType) {
         return switch (protoType) {
             case ATTACK -> AbilityType.ATTACK;
             case DEFENSE -> AbilityType.DEFENSE;
             case SUPPORT -> AbilityType.SUPPORT;
             case ABILITY_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
                 throw new IllegalArgumentException("Unknown ability type: " + protoType);
+        };
+    }
+
+    // --- Model to Proto ---
+    public static CritterProto convertCritterModelToProto(Critter critter) {
+        CritterProto.Builder builder = CritterProto.newBuilder()
+            .setId(critter.getId())
+            .setName(critter.getName())
+            .setType(convertCritterTypeModelToProto(critter.getType()));
+
+        if (critter.getBaseStats() != null) {
+            BaseStatsProto baseStats = BaseStatsProto.newBuilder()
+                .setHealth(critter.getBaseStats().getHealth())
+                .setAttack(critter.getBaseStats().getAttack())
+                .setDefense(critter.getBaseStats().getDefense())
+                .build();
+            builder.setBaseStats(baseStats);
+        }
+
+        if (critter.getAbilities() != null) {
+            for (Ability ability : critter.getAbilities()) {
+                AbilityProto abilityProto = convertAbilityModelToProto(ability);
+                builder.addAbilities(abilityProto);
+            }
+        }
+
+        return builder.build();
+    }
+
+    public static AbilityProto convertAbilityModelToProto(Ability ability) {
+        return AbilityProto.newBuilder()
+            .setId(ability.getId())
+            .setName(ability.getName())
+            .setType(convertAbilityTypeModelToProto(ability.getType()))
+            .setPower(ability.getPower())
+            .build();
+    }
+
+    public static CritterTypeProto convertCritterTypeModelToProto(CritterType type) {
+        return switch (type) {
+            case FIRE -> CritterTypeProto.FIRE;
+            case WATER -> CritterTypeProto.WATER;
+            case GRASS -> CritterTypeProto.GRASS;
+            case ELECTRIC -> CritterTypeProto.ELECTRIC;
+            case STEEL -> CritterTypeProto.STEEL;
+            default -> CritterTypeProto.CRITTER_TYPE_UNSPECIFIED;
+        };
+    }
+
+    public static AbilityTypeProto convertAbilityTypeModelToProto(AbilityType type) {
+        return switch (type) {
+            case ATTACK -> AbilityTypeProto.ATTACK;
+            case DEFENSE -> AbilityTypeProto.DEFENSE;
+            case SUPPORT -> AbilityTypeProto.SUPPORT;
+            default -> AbilityTypeProto.ABILITY_TYPE_UNSPECIFIED;
         };
     }
 }
