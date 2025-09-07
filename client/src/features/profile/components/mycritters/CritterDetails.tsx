@@ -1,6 +1,13 @@
 import type { CritterData } from '@features/profile/types';
 import { typeIcons } from '@utils/typeIcons';
 
+const abilityTypeColors: Record<string, string> = {
+  ATTACK: 'bg-red-100 text-red-800',
+  DEFENSE: 'bg-blue-100 text-blue-800',
+  SUPPORT: 'bg-green-100 text-green-800',
+  UNKNOWN: 'bg-gray-100 text-gray-800',
+};
+
 export const CritterDetails = ({ critter }: { critter: CritterData | null }) => {
   if (!critter) {
     return (
@@ -45,9 +52,16 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
       <h4 className="font-semibold text-green-800 mb-2">Abilities</h4>
       <div className="space-y-2">
         {critter.abilities.map(ability => (
-          <div key={ability.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <p className="font-semibold text-sm text-gray-700">{ability.name} <span className="float-right text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">{ability.type}</span></p>
-            <p className="text-xs text-gray-500">Power: {ability.power}</p>
+          <div key={ability.id} className={`p-3 rounded-lg border ${abilityTypeColors[ability.type]}`}>
+            <p className="font-semibold text-sm">{ability.name}</p>
+            <p className="text-xs">Power: {ability.power}</p>
+            <span
+              className={`float-right text-xs px-2 py-0.5 rounded-full ${
+                abilityTypeColors[ability.type] || abilityTypeColors.UNKNOWN
+              }`}
+            >
+              {ability.type}
+            </span>
           </div>
         ))}
       </div>

@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 import client from './apollo';
 import type { LoginCredentials, LoginResponse, RegisterCredentials } from '@store/auth/types';
 import type { GetPlayerStatsData, GetPlayerStatsVars } from '@features/menu/types';
-import type { GetPlayerOverviewData, GetPlayerOverviewVars } from '@features/profile/types';
+import type { GetMyCrittersData, GetMyCrittersVars, GetPlayerOverviewData, GetPlayerOverviewVars } from '@features/profile/types';
 
 const LOGIN_MUTATION = gql`
   mutation Login($username: String!, $password: String!) {
@@ -72,6 +72,7 @@ export const getPlayerStats = async (userId: string) => {
 const GET_PLAYER_OVERVIEW_QUERY = gql`
   query GetPlayerOverview($id: ID!) {
     getPlayer(id: $id) {
+      id
       username
       stats {
         wins
@@ -93,4 +94,37 @@ export const getPlayerOverview = async (userId: string) => {
   });
 
   return data?.getPlayer ?? null;
+};
+
+const GET_MY_CRITTERS_QUERY = gql`
+  query GetMyCritters($id: ID!) {
+    getPlayer(id: $id) {
+      roster {
+        id
+        name
+        type
+        baseStats {
+          health
+          attack
+          defense
+        }
+        abilities {
+          id
+          name
+          power
+          type
+        }
+      }
+    }
+  }
+`;
+
+export const getMyCritters = async (userId: string) => {
+  const { data } = await client.query<GetMyCrittersData, GetMyCrittersVars>({
+    query: GET_MY_CRITTERS_QUERY,
+    variables: { id: userId },
+    fetchPolicy: 'network-only'
+  });
+
+  return data?.getPlayer?.roster ?? null;
 };
