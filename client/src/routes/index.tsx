@@ -13,6 +13,7 @@ import { ProtectedRoute } from '@components/auth/ProtectedRoute';
 import { BattleHistoryTab } from '@features/profile/components/battlehistory/BattleHistoryTab';
 import { MyCrittersTab } from '@features/profile/components/mycritters/MyCrittersTab';
 import { OverviewTab } from '@features/profile/components/overview/OverviewTab';
+import { menuLoader } from '@features/menu/loaders';
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,7 @@ const router = createBrowserRouter([
       {
         path: 'menu',
         element: <ProtectedRoute><MenuPage /></ProtectedRoute>,
+        loader: menuLoader,
       },
       {
         path: 'profile',

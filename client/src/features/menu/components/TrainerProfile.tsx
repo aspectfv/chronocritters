@@ -1,33 +1,8 @@
-import { Link } from 'react-router-dom';
-import { gql } from '@apollo/client';
-import { useQuery } from '@apollo/client/react';
-import { useAuthStore } from '@store/auth/useAuthStore';
-import type { GetPlayerStatsData, GetPlayerStatsVars } from "@features/menu/types";
-
-const GET_PLAYER_STATS = gql`
-  query GetPlayerStats($id: ID!) {
-    getPlayer(id: $id) {
-      stats {
-        wins
-        losses
-      }
-    }
-  }
-`;
+import { Link, useLoaderData } from 'react-router-dom';
+import type { LoaderData } from '@features/menu/types';
 
 export function TrainerProfile() {
-  const user = useAuthStore((state) => state.user);
-
-  const { data, loading, error } = useQuery<GetPlayerStatsData, GetPlayerStatsVars>(GET_PLAYER_STATS, {
-    variables: {
-      id: user!.id
-    },
-    skip: !user,
-  });
-
-  const isLoading = loading || !data;
-  const hasError = !!error;
-  const stats = data?.getPlayer?.stats;
+  const { stats } = useLoaderData() as LoaderData;
 
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6">
@@ -44,10 +19,10 @@ export function TrainerProfile() {
       
       <div className="flex gap-4 mb-6">
         <div className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
-          Wins: {isLoading ? '...' : hasError ? '!' : stats?.wins ?? 0}
+          Wins: {stats.wins}
         </div>
         <div className="text-gray-600 text-sm font-medium">
-          Losses: {isLoading ? '...' : hasError ? '!' : stats?.losses ?? 0}
+          Losses: {stats.losses}
         </div>
       </div>
       

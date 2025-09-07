@@ -1,22 +1,11 @@
 import { gql } from '@apollo/client';
 import client from './apollo';
 import type { LoginCredentials, LoginResponse, RegisterCredentials } from '@store/auth/types';
+import type { GetPlayerStatsData, GetPlayerStatsVars } from '@features/menu/types';
 
 const LOGIN_MUTATION = gql`
   mutation Login($username: String!, $password: String!) {
     login(username: $username, password: $password) {
-      user {
-        id
-        username
-      }
-      token
-    }
-  }
-`;
-
-const REGISTER_MUTATION = gql`
-  mutation Register($username: String!, $password: String!) {
-    register(username: $username, password: $password) {
       user {
         id
         username
@@ -36,6 +25,18 @@ export const login = (credentials: LoginCredentials) => {
   });
 };
 
+const REGISTER_MUTATION = gql`
+  mutation Register($username: String!, $password: String!) {
+    register(username: $username, password: $password) {
+      user {
+        id
+        username
+      }
+      token
+    }
+  }
+`;
+
 export const register = (credentials: RegisterCredentials) => {
   return client.mutate<{ register: LoginResponse }>({
     mutation: REGISTER_MUTATION,
@@ -44,4 +45,25 @@ export const register = (credentials: RegisterCredentials) => {
       password: credentials.password,
     },
   });
+};
+
+const GET_PLAYER_STATS_QUERY = gql`
+  query GetPlayerStats($id: ID!) {
+    getPlayer(id: $id) {
+      stats {
+        wins
+        losses
+      }
+    }
+  }
+`;
+
+export const getPlayerStats = async (userId: string) => {
+  const { data } = await client.query<GetPlayerStatsData, GetPlayerStatsVars>({
+    query: GET_PLAYER_STATS_QUERY,
+    variables: { id: userId },
+    fetchPolicy: 'network-only'
+  });
+
+  return data?.getPlayer?.stats ?? null;
 };

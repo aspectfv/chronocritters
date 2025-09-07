@@ -37,3 +37,10 @@ export interface GetPlayerStatsData {
     };
   };
 }
+
+export interface LoaderData {
+  stats: {
+    wins: number;
+    losses: number;
+  };
+}
