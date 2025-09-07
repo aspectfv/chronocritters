@@ -7,6 +7,7 @@ import org.springframework.graphql.server.WebGraphQlRequest;
 import org.springframework.graphql.server.WebGraphQlResponse;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,12 +36,13 @@ public class GraphQlLoggingInterceptor implements WebGraphQlInterceptor {
 
         return chain.next(request).doOnSuccess(response -> {
             long duration = System.currentTimeMillis() - startTime;
-            if (response.isValid()) {
-                logger.info("GraphQL Request Succeeded: operationName='{}', duration={}ms",
-                        request.getOperationName(), duration);
-            } else {
+            
+            if (!CollectionUtils.isEmpty(response.getErrors())) {
                 logger.warn("GraphQL Request Completed with Errors: operationName='{}', errors={}, duration={}ms",
                         request.getOperationName(), response.getErrors(), duration);
+            } else {
+                logger.info("GraphQL Request Succeeded: operationName='{}', duration={}ms",
+                        request.getOperationName(), duration);
             }
         }).doOnError(exception -> {
             long duration = System.currentTimeMillis() - startTime;
