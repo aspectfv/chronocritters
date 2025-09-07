@@ -26,7 +26,8 @@ public class AuthController {
 			
 			@Argument @NotBlank(message = "Password cannot be empty") 
 			@Size(min = 6, max = 40, message = "Password must be between 6 and 40 characters") 
-			String password) {
+			String password
+	) {
 		return authService.register(username, password);
 	}
 
@@ -36,7 +37,8 @@ public class AuthController {
 			String username, 
 			
 			@Argument @NotBlank(message = "Password cannot be empty") 
-			String password) {
+			String password
+	) {
 		return authService.login(username, password);
 	}
 }
