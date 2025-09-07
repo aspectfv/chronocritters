@@ -17,19 +17,10 @@ public class AuthService {
     private final PlayerRepository playerRepository;
 
     public LoginResponse register(String username, String password) {
-        // Validation
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be empty");
-        }
-        if (password == null || password.length() < 6) {
-            throw new IllegalArgumentException("Password must be at least 6 characters");
-        }
-        
-        if (playerRepository.findByUsername(username).isPresent()) {
+        if (playerRepository.findByUsername(username.trim()).isPresent()) {
             throw new IllegalArgumentException("Username already exists");
         }
-        
-        // Create and save player
+
         Player player = new Player();
         player.setUsername(username.trim());
         player.setPassword(PasswordUtil.hashPassword(password));
@@ -44,13 +35,6 @@ public class AuthService {
     }
 
     public LoginResponse login(String username, String password) {
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be empty");
-        }
-        if (password == null || password.isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be empty");
-        }
-        
         Player player = playerRepository.findByUsername(username.trim())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
