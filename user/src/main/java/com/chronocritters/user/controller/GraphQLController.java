@@ -15,7 +15,7 @@ public class GraphQLController {
 	private final PlayerService playerService;
 
 	@QueryMapping
-	public Player getPlayer(@Argument("id") String id) {
+	public Player getPlayer(@Argument String id) {
 		return playerService.findById(id);
 	}
 }

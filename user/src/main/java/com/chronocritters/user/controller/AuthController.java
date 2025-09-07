@@ -1,29 +1,26 @@
 package com.chronocritters.user.controller;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.stereotype.Controller;
 
-import com.chronocritters.user.dto.LoginRequest;
 import com.chronocritters.user.dto.LoginResponse;
-import com.chronocritters.user.dto.RegisterRequest;
 import com.chronocritters.user.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
 
-
-@RestController
+@Controller
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthService authService;
+	private final AuthService authService;
 
-    @PostMapping("auth/register")
-    public LoginResponse registerUser(@RequestBody RegisterRequest registerRequest) {
-        return authService.register(registerRequest.username(), registerRequest.password());
-    }
+	@MutationMapping
+	public LoginResponse register(@Argument String username, @Argument String password) {
+		return authService.register(username, password);
+	}
 
-    @PostMapping("auth/login")
-    public LoginResponse loginUser(@RequestBody LoginRequest loginRequest) {
-        return authService.login(loginRequest.username(), loginRequest.password());
-    }
+	@MutationMapping
+	public LoginResponse login(@Argument String username, @Argument String password) {
+		return authService.login(username, password);
+	}
 }

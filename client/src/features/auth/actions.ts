@@ -2,6 +2,7 @@ import { redirect } from 'react-router-dom';
 import { useAuthStore } from '@store/auth/useAuthStore';
 import { login as apiLogin, register as apiRegister } from '@api/user';
 import type { LoginCredentials, RegisterCredentials } from '@store/auth/types';
+import { CombinedGraphQLErrors } from "@apollo/client/errors";
 
 export async function loginAction({ request }: { request: Request }) {
   const formData = await request.formData();
@@ -20,13 +21,19 @@ export async function loginAction({ request }: { request: Request }) {
 
   try {
     const response = await apiLogin(credentials);
-    const { user, token } = response.data;
+    if (!response.data) {
+      throw new Error('Login failed: No data returned.');
+    }
+    const { user, token } = response.data.login;
 
     const { login } = useAuthStore.getState();
     login(user, token);
 
     return redirect('/menu');
   } catch (error) {
+    if (CombinedGraphQLErrors.is(error)) {
+      console.error("GraphQL Login Error:", error.errors);
+    }
     return {
       message: 'Login failed. Please check your credentials.',
       field: null
@@ -67,13 +74,25 @@ export async function registerAction({ request }: { request: Request }) {
 
   try {
     const response = await apiRegister(credentials);
-    const { user, token } = response.data;
+    if (!response.data) {
+        throw new Error('Registration failed: No data returned.');
+    }
+    const { user, token } = response.data.register;
 
     const { login } = useAuthStore.getState();
     login(user, token);
 
     return redirect('/menu');
   } catch (error) {
+    if (CombinedGraphQLErrors.is(error)) {
+      if (error.errors && error.errors.some(gqlError => gqlError.message.includes("Username already exists"))) {
+        return {
+          message: 'Username already exists. Please choose another one.',
+          field: 'username'
+        };
+      }
+    }
+
     return {
       message: 'Registration failed. Please try again.',
       field: null

@@ -1,12 +1,47 @@
-import axios from 'axios';
-import { applyAuthTokenInterceptor } from '@api/interceptors';
+import { gql } from '@apollo/client';
+import client from './apollo';
 import type { LoginCredentials, LoginResponse, RegisterCredentials } from '@store/auth/types';
 
-const userClient = axios.create({
-  baseURL: import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:8080',
-});
+const LOGIN_MUTATION = gql`
+  mutation Login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      user {
+        id
+        username
+      }
+      token
+    }
+  }
+`;
 
-applyAuthTokenInterceptor(userClient);
+const REGISTER_MUTATION = gql`
+  mutation Register($username: String!, $password: String!) {
+    register(username: $username, password: $password) {
+      user {
+        id
+        username
+      }
+      token
+    }
+  }
+`;
 
-export const login = (credentials: LoginCredentials) => userClient.post<LoginResponse>('/auth/login', credentials);
-export const register = (credentials: RegisterCredentials) => userClient.post<LoginResponse>('/auth/register', credentials);
+export const login = (credentials: LoginCredentials) => {
+  return client.mutate<{ login: LoginResponse }>({
+    mutation: LOGIN_MUTATION,
+    variables: {
+      username: credentials.username,
+      password: credentials.password,
+    },
+  });
+};
+
+export const register = (credentials: RegisterCredentials) => {
+  return client.mutate<{ register: LoginResponse }>({
+    mutation: REGISTER_MUTATION,
+    variables: {
+      username: credentials.username,
+      password: credentials.password,
+    },
+  });
+};

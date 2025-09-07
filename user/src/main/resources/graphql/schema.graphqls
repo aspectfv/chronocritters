@@ -45,6 +45,21 @@ type Player {
     roster: [Critter]
 }
 
+type User {
+    id: ID!
+    username: String!
+}
+
+type LoginResponse {
+    user: User!
+    token: String!
+}
+
 type Query {
     getPlayer(id: ID!): Player
+}
+
+type Mutation {
+    register(username: String!, password: String!): LoginResponse
+    login(username: String!, password: String!): LoginResponse
 }
