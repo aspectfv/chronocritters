@@ -22,6 +22,24 @@ function BattlePage() {
   const { player, opponent, actionLogHistory, timeRemaining, battleResult } = useBattleStore();
 
   useEffect(() => {
+    const { setBattleState } = useBattleStore.getState();
+
+    if (!battleId || !user?.id) return;
+
+    const fetchBattleState = async () => {
+      try {
+        const response = await getBattleState(battleId);
+        setBattleState(response.data, user.id);
+      } catch (error) {
+        console.error("Failed to fetch initial battle state:", error);
+        navigate('/menu');
+      }
+    };
+
+    fetchBattleState();
+  }, [battleId, user?.id, navigate]);
+
+  useEffect(() => {
     const { subscribe } = useLobbyStore.getState();
     const { setBattleState } = useBattleStore.getState();
 
@@ -31,18 +49,10 @@ function BattlePage() {
       setBattleState(newBattleState, user.id);
     });
 
-    const fetchBattleState = async () => {
-      const response = await getBattleState(battleId);
-      setBattleState(response.data, user.id);
-    };
-
-    fetchBattleState();
-
     return () => {
       subscription?.unsubscribe();
     };
-    
-  }, [isConnected, battleId, user?.id, navigate]);
+  }, [isConnected, battleId, user?.id]);
 
   useEffect(() => {
     if (opponent.roster.length > 0 && opponent.roster.every(critter => critter.stats.currentHp <= 0)) {
