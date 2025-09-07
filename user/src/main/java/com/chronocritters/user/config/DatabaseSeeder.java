@@ -29,27 +29,34 @@ public class DatabaseSeeder {
             playerRepository.deleteAll();
             // Abilities
             Ability tidalWave = Ability.builder()
+                .id("atk-tidalwave")
                 .name("Tidal Wave")
                 .power(3)
                 .type(AbilityType.ATTACK)
                 .build();
-            Ability thunderStrike = Ability.builder()
-                .name("Thunder Strike")
-                .power(4)
-                .type(AbilityType.ATTACK)
-                .build();
             Ability healPulse = Ability.builder()
+                .id("spt-healpulse")
                 .name("Heal Pulse")
                 .power(3)
                 .type(AbilityType.SUPPORT)
                 .build();
-            // New STEEL abilities
+
+            Ability thunderStrike = Ability.builder()
+                .id("atk-thunderstrike")
+                .name("Thunder Strike")
+                .power(4)
+                .type(AbilityType.ATTACK)
+                .build();
+
+
             Ability gearGrind = Ability.builder()
+                .id("atk-geargrind")
                 .name("Gear Grind")
                 .power(3)
                 .type(AbilityType.ATTACK)
                 .build();
             Ability fortifyPlating = Ability.builder()
+                .id("def-fortifyplating")
                 .name("Fortify Plating")
                 .power(2)
                 .type(AbilityType.DEFENSE)
@@ -63,18 +70,21 @@ public class DatabaseSeeder {
 
             // Critters
             Critter aquaLing = Critter.builder()
+                .id("water-aqualing")
                 .name("Aqualing")
                 .type(CritterType.WATER)
                 .baseStats(BaseStats.builder().health(6).attack(4).defense(2).build())
                 .abilities(List.of(tidalWave, healPulse))
                 .build();
             Critter voltHound = Critter.builder()
+                .id("electric-volthound")
                 .name("Volthound")
                 .type(CritterType.ELECTRIC)
                 .baseStats(BaseStats.builder().health(6).attack(3).defense(3).build())
                 .abilities(List.of(thunderStrike))
                 .build();
             Critter cogling = Critter.builder()
+                .id("steel-cogling")
                 .name("Cogling")
                 .type(CritterType.STEEL)
                 .baseStats(BaseStats.builder().health(4).attack(4).defense(4).build())
