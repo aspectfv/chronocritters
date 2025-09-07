@@ -24,11 +24,9 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
       },
       onConnect: () => {
         set({ stompClient: client, isConnected: true });
-        console.log('Connected to Lobby WebSocket!');
       },
       onDisconnect: () => {
         set({ stompClient: null, isConnected: false });
-        console.log('Disconnected from Lobby WebSocket.');
       },
       onStompError: (frame: IFrame) => {
         console.error('Broker error:', frame.headers['message'], frame.body);

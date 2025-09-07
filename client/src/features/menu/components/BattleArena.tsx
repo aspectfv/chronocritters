@@ -14,7 +14,6 @@ export function BattleArena() {
     if (!isConnected || !user || !subscribe) return;
 
     const matchStatusSubscription = subscribe(`/user/${user.id}/matchmaking/status`, (match: MatchResponse) => {
-      console.log('Match found!', match);
       setMatchmakingStatus('found');
       
       navigate(`/battle/${match.battleId}`);
