@@ -1,14 +1,5 @@
 import type { CritterDisplayCardProps } from '@features/battle/types';
-import { getCritterImageUrl } from '@utils/utils';
-import { CritterType } from '@store/battle/types';
-
-const critterTypeStyles: Record<CritterType, string> = {
-  [CritterType.FIRE]: 'bg-red-100 text-red-800',
-  [CritterType.WATER]: 'bg-blue-100 text-blue-800',
-  [CritterType.GRASS]: 'bg-green-100 text-green-800',
-  [CritterType.ELECTRIC]: 'bg-yellow-100 text-yellow-800',
-  [CritterType.UNKNOWN]: 'bg-gray-100 text-gray-800',
-};
+import { getCritterImageUrl, getCritterTypeStyle } from '@utils/utils';
 
 export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardProps) {
   const healthPercentage = (critter.stats.currentHp / critter.stats.maxHp) * 100;
@@ -18,16 +9,23 @@ export function CritterDisplayCard({ playerName, critter }: CritterDisplayCardPr
       <div className="flex justify-between items-center text-sm mb-4">
         <span className="font-bold text-green-800">{playerName}</span>
         <span
-          className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${
-            critterTypeStyles[critter.type] ?? critterTypeStyles[CritterType.UNKNOWN]
-          }`}
+          className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap 
+            ${getCritterTypeStyle(critter.type)}`}
         >
           {critter.type}
         </span>
       </div>
       <div className="text-center">
         <div className="mx-auto flex items-center justify-center mb-2">
-          <img src={getCritterImageUrl(critter.name)} alt={critter.name} className="w-26 h-26 object-cover rounded-full" />
+          <img
+            src={getCritterImageUrl(critter.name)}
+            alt={critter.name}
+            className="w-26 h-26 object-cover rounded-full"
+            onError={e => {
+              const target = e.target as HTMLImageElement;
+              target.src = getCritterImageUrl('Unknown');
+            }}
+          />
         </div>
         <h2 className="text-xl font-semibold text-green-900">{critter.name}</h2>
       </div>

@@ -11,7 +11,15 @@ export function TeamDisplay({ title, team, activeCritterId }: TeamDisplayProps) 
           .map(critter => (
             <div key={critter.id} className="text-center">
               <div className="bg-green-100 rounded-full mx-auto flex items-center justify-center">
-                <img src={getCritterImageUrl(critter.name)} alt={critter.name} className="w-12 h-12 object-cover rounded-full" />
+                <img 
+                src={getCritterImageUrl(critter.name)} 
+                alt={critter.name} 
+                className="w-12 h-12 object-cover rounded-full"
+                onError={e => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = getCritterImageUrl('Unknown');
+                }}
+                />
               </div>
               <p className="text-xs mt-1 text-gray-700">{critter.name}</p>
               <p className="text-xs text-gray-500">{critter.stats.currentHp}/{critter.stats.maxHp}</p>

@@ -1,5 +1,5 @@
 import type { CritterListProps } from '@features/profile/types';
-import { critterTypeIcons } from '@utils/utils';
+import { getCritterTypeIcon } from '@utils/utils';
 
 export const CritterList = ({ roster, selectedCritter, onCritterSelect }: CritterListProps) => {
   return (
@@ -17,7 +17,7 @@ export const CritterList = ({ roster, selectedCritter, onCritterSelect }: Critte
             }`}
           >
             <p className="font-bold text-gray-800">
-              {critterTypeIcons[critter.type]} {critter.name}
+              {getCritterTypeIcon(critter.type)} {critter.name}
             </p>
             <p className="text-sm text-gray-500">{critter.type}</p>
           </div>

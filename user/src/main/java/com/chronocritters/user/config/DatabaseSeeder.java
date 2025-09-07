@@ -43,9 +43,23 @@ public class DatabaseSeeder {
                 .power(3)
                 .type(AbilityType.SUPPORT)
                 .build();
+            // New STEEL abilities
+            Ability gearGrind = Ability.builder()
+                .name("Gear Grind")
+                .power(3)
+                .type(AbilityType.ATTACK)
+                .build();
+            Ability fortifyPlating = Ability.builder()
+                .name("Fortify Plating")
+                .power(2)
+                .type(AbilityType.DEFENSE)
+                .build();
+
             abilityRepository.save(tidalWave);
             abilityRepository.save(thunderStrike);
             abilityRepository.save(healPulse);
+            abilityRepository.save(gearGrind);
+            abilityRepository.save(fortifyPlating);
 
             // Critters
             Critter aquaLing = Critter.builder()
@@ -59,6 +73,12 @@ public class DatabaseSeeder {
                 .type(CritterType.ELECTRIC)
                 .baseStats(BaseStats.builder().health(6).attack(3).defense(3).build())
                 .abilities(List.of(thunderStrike))
+                .build();
+            Critter cogling = Critter.builder()
+                .name("Cogling")
+                .type(CritterType.STEEL)
+                .baseStats(BaseStats.builder().health(4).attack(4).defense(4).build())
+                .abilities(List.of(gearGrind, fortifyPlating))
                 .build();
 
             // Player Stats
@@ -77,7 +97,7 @@ public class DatabaseSeeder {
                 .username("BlueOak")
                 .password(PasswordUtil.hashPassword("password1"))
                 .stats(blueOakStats)
-                .roster(List.of(aquaLing))
+                .roster(List.of(aquaLing, cogling))
                 .build();
             Player redAsh = Player.builder()
                 .id("p2")
@@ -86,9 +106,10 @@ public class DatabaseSeeder {
                 .stats(redAshStats)
                 .roster(List.of(voltHound))
                 .build();
-            
+
             critterRepository.save(aquaLing);
             critterRepository.save(voltHound);
+            critterRepository.save(cogling);
             playerRepository.save(blueOak);
             playerRepository.save(redAsh);
         };

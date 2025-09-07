@@ -12,6 +12,7 @@ enum CritterTypeProto {
   WATER = 2;
   GRASS = 3;
   ELECTRIC = 4;
+  STEEL = 5;
 }
 
 // Enum for ability types

@@ -108,6 +108,7 @@ public final class PlayerConverter {
             case WATER -> CritterType.WATER;
             case GRASS -> CritterType.GRASS;
             case ELECTRIC -> CritterType.ELECTRIC;
+            case STEEL -> CritterType.STEEL;
             case CRITTER_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
                 throw new IllegalArgumentException("Unknown critter type: " + protoType);
         };

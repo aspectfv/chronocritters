@@ -1,13 +1,7 @@
 import type { AbilitySelectorProps } from '@features/battle/types';
 import { type Ability, CritterType } from '@store/battle/types';
+import { getCritterTypeStyle } from '@utils/utils';
 
-const critterTypeStyles: Record<CritterType, string> = {
-  [CritterType.FIRE]: 'bg-red-100 text-red-800',
-  [CritterType.WATER]: 'bg-blue-100 text-blue-800',
-  [CritterType.GRASS]: 'bg-green-100 text-green-800',
-  [CritterType.ELECTRIC]: 'bg-yellow-100 text-yellow-800',
-  [CritterType.UNKNOWN]: 'bg-gray-100 text-gray-800',
-};
 
 const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: boolean; critterType: CritterType }> = 
   ({ ability, onClick, disabled, critterType }) => (
@@ -22,9 +16,8 @@ const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: b
         <p className="text-xs text-gray-500 mt-1">{ability.description}</p>
       </div>
       <span
-        className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${
-          critterTypeStyles[critterType] ?? critterTypeStyles[CritterType.UNKNOWN]
-        }`}
+        className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap 
+          ${getCritterTypeStyle(critterType)}`}
       >
         PWR: {ability.power}
       </span>

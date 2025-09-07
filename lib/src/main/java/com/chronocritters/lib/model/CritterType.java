@@ -4,5 +4,6 @@ public enum CritterType {
     FIRE,
     WATER,
     GRASS,
-    ELECTRIC
+    ELECTRIC, 
+    STEEL
 }
