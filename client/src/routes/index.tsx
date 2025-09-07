@@ -10,9 +10,9 @@ import ProfilePage from '@features/profile/routes/ProfilePage';
 import BattlePage from '@features/battle/routes/BattlePage';
 import ResultsPage from '@features/results/routes/ResultsPage';
 import { ProtectedRoute } from '@components/auth/ProtectedRoute';
-import { BattleHistoryTab } from '@features/profile/components/battlehistory/BattleHistoryTab';
-import { MyCrittersTab } from '@features/profile/components/mycritters/MyCrittersTab';
-import { OverviewTab } from '@features/profile/components/overview/OverviewTab';
+import { BattleHistoryTab } from '@features/profile/routes/BattleHistoryTab';
+import { MyCrittersTab } from '@features/profile/routes/MyCrittersTab';
+import { OverviewTab } from '@features/profile/routes/OverviewTab';
 import { menuLoader } from '@features/menu/loaders';
 
 const router = createBrowserRouter([

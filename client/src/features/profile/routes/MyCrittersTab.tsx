@@ -3,8 +3,8 @@ import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { useAuthStore } from '@store/auth/useAuthStore';
 import type { GetMyCrittersData, GetMyCrittersVars, CritterData } from '@features/profile/types';
-import { CritterDetails } from './CritterDetails';
-import { CritterList } from './CritterList';
+import { CritterDetails } from '@features/profile/components/mycritters/CritterDetails';
+import { CritterList } from '@features/profile/components/mycritters/CritterList';
 
 const GET_MY_CRITTERS = gql`
   query GetMyCritters($id: ID!) {

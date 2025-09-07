@@ -1,6 +1,6 @@
-import { TrainerInfo } from './TrainerInfo';
-import { BattleStatistics } from './BattleStatistics';
-import { CritterTeamOverview } from './CritterTeamOverview';
+import { TrainerInfo } from '@features/profile/components/overview/TrainerInfo';
+import { BattleStatistics } from '@features/profile/components/overview/BattleStatistics';
+import { CritterTeamOverview } from '@features/profile/components/overview/CritterTeamOverview';
 
 export function OverviewTab() {
   return (
