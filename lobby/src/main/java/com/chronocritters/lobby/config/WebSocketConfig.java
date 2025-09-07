@@ -8,6 +8,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import com.chronocritters.lobby.logger.WebSocketLoggingInterceptor;
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     
     private final AuthChannelInterceptor authChannelInterceptor;
+    private final WebSocketLoggingInterceptor webSocketLoggingInterceptor;
 
     @Override
     public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
@@ -32,6 +35,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     
     @Override
     public void configureClientInboundChannel(@NonNull ChannelRegistration registration) {
-        registration.interceptors(authChannelInterceptor);
+        registration.interceptors(webSocketLoggingInterceptor, authChannelInterceptor);
     }
 }
