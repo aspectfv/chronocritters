@@ -19,4 +19,5 @@ export interface BattleLogProps {
 export interface TeamDisplayProps {
   title: string;
   team: CritterState[];
+  activeCritterId: string;
 }

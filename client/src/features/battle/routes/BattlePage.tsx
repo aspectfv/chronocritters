@@ -95,9 +95,9 @@ function BattlePage() {
           <CritterDisplayCard playerName={opponent.username} critter={opponent.activeCritter} />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
-          <TeamDisplay title="Your Team" team={player.roster} />
-          <TeamDisplay title="Opponent's Team" team={opponent.roster} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-12">
+          <TeamDisplay title="Your Team" team={player.roster} activeCritterId={player.activeCritter.id} />
+          <TeamDisplay title="Opponent's Team" team={opponent.roster} activeCritterId={opponent.activeCritter.id} />
         </div>
 
         <BattleLog log={actionLogHistory} />
