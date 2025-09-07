@@ -5,6 +5,7 @@ export const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.WATER]: '💧',
   [CritterType.ELECTRIC]: '⚡',
   [CritterType.GRASS]: '🌿',
+  [CritterType.STEEL]: '⛓️',
   [CritterType.UNKNOWN]: '❓',
 };
 
@@ -13,6 +14,7 @@ const critterTypeStyles: Record<CritterType, string> = {
   [CritterType.WATER]: 'bg-blue-100 text-blue-800',
   [CritterType.GRASS]: 'bg-green-100 text-green-800',
   [CritterType.ELECTRIC]: 'bg-yellow-100 text-yellow-800',
+  [CritterType.STEEL]: 'bg-gray-100 text-gray-800',
   [CritterType.UNKNOWN]: 'bg-gray-100 text-gray-800',
 };
 
