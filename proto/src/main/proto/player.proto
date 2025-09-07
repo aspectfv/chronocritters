@@ -20,7 +20,7 @@ enum AbilityTypeProto {
   ABILITY_TYPE_UNSPECIFIED = 0;
   ATTACK = 1;
   DEFENSE = 2;
-  SUPPORT = 3;
+  HEAL = 3;
 }
 
 // Service definition for player-related operations

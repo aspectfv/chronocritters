@@ -114,7 +114,7 @@ public final class PlayerProtoMapper {
         return switch (protoType) {
             case ATTACK -> AbilityType.ATTACK;
             case DEFENSE -> AbilityType.DEFENSE;
-            case SUPPORT -> AbilityType.SUPPORT;
+            case HEAL -> AbilityType.HEAL;
             case ABILITY_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
                 throw new IllegalArgumentException("Unknown ability type: " + protoType);
         };
@@ -170,7 +170,7 @@ public final class PlayerProtoMapper {
         return switch (type) {
             case ATTACK -> AbilityTypeProto.ATTACK;
             case DEFENSE -> AbilityTypeProto.DEFENSE;
-            case SUPPORT -> AbilityTypeProto.SUPPORT;
+            case HEAL -> AbilityTypeProto.HEAL;
             default -> AbilityTypeProto.ABILITY_TYPE_UNSPECIFIED;
         };
     }

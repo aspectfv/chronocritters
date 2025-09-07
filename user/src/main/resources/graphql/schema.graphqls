@@ -9,7 +9,7 @@ enum CritterType {
 enum AbilityType {
     ATTACK
     DEFENSE
-    SUPPORT
+    HEAL
 }
 
 type Ability {

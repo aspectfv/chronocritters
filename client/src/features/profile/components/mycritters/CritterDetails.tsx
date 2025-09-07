@@ -1,12 +1,5 @@
 import type { CritterData } from '@features/profile/types';
-import { getCritterImageUrl } from '@utils/utils';
-
-const abilityTypeColors: Record<string, string> = {
-  ATTACK: 'bg-red-100 text-red-800',
-  DEFENSE: 'bg-blue-100 text-blue-800',
-  SUPPORT: 'bg-green-100 text-green-800',
-  UNKNOWN: 'bg-gray-100 text-gray-800',
-};
+import { getAbilityTypeStyle, getCritterImageUrl } from '@utils/utils';
 
 export const CritterDetails = ({ critter }: { critter: CritterData | null }) => {
   if (!critter) {
@@ -58,12 +51,12 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
       <h4 className="font-semibold text-green-800 mb-2">Abilities</h4>
       <div className="space-y-2">
         {critter.abilities.map(ability => (
-          <div key={ability.id} className={`p-3 rounded-lg border ${abilityTypeColors[ability.type]}`}>
+          <div key={ability.id} className={`p-3 rounded-lg border ${getAbilityTypeStyle(ability.type)}`}>
             <p className="font-semibold text-sm">{ability.name}</p>
             <p className="text-xs">Power: {ability.power}</p>
             <span
               className={`float-right text-xs px-2 py-0.5 rounded-full ${
-                abilityTypeColors[ability.type] || abilityTypeColors.UNKNOWN
+                getAbilityTypeStyle(ability.type)
               }`}
             >
               {ability.type}

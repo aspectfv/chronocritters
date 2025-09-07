@@ -76,7 +76,7 @@ public class BattleService {
         switch (ability.getType()) {
             case ATTACK -> executeAttackAbility(currentBattle, player, opponent, activeCritter, ability);
             case DEFENSE -> executeDefenseAbility(currentBattle, player, activeCritter, ability);
-            case SUPPORT -> executeSupportAbility(currentBattle, player, activeCritter, ability);
+            case HEAL -> executeHealAbility(currentBattle, player, activeCritter, ability);
             default -> throw new IllegalArgumentException("Unexpected value: " + ability.getType());
         }
 
@@ -139,11 +139,13 @@ public class BattleService {
             if (nextCritterIndex < opponent.getRoster().size()) {
                 CritterState nextCritter = opponent.getCritterByIndex(nextCritterIndex);
                 opponent.setActiveCritterIndex(nextCritterIndex);
+
                 String faintLog = opponentActiveCritter.getName() + " fainted! " + 
                     opponent.getUsername() + " sent out " + nextCritter.getName() + "!";
                 currentBattle.getActionLogHistory().add(faintLog);
             } else {
                 currentBattle.setActivePlayerId(null);
+                
                 String winLog = opponentActiveCritter.getName() + " fainted! " + 
                     player.getUsername() + " wins the battle!";
                 currentBattle.getActionLogHistory().add(winLog);
@@ -173,15 +175,15 @@ public class BattleService {
         currentBattle.getActionLogHistory().add(actionLog);
     }
 
-    private void executeSupportAbility(
+    private void executeHealAbility(
     BattleState currentBattle, PlayerState player, CritterState activeCritter, Ability ability
     ) {
         CurrentStats critterStats = activeCritter.getStats();
 
         int heal = ability.getPower();
-        int newHealth = critterStats.getCurrentHp() + heal;
-
+        int newHealth = Math.min(critterStats.getMaxHp(), critterStats.getCurrentHp() + heal);
         critterStats.setCurrentHp(newHealth);
+        
         String actionLog = String.format("%s's %s used %s! %s healed for %d (now %d health).",
             player.getUsername(),
             activeCritter.getName(),

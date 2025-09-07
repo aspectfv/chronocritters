@@ -1,4 +1,4 @@
-import { CritterType } from "@store/battle/types";
+import { AbilityType, CritterType } from "@store/battle/types";
 
 export const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.FIRE]: '🔥',
@@ -8,6 +8,10 @@ export const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.STEEL]: '⛓️',
   [CritterType.UNKNOWN]: '❓',
 };
+
+export function getCritterTypeIcon(type: CritterType): string {
+  return critterTypeIcons[type] ?? critterTypeIcons[CritterType.UNKNOWN];
+}
 
 const critterTypeStyles: Record<CritterType, string> = {
   [CritterType.FIRE]: 'bg-red-100 text-red-800',
@@ -22,8 +26,15 @@ export function getCritterTypeStyle(type: CritterType): string {
   return critterTypeStyles[type] ?? critterTypeStyles[CritterType.UNKNOWN];
 }
 
-export function getCritterTypeIcon(type: CritterType): string {
-  return critterTypeIcons[type] ?? critterTypeIcons[CritterType.UNKNOWN];
+const abilityTypeStyle: Record<string, string> = {
+  [AbilityType.ATTACK]: 'bg-red-100 text-red-800',
+  [AbilityType.DEFENSE]: 'bg-blue-100 text-blue-800',
+  [AbilityType.HEAL]: 'bg-green-100 text-green-800',
+  [AbilityType.UNKNOWN]: 'bg-gray-100 text-gray-800',
+};
+
+export function getAbilityTypeStyle(type: string): string {
+  return abilityTypeStyle[type] ?? abilityTypeStyle[AbilityType.UNKNOWN];
 }
 
 export const getCritterImageUrl = (critterName: string): string => {

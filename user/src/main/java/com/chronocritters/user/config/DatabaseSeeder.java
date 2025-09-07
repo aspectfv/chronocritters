@@ -35,10 +35,10 @@ public class DatabaseSeeder {
                 .type(AbilityType.ATTACK)
                 .build();
             Ability healPulse = Ability.builder()
-                .id("spt-healpulse")
+                .id("heal-healpulse")
                 .name("Heal Pulse")
                 .power(3)
-                .type(AbilityType.SUPPORT)
+                .type(AbilityType.HEAL)
                 .build();
 
             Ability thunderStrike = Ability.builder()
