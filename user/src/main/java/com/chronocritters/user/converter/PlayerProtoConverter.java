@@ -52,6 +52,7 @@ public class PlayerProtoConverter {
             case WATER -> CritterTypeProto.WATER;
             case GRASS -> CritterTypeProto.GRASS;
             case ELECTRIC -> CritterTypeProto.ELECTRIC;
+            case STEEL -> CritterTypeProto.STEEL;
             default -> CritterTypeProto.CRITTER_TYPE_UNSPECIFIED;
         };
     }
