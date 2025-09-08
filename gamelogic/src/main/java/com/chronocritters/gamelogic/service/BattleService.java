@@ -36,6 +36,7 @@ public class BattleService {
     private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
 
     private static final int TURN_DURATION_SECONDS = 30;
+    private static final int CLEANUP_DELAY_SECONDS = 60;
 
     public BattleState getBattleState(String battleId) {
         return activeBattles.get(battleId);
@@ -104,11 +105,8 @@ public class BattleService {
             lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
 
             cleanupScheduler.schedule(() -> {
-                BattleState removedBattle = activeBattles.remove(battleId);
-                if (removedBattle != null) {
-                    System.out.println("Cleaned up completed battle: " + battleId);
-                }
-            }, 1, TimeUnit.MINUTES);
+                activeBattles.remove(battleId);
+            }, CLEANUP_DELAY_SECONDS, TimeUnit.SECONDS);
             return currentBattle;
         }
 
