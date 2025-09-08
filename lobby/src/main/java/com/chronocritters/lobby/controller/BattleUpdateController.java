@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -20,12 +21,12 @@ public class BattleUpdateController {
     private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/battle/{battleId}/update")
-    public ResponseEntity<Void> onBattleStateUpdate(@RequestBody BattleState battleState) {
-        messagingTemplate.convertAndSend("/topic/battle/" + battleState.getBattleId(), battleState);
+    public ResponseEntity<Void> onBattleStateUpdate(@PathVariable String battleId, @RequestBody BattleState battleState) {
+        messagingTemplate.convertAndSend("/topic/battle/" + battleId, battleState);
         if (battleState.getActivePlayerId() != null) {
             battleTimerService.startOrResetTimer(battleState);
         } else {
-            battleTimerService.stopTimer(battleState.getBattleId());
+            battleTimerService.stopTimer(battleId);
         }
         return ResponseEntity.ok().build();
     }
