@@ -1,4 +1,5 @@
+export type Result = 'victory' | 'defeat' | null;
 export interface ResultsHeaderProps {
-  result: 'victory' | 'defeat' | null;
+  result: Result;
   opponentName: string;
 }

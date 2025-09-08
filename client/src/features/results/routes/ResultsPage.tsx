@@ -2,19 +2,20 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useBattleStore } from '@store/battle/useBattleStore';
 
-import { ResultsHeader } from '@features/results/components/ResultsHeader'; // Updated import
+import { ResultsHeader } from '@features/results/components/ResultsHeader';
 import { ProgressSummary } from '@features/results/components/ProgressSummary';
 import { RewardsSummary } from '@features/results/components/RewardsSummary';
 import { BattleSummary } from '@features/results/components/BattleSummary';
 import { AchievementNotification } from '@features/results/components/AchievementNotification';
 import { ActionButtons } from '@features/results/components/ActionButtons';
+import type { Result } from '@features/results/types';
 
 function ResultsPage() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const { resetBattleState } = useBattleStore();
 
-  const battleResult = state?.result as 'victory' | 'defeat' | undefined;
+  const battleResult = state?.result as Result;
 
   useEffect(() => {
     if (!battleResult) {
