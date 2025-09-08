@@ -90,21 +90,21 @@ public class DatabaseSeeder {
                 .id("water-aqualing")
                 .name("Aqualing")
                 .type(CritterType.WATER)
-                .baseStats(BaseStats.builder().health(6).attack(4).defense(2).build())
+                .baseStats(BaseStats.builder().health(5).attack(3).defense(4).build())
                 .abilities(List.of(riptideLash, aqueousVeil))
                 .build();
             Critter voltHound = Critter.builder()
                 .id("electric-volthound")
                 .name("Volthound")
                 .type(CritterType.ELECTRIC)
-                .baseStats(BaseStats.builder().health(6).attack(3).defense(3).build())
+                .baseStats(BaseStats.builder().health(4).attack(6).defense(2).build())
                 .abilities(List.of(staticSnap, joltWard))
                 .build();
             Critter cogling = Critter.builder()
                 .id("steel-cogling")
                 .name("Cogling")
                 .type(CritterType.STEEL)
-                .baseStats(BaseStats.builder().health(4).attack(4).defense(4).build())
+                .baseStats(BaseStats.builder().health(4).attack(3).defense(5).build())
                 .abilities(List.of(gearGrind, fortifyPlating))
                 .build();
 
