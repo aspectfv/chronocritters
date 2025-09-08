@@ -22,7 +22,11 @@ public class BattleUpdateController {
     @PostMapping("/battle/{battleId}/update")
     public ResponseEntity<Void> onBattleStateUpdate(@RequestBody BattleState battleState) {
         messagingTemplate.convertAndSend("/topic/battle/" + battleState.getBattleId(), battleState);
-        battleTimerService.startOrResetTimer(battleState);
+        if (battleState.getActivePlayerId() != null) {
+            battleTimerService.startOrResetTimer(battleState);
+        } else {
+            battleTimerService.stopTimer(battleState.getBattleId());
+        }
         return ResponseEntity.ok().build();
     }
     

@@ -48,13 +48,8 @@ public class BattleTimerService {
             if (remaining <= 0) {
                 stopTimer(battleId);
                 gameLogicWebClient.handleTurnTimeout(battleId)
-                    .subscribe(
-                        newBattleState -> {
-                            messagingTemplate.convertAndSend("/topic/battle/" + battleId, newBattleState);
-                            this.startOrResetTimer(newBattleState);
-                        },
-                        error -> log.warn("Failed to handle turn timeout for battle {}", battleId)
-                    );
+                    .doOnError(error -> log.warn("Failed to handle turn timeout for battle {}", battleId))
+                    .subscribe();
             }
         };
 

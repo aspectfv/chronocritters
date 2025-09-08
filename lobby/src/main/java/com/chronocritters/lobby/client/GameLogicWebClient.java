@@ -66,7 +66,7 @@ public class GameLogicWebClient {
                 .retryWhen(defaultRetrySpec);
     }
 
-    public Mono<BattleState> handleTurnTimeout(String battleId) {
+    public Mono<Void> handleTurnTimeout(String battleId) {
         return webClient.post()
                 .uri("/battle/{battleId}/timeout", battleId)
                 .retrieve()
@@ -76,7 +76,7 @@ public class GameLogicWebClient {
                         response -> Mono.error(new IllegalArgumentException("Invalid turn timeout request")))
                 .onStatus(status -> status.is5xxServerError(),
                         response -> Mono.error(new IllegalStateException("Server error while handling turn timeout")))
-                .bodyToMono(BattleState.class)
+                .bodyToMono(Void.class)
                 .retryWhen(defaultRetrySpec);
     }
 

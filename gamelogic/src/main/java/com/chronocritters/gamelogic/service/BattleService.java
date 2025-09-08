@@ -127,28 +127,6 @@ public class BattleService {
         return currentBattle;
     }
 
-    public BattleState handleTurnTimeout(String battleId) {
-        BattleState currentBattle = getBattleState(battleId);
-        if (currentBattle == null) {
-            throw new IllegalArgumentException("Invalid battle ID");
-        }
-
-        PlayerState player = currentBattle.getPlayer();
-        PlayerState opponent = currentBattle.getOpponent();
-
-        String timeoutLog = String.format("%s ran out of time!", player.getUsername());
-        currentBattle.getActionLogHistory().add(timeoutLog);
-        
-        currentBattle.setActivePlayerId(opponent.getId());
-        currentBattle.setTimeRemaining(TURN_DURATION_SECONDS);
-        
-        player.setHasTurn(false);
-        opponent.setHasTurn(true);
-        
-        lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
-        return currentBattle;
-    }
-
     public BattleState switchCritter(String battleId, String playerId, int targetCritterIndex) {
         BattleState currentBattle = getBattleState(battleId);
         if (currentBattle == null) {
@@ -190,5 +168,27 @@ public class BattleService {
         lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
         return currentBattle;
     }
+    
+    public void handleTurnTimeout(String battleId) {
+        BattleState currentBattle = getBattleState(battleId);
+        if (currentBattle == null) {
+            throw new IllegalArgumentException("Invalid battle ID");
+        }
+
+        PlayerState player = currentBattle.getPlayer();
+        PlayerState opponent = currentBattle.getOpponent();
+
+        String timeoutLog = String.format("%s ran out of time!", player.getUsername());
+        currentBattle.getActionLogHistory().add(timeoutLog);
+        
+        currentBattle.setActivePlayerId(opponent.getId());
+        currentBattle.setTimeRemaining(TURN_DURATION_SECONDS);
+        
+        player.setHasTurn(false);
+        opponent.setHasTurn(true);
+        
+        lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
+    }
+
 
 }

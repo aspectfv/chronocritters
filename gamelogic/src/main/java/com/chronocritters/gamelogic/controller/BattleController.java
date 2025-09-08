@@ -51,7 +51,8 @@ public class BattleController {
     
 
     @PostMapping("/battle/{battleId}/timeout")
-    public BattleState handleTimeout(@PathVariable String battleId) {
-        return battleService.handleTurnTimeout(battleId);
+    public ResponseEntity<Void> handleTimeout(@PathVariable String battleId) {
+        battleService.handleTurnTimeout(battleId);
+        return ResponseEntity.ok().build();
     }
 }
