@@ -13,7 +13,7 @@ const getAbilityDescription = (ability: Ability): string => {
       return `A powerful strike dealing ${ability.power} damage.`;
     case AbilityType.DEFENSE:
       return `Boosts defense by ${ability.power} points.`;
-    case AbilityType.SUPPORT:
+    case AbilityType.HEAL:
       return `Restores ${ability.power} health.`;
     default:
       return 'An ability with a mysterious effect.';

@@ -3,6 +3,7 @@ package com.chronocritters.gamelogic.abilities;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Component;
 
@@ -85,9 +86,12 @@ public class AttackAbilityStrategy implements AbilityStrategy {
         currentBattle.getActionLogHistory().add(actionLog);
         
         if (newHealth == 0) {
-            int nextCritterIndex = opponent.getActiveCritterIndex() + 1;
+            int nextCritterIndex = IntStream.range(0, opponent.getRoster().size())
+                .filter(i -> opponent.getCritterByIndex(i).getStats().getCurrentHp() > 0)
+                .findFirst()
+                .orElse(-1);
             
-            if (nextCritterIndex < opponent.getRoster().size()) {
+            if (nextCritterIndex != -1) {
                 CritterState nextCritter = opponent.getCritterByIndex(nextCritterIndex);
                 opponent.setActiveCritterIndex(nextCritterIndex);
 
