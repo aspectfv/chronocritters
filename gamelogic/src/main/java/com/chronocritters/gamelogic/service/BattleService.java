@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.chronocritters.gamelogic.client.LobbyWebClient;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
 import com.chronocritters.lib.context.AbilityExecutionContext;
 import com.chronocritters.lib.interfaces.AbilityStrategy;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class BattleService {
     private final List<BattleState> activeBattles = new ArrayList<>();
     private final PlayerGrpcClient playerGrpcClient;
+    private final LobbyWebClient lobbyWebClient;
     private final Map<AbilityType, AbilityStrategy> abilityStrategies;
 
     private static final int TURN_DURATION_SECONDS = 30;
@@ -95,6 +97,7 @@ public class BattleService {
 
         if (result == AbilityExecutionResult.BATTLE_WON) {
             playerGrpcClient.updateMatchHistory(player.getId(), opponent.getId());
+            lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
             return currentBattle;
         }
 
@@ -104,6 +107,7 @@ public class BattleService {
         player.setHasTurn(false);
         opponent.setHasTurn(true);
 
+        lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
         return currentBattle;
     }
 
@@ -125,6 +129,7 @@ public class BattleService {
         player.setHasTurn(false);
         opponent.setHasTurn(true);
         
+        lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
         return currentBattle;
     }
 

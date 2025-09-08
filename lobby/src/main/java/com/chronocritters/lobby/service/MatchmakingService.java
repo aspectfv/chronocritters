@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.chronocritters.lobby.dto.Match;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class MatchmakingService {
     private final ConcurrentLinkedQueue<String> playerQueue = new ConcurrentLinkedQueue<>();
 

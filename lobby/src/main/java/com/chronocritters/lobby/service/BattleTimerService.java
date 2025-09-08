@@ -42,23 +42,18 @@ public class BattleTimerService {
             messagingTemplate.convertAndSend("/topic/battle/" + battleId, Map.of("timeRemaining", remaining));
 
             if (remaining <= 0) {
-                handleTimeout(battleId);
+                stopTimer(battleId);
+                gameLogicWebClient.handleTurnTimeout(battleId)
+                    .doOnSuccess(newBattleState -> {
+                        messagingTemplate.convertAndSend("/topic/battle/" + battleId, newBattleState);
+                        this.startOrResetTimer(newBattleState);
+                    })
+                    .subscribe();
             }
         };
 
         ScheduledFuture<?> timerHandle = scheduler.scheduleAtFixedRate(timerTickTask, 1, 1, TimeUnit.SECONDS);
         activeTimers.put(battleId, timerHandle);
-    }
-    
-    private void handleTimeout(String battleId) {
-        stopTimer(battleId);
-        
-        gameLogicWebClient.handleTurnTimeout(battleId)
-            .doOnSuccess(newBattleState -> {
-                messagingTemplate.convertAndSend("/topic/battle/" + battleId, newBattleState);
-                this.startOrResetTimer(newBattleState);
-            })
-            .subscribe();
     }
 
     public void stopTimer(String battleId) {

@@ -11,7 +11,7 @@ import { CritterDisplayCard } from '../components/CritterDisplayCard';
 import { TeamDisplay } from '../components/TeamDisplay';
 import { BattleLog } from '../components/BattleLog';
 import { AbilitySelector } from '../components/AbilitySelector';
-import { getBattleState } from '@api/gamelogic';
+import { getBattleState, executeAbility } from '@api/gamelogic';
 
 function BattlePage() {
   const { battleId } = useParams<{ battleId: string }>();
@@ -68,20 +68,18 @@ function BattlePage() {
     }
   }, [battleResult, navigate]);
 
-  const handleAbilityClick = useCallback((abilityId: string) => {
-    const { publish } = useLobbyStore.getState();
+  const handleAbilityClick = useCallback(async (abilityId: string) => {
     const { player } = useBattleStore.getState();
 
     if (!player.hasTurn || !battleId || !user?.id) {
       return;
     }
-
-    const payload = {
-      playerId: user.id,
-      abilityId: abilityId,
-    };
     
-    publish(`/app/battle/${battleId}/ability`, payload);
+    try {
+      await executeAbility(battleId, user.id, abilityId);
+    } catch (error) {
+      console.error("Failed to execute ability:", error);
+    }
   }, [battleId, user?.id]);
   
   return (

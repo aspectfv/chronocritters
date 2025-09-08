@@ -8,8 +8,9 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import com.chronocritters.lobby.client.GameLogicWebClient;
 import com.chronocritters.lobby.dto.Match;
-import com.chronocritters.lobby.service.BattleStateService;
+import com.chronocritters.lobby.service.BattleTimerService;
 import com.chronocritters.lobby.service.MatchmakingService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MatchmakingController {
     private final MatchmakingService matchmakingService;
+    private final BattleTimerService battleTimerService;
+    private final GameLogicWebClient gameLogicWebClient;
     private final SimpMessagingTemplate messagingTemplate;
-    private final BattleStateService battleStateService;
+    
     
     @MessageMapping("/matchmaking/join")
     public void joinMatchmaking(SimpMessageHeaderAccessor headerAccessor) {
@@ -40,22 +43,17 @@ public class MatchmakingController {
             throw new IllegalArgumentException("Username is required for matchmaking");
         }
         
-        // This will throw exceptions that the global handler will catch
         matchmakingService.enqueue(userId);
-        
         Optional<Match> match = matchmakingService.tryMatch();
         
         if (match.isPresent()) {
             Match foundMatch = match.get();
             
-            // Create battle - this could also throw exceptions
-            battleStateService.createBattle(
-                foundMatch.battleId(),
-                foundMatch.playerOneId(),
-                foundMatch.playerTwoId()
-            );
+            gameLogicWebClient.createBattle(foundMatch.battleId(), foundMatch.playerOneId(), foundMatch.playerTwoId())
+                .then(gameLogicWebClient.getBattleState(foundMatch.battleId()))
+                .doOnSuccess(battleTimerService::startOrResetTimer)
+                .block();
             
-            // Notify players
             messagingTemplate.convertAndSendToUser(
                     foundMatch.playerOneId(),
                     "/matchmaking/status",
