@@ -2,6 +2,7 @@ package com.chronocritters.gamelogic.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,10 +15,12 @@ import com.chronocritters.lib.dto.ExecuteAbilityRequest;
 import com.chronocritters.lib.dto.SwitchCritterRequest;
 import com.chronocritters.lib.model.BattleState;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 public class BattleController {
     private final BattleService battleService;
 
@@ -27,7 +30,7 @@ public class BattleController {
     }
 
     @PostMapping("/battle/{battleId}")
-    public ResponseEntity<Void> createBattle(@PathVariable String battleId, @RequestBody BattleRequest battleRequest) {
+    public ResponseEntity<Void> createBattle(@PathVariable String battleId, @Valid @RequestBody BattleRequest battleRequest) {
         battleService.createBattle(
                 battleId,
                 battleRequest.playerOneId(),
@@ -37,12 +40,12 @@ public class BattleController {
     }
 
     @PostMapping("/battle/{battleId}/ability")
-    public BattleState executeAbility(@PathVariable String battleId, @RequestBody ExecuteAbilityRequest request) {
+    public BattleState executeAbility(@PathVariable String battleId, @Valid @RequestBody ExecuteAbilityRequest request) {
         return battleService.executeAbility(battleId, request.playerId(), request.abilityId());
     }
 
     @PostMapping("/battle/{battleId}/switch")
-    public BattleState switchCritter(@PathVariable String battleId, @RequestBody SwitchCritterRequest request) {
+    public BattleState switchCritter(@PathVariable String battleId, @Valid @RequestBody SwitchCritterRequest request) {
         return battleService.switchCritter(battleId, request.playerId(), request.targetCritterIndex());
     }
     
