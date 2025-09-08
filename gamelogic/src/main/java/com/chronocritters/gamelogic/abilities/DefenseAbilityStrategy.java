@@ -27,19 +27,19 @@ public class DefenseAbilityStrategy implements AbilityStrategy {
         Ability ability = context.getAbility();
         
         CurrentStats critterStats = activeCritter.getStats();
-
-        int heal = ability.getPower();
-        int newHealth = Math.min(critterStats.getMaxHp(), critterStats.getCurrentHp() + heal);
-        critterStats.setCurrentHp(newHealth);
-
-        String actionLog = String.format("%s's %s used %s! %s healed for %d (now %d health).",
+        
+        int defenseBoost = ability.getPower();
+        int newDefense = critterStats.getCurrentDef() + defenseBoost;
+        critterStats.setCurrentDef(newDefense);
+        
+        String actionLog = String.format("%s's %s used %s! %s's defense increased by %d (now %d).",
             player.getUsername(),
             activeCritter.getName(),
             ability.getName(),
             activeCritter.getName(),
-            heal,
-            newHealth);
-
+            defenseBoost,
+            newDefense);
+        
         currentBattle.getActionLogHistory().add(actionLog);
 
         return AbilityExecutionResult.CONTINUE;
