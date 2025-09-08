@@ -2,6 +2,7 @@ package com.chronocritters.gamelogic.abilities;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -18,14 +19,14 @@ import com.chronocritters.lib.model.PlayerState;
 
 @Component
 public class AttackAbilityStrategy implements AbilityStrategy {
-    private static final Map<CritterType, CritterType> typeAdvantages = new EnumMap<>(CritterType.class);
+    private static final Map<CritterType, Set<CritterType>> typeAdvantages = new EnumMap<>(CritterType.class);
 
     static {
-        typeAdvantages.put(CritterType.FIRE, CritterType.GRASS);
-        typeAdvantages.put(CritterType.WATER, CritterType.FIRE);
-        typeAdvantages.put(CritterType.GRASS, CritterType.WATER);
-        typeAdvantages.put(CritterType.ELECTRIC, CritterType.WATER);
-        typeAdvantages.put(CritterType.METAL, CritterType.ELECTRIC);
+        typeAdvantages.put(CritterType.FIRE, Set.of(CritterType.GRASS, CritterType.METAL));
+        typeAdvantages.put(CritterType.WATER, Set.of(CritterType.FIRE));
+        typeAdvantages.put(CritterType.GRASS, Set.of(CritterType.WATER));
+        typeAdvantages.put(CritterType.ELECTRIC, Set.of(CritterType.WATER));
+        typeAdvantages.put(CritterType.METAL, Set.of(CritterType.ELECTRIC));
     }
     
     @Override
@@ -54,10 +55,10 @@ public class AttackAbilityStrategy implements AbilityStrategy {
         CritterType attackerType = activeCritter.getType();
         CritterType defenderType = opponentActiveCritter.getType();
 
-        if (typeAdvantages.get(attackerType) == defenderType) {
+        if (typeAdvantages.get(attackerType).contains(defenderType)) {
             typeMultipler = 1.5;
             typeEffectiveness = "It's super effective!";
-        } else if (typeAdvantages.get(defenderType) == attackerType) {
+        } else if (typeAdvantages.get(defenderType).contains(attackerType)) {
             typeMultipler = 0.5;
             typeEffectiveness = "It's not very effective...";
         }
