@@ -40,9 +40,9 @@ export function getAbilityTypeStyle(type: string): string {
 export const getCritterImageUrl = (critterName: string): string => {
   const toTitleCase = (str: string): string =>
     str.replace(/\w\S*/g, (txt) =>
-      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()
     );
-    
-  const formattedName = toTitleCase(critterName).replace(/\s+/g, '');
+
+  const formattedName = toTitleCase(critterName).replace(/\s/g, '');
   return `/src/assets/critters/${formattedName}.jpeg`;
 };

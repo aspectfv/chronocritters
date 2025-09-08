@@ -86,6 +86,21 @@ public class DatabaseSeeder {
                 .type(AbilityType.DEFENSE)
                 .build();
 
+            // Sylvan Sentinel
+            Ability rootJab = Ability.builder()
+                .id("atk-rootjab")
+                .name("Root Jab")
+                .power(2)
+                .type(AbilityType.ATTACK)
+                .build();
+
+            Ability sunbathe = Ability.builder()
+                .id("heal-sunbathe")
+                .name("Sunbathe")
+                .power(4)
+                .type(AbilityType.HEAL)
+                .build();
+
             // Aqualing
             abilityRepository.save(riptideLash);
             abilityRepository.save(aqueousVeil);
@@ -101,6 +116,10 @@ public class DatabaseSeeder {
             /// Searfiend
             abilityRepository.save(cinderLash);
             abilityRepository.save(ashenGuard);
+
+            // Sylvan Sentinel
+            abilityRepository.save(rootJab);
+            abilityRepository.save(sunbathe);
 
             // Critters
             Critter aquaLing = Critter.builder()
@@ -131,11 +150,19 @@ public class DatabaseSeeder {
                 .baseStats(BaseStats.builder().health(5).attack(5).defense(2).build())
                 .abilities(List.of(cinderLash, ashenGuard))
                 .build();
+            Critter sylvanSentinel = Critter.builder()
+                .id("grass-sylvansentinel")
+                .name("Sylvan Sentinel")
+                .type(CritterType.GRASS)
+                .baseStats(BaseStats.builder().health(6).attack(2).defense(4).build())
+                .abilities(List.of(rootJab, sunbathe))
+                .build();
 
             critterRepository.save(aquaLing);
             critterRepository.save(voltHound);
             critterRepository.save(cogling);
             critterRepository.save(searfiend);
+            critterRepository.save(sylvanSentinel);
 
             // Player Stats
             PlayerStats blueOakStats = PlayerStats.builder()
@@ -146,7 +173,6 @@ public class DatabaseSeeder {
                 .wins(8)
                 .losses(4)
                 .build();
-        
 
             // Players
             Player blueOak = Player.builder()
@@ -154,7 +180,7 @@ public class DatabaseSeeder {
                 .username("BlueOak")
                 .password(PasswordUtil.hashPassword("password1"))
                 .stats(blueOakStats)
-                .roster(List.of(aquaLing, cogling))
+                .roster(List.of(aquaLing, cogling, sylvanSentinel))
                 .build();
             Player redAsh = Player.builder()
                 .id("p2")
@@ -164,7 +190,6 @@ public class DatabaseSeeder {
                 .roster(List.of(voltHound, searfiend))
                 .build();
 
-            critterRepository.save(searfiend);
             playerRepository.save(blueOak);
             playerRepository.save(redAsh);
         };
