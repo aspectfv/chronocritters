@@ -16,7 +16,7 @@ export function TeamDisplay({ title, team, activeCritterId }: TeamDisplayProps) 
                   <img 
                     src={getCritterImageUrl(critter.name)} 
                     alt={critter.name} 
-                    className="w-12 h-12 object-cover rounded-full"
+                    className="w-15 h-15 object-cover rounded-full"
                     onError={e => {
                       const target = e.target as HTMLImageElement;
                       target.src = getCritterImageUrl('Unknown');
