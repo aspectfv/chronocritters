@@ -33,6 +33,11 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
       onConnect: () => {
         set({ stompClient: client, connectionStatus: 'connected' });
       },
+      onWebSocketClose: () => {
+        if (get().connectionStatus !== 'disconnected') {
+          set({ connectionStatus: 'disconnected', stompClient: null });
+        }
+      },
       onDisconnect: () => {
         set({ stompClient: null, connectionStatus: 'disconnected' });
       },
