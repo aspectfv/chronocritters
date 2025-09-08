@@ -1,5 +1,9 @@
 import type { Ability, CritterState, CritterType } from "@store/battle/types";
 
+export interface BattleHeaderProps {
+  isPlayerTurn: boolean;
+}
+
 export type AbilitySelectorProps = {
   abilities: Ability[];
   onAbilityClick: (abilityId: string) => void;

@@ -1,4 +1,5 @@
 import { AbilityType, CritterType } from "@store/battle/types";
+import type { ConnectionStatus } from "@store/lobby/types";
 
 export const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.FIRE]: '🔥',
@@ -46,3 +47,14 @@ export const getCritterImageUrl = (critterName: string): string => {
   const formattedName = toTitleCase(critterName).replace(/\s/g, '');
   return `/src/assets/critters/${formattedName}.jpeg`;
 };
+
+const connectionStatusStyleMap: Record<ConnectionStatus, { text: string; color: string }> = {
+  connected: { text: 'Online', color: 'bg-green-500' },
+  connecting: { text: 'Connecting...', color: 'bg-yellow-400' },
+  disconnected: { text: 'Offline', color: 'bg-gray-400' },
+  error: { text: 'Error', color: 'bg-red-500' },
+};
+
+export function getConnectionStatusStyle(status: ConnectionStatus): { text: string; color: string } {
+  return connectionStatusStyleMap[status] ?? connectionStatusStyleMap['disconnected'];
+}

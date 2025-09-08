@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
-
-interface BattleHeaderProps {
-  isPlayerTurn: boolean;
-}
+import { useLobbyStore } from '@store/lobby/useLobbyStore';
+import type { BattleHeaderProps } from '@features/battle/types';
+import { getConnectionStatusStyle } from '@utils/utils';
 
 export function BattleHeader({ isPlayerTurn }: BattleHeaderProps) {
+  const connectionStatus = useLobbyStore((state) => state.connectionStatus);
+
   return (
     <div className="text-center mb-4">
       <div className="flex justify-between items-center mb-4">
@@ -12,8 +13,8 @@ export function BattleHeader({ isPlayerTurn }: BattleHeaderProps) {
           &larr; Back to Menu
         </Link>
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-          Connected
+          <span className={`w-2 h-2 rounded-full ${getConnectionStatusStyle(connectionStatus).color}`}></span>
+          {getConnectionStatusStyle(connectionStatus).text}
         </div>
       </div>
       <h1 className="text-4xl font-bold text-green-700">Battle Arena</h1>
