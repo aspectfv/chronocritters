@@ -137,9 +137,9 @@ public class DatabaseSeeder {
                 .abilities(List.of(staticSnap, joltWard))
                 .build();
             Critter cogling = Critter.builder()
-                .id("steel-cogling")
+                .id("METAL-cogling")
                 .name("Cogling")
-                .type(CritterType.STEEL)
+                .type(CritterType.METAL)
                 .baseStats(BaseStats.builder().health(4).attack(3).defense(5).build())
                 .abilities(List.of(gearGrind, fortifyPlating))
                 .build();

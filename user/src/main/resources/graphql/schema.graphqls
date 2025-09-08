@@ -3,7 +3,7 @@ enum CritterType {
     WATER
     GRASS
     ELECTRIC
-    STEEL
+    METAL
 }
 
 enum AbilityType {

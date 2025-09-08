@@ -104,7 +104,7 @@ public final class PlayerProtoMapper {
             case WATER -> CritterType.WATER;
             case GRASS -> CritterType.GRASS;
             case ELECTRIC -> CritterType.ELECTRIC;
-            case STEEL -> CritterType.STEEL;
+            case METAL -> CritterType.METAL;
             case CRITTER_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
                 throw new IllegalArgumentException("Unknown critter type: " + protoType);
         };
@@ -161,7 +161,7 @@ public final class PlayerProtoMapper {
             case WATER -> CritterTypeProto.WATER;
             case GRASS -> CritterTypeProto.GRASS;
             case ELECTRIC -> CritterTypeProto.ELECTRIC;
-            case STEEL -> CritterTypeProto.STEEL;
+            case METAL -> CritterTypeProto.METAL;
             default -> CritterTypeProto.CRITTER_TYPE_UNSPECIFIED;
         };
     }

@@ -10,7 +10,7 @@ export enum CritterType {
   WATER = 'WATER',
   GRASS = 'GRASS',
   ELECTRIC = 'ELECTRIC',
-  STEEL = 'STEEL',
+  METAL = 'METAL',
   UNKNOWN = 'UNKNOWN'
 }
 

@@ -5,5 +5,5 @@ public enum CritterType {
     WATER,
     GRASS,
     ELECTRIC, 
-    STEEL
+    METAL
 }
