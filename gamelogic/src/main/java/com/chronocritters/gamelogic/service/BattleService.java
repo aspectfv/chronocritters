@@ -2,15 +2,19 @@ package com.chronocritters.gamelogic.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
+import com.chronocritters.lib.context.AbilityExecutionContext;
+import com.chronocritters.lib.interfaces.AbilityStrategy;
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.Ability;
+import com.chronocritters.lib.model.AbilityExecutionResult;
+import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
-import com.chronocritters.lib.model.CurrentStats;
 import com.chronocritters.lib.model.PlayerState;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class BattleService {
     private final List<BattleState> activeBattles = new ArrayList<>();
     private final PlayerGrpcClient playerGrpcClient;
+    private final Map<AbilityType, AbilityStrategy> abilityStrategies;
 
     private static final int TURN_DURATION_SECONDS = 30;
 
@@ -73,11 +78,24 @@ public class BattleService {
             throw new IllegalArgumentException("Invalid ability ID");
         }
 
-        switch (ability.getType()) {
-            case ATTACK -> executeAttackAbility(currentBattle, player, opponent, activeCritter, ability);
-            case DEFENSE -> executeDefenseAbility(currentBattle, player, activeCritter, ability);
-            case HEAL -> executeHealAbility(currentBattle, player, activeCritter, ability);
-            default -> throw new IllegalArgumentException("Unexpected value: " + ability.getType());
+        AbilityStrategy strategy = abilityStrategies.get(ability.getType());
+        if (strategy == null) {
+            throw new IllegalStateException("No strategy found for ability type: " + ability.getType());
+        }
+
+        AbilityExecutionContext context = AbilityExecutionContext.builder()
+            .battleState(currentBattle)
+            .player(player)
+            .opponent(opponent)
+            .activeCritter(activeCritter)
+            .ability(ability)
+            .build();
+
+        AbilityExecutionResult result = strategy.executeAbility(context);
+
+        if (result == AbilityExecutionResult.BATTLE_WON) {
+            playerGrpcClient.updateMatchHistory(player.getId(), opponent.getId());
+            return currentBattle;
         }
 
         currentBattle.setActivePlayerId(opponent.getId());
@@ -108,95 +126,6 @@ public class BattleService {
         opponent.setHasTurn(true);
         
         return currentBattle;
-    }
-
-    private void executeAttackAbility(
-        BattleState currentBattle, PlayerState player, 
-        PlayerState opponent, CritterState activeCritter, Ability ability
-    ) {
-        int abilityDamage = ability.getPower();
-            
-        CritterState opponentActiveCritter = opponent.getCritterByIndex(opponent.getActiveCritterIndex());
-        CurrentStats opponentCritterStats = opponentActiveCritter.getStats();
-        int activeCritterAttack = activeCritter.getStats().getCurrentAtk();
-        int opponentCritterDefense = opponentCritterStats.getCurrentDef();
-
-        int finalDamage = (int) Math.max(0, abilityDamage * (activeCritterAttack / (double)(activeCritterAttack + opponentCritterDefense)));
-
-        int newHealth = Math.max(0, opponentCritterStats.getCurrentHp() - finalDamage);
-        opponentCritterStats.setCurrentHp(newHealth);
-
-        String actionLog = String.format("%s's %s used %s for %d damage! %s's %s now has %d health.",
-            player.getUsername(),
-            activeCritter.getName(),
-            ability.getName(),
-            finalDamage,
-            opponent.getUsername(),
-            opponentActiveCritter.getName(),
-            newHealth);
-
-        currentBattle.getActionLogHistory().add(actionLog);
-        
-        if (newHealth == 0) {
-            int nextCritterIndex = opponent.getActiveCritterIndex() + 1;
-            
-            if (nextCritterIndex < opponent.getRoster().size()) {
-                CritterState nextCritter = opponent.getCritterByIndex(nextCritterIndex);
-                opponent.setActiveCritterIndex(nextCritterIndex);
-
-                String faintLog = opponentActiveCritter.getName() + " fainted! " + 
-                    opponent.getUsername() + " sent out " + nextCritter.getName() + "!";
-                currentBattle.getActionLogHistory().add(faintLog);
-            } else {
-                currentBattle.setActivePlayerId(null);
-                
-                String winLog = opponentActiveCritter.getName() + " fainted! " + 
-                    player.getUsername() + " wins the battle!";
-                currentBattle.getActionLogHistory().add(winLog);
-
-                playerGrpcClient.updateMatchHistory(player.getId(), opponent.getId());
-            }
-        }
-    }
-
-    private void executeDefenseAbility(
-        BattleState currentBattle, PlayerState player, CritterState activeCritter, Ability ability
-    ) {
-        CurrentStats critterStats = activeCritter.getStats();
-        
-        int defenseBoost = ability.getPower();
-        int newDefense = critterStats.getCurrentDef() + defenseBoost;
-        critterStats.setCurrentDef(newDefense);
-        
-        String actionLog = String.format("%s's %s used %s! %s's defense increased by %d (now %d).",
-            player.getUsername(),
-            activeCritter.getName(),
-            ability.getName(),
-            activeCritter.getName(),
-            defenseBoost,
-            newDefense);
-        
-        currentBattle.getActionLogHistory().add(actionLog);
-    }
-
-    private void executeHealAbility(
-    BattleState currentBattle, PlayerState player, CritterState activeCritter, Ability ability
-    ) {
-        CurrentStats critterStats = activeCritter.getStats();
-
-        int heal = ability.getPower();
-        int newHealth = Math.min(critterStats.getMaxHp(), critterStats.getCurrentHp() + heal);
-        critterStats.setCurrentHp(newHealth);
-
-        String actionLog = String.format("%s's %s used %s! %s healed for %d (now %d health).",
-            player.getUsername(),
-            activeCritter.getName(),
-            ability.getName(),
-            activeCritter.getName(),
-            heal,
-            newHealth);
-
-        currentBattle.getActionLogHistory().add(actionLog);
     }
 
 }

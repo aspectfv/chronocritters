@@ -1,15 +1,24 @@
 package com.chronocritters.gamelogic.abilities;
 
+import org.springframework.stereotype.Component;
+
 import com.chronocritters.lib.context.AbilityExecutionContext;
 import com.chronocritters.lib.interfaces.AbilityStrategy;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.AbilityExecutionResult;
+import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.CurrentStats;
 import com.chronocritters.lib.model.PlayerState;
 
+@Component
 public class AttackAbilityStrategy implements AbilityStrategy {
+    @Override
+    public AbilityType getAbilityType() {
+        return AbilityType.ATTACK;
+    }
+
     @Override
     public AbilityExecutionResult executeAbility(AbilityExecutionContext context) {
         BattleState currentBattle = context.getBattleState();
