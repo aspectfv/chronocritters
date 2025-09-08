@@ -1,5 +1,8 @@
 package com.chronocritters.gamelogic.abilities;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 
 import com.chronocritters.lib.context.AbilityExecutionContext;
@@ -9,11 +12,21 @@ import com.chronocritters.lib.model.AbilityExecutionResult;
 import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
+import com.chronocritters.lib.model.CritterType;
 import com.chronocritters.lib.model.CurrentStats;
 import com.chronocritters.lib.model.PlayerState;
 
 @Component
 public class AttackAbilityStrategy implements AbilityStrategy {
+    private static final Map<CritterType, CritterType> typeAdvantages = new EnumMap<>(CritterType.class);
+
+    static {
+        typeAdvantages.put(CritterType.FIRE, CritterType.GRASS);
+        typeAdvantages.put(CritterType.WATER, CritterType.FIRE);
+        typeAdvantages.put(CritterType.GRASS, CritterType.WATER);
+        typeAdvantages.put(CritterType.ELECTRIC, CritterType.WATER);
+    }
+    
     @Override
     public AbilityType getAbilityType() {
         return AbilityType.ATTACK;
@@ -31,10 +44,25 @@ public class AttackAbilityStrategy implements AbilityStrategy {
             
         CritterState opponentActiveCritter = opponent.getCritterByIndex(opponent.getActiveCritterIndex());
         CurrentStats opponentCritterStats = opponentActiveCritter.getStats();
+
         int activeCritterAttack = activeCritter.getStats().getCurrentAtk();
         int opponentCritterDefense = opponentCritterStats.getCurrentDef();
 
-        int finalDamage = (int) Math.max(0, abilityDamage * (activeCritterAttack / (double)(activeCritterAttack + opponentCritterDefense)));
+        double typeMultipler = 1.0;
+        String typeEffectiveness = null;
+        CritterType attackerType = activeCritter.getType();
+        CritterType defenderType = opponentActiveCritter.getType();
+
+        if (typeAdvantages.get(attackerType) == defenderType) {
+            typeMultipler = 1.5;
+            typeEffectiveness = "It's super effective!";
+        } else if (typeAdvantages.get(defenderType) == attackerType) {
+            typeMultipler = 0.5;
+            typeEffectiveness = "It's not very effective...";
+        }
+
+        int baseDamage = (int) Math.max(0, abilityDamage * (activeCritterAttack / (double)(activeCritterAttack + opponentCritterDefense)));
+        int finalDamage = (int) Math.max(1, baseDamage * typeMultipler);
 
         int newHealth = Math.max(0, opponentCritterStats.getCurrentHp() - finalDamage);
         opponentCritterStats.setCurrentHp(newHealth);
@@ -47,6 +75,10 @@ public class AttackAbilityStrategy implements AbilityStrategy {
             opponent.getUsername(),
             opponentActiveCritter.getName(),
             newHealth);
+
+        if (typeEffectiveness != null) {
+            actionLog += " " + typeEffectiveness;
+        }
 
         currentBattle.getActionLogHistory().add(actionLog);
         
