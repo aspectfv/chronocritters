@@ -27,20 +27,24 @@ public class DatabaseSeeder {
             abilityRepository.deleteAll();
             critterRepository.deleteAll();
             playerRepository.deleteAll();
+
             // Abilities
-            Ability tidalWave = Ability.builder()
-                .id("atk-tidalwave")
-                .name("Tidal Wave")
+
+            // Aqualing
+            Ability riptideLash = Ability.builder()
+                .id("atk-riptidelash")
+                .name("Riptide Lash")
                 .power(3)
                 .type(AbilityType.ATTACK)
                 .build();
-            Ability healPulse = Ability.builder()
-                .id("heal-healpulse")
-                .name("Heal Pulse")
+            Ability aqueousVeil = Ability.builder()
+                .id("def-aqueousveil")
+                .name("Aqueous Veil")
                 .power(3)
-                .type(AbilityType.HEAL)
+                .type(AbilityType.DEFENSE)
                 .build();
 
+            // Volthound
             Ability thunderStrike = Ability.builder()
                 .id("atk-thunderstrike")
                 .name("Thunder Strike")
@@ -49,6 +53,7 @@ public class DatabaseSeeder {
                 .build();
 
 
+            // Cogling
             Ability gearGrind = Ability.builder()
                 .id("atk-geargrind")
                 .name("Gear Grind")
@@ -62,9 +67,11 @@ public class DatabaseSeeder {
                 .type(AbilityType.DEFENSE)
                 .build();
 
-            abilityRepository.save(tidalWave);
+            abilityRepository.save(riptideLash);
+            abilityRepository.save(aqueousVeil);
+
             abilityRepository.save(thunderStrike);
-            abilityRepository.save(healPulse);
+
             abilityRepository.save(gearGrind);
             abilityRepository.save(fortifyPlating);
 
@@ -74,7 +81,7 @@ public class DatabaseSeeder {
                 .name("Aqualing")
                 .type(CritterType.WATER)
                 .baseStats(BaseStats.builder().health(6).attack(4).defense(2).build())
-                .abilities(List.of(tidalWave, healPulse))
+                .abilities(List.of(riptideLash, aqueousVeil))
                 .build();
             Critter voltHound = Critter.builder()
                 .id("electric-volthound")
