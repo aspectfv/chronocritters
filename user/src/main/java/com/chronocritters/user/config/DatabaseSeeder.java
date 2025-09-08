@@ -58,7 +58,6 @@ public class DatabaseSeeder {
                 .type(AbilityType.DEFENSE)
                 .build();
 
-
             // Cogling
             Ability gearGrind = Ability.builder()
                 .id("atk-geargrind")
@@ -73,6 +72,20 @@ public class DatabaseSeeder {
                 .type(AbilityType.DEFENSE)
                 .build();
 
+            // Searfiend
+            Ability cinderLash = Ability.builder()
+                .id("atk-cinderlash")
+                .name("Cinder Lash")
+                .power(4)
+                .type(AbilityType.ATTACK)
+                .build();
+            Ability ashenGuard = Ability.builder()
+                .id("def-ashenguard")
+                .name("Ashen Guard")
+                .power(1)
+                .type(AbilityType.DEFENSE)
+                .build();
+
             // Aqualing
             abilityRepository.save(riptideLash);
             abilityRepository.save(aqueousVeil);
@@ -84,6 +97,10 @@ public class DatabaseSeeder {
             // Cogling
             abilityRepository.save(gearGrind);
             abilityRepository.save(fortifyPlating);
+
+            /// Searfiend
+            abilityRepository.save(cinderLash);
+            abilityRepository.save(ashenGuard);
 
             // Critters
             Critter aquaLing = Critter.builder()
@@ -107,6 +124,18 @@ public class DatabaseSeeder {
                 .baseStats(BaseStats.builder().health(4).attack(3).defense(5).build())
                 .abilities(List.of(gearGrind, fortifyPlating))
                 .build();
+            Critter searfiend = Critter.builder()
+                .id("fire-searfiend")
+                .name("Searfiend")
+                .type(CritterType.FIRE)
+                .baseStats(BaseStats.builder().health(5).attack(5).defense(2).build())
+                .abilities(List.of(cinderLash, ashenGuard))
+                .build();
+
+            critterRepository.save(aquaLing);
+            critterRepository.save(voltHound);
+            critterRepository.save(cogling);
+            critterRepository.save(searfiend);
 
             // Player Stats
             PlayerStats blueOakStats = PlayerStats.builder()
@@ -117,6 +146,7 @@ public class DatabaseSeeder {
                 .wins(8)
                 .losses(4)
                 .build();
+        
 
             // Players
             Player blueOak = Player.builder()
@@ -131,12 +161,10 @@ public class DatabaseSeeder {
                 .username("RedAsh")
                 .password(PasswordUtil.hashPassword("password2"))
                 .stats(redAshStats)
-                .roster(List.of(voltHound))
+                .roster(List.of(voltHound, searfiend))
                 .build();
 
-            critterRepository.save(aquaLing);
-            critterRepository.save(voltHound);
-            critterRepository.save(cogling);
+            critterRepository.save(searfiend);
             playerRepository.save(blueOak);
             playerRepository.save(redAsh);
         };
