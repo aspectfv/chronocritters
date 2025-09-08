@@ -12,7 +12,7 @@ export function TeamDisplay({ title, team, activeCritterId }: TeamDisplayProps) 
             const healthPercentage = (critter.stats.currentHp / critter.stats.maxHp) * 100;
             return (
               <div key={critter.id} className="text-center w-24">
-                <div className="bg-green-100 rounded-full mx-auto flex items-center justify-center">
+                <div className="mx-auto flex items-center justify-center">
                   <img 
                     src={getCritterImageUrl(critter.name)} 
                     alt={critter.name} 
