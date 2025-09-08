@@ -9,6 +9,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,8 @@ public class BattleTimerService {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ConcurrentHashMap<String, ScheduledFuture<?>> activeTimers = new ConcurrentHashMap<>();
+    
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public void startOrResetTimer(BattleState battleState) {
         String battleId = battleState.getBattleId();
@@ -44,11 +48,13 @@ public class BattleTimerService {
             if (remaining <= 0) {
                 stopTimer(battleId);
                 gameLogicWebClient.handleTurnTimeout(battleId)
-                    .doOnSuccess(newBattleState -> {
-                        messagingTemplate.convertAndSend("/topic/battle/" + battleId, newBattleState);
-                        this.startOrResetTimer(newBattleState);
-                    })
-                    .subscribe();
+                    .subscribe(
+                        newBattleState -> {
+                            messagingTemplate.convertAndSend("/topic/battle/" + battleId, newBattleState);
+                            this.startOrResetTimer(newBattleState);
+                        },
+                        error -> log.warn("Failed to handle turn timeout for battle {}", battleId)
+                    );
             }
         };
 

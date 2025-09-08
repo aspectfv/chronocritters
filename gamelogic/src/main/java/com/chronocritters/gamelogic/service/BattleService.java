@@ -8,6 +8,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.chronocritters.gamelogic.client.LobbyWebClient;
@@ -34,6 +36,8 @@ public class BattleService {
     private final LobbyWebClient lobbyWebClient;
 
     private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final int TURN_DURATION_SECONDS = 30;
     private static final int CLEANUP_DELAY_SECONDS = 60;
@@ -105,7 +109,10 @@ public class BattleService {
             lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
 
             cleanupScheduler.schedule(() -> {
-                activeBattles.remove(battleId);
+                BattleState removed = activeBattles.remove(battleId);
+                if (removed != null) {
+                    log.info("Battle {} cleaned up after timeout", battleId);
+                }
             }, CLEANUP_DELAY_SECONDS, TimeUnit.SECONDS);
             return currentBattle;
         }
