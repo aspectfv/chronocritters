@@ -40,16 +40,22 @@ public class DatabaseSeeder {
             Ability aqueousVeil = Ability.builder()
                 .id("def-aqueousveil")
                 .name("Aqueous Veil")
-                .power(3)
+                .power(2)
                 .type(AbilityType.DEFENSE)
                 .build();
 
             // Volthound
-            Ability thunderStrike = Ability.builder()
-                .id("atk-thunderstrike")
-                .name("Thunder Strike")
-                .power(4)
+            Ability staticSnap = Ability.builder()
+                .id("atk-staticsnap")
+                .name("Static Snap")
+                .power(5)
                 .type(AbilityType.ATTACK)
+                .build();
+            Ability joltWard = Ability.builder()
+                .id("def-joltward")
+                .name("Jolt Ward")
+                .power(1)
+                .type(AbilityType.DEFENSE)
                 .build();
 
 
@@ -67,11 +73,15 @@ public class DatabaseSeeder {
                 .type(AbilityType.DEFENSE)
                 .build();
 
+            // Aqualing
             abilityRepository.save(riptideLash);
             abilityRepository.save(aqueousVeil);
 
-            abilityRepository.save(thunderStrike);
+            // Volthound
+            abilityRepository.save(staticSnap);
+            abilityRepository.save(joltWard);
 
+            // Cogling
             abilityRepository.save(gearGrind);
             abilityRepository.save(fortifyPlating);
 
@@ -88,7 +98,7 @@ public class DatabaseSeeder {
                 .name("Volthound")
                 .type(CritterType.ELECTRIC)
                 .baseStats(BaseStats.builder().health(6).attack(3).defense(3).build())
-                .abilities(List.of(thunderStrike))
+                .abilities(List.of(staticSnap, joltWard))
                 .build();
             Critter cogling = Critter.builder()
                 .id("steel-cogling")
