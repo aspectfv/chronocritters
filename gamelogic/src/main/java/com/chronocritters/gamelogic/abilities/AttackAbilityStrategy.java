@@ -25,6 +25,7 @@ public class AttackAbilityStrategy implements AbilityStrategy {
         typeAdvantages.put(CritterType.WATER, CritterType.FIRE);
         typeAdvantages.put(CritterType.GRASS, CritterType.WATER);
         typeAdvantages.put(CritterType.ELECTRIC, CritterType.WATER);
+        typeAdvantages.put(CritterType.STEEL, CritterType.ELECTRIC);
     }
     
     @Override
