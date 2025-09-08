@@ -3,6 +3,10 @@ package com.chronocritters.gamelogic.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 
@@ -23,18 +27,18 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class BattleService {
-    private final List<BattleState> activeBattles = new ArrayList<>();
+    private final Map<String, BattleState> activeBattles = new ConcurrentHashMap<>();
+    private final Map<AbilityType, AbilityStrategy> abilityStrategies;
+    
     private final PlayerGrpcClient playerGrpcClient;
     private final LobbyWebClient lobbyWebClient;
-    private final Map<AbilityType, AbilityStrategy> abilityStrategies;
+
+    private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
 
     private static final int TURN_DURATION_SECONDS = 30;
 
     public BattleState getBattleState(String battleId) {
-        return activeBattles.stream()
-                .filter(battle -> battle.getBattleId().equals(battleId))
-                .findFirst()
-                .orElse(null);
+        return activeBattles.get(battleId);
     }
 
     public void createBattle(String battleId, String playerOneId, String playerTwoId) {
@@ -57,7 +61,7 @@ public class BattleService {
                 .timeRemaining(TURN_DURATION_SECONDS)
                 .build();
 
-        activeBattles.add(battleState);
+        activeBattles.put(battleId, battleState);
     }
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
@@ -98,6 +102,13 @@ public class BattleService {
         if (result == AbilityExecutionResult.BATTLE_WON) {
             playerGrpcClient.updateMatchHistory(player.getId(), opponent.getId());
             lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
+
+            cleanupScheduler.schedule(() -> {
+                BattleState removedBattle = activeBattles.remove(battleId);
+                if (removedBattle != null) {
+                    System.out.println("Cleaned up completed battle: " + battleId);
+                }
+            }, 1, TimeUnit.MINUTES);
             return currentBattle;
         }
 
