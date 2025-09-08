@@ -1,7 +1,9 @@
 import type { TeamDisplayProps } from '@features/battle/types';
 import { getCritterImageUrl } from '@utils/utils';
 
-export function TeamDisplay({ title, team, activeCritterId }: TeamDisplayProps) {
+export function TeamDisplay({ title, team, activeCritterId, isPlayerTurn, onCritterClick }: TeamDisplayProps) {
+  const getCritterIndex = (critterId: string) => { return team.findIndex(c => c.id === critterId); };
+  
   return (
     <div>
       <h3 className="font-semibold text-green-800 mb-2">{title}</h3>
@@ -10,8 +12,17 @@ export function TeamDisplay({ title, team, activeCritterId }: TeamDisplayProps) 
           .filter(critter => critter.id !== activeCritterId)
           .map(critter => {
             const healthPercentage = (critter.stats.currentHp / critter.stats.maxHp) * 100;
+            const isFainted = critter.stats.currentHp <= 0;
+            const canClick = isPlayerTurn && onCritterClick;
+
             return (
-              <div key={critter.id} className="text-center w-24">
+              <div 
+                key={critter.id} 
+                className={`text-center w-24 p-2 rounded-lg transition-all ${
+                  canClick ? 'cursor-pointer hover:bg-green-200 border border-transparent hover:border-green-400' : ''
+                } ${isFainted ? 'opacity-50' : ''}`}
+                onClick={() => canClick && !isFainted && onCritterClick(getCritterIndex(critter.id))}
+              >
                 <div className="mx-auto flex items-center justify-center">
                   <img 
                     src={getCritterImageUrl(critter.name)} 

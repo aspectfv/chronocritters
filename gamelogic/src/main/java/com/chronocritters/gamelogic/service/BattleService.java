@@ -133,4 +133,46 @@ public class BattleService {
         return currentBattle;
     }
 
+    public BattleState switchCritter(String battleId, String playerId, int targetCritterIndex) {
+        BattleState currentBattle = getBattleState(battleId);
+        if (currentBattle == null) {
+            throw new IllegalArgumentException("Invalid battle ID");
+        }
+
+        if (!currentBattle.getActivePlayerId().equals(playerId)) {
+            throw new IllegalStateException("It's not the player's turn");
+        }
+
+        PlayerState player = currentBattle.getPlayer();
+        PlayerState opponent = currentBattle.getOpponent();
+
+        if (targetCritterIndex < 0 || targetCritterIndex >= player.getRoster().size()) {
+            throw new IllegalArgumentException("Invalid critter index");
+        }
+
+        if (targetCritterIndex == player.getActiveCritterIndex()) {
+            throw new IllegalArgumentException("Cannot switch to the currently active critter");
+        }
+
+        CritterState targetCritter = player.getCritterByIndex(targetCritterIndex);
+        if (targetCritter.getStats().getCurrentHp() <= 0) {
+            throw new IllegalArgumentException("Cannot switch to a fainted critter");
+        }
+
+        String switchLog = String.format("%s switched from %s to %s", player.getUsername(),
+                player.getCritterByIndex(player.getActiveCritterIndex()).getName(), targetCritter.getName());
+        currentBattle.getActionLogHistory().add(switchLog);
+
+        player.setActiveCritterIndex(targetCritterIndex);
+
+        currentBattle.setActivePlayerId(opponent.getId());
+        currentBattle.setTimeRemaining(TURN_DURATION_SECONDS);
+        
+        player.setHasTurn(false);
+        opponent.setHasTurn(true);
+
+        lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
+        return currentBattle;
+    }
+
 }

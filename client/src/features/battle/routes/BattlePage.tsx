@@ -11,14 +11,14 @@ import { CritterDisplayCard } from '../components/CritterDisplayCard';
 import { TeamDisplay } from '../components/TeamDisplay';
 import { BattleLog } from '../components/BattleLog';
 import { AbilitySelector } from '../components/AbilitySelector';
-import { getBattleState, executeAbility } from '@api/gamelogic';
+import { getBattleState, executeAbility, switchCritter } from '@api/gamelogic';
 
 function BattlePage() {
   const { battleId } = useParams<{ battleId: string }>();
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
 
-  const isConnected = useLobbyStore((state) => state.isConnected);
+  const isConnected = useLobbyStore((state) => state.connectionStatus === 'connected');
   const { player, opponent, actionLogHistory, timeRemaining, battleResult } = useBattleStore();
 
   useEffect(() => {
@@ -81,6 +81,18 @@ function BattlePage() {
       console.error("Failed to execute ability:", error);
     }
   }, [battleId, user?.id]);
+
+  const handleSwitchCritter = useCallback(async (targetCritterIndex: number) => {
+    if (!player.hasTurn || !battleId || !user?.id) {
+      return;
+    }
+
+    try {
+      await switchCritter(battleId, user.id, targetCritterIndex);
+    } catch (error) {
+      console.error("Failed to execute switch:", error);
+    }
+  }, [battleId, user?.id, player.hasTurn]);
   
   return (
     <div className="min-h-screen bg-[#F8FFF8] p-4 sm:p-6 md:p-8">
@@ -94,8 +106,8 @@ function BattlePage() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-12">
-          <TeamDisplay title="Your Team" team={player.roster} activeCritterId={player.activeCritter.id} />
-          <TeamDisplay title="Opponent's Team" team={opponent.roster} activeCritterId={opponent.activeCritter.id} />
+          <TeamDisplay title="Your Team" team={player.roster} activeCritterId={player.activeCritter.id} isPlayerTurn={player.hasTurn} onCritterClick={handleSwitchCritter} />
+          <TeamDisplay title="Opponent's Team" team={opponent.roster} activeCritterId={opponent.activeCritter.id} isPlayerTurn={false} onCritterClick={() => {}} />
         </div>
 
         <BattleLog log={actionLogHistory} />

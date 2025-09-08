@@ -20,4 +20,6 @@ export interface TeamDisplayProps {
   title: string;
   team: CritterState[];
   activeCritterId: string;
+  isPlayerTurn: boolean;
+  onCritterClick: (targetCritterIndex: number) => void;
 }

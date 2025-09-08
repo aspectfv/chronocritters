@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.chronocritters.gamelogic.service.BattleService;
 import com.chronocritters.lib.dto.BattleRequest;
 import com.chronocritters.lib.dto.ExecuteAbilityRequest;
+import com.chronocritters.lib.dto.SwitchCritterRequest;
 import com.chronocritters.lib.model.BattleState;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,12 @@ public class BattleController {
     public BattleState executeAbility(@PathVariable String battleId, @RequestBody ExecuteAbilityRequest request) {
         return battleService.executeAbility(battleId, request.playerId(), request.abilityId());
     }
+
+    @PostMapping("/battle/{battleId}/switch")
+    public BattleState switchCritter(@PathVariable String battleId, @RequestBody SwitchCritterRequest request) {
+        return battleService.switchCritter(battleId, request.playerId(), request.targetCritterIndex());
+    }
+    
 
     @PostMapping("/battle/{battleId}/timeout")
     public BattleState handleTimeout(@PathVariable String battleId) {
