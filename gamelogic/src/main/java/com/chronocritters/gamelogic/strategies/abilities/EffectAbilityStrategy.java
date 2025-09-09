@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import com.chronocritters.lib.context.ExecuteAbilityContext;
 import com.chronocritters.lib.interfaces.AbilityStrategy;
 import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
@@ -24,11 +23,11 @@ public class EffectAbilityStrategy implements AbilityStrategy {
     }
 
     @Override
-    public BattleOutcome executeAbility(ExecuteAbilityContext context) {
+    public void executeAbility(ExecuteAbilityContext context) {
         CritterState activeCritter = context.getActiveCritter();
         
         PlayerState opponent = context.getOpponent();
-        CritterState opponentCritter = opponent.getCritterByIndex(opponent.getActiveCritterIndex());
+        CritterState opponentCritter = opponent.getActiveCritter();
 
         Ability ability = activeCritter.getAbilities().get(0);
         List<Effect> effectList = ability.getEffects();
@@ -36,7 +35,5 @@ public class EffectAbilityStrategy implements AbilityStrategy {
         effectList.stream()
             .map(Effect::toActiveEffect)
             .forEach(activeEffect -> opponentCritter.getActiveEffects().add(activeEffect));
-
-        return BattleOutcome.CONTINUE;
     }
 }

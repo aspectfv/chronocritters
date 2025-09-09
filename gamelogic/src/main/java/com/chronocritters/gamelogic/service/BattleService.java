@@ -1,6 +1,7 @@
 package com.chronocritters.gamelogic.service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,9 +11,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.chronocritters.gamelogic.client.LobbyWebClient;
+import com.chronocritters.gamelogic.event.CritterFaintedEvent;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
 import com.chronocritters.lib.context.ApplyEffectContext;
 import com.chronocritters.lib.context.ExecuteAbilityContext;
@@ -40,6 +43,8 @@ public class BattleService {
     
     private final PlayerGrpcClient playerGrpcClient;
     private final LobbyWebClient lobbyWebClient;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -77,49 +82,35 @@ public class BattleService {
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
         BattleState currentBattle = getBattleState(battleId);
-        if (currentBattle == null) {
-            throw new IllegalArgumentException("Invalid battle ID");
-        }
-
-        if (!currentBattle.getActivePlayerId().equals(playerId)) {
-            throw new IllegalStateException("It's not the player's turn");
-        }
+        if (currentBattle == null) throw new IllegalArgumentException("Invalid battle ID");
+        if (!currentBattle.getActivePlayerId().equals(playerId)) throw new IllegalStateException("It's not the player's turn");
 
         PlayerState player = currentBattle.getPlayer();
         PlayerState opponent = currentBattle.getOpponent();
 
-        CritterState activeCritter = player.getCritterByIndex(player.getActiveCritterIndex());
-
-        Ability ability = activeCritter.getAbilityById(abilityId);
-        if (ability == null) {
-            throw new IllegalArgumentException("Invalid ability ID");
+        executePlayerAbility(currentBattle, player, opponent, abilityId);
+        
+        checkAndPublishFaintEvents(currentBattle);
+        if (currentBattle.getBattleOutcome() != BattleOutcome.CONTINUE) {
+            applyWinLoss(currentBattle, opponent.getId(), player.getId());
+            return currentBattle;
         }
 
-        AbilityStrategy strategy = abilityStrategies.get(ability.getType());
-        if (strategy == null) {
-            throw new IllegalStateException("No strategy found for ability type: " + ability.getType());
-        }
+        applyEndOfTurnEffects(currentBattle);
 
-        ExecuteAbilityContext context = ExecuteAbilityContext.builder()
-            .battleState(currentBattle)
-            .player(player)
-            .opponent(opponent)
-            .activeCritter(activeCritter)
-            .ability(ability)
-            .build();
-
-        BattleOutcome outcome = strategy.executeAbility(context);
-
-        applyEndOfTurnEffects(currentBattle, player, opponent);
-
-        if (outcome == BattleOutcome.BATTLE_WON) {
-            applyWinLoss(currentBattle, battleId, true);
+        checkAndPublishFaintEvents(currentBattle);
+        if (currentBattle.getBattleOutcome() != BattleOutcome.CONTINUE) {
+            boolean playerOneLost = currentBattle.getPlayerOne().getRoster().stream().allMatch(c -> c.getStats().getCurrentHp() <= 0);
+            if (playerOneLost) {
+                 applyWinLoss(currentBattle, currentBattle.getPlayerTwo().getId(), currentBattle.getPlayerOne().getId());
+            } else {
+                 applyWinLoss(currentBattle, currentBattle.getPlayerOne().getId(), currentBattle.getPlayerTwo().getId());
+            }
             return currentBattle;
         }
 
         currentBattle.setActivePlayerId(opponent.getId());
         currentBattle.setTimeRemaining(TURN_DURATION_SECONDS);
-        
         player.setHasTurn(false);
         opponent.setHasTurn(true);
 
@@ -129,41 +120,39 @@ public class BattleService {
 
     public BattleState switchCritter(String battleId, String playerId, int targetCritterIndex) {
         BattleState currentBattle = getBattleState(battleId);
-        if (currentBattle == null) {
-            throw new IllegalArgumentException("Invalid battle ID");
-        }
-
-        if (!currentBattle.getActivePlayerId().equals(playerId)) {
-            throw new IllegalStateException("It's not the player's turn");
-        }
+        if (currentBattle == null) throw new IllegalArgumentException("Invalid battle ID");
+        if (!currentBattle.getActivePlayerId().equals(playerId)) throw new IllegalStateException("It's not the player's turn");
 
         PlayerState player = currentBattle.getPlayer();
         PlayerState opponent = currentBattle.getOpponent();
 
-        if (targetCritterIndex < 0 || targetCritterIndex >= player.getRoster().size()) {
-            throw new IllegalArgumentException("Invalid critter index");
-        }
-
-        if (targetCritterIndex == player.getActiveCritterIndex()) {
-            throw new IllegalArgumentException("Cannot switch to the currently active critter");
-        }
-
+        if (targetCritterIndex < 0 || targetCritterIndex >= player.getRoster().size()) throw new IllegalArgumentException("Invalid critter index");
+        if (targetCritterIndex == player.getActiveCritterIndex()) throw new IllegalArgumentException("Cannot switch to the currently active critter");
+        
         CritterState targetCritter = player.getCritterByIndex(targetCritterIndex);
-        if (targetCritter.getStats().getCurrentHp() <= 0) {
-            throw new IllegalArgumentException("Cannot switch to a fainted critter");
-        }
+        if (targetCritter.getStats().getCurrentHp() <= 0) throw new IllegalArgumentException("Cannot switch to a fainted critter");
 
         String switchLog = String.format("%s switched from %s to %s", player.getUsername(),
-                player.getCritterByIndex(player.getActiveCritterIndex()).getName(), targetCritter.getName());
+                player.getActiveCritter().getName(), targetCritter.getName());
         currentBattle.getActionLogHistory().add(switchLog);
-
-        applyEndOfTurnEffects(currentBattle, player, opponent);
-
+        
         player.setActiveCritterIndex(targetCritterIndex);
+
+        applyEndOfTurnEffects(currentBattle);
+
+        checkAndPublishFaintEvents(currentBattle);
+        if (currentBattle.getBattleOutcome() != BattleOutcome.CONTINUE) {
+            boolean playerOneLost = currentBattle.getPlayerOne().getRoster().stream().allMatch(c -> c.getStats().getCurrentHp() <= 0);
+            if (playerOneLost) {
+                applyWinLoss(currentBattle, currentBattle.getPlayerTwo().getId(), currentBattle.getPlayerOne().getId());
+            } else {
+                applyWinLoss(currentBattle, currentBattle.getPlayerOne().getId(), currentBattle.getPlayerTwo().getId());
+            }
+            return currentBattle;
+        }
 
         currentBattle.setActivePlayerId(opponent.getId());
         currentBattle.setTimeRemaining(TURN_DURATION_SECONDS);
-        
         player.setHasTurn(false);
         opponent.setHasTurn(true);
 
@@ -183,7 +172,7 @@ public class BattleService {
         String timeoutLog = String.format("%s ran out of time!", player.getUsername());
         currentBattle.getActionLogHistory().add(timeoutLog);
 
-        applyEndOfTurnEffects(currentBattle, player, opponent);
+        applyEndOfTurnEffects(currentBattle);
 
         currentBattle.setActivePlayerId(opponent.getId());
         currentBattle.setTimeRemaining(TURN_DURATION_SECONDS);
@@ -194,47 +183,73 @@ public class BattleService {
         lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
     }
 
-    private void applyEndOfTurnEffects(BattleState battleState, PlayerState player, PlayerState opponent) {
-        List<CritterState> allCritters = new ArrayList<>();
-        allCritters.addAll(player.getRoster());
-        allCritters.addAll(opponent.getRoster());
+    private void executePlayerAbility(BattleState battle, PlayerState player, PlayerState opponent, String abilityId) {
+        CritterState activeCritter = player.getActiveCritter();
+        Ability ability = activeCritter.getAbilityById(abilityId);
+        if (ability == null) throw new IllegalArgumentException("Invalid ability ID");
 
-        for (CritterState critter : allCritters) {
-            for (ActiveEffect effect : critter.getActiveEffects()) {
-                EffectStrategy strategy = effectStrategies.get(effect.getType());
-                if (strategy != null) {
-                    ApplyEffectContext context = ApplyEffectContext.builder()
-                        .battleState(battleState)
-                        .player(player)
-                        .opponent(opponent)
-                        .targetCritter(critter)
-                        .effect(effect)
-                        .build();
-                    BattleOutcome outcome = strategy.applyActiveEffect(context);
-                    if (outcome != BattleOutcome.CONTINUE) {
-                        applyWinLoss(battleState, battleState.getBattleId(), outcome == BattleOutcome.BATTLE_WON);
-                        return;
+        AbilityStrategy strategy = abilityStrategies.get(ability.getType());
+        if (strategy == null) throw new IllegalStateException("No strategy found for ability type: " + ability.getType());
+
+        ExecuteAbilityContext context = ExecuteAbilityContext.builder()
+            .battleState(battle).player(player).opponent(opponent)
+            .activeCritter(activeCritter).ability(ability).build();
+        
+        strategy.executeAbility(context);
+    }
+
+    private void checkAndPublishFaintEvents(BattleState battleState) {
+        checkPlayerFaint(battleState, battleState.getPlayerOne(), battleState.getPlayerTwo());
+        checkPlayerFaint(battleState, battleState.getPlayerTwo(), battleState.getPlayerOne());
+    }
+
+    private void checkPlayerFaint(BattleState battleState, PlayerState player, PlayerState opponent) {
+        for (CritterState critter : player.getRoster()) {
+            if (critter.getStats().getCurrentHp() <= 0 && !critter.isFainted()) {
+                 critter.setFainted(true);
+                 eventPublisher.publishEvent(new CritterFaintedEvent(this, battleState, player, opponent, critter));
+            }
+        }
+    }
+
+    private void applyEndOfTurnEffects(BattleState battleState) {
+        for (PlayerState playerState : List.of(battleState.getPlayerOne(), battleState.getPlayerTwo())) {
+            for (CritterState critter : playerState.getRoster()) {
+                if (critter.getStats().getCurrentHp() > 0) {
+                    Iterator<ActiveEffect> iterator = critter.getActiveEffects().iterator();
+                    while (iterator.hasNext()) {
+                        ActiveEffect effect = iterator.next();
+                        EffectStrategy strategy = effectStrategies.get(effect.getType());
+                        if (strategy != null) {
+                            ApplyEffectContext context = ApplyEffectContext.builder()
+                                .battleState(battleState)
+                                .targetCritter(critter)
+                                .effect(effect)
+                                .build();
+                            strategy.applyActiveEffect(context);
+                        }
+                        
+                        effect.setRemainingDuration(effect.getRemainingDuration() - 1);
+                        if (effect.getRemainingDuration() <= 0) {
+                            String effectEndLog = String.format("The %s on %s wore off.", effect.getName(), critter.getName());
+                            battleState.getActionLogHistory().add(effectEndLog);
+                            iterator.remove();
+                        }
                     }
                 }
             }
         }
     }
 
-    private void applyWinLoss(BattleState battleState, String battleId, boolean playerWon) {
-        PlayerState player = battleState.getPlayer();
-        PlayerState opponent = battleState.getOpponent();
+    private void applyWinLoss(BattleState battleState, String winnerId, String loserId) {
+        battleState.setActivePlayerId(null);
+        playerGrpcClient.updateMatchHistory(winnerId, loserId);
 
-        if (playerWon) {
-            playerGrpcClient.updateMatchHistory(player.getId(), opponent.getId());
-        } else {
-            playerGrpcClient.updateMatchHistory(opponent.getId(), player.getId());
-        }
-
-        lobbyWebClient.updateBattleState(battleId, battleState).subscribe();
+        lobbyWebClient.updateBattleState(battleState.getBattleId(), battleState).subscribe();
         cleanupScheduler.schedule(() -> {
-            BattleState removed = activeBattles.remove(battleId);
+            BattleState removed = activeBattles.remove(battleState.getBattleId());
             if (removed != null) {
-                log.info("Battle {} cleaned up after timeout", battleId);
+                log.info("Battle {} cleaned up.", battleState.getBattleId());
             }
         }, CLEANUP_DELAY_SECONDS, TimeUnit.SECONDS);
     }

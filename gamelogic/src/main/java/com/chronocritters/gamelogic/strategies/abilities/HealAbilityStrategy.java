@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import com.chronocritters.lib.context.ExecuteAbilityContext;
 import com.chronocritters.lib.interfaces.AbilityStrategy;
 import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
@@ -20,7 +19,7 @@ public class HealAbilityStrategy implements AbilityStrategy {
     }
     
     @Override
-    public BattleOutcome executeAbility(ExecuteAbilityContext context) {
+    public void executeAbility(ExecuteAbilityContext context) {
         BattleState currentBattle = context.getBattleState();
         PlayerState player = context.getPlayer();
         CritterState activeCritter = context.getActiveCritter();
@@ -41,8 +40,6 @@ public class HealAbilityStrategy implements AbilityStrategy {
             newHealth);
 
         currentBattle.getActionLogHistory().add(actionLog);
-
-        return BattleOutcome.CONTINUE;
     }
     
 }

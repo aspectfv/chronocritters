@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 @Data
 @NoArgsConstructor
@@ -18,6 +19,9 @@ public class BattleState {
     private PlayerState playerTwo;
     private List<String> actionLogHistory;
     private int timeRemaining;
+
+    @Default
+    private BattleOutcome battleOutcome = BattleOutcome.CONTINUE;
 
     public PlayerState getPlayer() {
         if (playerOne != null && playerOne.getId().equals(activePlayerId)) {

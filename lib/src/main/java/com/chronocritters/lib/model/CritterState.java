@@ -21,6 +21,9 @@ public class CritterState {
     private List<Ability> abilities;
 
     @Default
+    private boolean fainted = false;
+    
+    @Default
     private List<ActiveEffect> activeEffects = new ArrayList<>();
 
     public Ability getAbilityById(String abilityId) {

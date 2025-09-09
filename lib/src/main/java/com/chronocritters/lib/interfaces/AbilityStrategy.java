@@ -6,5 +6,5 @@ import com.chronocritters.lib.model.AbilityType;
 
 public interface AbilityStrategy {
     AbilityType getAbilityType();
-    BattleOutcome executeAbility(ExecuteAbilityContext context);
+    void executeAbility(ExecuteAbilityContext context);
 }

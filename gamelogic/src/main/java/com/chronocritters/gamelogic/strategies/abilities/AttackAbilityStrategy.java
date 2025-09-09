@@ -3,14 +3,12 @@ package com.chronocritters.gamelogic.strategies.abilities;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Component;
 
 import com.chronocritters.lib.context.ExecuteAbilityContext;
 import com.chronocritters.lib.interfaces.AbilityStrategy;
 import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
@@ -37,79 +35,46 @@ public class AttackAbilityStrategy implements AbilityStrategy {
     }
 
     @Override
-    public BattleOutcome executeAbility(ExecuteAbilityContext context) {
+    public void executeAbility(ExecuteAbilityContext context) {
         BattleState currentBattle = context.getBattleState();
         PlayerState player = context.getPlayer();
         PlayerState opponent = context.getOpponent();
         CritterState activeCritter = context.getActiveCritter();
         Ability ability = context.getAbility();
         
-        int abilityPower = ability.getPower();
-            
         CritterState opponentActiveCritter = opponent.getCritterByIndex(opponent.getActiveCritterIndex());
         CurrentStats opponentCritterStats = opponentActiveCritter.getStats();
 
         int activeCritterAttack = activeCritter.getStats().getCurrentAtk();
         int opponentCritterDefense = opponentCritterStats.getCurrentDef();
 
-        double typeMultipler = 1.0;
+        double typeMultiplier = 1.0;
         String typeEffectiveness = null;
         CritterType attackerType = activeCritter.getType();
         CritterType defenderType = opponentActiveCritter.getType();
 
-        if (typeAdvantages.get(attackerType).contains(defenderType)) {
-            typeMultipler = 1.5;
+        if (typeAdvantages.getOrDefault(attackerType, Set.of()).contains(defenderType)) {
+            typeMultiplier = 1.5;
             typeEffectiveness = "It's super effective!";
-        } else if (typeAdvantages.get(defenderType).contains(attackerType)) {
-            typeMultipler = 0.5;
+        } else if (typeAdvantages.getOrDefault(defenderType, Set.of()).contains(attackerType)) {
+            typeMultiplier = 0.5;
             typeEffectiveness = "It's not very effective...";
         }
 
-        int baseDamage = (int) Math.max(0, abilityPower * (activeCritterAttack / (double)(activeCritterAttack + opponentCritterDefense)));
-        int finalDamage = (int) Math.max(1, baseDamage * typeMultipler);
+        int baseDamage = (int) Math.max(0, ability.getPower() * (activeCritterAttack / (double)(activeCritterAttack + opponentCritterDefense)));
+        int finalDamage = (int) Math.max(1, baseDamage * typeMultiplier);
 
         int newHealth = Math.max(0, opponentCritterStats.getCurrentHp() - finalDamage);
         opponentCritterStats.setCurrentHp(newHealth);
 
         String actionLog = String.format("%s's %s used %s for %d damage! %s's %s now has %d health.",
-            player.getUsername(),
-            activeCritter.getName(),
-            ability.getName(),
-            finalDamage,
-            opponent.getUsername(),
-            opponentActiveCritter.getName(),
-            newHealth);
+            player.getUsername(), activeCritter.getName(), ability.getName(), finalDamage,
+            opponent.getUsername(), opponentActiveCritter.getName(), newHealth);
 
         if (typeEffectiveness != null) {
             actionLog += " " + typeEffectiveness;
         }
 
         currentBattle.getActionLogHistory().add(actionLog);
-        
-        if (newHealth == 0) {
-            int nextCritterIndex = IntStream.range(0, opponent.getRoster().size())
-                .filter(i -> opponent.getCritterByIndex(i).getStats().getCurrentHp() > 0)
-                .findFirst()
-                .orElse(-1);
-            
-            if (nextCritterIndex != -1) {
-                CritterState nextCritter = opponent.getCritterByIndex(nextCritterIndex);
-                opponent.setActiveCritterIndex(nextCritterIndex);
-
-                String faintLog = opponentActiveCritter.getName() + " fainted! " + 
-                    opponent.getUsername() + " sent out " + nextCritter.getName() + "!";
-                currentBattle.getActionLogHistory().add(faintLog);
-            } else {
-                currentBattle.setActivePlayerId(null);
-                
-                String winLog = opponentActiveCritter.getName() + " fainted! " + 
-                    player.getUsername() + " wins the battle!";
-                currentBattle.getActionLogHistory().add(winLog);
-
-                return BattleOutcome.BATTLE_WON;
-            }
-        }
-
-        return BattleOutcome.CONTINUE;
     }
 }

@@ -73,6 +73,7 @@ public final class PlayerProtoMapper {
             .type(critter.getType())
             .stats(convertCurrentStats(critter.getBaseStats()))
             .abilities(critter.getAbilities())
+            .fainted(false)
             .build();
     }
 
