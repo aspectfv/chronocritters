@@ -182,17 +182,21 @@ public final class PlayerProtoMapper {
             .setType(convertAbilityTypeModelToProto(ability.getType()))
             .setPower(ability.getPower());
 
-        for (Effect effect : ability.getEffects()) {
-            EffectProto effectProto = EffectProto.newBuilder()
-                .setId(effect.getId())
-                .setName(effect.getName())
-                .setType(convertEffectTypeModelToProto(effect.getType()))
-                .setPower(effect.getPower())
-                .build();
-            builder.addEffects(effectProto);
-        }
+        ability.getEffects().stream()
+            .map(PlayerProtoMapper::convertEffectModelToProto)
+            .forEach(builder::addEffects);
 
         return builder.build();
+    }
+
+    private static EffectProto convertEffectModelToProto(Effect effect) {
+        return EffectProto.newBuilder()
+            .setId(effect.getId())
+            .setName(effect.getName())
+            .setType(convertEffectTypeModelToProto(effect.getType()))
+            .setPower(effect.getPower())
+            .setDuration(effect.getDuration())
+            .build();
     }
 
     private static CritterTypeProto convertCritterTypeModelToProto(CritterType type) {
@@ -202,7 +206,7 @@ public final class PlayerProtoMapper {
             case GRASS -> CritterTypeProto.GRASS;
             case ELECTRIC -> CritterTypeProto.ELECTRIC;
             case METAL -> CritterTypeProto.METAL;
-            default -> CritterTypeProto.CRITTER_TYPE_UNSPECIFIED;
+            case TOXIC -> CritterTypeProto.TOXIC;
         };
     }
 
@@ -211,7 +215,7 @@ public final class PlayerProtoMapper {
             case ATTACK -> AbilityTypeProto.ATTACK;
             case DEFENSE -> AbilityTypeProto.DEFENSE;
             case HEAL -> AbilityTypeProto.HEAL;
-            default -> AbilityTypeProto.ABILITY_TYPE_UNSPECIFIED;
+            case EFFECT -> AbilityTypeProto.EFFECT;
         };
     }
 
@@ -221,7 +225,6 @@ public final class PlayerProtoMapper {
             case STUN -> EffectTypeProto.STUN;
             case BUFF -> EffectTypeProto.BUFF;
             case DEBUFF -> EffectTypeProto.DEBUFF;
-            default -> EffectTypeProto.EFFECT_TYPE_UNSPECIFIED;
         };
     }
 }

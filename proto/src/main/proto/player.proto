@@ -78,6 +78,8 @@ message EffectProto {
   string name = 2;
   EffectTypeProto type = 3;
   int32 power = 4;
+  int32 duration = 5;
+  int32 chance = 6;
 }
 
 message MatchHistoryRequest {
