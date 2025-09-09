@@ -139,7 +139,7 @@ public final class PlayerProtoMapper {
 
     private static EffectType convertEffectTypeProtoToModel(EffectTypeProto protoType) {
         return switch (protoType) {
-            case POISON -> EffectType.POISON;
+            case DAMAGE_OVER_TIME -> EffectType.DAMAGE_OVER_TIME;
             case STUN -> EffectType.STUN;
             case BUFF -> EffectType.BUFF;
             case DEBUFF -> EffectType.DEBUFF;
@@ -216,7 +216,7 @@ public final class PlayerProtoMapper {
 
     private static EffectTypeProto convertEffectTypeModelToProto(EffectType type) {
         return switch (type) {
-            case POISON -> EffectTypeProto.POISON;
+            case DAMAGE_OVER_TIME -> EffectTypeProto.DAMAGE_OVER_TIME;
             case STUN -> EffectTypeProto.STUN;
             case BUFF -> EffectTypeProto.BUFF;
             case DEBUFF -> EffectTypeProto.DEBUFF;

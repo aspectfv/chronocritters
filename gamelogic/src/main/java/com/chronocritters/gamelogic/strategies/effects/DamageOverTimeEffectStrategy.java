@@ -10,11 +10,11 @@ import com.chronocritters.lib.model.EffectType;
 import com.chronocritters.lib.model.PlayerState;
 
 @Component
-public class PoisonEffectStrategy implements EffectStrategy {
+public class DamageOverTimeEffectStrategy implements EffectStrategy {
 
     @Override
     public EffectType getEffectType() {
-        return EffectType.POISON;
+        return EffectType.DAMAGE_OVER_TIME;
     }
 
     @Override
@@ -22,8 +22,8 @@ public class PoisonEffectStrategy implements EffectStrategy {
         PlayerState opponent = context.getOpponent();
         CritterState targetCritter = opponent.getCritterByIndex(opponent.getActiveCritterIndex());
 
-        int poisonDamage = effect.getPower();
-        int newHp = Math.max(0, targetCritter.getStats().getCurrentHp() - poisonDamage);
+        int dotDamage = effect.getPower();
+        int newHp = Math.max(0, targetCritter.getStats().getCurrentHp() - dotDamage);
         targetCritter.getStats().setCurrentHp(newHp);
 
         targetCritter.getActiveEffects().stream()
@@ -31,7 +31,7 @@ public class PoisonEffectStrategy implements EffectStrategy {
             .forEach(activeEffect -> activeEffect.setRemainingDuration(activeEffect.getRemainingDuration() - 1));
 
         context.getBattleState().getActionLogHistory().add(
-            String.format("%s takes %d poison damage! (%d HP left)", targetCritter.getName(), poisonDamage, newHp)
+            String.format("%s takes %d damage over time! (%d HP left)", targetCritter.getName(), dotDamage, newHp)
         );
     }
 }

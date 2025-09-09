@@ -1,7 +1,7 @@
 package com.chronocritters.lib.model;
 
 public enum EffectType {
-    POISON,
+    DAMAGE_OVER_TIME,
     STUN,
     BUFF,
     DEBUFF
