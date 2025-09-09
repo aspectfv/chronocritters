@@ -84,14 +84,14 @@ public class BattleService {
         if (currentBattle == null) throw new IllegalArgumentException("Invalid battle ID");
         if (!currentBattle.getActivePlayerId().equals(playerId)) throw new IllegalStateException("It's not the player's turn");
 
-        TurnActionHandler abilityChain = new TurnEffectsHandler(effectStrategies);
-        abilityChain
+        TurnActionHandler turnChain = new ExecuteAbilityHandler(abilityId, abilityStrategies);
+        turnChain
             .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new ExecuteAbilityHandler(abilityId, abilityStrategies))
+            .setNext(new TurnEffectsHandler(effectStrategies))
             .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new TurnTransitionHandler(effectStrategies));
+            .setNext(new TurnTransitionHandler());
 
-        abilityChain.handle(currentBattle);
+        turnChain.handle(currentBattle);
 
         finalizeTurn(currentBattle);
         return currentBattle;
@@ -119,7 +119,7 @@ public class BattleService {
         TurnActionHandler switchChain = new TurnEffectsHandler(effectStrategies);
         switchChain
             .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new TurnTransitionHandler(effectStrategies));
+            .setNext(new TurnTransitionHandler());
 
         switchChain.handle(currentBattle);
 
@@ -139,7 +139,7 @@ public class BattleService {
         TurnActionHandler timeoutChain = new TurnEffectsHandler(effectStrategies);
         timeoutChain
             .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new TurnTransitionHandler(effectStrategies));
+            .setNext(new TurnTransitionHandler());
 
         timeoutChain.handle(currentBattle);
         finalizeTurn(currentBattle);
