@@ -13,6 +13,7 @@ enum CritterTypeProto {
   ELECTRIC = 4;
   METAL = 5;
   TOXIC = 6;
+  KINETIC = 7;
 }
 
 enum AbilityTypeProto {

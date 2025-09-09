@@ -33,16 +33,29 @@ public class DatabaseSeeder {
             effectRepository.deleteAll();
 
             // Effects
+
+            // noxious fumes
             Effect poison = Effect.builder()
                 .id("eff-poison")
                 .name("Poison")
                 .type(EffectType.DAMAGE_OVER_TIME)
-                .power(2)
+                .power(1)
+                .duration(3)
+                .chance(100)
+                .build();
+
+            // concussion wave
+            Effect stun = Effect.builder()
+                .id("eff-stun")
+                .name("Stun")
+                .type(EffectType.SKIP_TURN)
+                .power(0)
                 .duration(3)
                 .chance(100)
                 .build();
 
             effectRepository.save(poison);
+            effectRepository.save(stun);
 
             // Abilities
 
@@ -123,22 +136,29 @@ public class DatabaseSeeder {
                 .name("Noxious Fumes")
                 .power(2)
                 .type(AbilityType.EFFECT)
-                .effects(List.of(
-                    Effect.builder()
-                        .id("eff-poison-noxiousfumes")
-                        .name("Poison")
-                        .type(EffectType.DAMAGE_OVER_TIME)
-                        .power(2)
-                        .duration(3)
-                        .chance(100)
-                        .build()
-                ))
+                .effects(List.of(poison))
                 .build();
 
             Ability corrosiveBite = Ability.builder()
                 .id("atk-corrosivebite")
                 .name("Corrosive Bite")
                 .power(2)
+                .type(AbilityType.ATTACK)
+                .build();
+
+            // Strikon Abilities
+            Ability concussionWave = Ability.builder()
+                .id("eff-concussionwave")
+                .name("Concussion Wave")
+                .power(1)
+                .type(AbilityType.EFFECT)
+                .effects(List.of(stun))
+                .build();
+
+            Ability impactPunch = Ability.builder()
+                .id("atk-impactpunch")
+                .name("Impact Punch")
+                .power(4)
                 .type(AbilityType.ATTACK)
                 .build();
 
@@ -166,6 +186,10 @@ public class DatabaseSeeder {
             // Miasmite Abilities
             abilityRepository.save(noxiousFumes);
             abilityRepository.save(corrosiveBite);
+
+            // Strikon Abilities
+            abilityRepository.save(concussionWave);
+            abilityRepository.save(impactPunch);
 
             // Critters
             Critter aquaLing = Critter.builder()
@@ -210,6 +234,13 @@ public class DatabaseSeeder {
                 .baseStats(BaseStats.builder().health(5).attack(3).defense(4).build())
                 .abilities(List.of(noxiousFumes, corrosiveBite))
                 .build();
+            Critter strikon = Critter.builder()
+                .id("kinetic-strikon")
+                .name("Strikon")
+                .type(CritterType.KINETIC)
+                .baseStats(BaseStats.builder().health(5).attack(5).defense(2).build())
+                .abilities(List.of(concussionWave, impactPunch))
+                .build();
 
             critterRepository.save(aquaLing);
             critterRepository.save(voltHound);
@@ -217,6 +248,7 @@ public class DatabaseSeeder {
             critterRepository.save(searfiend);
             critterRepository.save(sylvanSentinel);
             critterRepository.save(miasmite);
+            critterRepository.save(strikon);
 
             // Player Stats
             PlayerStats blueOakStats = PlayerStats.builder()
@@ -234,7 +266,7 @@ public class DatabaseSeeder {
                 .username("BlueOak")
                 .password(PasswordUtil.hashPassword("password1"))
                 .stats(blueOakStats)
-                .roster(List.of(aquaLing, cogling, sylvanSentinel))
+                .roster(List.of(aquaLing, cogling, sylvanSentinel, strikon))
                 .build();
             Player redAsh = Player.builder()
                 .id("p2")

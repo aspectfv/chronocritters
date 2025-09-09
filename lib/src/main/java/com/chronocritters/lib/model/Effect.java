@@ -27,6 +27,7 @@ public class Effect {
             .type(this.type)
             .power(this.power)
             .remainingDuration(this.duration)
+            .currentChance(this.chance)
             .build();
     }
 }

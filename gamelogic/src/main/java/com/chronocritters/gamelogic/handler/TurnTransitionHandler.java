@@ -29,7 +29,7 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
                 .findFirst();
 
         if (skipTurnEffect.isPresent()) {
-            double chance = skipTurnEffect.get().getPower() / 100.0;
+            double chance = skipTurnEffect.get().getCurrentChance() / 100.0;
             if (Math.random() < chance) {
                 String skipLog = String.format("%s is skipped and unable to move!", activeCritter.getName());
                 battleState.getActionLogHistory().add(skipLog);
@@ -39,6 +39,9 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
                 // recursive call to transition to the next turn
                 this.handle(battleState);
                 return;
+            } else {
+                String resistLog = String.format("%s resisted the skip turn effect and can move this turn!", activeCritter.getName());
+                battleState.getActionLogHistory().add(resistLog);
             }
         }
         battleState.setTimeRemaining(TURN_DURATION_SECONDS);

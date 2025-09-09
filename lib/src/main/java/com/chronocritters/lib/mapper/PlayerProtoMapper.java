@@ -113,6 +113,7 @@ public final class PlayerProtoMapper {
             .type(convertEffectTypeProtoToModel(effectProto.getType()))
             .power(effectProto.getPower())
             .duration(effectProto.getDuration())
+            .chance(effectProto.getChance())
             .build();
     }
 
@@ -124,6 +125,7 @@ public final class PlayerProtoMapper {
             case ELECTRIC -> CritterType.ELECTRIC;
             case METAL -> CritterType.METAL;
             case TOXIC -> CritterType.TOXIC;
+            case KINETIC -> CritterType.KINETIC;
             case CRITTER_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
                 throw new IllegalArgumentException("Unknown critter type: " + protoType);
         };
@@ -195,6 +197,7 @@ public final class PlayerProtoMapper {
             .setType(convertEffectTypeModelToProto(effect.getType()))
             .setPower(effect.getPower())
             .setDuration(effect.getDuration())
+            .setChance(effect.getChance())
             .build();
     }
 
@@ -206,6 +209,7 @@ public final class PlayerProtoMapper {
             case ELECTRIC -> CritterTypeProto.ELECTRIC;
             case METAL -> CritterTypeProto.METAL;
             case TOXIC -> CritterTypeProto.TOXIC;
+            case KINETIC -> CritterTypeProto.KINETIC;
         };
     }
 

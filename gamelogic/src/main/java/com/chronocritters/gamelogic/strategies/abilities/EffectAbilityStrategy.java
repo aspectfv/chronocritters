@@ -24,12 +24,10 @@ public class EffectAbilityStrategy implements AbilityStrategy {
 
     @Override
     public void executeAbility(ExecuteAbilityContext context) {
-        CritterState activeCritter = context.getActiveCritter();
-        
         PlayerState opponent = context.getOpponent();
         CritterState opponentCritter = opponent.getActiveCritter();
 
-        Ability ability = activeCritter.getAbilities().get(0);
+        Ability ability = context.getAbility();
         List<Effect> effectList = ability.getEffects();
 
         effectList.stream()

@@ -15,4 +15,5 @@ public class ActiveEffect {
     private EffectType type;
     private int power;
     private int remainingDuration; // in turns
+    private int currentChance;
 }
