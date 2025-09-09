@@ -241,7 +241,7 @@ public class DatabaseSeeder {
                 .username("RedAsh")
                 .password(PasswordUtil.hashPassword("password2"))
                 .stats(redAshStats)
-                .roster(List.of(voltHound, searfiend))
+                .roster(List.of(voltHound, searfiend, miasmite))
                 .build();
 
             playerRepository.save(blueOak);
