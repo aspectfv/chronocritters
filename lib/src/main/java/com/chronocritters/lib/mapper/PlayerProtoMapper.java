@@ -10,6 +10,8 @@ import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.CritterType;
 import com.chronocritters.lib.model.CurrentStats;
+import com.chronocritters.lib.model.Effect;
+import com.chronocritters.lib.model.EffectType;
 import com.chronocritters.lib.model.Player;
 import com.chronocritters.lib.model.PlayerState;
 import com.chronocritters.proto.player.PlayerProto.AbilityProto;
@@ -17,6 +19,8 @@ import com.chronocritters.proto.player.PlayerProto.AbilityTypeProto;
 import com.chronocritters.proto.player.PlayerProto.BaseStatsProto;
 import com.chronocritters.proto.player.PlayerProto.CritterProto;
 import com.chronocritters.proto.player.PlayerProto.CritterTypeProto;
+import com.chronocritters.proto.player.PlayerProto.EffectProto;
+import com.chronocritters.proto.player.PlayerProto.EffectTypeProto;
 import com.chronocritters.proto.player.PlayerProto.PlayerResponse;
 
 public final class PlayerProtoMapper {
@@ -95,6 +99,18 @@ public final class PlayerProtoMapper {
             .name(abilityProto.getName())
             .type(convertAbilityTypeProtoToModel(abilityProto.getType()))
             .power(abilityProto.getPower())
+            .effects(abilityProto.getEffectsList().stream()
+                .map(PlayerProtoMapper::convertEffectProtoToModel)
+                .collect(Collectors.toList()))
+            .build();
+    }
+
+    private static Effect convertEffectProtoToModel(EffectProto effectProto) {
+        return Effect.builder()
+            .id(effectProto.getId())
+            .name(effectProto.getName())
+            .type(convertEffectTypeProtoToModel(effectProto.getType()))
+            .power(effectProto.getPower())
             .build();
     }
 
@@ -118,6 +134,17 @@ public final class PlayerProtoMapper {
             case EFFECT -> AbilityType.EFFECT;
             case ABILITY_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
                 throw new IllegalArgumentException("Unknown ability type: " + protoType);
+        };
+    }
+
+    private static EffectType convertEffectTypeProtoToModel(EffectTypeProto protoType) {
+        return switch (protoType) {
+            case POISON -> EffectType.POISON;
+            case STUN -> EffectType.STUN;
+            case BUFF -> EffectType.BUFF;
+            case DEBUFF -> EffectType.DEBUFF;
+            case EFFECT_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
+                throw new IllegalArgumentException("Unknown effect type: " + protoType);
         };
     }
 
@@ -147,16 +174,27 @@ public final class PlayerProtoMapper {
         return builder.build();
     }
 
-    public static AbilityProto convertAbilityModelToProto(Ability ability) {
-        return AbilityProto.newBuilder()
+    private static AbilityProto convertAbilityModelToProto(Ability ability) {
+        AbilityProto.Builder builder = AbilityProto.newBuilder()
             .setId(ability.getId())
             .setName(ability.getName())
             .setType(convertAbilityTypeModelToProto(ability.getType()))
-            .setPower(ability.getPower())
-            .build();
+            .setPower(ability.getPower());
+
+        for (Effect effect : ability.getEffects()) {
+            EffectProto effectProto = EffectProto.newBuilder()
+                .setId(effect.getId())
+                .setName(effect.getName())
+                .setType(convertEffectTypeModelToProto(effect.getType()))
+                .setPower(effect.getPower())
+                .build();
+            builder.addEffects(effectProto);
+        }
+
+        return builder.build();
     }
 
-    public static CritterTypeProto convertCritterTypeModelToProto(CritterType type) {
+    private static CritterTypeProto convertCritterTypeModelToProto(CritterType type) {
         return switch (type) {
             case FIRE -> CritterTypeProto.FIRE;
             case WATER -> CritterTypeProto.WATER;
@@ -167,12 +205,22 @@ public final class PlayerProtoMapper {
         };
     }
 
-    public static AbilityTypeProto convertAbilityTypeModelToProto(AbilityType type) {
+    private static AbilityTypeProto convertAbilityTypeModelToProto(AbilityType type) {
         return switch (type) {
             case ATTACK -> AbilityTypeProto.ATTACK;
             case DEFENSE -> AbilityTypeProto.DEFENSE;
             case HEAL -> AbilityTypeProto.HEAL;
             default -> AbilityTypeProto.ABILITY_TYPE_UNSPECIFIED;
+        };
+    }
+
+    private static EffectTypeProto convertEffectTypeModelToProto(EffectType type) {
+        return switch (type) {
+            case POISON -> EffectTypeProto.POISON;
+            case STUN -> EffectTypeProto.STUN;
+            case BUFF -> EffectTypeProto.BUFF;
+            case DEBUFF -> EffectTypeProto.DEBUFF;
+            default -> EffectTypeProto.EFFECT_TYPE_UNSPECIFIED;
         };
     }
 }

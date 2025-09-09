@@ -22,6 +22,14 @@ enum AbilityTypeProto {
   EFFECT = 4;
 }
 
+enum EffectTypeProto {
+  EFFECT_TYPE_UNSPECIFIED = 0;
+  POISON = 1;
+  STUN = 2;
+  BUFF = 3;
+  DEBUFF = 4;
+}
+
 service PlayerService {
   rpc GetPlayer(PlayerRequest) returns (PlayerResponse);
   rpc UpdateMatchHistory(MatchHistoryRequest) returns (MatchHistoryResponse);
@@ -60,6 +68,14 @@ message AbilityProto {
   string id = 1;
   string name = 2;
   AbilityTypeProto type = 3;
+  int32 power = 4;
+  repeated EffectProto effects = 5;
+}
+
+message EffectProto {
+  string id = 1;
+  string name = 2;
+  EffectTypeProto type = 3;
   int32 power = 4;
 }
 
