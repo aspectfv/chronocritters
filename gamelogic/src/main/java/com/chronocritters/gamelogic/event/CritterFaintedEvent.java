@@ -10,14 +10,12 @@ import lombok.Getter;
 public class CritterFaintedEvent extends ApplicationEvent {
     private final BattleState battleState;
     private final PlayerState owner;
-    private final PlayerState opponent;
     private final CritterState faintedCritter;
 
-    public CritterFaintedEvent(Object source, BattleState battleState, PlayerState owner, PlayerState opponent, CritterState faintedCritter) {
+    public CritterFaintedEvent(Object source, BattleState battleState, PlayerState owner, CritterState faintedCritter) {
         super(source);
         this.battleState = battleState;
         this.owner = owner;
-        this.opponent = opponent;
         this.faintedCritter = faintedCritter;
     }
 }

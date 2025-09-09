@@ -1,7 +1,6 @@
 package com.chronocritters.gamelogic.service;
 
 import com.chronocritters.gamelogic.event.CritterFaintedEvent;
-import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.PlayerState;
 import org.springframework.context.event.EventListener;
@@ -17,24 +16,23 @@ public class FaintingService {
         PlayerState faintedCritterOwner = event.getOwner();
         CritterState faintedCritter = event.getFaintedCritter();
 
-        int nextCritterIndex = IntStream.range(0, faintedCritterOwner.getRoster().size())
-            .filter(i -> faintedCritterOwner.getCritterByIndex(i).getStats().getCurrentHp() > 0)
-            .findFirst()
-            .orElse(-1);
+        String faintLog = String.format("%s fainted!", faintedCritter.getName());
+        event.getBattleState().getActionLogHistory().add(faintLog);
 
-        if (nextCritterIndex != -1) {
-            CritterState nextCritter = faintedCritterOwner.getCritterByIndex(nextCritterIndex);
-            faintedCritterOwner.setActiveCritterIndex(nextCritterIndex);
+        boolean isActiveCritterFainted = faintedCritter.getId().equals(faintedCritterOwner.getActiveCritter().getId());
+        boolean hasOtherCritters = faintedCritterOwner.getRoster().stream().anyMatch(c -> c.getStats().getCurrentHp() > 0);
 
-            String faintLog = faintedCritter.getName() + " fainted! " +
-                faintedCritterOwner.getUsername() + " sent out " + nextCritter.getName() + "!";
-            event.getBattleState().getActionLogHistory().add(faintLog);
-        } else {
-            String lossLog = faintedCritter.getName() + " fainted! " +
-                faintedCritterOwner.getUsername() + " has no more critters! " +
-                event.getOpponent().getUsername() + " wins the battle!";
-            event.getBattleState().getActionLogHistory().add(lossLog);
-            event.getBattleState().setBattleOutcome(BattleOutcome.BATTLE_WON); // The opponent won
+        if (isActiveCritterFainted && hasOtherCritters) {
+            int nextCritterIndex = IntStream.range(0, faintedCritterOwner.getRoster().size())
+                .filter(i -> faintedCritterOwner.getCritterByIndex(i).getStats().getCurrentHp() > 0)
+                .findFirst()
+                .orElse(-1);
+
+            if (nextCritterIndex != -1) {
+                faintedCritterOwner.setActiveCritterIndex(nextCritterIndex);
+                String switchLog = String.format("%s sent out %s!", faintedCritterOwner.getUsername(), faintedCritterOwner.getActiveCritter().getName());
+                event.getBattleState().getActionLogHistory().add(switchLog);
+            }
         }
     }
 }

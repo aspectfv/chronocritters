@@ -30,7 +30,7 @@ public class FaintingHandler extends AbstractTurnActionHandler {
         for (CritterState critter : player.getRoster()) {
             if (critter.getStats().getCurrentHp() <= 0 && !critter.isFainted()) {
                 critter.setFainted(true);
-                eventPublisher.publishEvent(new CritterFaintedEvent(this, battleState, player, opponent, critter));
+                eventPublisher.publishEvent(new CritterFaintedEvent(this, battleState, player, critter));
             }
         }
     }

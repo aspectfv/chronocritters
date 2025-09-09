@@ -22,6 +22,8 @@ public class BattleState {
 
     @Default
     private BattleOutcome battleOutcome = BattleOutcome.CONTINUE;
+    
+    private String winnerId;
 
     public PlayerState getPlayer() {
         if (playerOne != null && playerOne.getId().equals(activePlayerId)) {
