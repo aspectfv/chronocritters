@@ -43,7 +43,7 @@ public class AttackAbilityStrategy implements AbilityStrategy {
         CritterState activeCritter = context.getActiveCritter();
         Ability ability = context.getAbility();
         
-        int abilityDamage = ability.getPower();
+        int abilityPower = ability.getPower();
             
         CritterState opponentActiveCritter = opponent.getCritterByIndex(opponent.getActiveCritterIndex());
         CurrentStats opponentCritterStats = opponentActiveCritter.getStats();
@@ -64,7 +64,7 @@ public class AttackAbilityStrategy implements AbilityStrategy {
             typeEffectiveness = "It's not very effective...";
         }
 
-        int baseDamage = (int) Math.max(0, abilityDamage * (activeCritterAttack / (double)(activeCritterAttack + opponentCritterDefense)));
+        int baseDamage = (int) Math.max(0, abilityPower * (activeCritterAttack / (double)(activeCritterAttack + opponentCritterDefense)));
         int finalDamage = (int) Math.max(1, baseDamage * typeMultipler);
 
         int newHealth = Math.max(0, opponentCritterStats.getCurrentHp() - finalDamage);
