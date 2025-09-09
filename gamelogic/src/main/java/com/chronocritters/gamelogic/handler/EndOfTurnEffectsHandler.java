@@ -28,9 +28,7 @@ public class EndOfTurnEffectsHandler extends AbstractTurnActionHandler {
             }
         }
 
-        if (next != null) {
-            next.handle(battleState);
-        }
+        handleNext(battleState);
     }
 
     private void applyEffectsToCritter(BattleState battleState, CritterState critter) {

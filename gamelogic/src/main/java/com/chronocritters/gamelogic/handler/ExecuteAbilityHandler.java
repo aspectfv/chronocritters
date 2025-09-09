@@ -43,8 +43,6 @@ public class ExecuteAbilityHandler extends AbstractTurnActionHandler {
 
         strategy.executeAbility(context);
 
-        if (next != null) {
-            next.handle(battleState);
-        }
+        handleNext(battleState);
     }
 }

@@ -23,9 +23,7 @@ public class FaintingHandler extends AbstractTurnActionHandler {
             return;
         }
 
-        if (next != null) {
-            next.handle(battleState);
-        }
+        handleNext(battleState);
     }
 
     private void checkPlayerFaint(BattleState battleState, PlayerState player, PlayerState opponent) {
