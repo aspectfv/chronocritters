@@ -228,6 +228,8 @@ public class BattleService {
                                 .build();
                             strategy.applyActiveEffect(context);
                         }
+
+                        System.out.println("Remaining duration before decrement: " + effect.getRemainingDuration());
                         
                         effect.setRemainingDuration(effect.getRemainingDuration() - 1);
                         if (effect.getRemainingDuration() <= 0) {

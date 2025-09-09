@@ -112,6 +112,7 @@ public final class PlayerProtoMapper {
             .name(effectProto.getName())
             .type(convertEffectTypeProtoToModel(effectProto.getType()))
             .power(effectProto.getPower())
+            .duration(effectProto.getDuration())
             .build();
     }
 
