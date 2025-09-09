@@ -17,6 +17,7 @@ public class CritterState {
     private CritterType type;
     private CurrentStats stats;
     private List<Ability> abilities;
+    private List<ActiveEffect> activeEffects;
 
     public Ability getAbilityById(String abilityId) {
         return abilities.stream()

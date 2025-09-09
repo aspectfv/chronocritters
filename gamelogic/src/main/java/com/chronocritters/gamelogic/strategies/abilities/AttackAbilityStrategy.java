@@ -1,4 +1,4 @@
-package com.chronocritters.gamelogic.abilities;
+package com.chronocritters.gamelogic.strategies.abilities;
 
 import java.util.EnumMap;
 import java.util.Map;
