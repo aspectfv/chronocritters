@@ -63,7 +63,7 @@ const ActionItem = ({ turn, actor, action }: { turn: number, actor: string, acti
 
 
 export function BattleHistoryDetails() {
-    // const { battleId } = useParams<{ battleId: string }>();
+    const { battleId } = useParams<{ battleId: string }>();
     const battle = mockBattleDetails;
 
     const allActions = battle.turnActions.flatMap(t => [
