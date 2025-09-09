@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.chronocritters.gamelogic.client.LobbyWebClient;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
-import com.chronocritters.gamelogic.handler.EndOfTurnEffectsHandler;
+import com.chronocritters.gamelogic.handler.TurnEffectsHandler;
 import com.chronocritters.gamelogic.handler.ExecuteAbilityHandler;
 import com.chronocritters.gamelogic.handler.FaintingHandler;
 import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
@@ -84,10 +84,10 @@ public class BattleService {
         if (currentBattle == null) throw new IllegalArgumentException("Invalid battle ID");
         if (!currentBattle.getActivePlayerId().equals(playerId)) throw new IllegalStateException("It's not the player's turn");
 
-        TurnActionHandler abilityChain = new ExecuteAbilityHandler(abilityId, abilityStrategies);
+        TurnActionHandler abilityChain = new TurnEffectsHandler(effectStrategies);
         abilityChain
             .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new EndOfTurnEffectsHandler(effectStrategies))
+            .setNext(new ExecuteAbilityHandler(abilityId, abilityStrategies))
             .setNext(new FaintingHandler(eventPublisher))
             .setNext(new TurnTransitionHandler(effectStrategies));
 
@@ -116,7 +116,7 @@ public class BattleService {
         
         player.setActiveCritterIndex(targetCritterIndex);
 
-        TurnActionHandler switchChain = new EndOfTurnEffectsHandler(effectStrategies);
+        TurnActionHandler switchChain = new TurnEffectsHandler(effectStrategies);
         switchChain
             .setNext(new FaintingHandler(eventPublisher))
             .setNext(new TurnTransitionHandler(effectStrategies));
@@ -136,7 +136,7 @@ public class BattleService {
         String timeoutLog = String.format("%s ran out of time!", currentBattle.getPlayer().getUsername());
         currentBattle.getActionLogHistory().add(timeoutLog);
 
-        TurnActionHandler timeoutChain = new EndOfTurnEffectsHandler(effectStrategies);
+        TurnActionHandler timeoutChain = new TurnEffectsHandler(effectStrategies);
         timeoutChain
             .setNext(new FaintingHandler(eventPublisher))
             .setNext(new TurnTransitionHandler(effectStrategies));

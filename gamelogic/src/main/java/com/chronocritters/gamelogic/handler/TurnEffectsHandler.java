@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public class EndOfTurnEffectsHandler extends AbstractTurnActionHandler {
+public class TurnEffectsHandler extends AbstractTurnActionHandler {
     private final Map<EffectType, EffectStrategy> effectStrategies;
 
     @Override

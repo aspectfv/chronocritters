@@ -34,7 +34,7 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
                 String skipLog = String.format("%s is skipped and unable to move!", activeCritter.getName());
                 battleState.getActionLogHistory().add(skipLog);
 
-                new EndOfTurnEffectsHandler(this.effectStrategies).handle(battleState);
+                new TurnEffectsHandler(this.effectStrategies).handle(battleState);
 
                 // recursive call to transition to the next turn
                 this.handle(battleState);

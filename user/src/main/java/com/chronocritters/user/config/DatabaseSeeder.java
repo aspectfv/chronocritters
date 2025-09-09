@@ -50,7 +50,7 @@ public class DatabaseSeeder {
                 .name("Stun")
                 .type(EffectType.SKIP_TURN)
                 .power(0)
-                .duration(3)
+                .duration(2)
                 .chance(100)
                 .build();
 
