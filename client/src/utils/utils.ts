@@ -74,3 +74,15 @@ export const getButtonState = (connectionStatus: ConnectionStatus, matchmakingSt
   }
   return buttonStateMap[connectionStatus] || { text: 'Connecting...', disabled: true };
 };
+
+export const getAbilityDescriptionMap: Record<AbilityType, (power: number) => string> = {
+  [AbilityType.ATTACK]: (power: number) => `A powerful strike dealing ${power} damage.`,
+  [AbilityType.DEFENSE]: (power: number) => `Boosts defense by ${power} points.`,
+  [AbilityType.HEAL]: (power: number) => `Restores ${power} health.`,
+  [AbilityType.EFFECT]: () => 'Applies a special effect to the target.',
+  [AbilityType.UNKNOWN]: () => 'An ability with a mysterious effect.',
+};
+
+export const getAbilityDescription = (ability: { type: AbilityType; power: number }): string => {
+  return getAbilityDescriptionMap[ability.type](ability.power) ?? getAbilityDescriptionMap[AbilityType.UNKNOWN](ability.power);
+};

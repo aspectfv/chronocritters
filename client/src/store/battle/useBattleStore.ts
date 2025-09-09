@@ -1,24 +1,11 @@
 import { create } from 'zustand';
-import { AbilityType, CritterType } from '@store/battle/types';
+import { CritterType } from '@store/battle/types';
 import type {
   BattleState,
-  Ability,
   PlayerState,
   CritterState,
 } from '@store/battle/types';
-
-const getAbilityDescription = (ability: Ability): string => {
-  switch (ability.type) {
-    case AbilityType.ATTACK:
-      return `A powerful strike dealing ${ability.power} damage.`;
-    case AbilityType.DEFENSE:
-      return `Boosts defense by ${ability.power} points.`;
-    case AbilityType.HEAL:
-      return `Restores ${ability.power} health.`;
-    default:
-      return 'An ability with a mysterious effect.';
-  }
-};
+import { getAbilityDescription } from '@utils/utils';
 
 function getMappedPlayers(playerOne: PlayerState, playerTwo: PlayerState, userId: string) {
   const isPlayerOne = playerOne.id === userId;
