@@ -1,3 +1,9 @@
+export enum MatchMakingStatus {
+  IDLE = 'idle',
+  SEARCHING = 'searching',
+  FOUND = 'found',
+}
+
 export interface MenuHeaderProps {
   username?: string;
 }

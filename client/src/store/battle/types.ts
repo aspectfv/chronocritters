@@ -2,6 +2,7 @@ export enum AbilityType {
   ATTACK = 'ATTACK',
   DEFENSE = 'DEFENSE',
   HEAL = 'HEAL',
+  EFFECT = 'EFFECT',
   UNKNOWN = 'UNKNOWN'
 }
 

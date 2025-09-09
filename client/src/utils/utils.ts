@@ -1,5 +1,6 @@
+import { MatchMakingStatus } from "@features/menu/types";
 import { AbilityType, CritterType } from "@store/battle/types";
-import type { ConnectionStatus } from "@store/lobby/types";
+import { ConnectionStatus } from "@store/lobby/types";
 
 export const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.FIRE]: '🔥',
@@ -27,14 +28,15 @@ export function getCritterTypeStyle(type: CritterType): string {
   return critterTypeStyles[type] ?? critterTypeStyles[CritterType.UNKNOWN];
 }
 
-const abilityTypeStyle: Record<string, string> = {
+const abilityTypeStyle: Record<AbilityType, string> = {
   [AbilityType.ATTACK]: 'bg-red-100 text-red-800',
   [AbilityType.DEFENSE]: 'bg-blue-100 text-blue-800',
   [AbilityType.HEAL]: 'bg-green-100 text-green-800',
+  [AbilityType.EFFECT]: 'bg-purple-100 text-purple-800',
   [AbilityType.UNKNOWN]: 'bg-gray-100 text-gray-800',
 };
 
-export function getAbilityTypeStyle(type: string): string {
+export function getAbilityTypeStyle(type: AbilityType): string {
   return abilityTypeStyle[type] ?? abilityTypeStyle[AbilityType.UNKNOWN];
 }
 
@@ -49,12 +51,26 @@ export const getCritterImageUrl = (critterName: string): string => {
 };
 
 const connectionStatusStyleMap: Record<ConnectionStatus, { text: string; color: string }> = {
-  connected: { text: 'Online', color: 'bg-green-500' },
-  connecting: { text: 'Connecting...', color: 'bg-yellow-400' },
-  disconnected: { text: 'Offline', color: 'bg-gray-400' },
-  error: { text: 'Error', color: 'bg-red-500' },
+  [ConnectionStatus.CONNECTED]: { text: 'Online', color: 'bg-green-500' },
+  [ConnectionStatus.CONNECTING]: { text: 'Connecting...', color: 'bg-yellow-400' },
+  [ConnectionStatus.DISCONNECTED]: { text: 'Offline', color: 'bg-gray-400' },
+  [ConnectionStatus.ERROR]: { text: 'Error', color: 'bg-red-500' },
 };
 
 export function getConnectionStatusStyle(status: ConnectionStatus): { text: string; color: string } {
-  return connectionStatusStyleMap[status] ?? connectionStatusStyleMap['disconnected'];
+  return connectionStatusStyleMap[status] ?? connectionStatusStyleMap[ConnectionStatus.DISCONNECTED];
 }
+
+const buttonStateMap: Record<ConnectionStatus, { text: string; disabled: boolean }> = {
+  [ConnectionStatus.CONNECTING]: { text: 'Connecting to Lobby...', disabled: true },
+  [ConnectionStatus.ERROR]: { text: 'Lobby Offline', disabled: true },
+  [ConnectionStatus.DISCONNECTED]: { text: 'Lobby Offline', disabled: true },
+  [ConnectionStatus.CONNECTED]: { text: 'Find Match', disabled: false },
+};
+
+export const getButtonState = (connectionStatus: ConnectionStatus, matchmakingStatus: MatchMakingStatus) => {
+  if (connectionStatus === ConnectionStatus.CONNECTED && matchmakingStatus === MatchMakingStatus.SEARCHING) {
+    return { text: 'Searching for Opponent...', disabled: true };
+  }
+  return buttonStateMap[connectionStatus] || { text: 'Connecting...', disabled: true };
+};

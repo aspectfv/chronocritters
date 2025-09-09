@@ -3,5 +3,6 @@ package com.chronocritters.lib.model;
 public enum AbilityType {
     ATTACK,
     DEFENSE,
-    HEAL
+    HEAL,
+    EFFECT
 }

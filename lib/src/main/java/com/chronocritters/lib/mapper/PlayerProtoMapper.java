@@ -115,6 +115,7 @@ public final class PlayerProtoMapper {
             case ATTACK -> AbilityType.ATTACK;
             case DEFENSE -> AbilityType.DEFENSE;
             case HEAL -> AbilityType.HEAL;
+            case EFFECT -> AbilityType.EFFECT;
             case ABILITY_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
                 throw new IllegalArgumentException("Unknown ability type: " + protoType);
         };

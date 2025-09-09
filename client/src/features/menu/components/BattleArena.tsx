@@ -2,26 +2,28 @@ import { useAuthStore } from '@store/auth/useAuthStore';
 import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { MatchResponse } from '@features/menu/types';
+import { MatchMakingStatus, type MatchResponse } from '@features/menu/types';
+import { ConnectionStatus } from '@store/lobby/types';
+import { getButtonState } from '@utils/utils';
 
 export function BattleArena() {
-  const [matchmakingStatus, setMatchmakingStatus] = useState<'idle' | 'searching' | 'found'>('idle');
+  const [matchmakingStatus, setMatchmakingStatus] = useState<MatchMakingStatus>(MatchMakingStatus.IDLE);
   const navigate = useNavigate();
   const { connectionStatus, publish, subscribe } = useLobbyStore();
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
-    if (connectionStatus !== 'connected' || !user || !subscribe) return;
+    if (connectionStatus !== ConnectionStatus.CONNECTED || !user || !subscribe) return;
 
     const matchStatusSubscription = subscribe(`/user/${user.id}/matchmaking/status`, (match: MatchResponse) => {
-      setMatchmakingStatus('found');
-      
+      setMatchmakingStatus(MatchMakingStatus.FOUND);
+
       navigate(`/battle/${match.battleId}`);
     });
 
     const matchErrorSubscription = subscribe(`/user/${user.id}/error`, (error: { message: string }) => {
       console.error('Matchmaking error:', error.message);
-      setMatchmakingStatus('idle');
+      setMatchmakingStatus(MatchMakingStatus.IDLE);
     });
 
     return () => {
@@ -32,29 +34,14 @@ export function BattleArena() {
 
   const handleFindMatch = () => {
     if (connectionStatus ) {
-      setMatchmakingStatus('searching');
+      setMatchmakingStatus(MatchMakingStatus.SEARCHING);
       publish('/app/matchmaking/join', {});
     }
   };
 
-  const getButtonState = () => {
-    switch (connectionStatus) {
-      case 'connecting':
-        return { text: 'Connecting to Lobby...', disabled: true };
-      case 'error':
-      case 'disconnected':
-        return { text: 'Lobby Offline', disabled: true };
-      case 'connected':
-        if (matchmakingStatus === 'searching') {
-          return { text: 'Searching for Opponent...', disabled: true };
-        }
-        return { text: 'Find Match', disabled: false };
-      default:
-        return { text: 'Connecting...', disabled: true };
-    }
-  };
+  
 
-  const { text: buttonText, disabled: isButtonDisabled } = getButtonState();
+  const { text: buttonText, disabled: isButtonDisabled } = getButtonState(connectionStatus, matchmakingStatus);
 
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6">
@@ -80,7 +67,7 @@ export function BattleArena() {
         {buttonText}
       </button>
 
-      {connectionStatus === 'error' && (
+      {connectionStatus === ConnectionStatus.ERROR && (
         <p className="text-center text-red-600 text-xs mt-2">
           Could not connect to the matchmaking service. Please try again later.
         </p>

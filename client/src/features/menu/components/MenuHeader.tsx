@@ -10,7 +10,7 @@ export function MenuHeader({ username }: MenuHeaderProps) {
 
   return (
     <div className="text-center mb-8">
-      <h1 className="text-4xl font-bold text-green-600 mb-4">Chrono-Critters</h1>
+      <h1 className="text-4xl font-bold text-green-600 mb-4">ChronoCritters</h1>
       <div className="flex items-center justify-center gap-2 text-gray-700">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 bg-green-500 rounded-full"></span>

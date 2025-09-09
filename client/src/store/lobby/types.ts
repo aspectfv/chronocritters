@@ -1,6 +1,11 @@
 import type { Client, StompSubscription } from '@stomp/stompjs';
 
-export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting' | 'error';
+export enum ConnectionStatus {
+  CONNECTED = 'CONNECTED',
+  DISCONNECTED = 'DISCONNECTED',
+  CONNECTING = 'CONNECTING',
+  ERROR = 'ERROR',
+}
 
 export interface LobbyState {
   stompClient: Client | null;

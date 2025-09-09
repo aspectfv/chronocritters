@@ -10,6 +10,7 @@ enum AbilityType {
     ATTACK
     DEFENSE
     HEAL
+    EFFECT
 }
 
 type Ability {

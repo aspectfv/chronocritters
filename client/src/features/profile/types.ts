@@ -1,4 +1,4 @@
-import type { CritterType } from '@store/battle/types';
+import type { AbilityType, CritterType } from '@store/battle/types';
 
 export interface CritterCardProps {
   name: string;
@@ -22,7 +22,7 @@ export interface CritterData {
       id: string;
       name: string;
       power: number;
-      type: string;
+      type: AbilityType;
   }[];
 }
 

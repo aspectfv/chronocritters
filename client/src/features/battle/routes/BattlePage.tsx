@@ -12,13 +12,14 @@ import { TeamDisplay } from '../components/TeamDisplay';
 import { BattleLog } from '../components/BattleLog';
 import { AbilitySelector } from '../components/AbilitySelector';
 import { getBattleState, executeAbility, switchCritter } from '@api/gamelogic';
+import { ConnectionStatus } from '@store/lobby/types';
 
 function BattlePage() {
   const { battleId } = useParams<{ battleId: string }>();
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
 
-  const isConnected = useLobbyStore((state) => state.connectionStatus === 'connected');
+  const isConnected = useLobbyStore((state) => state.connectionStatus === ConnectionStatus.CONNECTED);
   const { player, opponent, actionLogHistory, timeRemaining, battleResult } = useBattleStore();
 
   useEffect(() => {
