@@ -3,10 +3,10 @@ package com.chronocritters.gamelogic.strategies.abilities;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-import com.chronocritters.lib.context.AbilityExecutionContext;
+import com.chronocritters.lib.context.ExecuteAbilityContext;
 import com.chronocritters.lib.interfaces.AbilityStrategy;
 import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.AbilityExecutionResult;
+import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
@@ -24,7 +24,7 @@ public class EffectAbilityStrategy implements AbilityStrategy {
     }
 
     @Override
-    public AbilityExecutionResult executeAbility(AbilityExecutionContext context) {
+    public BattleOutcome executeAbility(ExecuteAbilityContext context) {
         CritterState activeCritter = context.getActiveCritter();
         
         PlayerState opponent = context.getOpponent();
@@ -37,6 +37,6 @@ public class EffectAbilityStrategy implements AbilityStrategy {
             .map(Effect::toActiveEffect)
             .forEach(activeEffect -> opponentCritter.getActiveEffects().add(activeEffect));
 
-        return AbilityExecutionResult.CONTINUE;
+        return BattleOutcome.CONTINUE;
     }
 }

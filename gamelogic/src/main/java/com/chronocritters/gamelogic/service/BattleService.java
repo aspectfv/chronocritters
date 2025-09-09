@@ -14,14 +14,18 @@ import org.springframework.stereotype.Service;
 
 import com.chronocritters.gamelogic.client.LobbyWebClient;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
-import com.chronocritters.lib.context.AbilityExecutionContext;
+import com.chronocritters.lib.context.ApplyEffectContext;
+import com.chronocritters.lib.context.ExecuteAbilityContext;
 import com.chronocritters.lib.interfaces.AbilityStrategy;
+import com.chronocritters.lib.interfaces.EffectStrategy;
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.AbilityExecutionResult;
+import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.AbilityType;
+import com.chronocritters.lib.model.ActiveEffect;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
+import com.chronocritters.lib.model.EffectType;
 import com.chronocritters.lib.model.PlayerState;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +34,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BattleService {
     private final Map<String, BattleState> activeBattles = new ConcurrentHashMap<>();
+
     private final Map<AbilityType, AbilityStrategy> abilityStrategies;
+    private final Map<EffectType, EffectStrategy> effectStrategies;
     
     private final PlayerGrpcClient playerGrpcClient;
     private final LobbyWebClient lobbyWebClient;
@@ -94,7 +100,7 @@ public class BattleService {
             throw new IllegalStateException("No strategy found for ability type: " + ability.getType());
         }
 
-        AbilityExecutionContext context = AbilityExecutionContext.builder()
+        ExecuteAbilityContext context = ExecuteAbilityContext.builder()
             .battleState(currentBattle)
             .player(player)
             .opponent(opponent)
@@ -102,18 +108,12 @@ public class BattleService {
             .ability(ability)
             .build();
 
-        AbilityExecutionResult result = strategy.executeAbility(context);
+        BattleOutcome outcome = strategy.executeAbility(context);
 
-        if (result == AbilityExecutionResult.BATTLE_WON) {
-            playerGrpcClient.updateMatchHistory(player.getId(), opponent.getId());
-            lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
+        applyEndOfTurnEffects(currentBattle, player, opponent);
 
-            cleanupScheduler.schedule(() -> {
-                BattleState removed = activeBattles.remove(battleId);
-                if (removed != null) {
-                    log.info("Battle {} cleaned up after timeout", battleId);
-                }
-            }, CLEANUP_DELAY_SECONDS, TimeUnit.SECONDS);
+        if (outcome == BattleOutcome.BATTLE_WON) {
+            applyWinLoss(currentBattle, battleId, true);
             return currentBattle;
         }
 
@@ -157,6 +157,8 @@ public class BattleService {
                 player.getCritterByIndex(player.getActiveCritterIndex()).getName(), targetCritter.getName());
         currentBattle.getActionLogHistory().add(switchLog);
 
+        applyEndOfTurnEffects(currentBattle, player, opponent);
+
         player.setActiveCritterIndex(targetCritterIndex);
 
         currentBattle.setActivePlayerId(opponent.getId());
@@ -180,7 +182,9 @@ public class BattleService {
 
         String timeoutLog = String.format("%s ran out of time!", player.getUsername());
         currentBattle.getActionLogHistory().add(timeoutLog);
-        
+
+        applyEndOfTurnEffects(currentBattle, player, opponent);
+
         currentBattle.setActivePlayerId(opponent.getId());
         currentBattle.setTimeRemaining(TURN_DURATION_SECONDS);
         
@@ -190,5 +194,48 @@ public class BattleService {
         lobbyWebClient.updateBattleState(battleId, currentBattle).subscribe();
     }
 
+    private void applyEndOfTurnEffects(BattleState battleState, PlayerState player, PlayerState opponent) {
+        List<CritterState> allCritters = new ArrayList<>();
+        allCritters.addAll(player.getRoster());
+        allCritters.addAll(opponent.getRoster());
 
+        for (CritterState critter : allCritters) {
+            for (ActiveEffect effect : critter.getActiveEffects()) {
+                EffectStrategy strategy = effectStrategies.get(effect.getType());
+                if (strategy != null) {
+                    ApplyEffectContext context = ApplyEffectContext.builder()
+                        .battleState(battleState)
+                        .player(player)
+                        .opponent(opponent)
+                        .targetCritter(critter)
+                        .effect(effect)
+                        .build();
+                    BattleOutcome outcome = strategy.applyActiveEffect(context);
+                    if (outcome != BattleOutcome.CONTINUE) {
+                        applyWinLoss(battleState, battleState.getBattleId(), outcome == BattleOutcome.BATTLE_WON);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private void applyWinLoss(BattleState battleState, String battleId, boolean playerWon) {
+        PlayerState player = battleState.getPlayer();
+        PlayerState opponent = battleState.getOpponent();
+
+        if (playerWon) {
+            playerGrpcClient.updateMatchHistory(player.getId(), opponent.getId());
+        } else {
+            playerGrpcClient.updateMatchHistory(opponent.getId(), player.getId());
+        }
+
+        lobbyWebClient.updateBattleState(battleId, battleState).subscribe();
+        cleanupScheduler.schedule(() -> {
+            BattleState removed = activeBattles.remove(battleId);
+            if (removed != null) {
+                log.info("Battle {} cleaned up after timeout", battleId);
+            }
+        }, CLEANUP_DELAY_SECONDS, TimeUnit.SECONDS);
+    }
 }

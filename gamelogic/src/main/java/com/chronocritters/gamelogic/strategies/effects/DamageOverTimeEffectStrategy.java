@@ -2,12 +2,12 @@ package com.chronocritters.gamelogic.strategies.effects;
 
 import org.springframework.stereotype.Component;
 
-import com.chronocritters.lib.context.AbilityExecutionContext;
+import com.chronocritters.lib.context.ApplyEffectContext;
 import com.chronocritters.lib.interfaces.EffectStrategy;
+import com.chronocritters.lib.model.ActiveEffect;
+import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.CritterState;
-import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.EffectType;
-import com.chronocritters.lib.model.PlayerState;
 
 @Component
 public class DamageOverTimeEffectStrategy implements EffectStrategy {
@@ -18,20 +18,38 @@ public class DamageOverTimeEffectStrategy implements EffectStrategy {
     }
 
     @Override
-    public void applyEffect(AbilityExecutionContext context, Effect effect) {
-        PlayerState opponent = context.getOpponent();
-        CritterState targetCritter = opponent.getCritterByIndex(opponent.getActiveCritterIndex());
+    public BattleOutcome applyActiveEffect(ApplyEffectContext context) {
+        ActiveEffect effect = context.getEffect();
+        CritterState targetCritter = context.getTargetCritter();
 
-        int dotDamage = effect.getPower();
-        int newHp = Math.max(0, targetCritter.getStats().getCurrentHp() - dotDamage);
-        targetCritter.getStats().setCurrentHp(newHp);
+        int damage = effect.getPower();
+        targetCritter.getStats().setCurrentHp(Math.max(0, targetCritter.getStats().getCurrentHp() - damage));
 
-        targetCritter.getActiveEffects().stream()
-            .filter(activeEffect -> activeEffect.getId().equals(effect.getId()))
-            .forEach(activeEffect -> activeEffect.setRemainingDuration(activeEffect.getRemainingDuration() - 1));
+        effect.setRemainingDuration(effect.getRemainingDuration() - 1);
 
-        context.getBattleState().getActionLogHistory().add(
-            String.format("%s takes %d damage over time! (%d HP left)", targetCritter.getName(), dotDamage, newHp)
-        );
+        String logEntry = String.format("%s took %d damage from %s effect.",
+                targetCritter.getName(), damage, effect.getType().name());
+        context.getBattleState().getActionLogHistory().add(logEntry);
+
+        // Win/faint check
+        if (targetCritter.getStats().getCurrentHp() == 0) {
+            String faintLog = targetCritter.getName() + " fainted from " + effect.getType().name() + "!";
+            context.getBattleState().getActionLogHistory().add(faintLog);
+
+            // Check if all critters on the player's team are fainted
+            boolean playerAllFainted = context.getPlayer().getRoster().stream()
+                .allMatch(c -> c.getStats().getCurrentHp() <= 0);
+
+            boolean opponentAllFainted = context.getOpponent().getRoster().stream()
+                .allMatch(c -> c.getStats().getCurrentHp() <= 0);
+
+            if (playerAllFainted) {
+                return BattleOutcome.BATTLE_LOST;
+            } else if (opponentAllFainted) {
+                return BattleOutcome.BATTLE_WON;
+            }
+        }
+
+        return BattleOutcome.CONTINUE;
     }
 }

@@ -7,10 +7,10 @@ import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Component;
 
-import com.chronocritters.lib.context.AbilityExecutionContext;
+import com.chronocritters.lib.context.ExecuteAbilityContext;
 import com.chronocritters.lib.interfaces.AbilityStrategy;
 import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.AbilityExecutionResult;
+import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
@@ -27,7 +27,8 @@ public class AttackAbilityStrategy implements AbilityStrategy {
         typeAdvantages.put(CritterType.WATER, Set.of(CritterType.FIRE));
         typeAdvantages.put(CritterType.GRASS, Set.of(CritterType.WATER));
         typeAdvantages.put(CritterType.ELECTRIC, Set.of(CritterType.WATER));
-        typeAdvantages.put(CritterType.METAL, Set.of(CritterType.ELECTRIC));
+        typeAdvantages.put(CritterType.METAL, Set.of(CritterType.ELECTRIC, CritterType.TOXIC));
+        typeAdvantages.put(CritterType.TOXIC, Set.of(CritterType.GRASS));
     }
     
     @Override
@@ -36,7 +37,7 @@ public class AttackAbilityStrategy implements AbilityStrategy {
     }
 
     @Override
-    public AbilityExecutionResult executeAbility(AbilityExecutionContext context) {
+    public BattleOutcome executeAbility(ExecuteAbilityContext context) {
         BattleState currentBattle = context.getBattleState();
         PlayerState player = context.getPlayer();
         PlayerState opponent = context.getOpponent();
@@ -105,10 +106,10 @@ public class AttackAbilityStrategy implements AbilityStrategy {
                     player.getUsername() + " wins the battle!";
                 currentBattle.getActionLogHistory().add(winLog);
 
-                return AbilityExecutionResult.BATTLE_WON;
+                return BattleOutcome.BATTLE_WON;
             }
         }
 
-        return AbilityExecutionResult.CONTINUE;
+        return BattleOutcome.CONTINUE;
     }
 }

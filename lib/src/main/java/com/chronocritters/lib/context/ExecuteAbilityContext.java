@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class AbilityExecutionContext {
+public class ExecuteAbilityContext {
     private final BattleState battleState;
     private final PlayerState player;
     private final PlayerState opponent;

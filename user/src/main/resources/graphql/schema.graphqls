@@ -4,6 +4,7 @@ enum CritterType {
     GRASS
     ELECTRIC
     METAL
+    TOXIC
 }
 
 enum AbilityType {

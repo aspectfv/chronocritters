@@ -12,6 +12,7 @@ export enum CritterType {
   GRASS = 'GRASS',
   ELECTRIC = 'ELECTRIC',
   METAL = 'METAL',
+  TOXIC = 'TOXIC',
   UNKNOWN = 'UNKNOWN'
 }
 

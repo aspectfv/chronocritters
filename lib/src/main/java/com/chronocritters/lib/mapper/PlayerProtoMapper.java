@@ -121,6 +121,7 @@ public final class PlayerProtoMapper {
             case GRASS -> CritterType.GRASS;
             case ELECTRIC -> CritterType.ELECTRIC;
             case METAL -> CritterType.METAL;
+            case TOXIC -> CritterType.TOXIC;
             case CRITTER_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
                 throw new IllegalArgumentException("Unknown critter type: " + protoType);
         };
