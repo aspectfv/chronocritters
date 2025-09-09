@@ -167,12 +167,9 @@ public final class PlayerProtoMapper {
             builder.setBaseStats(baseStats);
         }
 
-        if (critter.getAbilities() != null) {
-            for (Ability ability : critter.getAbilities()) {
-                AbilityProto abilityProto = convertAbilityModelToProto(ability);
-                builder.addAbilities(abilityProto);
-            }
-        }
+        critter.getAbilities().stream()
+            .map(PlayerProtoMapper::convertAbilityModelToProto)
+            .forEach(builder::addAbilities);
 
         return builder.build();
     }
