@@ -2,7 +2,7 @@ package com.chronocritters.lib.model;
 
 public enum EffectType {
     DAMAGE_OVER_TIME,
-    STUN,
+    SKIP_TURN,
     BUFF,
     DEBUFF
 }

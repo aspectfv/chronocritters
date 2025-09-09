@@ -143,7 +143,7 @@ public final class PlayerProtoMapper {
     private static EffectType convertEffectTypeProtoToModel(EffectTypeProto protoType) {
         return switch (protoType) {
             case DAMAGE_OVER_TIME -> EffectType.DAMAGE_OVER_TIME;
-            case STUN -> EffectType.STUN;
+            case SKIP_TURN -> EffectType.SKIP_TURN;
             case BUFF -> EffectType.BUFF;
             case DEBUFF -> EffectType.DEBUFF;
             case EFFECT_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
@@ -221,7 +221,7 @@ public final class PlayerProtoMapper {
     private static EffectTypeProto convertEffectTypeModelToProto(EffectType type) {
         return switch (type) {
             case DAMAGE_OVER_TIME -> EffectTypeProto.DAMAGE_OVER_TIME;
-            case STUN -> EffectTypeProto.STUN;
+            case SKIP_TURN -> EffectTypeProto.SKIP_TURN;
             case BUFF -> EffectTypeProto.BUFF;
             case DEBUFF -> EffectTypeProto.DEBUFF;
         };

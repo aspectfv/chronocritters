@@ -89,7 +89,7 @@ public class BattleService {
             .setNext(new FaintingHandler(eventPublisher))
             .setNext(new EndOfTurnEffectsHandler(effectStrategies))
             .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new TurnTransitionHandler());
+            .setNext(new TurnTransitionHandler(effectStrategies));
 
         abilityChain.handle(currentBattle);
 
@@ -119,7 +119,7 @@ public class BattleService {
         TurnActionHandler switchChain = new EndOfTurnEffectsHandler(effectStrategies);
         switchChain
             .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new TurnTransitionHandler());
+            .setNext(new TurnTransitionHandler(effectStrategies));
 
         switchChain.handle(currentBattle);
 
@@ -139,7 +139,7 @@ public class BattleService {
         TurnActionHandler timeoutChain = new EndOfTurnEffectsHandler(effectStrategies);
         timeoutChain
             .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new TurnTransitionHandler());
+            .setNext(new TurnTransitionHandler(effectStrategies));
 
         timeoutChain.handle(currentBattle);
         finalizeTurn(currentBattle);

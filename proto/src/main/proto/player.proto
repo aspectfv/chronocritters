@@ -26,7 +26,7 @@ enum AbilityTypeProto {
 enum EffectTypeProto {
   EFFECT_TYPE_UNSPECIFIED = 0;
   DAMAGE_OVER_TIME = 1;
-  STUN = 2;
+  SKIP_TURN = 2;
   BUFF = 3;
   DEBUFF = 4;
 }
