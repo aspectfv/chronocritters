@@ -33,11 +33,25 @@ public class EffectAbilityStrategy implements AbilityStrategy {
 
         effectList.forEach(effect -> {
             if (Math.random() < (effect.getChance() / 100.0)) {
-                ActiveEffect activeEffect = effect.toActiveEffect();
-                opponentCritter.getActiveEffects().add(activeEffect);
-                context.getBattleState().getActionLogHistory().add(
-                    String.format("%s applied %s to %s!", ability.getName(), activeEffect.getName(), opponentCritter.getName())
-                );
+                ActiveEffect newActiveEffect = effect.toActiveEffect();
+                boolean renewed = false;
+                for (ActiveEffect existing : opponentCritter.getActiveEffects()) {
+                    if (existing.getId().equals(newActiveEffect.getId())) {
+                        existing.setRemainingDuration(newActiveEffect.getRemainingDuration());
+                        existing.setCurrentChance(newActiveEffect.getCurrentChance());
+                        renewed = true;
+                        context.getBattleState().getActionLogHistory().add(
+                            String.format("%s renewed %s on %s!", ability.getName(), existing.getName(), opponentCritter.getName())
+                        );
+                        break;
+                    }
+                }
+                if (!renewed) {
+                    opponentCritter.getActiveEffects().add(newActiveEffect);
+                    context.getBattleState().getActionLogHistory().add(
+                        String.format("%s applied %s to %s!", ability.getName(), newActiveEffect.getName(), opponentCritter.getName())
+                    );
+                }
             } else {
                 context.getBattleState().getActionLogHistory().add(
                     String.format("%s was resisted by %s!", effect.getName(), opponentCritter.getName())
