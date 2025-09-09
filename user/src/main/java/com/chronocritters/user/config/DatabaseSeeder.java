@@ -41,7 +41,7 @@ public class DatabaseSeeder {
                 .type(EffectType.DAMAGE_OVER_TIME)
                 .power(1)
                 .duration(3)
-                .chance(100)
+                .chance(80)
                 .build();
 
             // concussion wave
@@ -50,8 +50,8 @@ public class DatabaseSeeder {
                 .name("Stun")
                 .type(EffectType.SKIP_TURN)
                 .power(0)
-                .duration(2)
-                .chance(100)
+                .duration(3)
+                .chance(50)
                 .build();
 
             effectRepository.save(poison);

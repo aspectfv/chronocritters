@@ -7,6 +7,7 @@ import com.chronocritters.lib.context.ExecuteAbilityContext;
 import com.chronocritters.lib.interfaces.AbilityStrategy;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.AbilityType;
+import com.chronocritters.lib.model.ActiveEffect;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.PlayerState;
@@ -30,8 +31,18 @@ public class EffectAbilityStrategy implements AbilityStrategy {
         Ability ability = context.getAbility();
         List<Effect> effectList = ability.getEffects();
 
-        effectList.stream()
-            .map(Effect::toActiveEffect)
-            .forEach(activeEffect -> opponentCritter.getActiveEffects().add(activeEffect));
+        effectList.forEach(effect -> {
+            if (Math.random() < (effect.getChance() / 100.0)) {
+                ActiveEffect activeEffect = effect.toActiveEffect();
+                opponentCritter.getActiveEffects().add(activeEffect);
+                context.getBattleState().getActionLogHistory().add(
+                    String.format("%s applied %s to %s!", ability.getName(), activeEffect.getName(), opponentCritter.getName())
+                );
+            } else {
+                context.getBattleState().getActionLogHistory().add(
+                    String.format("%s was resisted by %s!", effect.getName(), opponentCritter.getName())
+                );
+            }
+        });
     }
 }

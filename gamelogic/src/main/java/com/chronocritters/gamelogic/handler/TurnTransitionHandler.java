@@ -26,28 +26,13 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
                 .findFirst();
 
         if (skipTurnEffect.isPresent()) {
-            ActiveEffect stunEffect = skipTurnEffect.get();
-            double chance = stunEffect.getCurrentChance() / 100.0;
+            String skipLog = String.format("%s is stunned and unable to move!", activeCritter.getName());
+            battleState.getActionLogHistory().add(skipLog);
 
-            if (Math.random() < chance) {
-                String skipLog = String.format("%s is stunned and unable to move!", activeCritter.getName());
-                battleState.getActionLogHistory().add(skipLog);
-
-                stunEffect.setRemainingDuration(stunEffect.getRemainingDuration() - 1);
-                if (stunEffect.getRemainingDuration() <= 0) {
-                    activeCritter.getActiveEffects().remove(stunEffect);
-                    String effectEndLog = String.format("The %s on %s wore off.", stunEffect.getName(), activeCritter.getName());
-                    battleState.getActionLogHistory().add(effectEndLog);
-                }
-
-                this.handle(battleState);
-                return;
-            } else {
-                String resistLog = String.format("%s resisted the stun effect and can move this turn!", activeCritter.getName());
-                battleState.getActionLogHistory().add(resistLog);
-            }
+            this.handle(battleState);
+            return;
         }
-        
+
         battleState.setTimeRemaining(TURN_DURATION_SECONDS);
     }
 }
