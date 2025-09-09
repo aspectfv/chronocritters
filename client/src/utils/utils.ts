@@ -22,7 +22,7 @@ const critterTypeStyles: Record<CritterType, string> = {
   [CritterType.GRASS]: 'bg-green-100 text-green-800',
   [CritterType.ELECTRIC]: 'bg-yellow-100 text-yellow-800',
   [CritterType.METAL]: 'bg-gray-100 text-gray-800',
-  [CritterType.TOXIC]: 'bg-purple-100 text-green-100',
+  [CritterType.TOXIC]: 'bg-purple-100 text-gray-800',
   [CritterType.UNKNOWN]: 'bg-gray-100 text-gray-800',
 };
 

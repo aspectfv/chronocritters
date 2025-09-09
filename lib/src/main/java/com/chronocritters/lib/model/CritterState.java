@@ -1,11 +1,13 @@
 package com.chronocritters.lib.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +19,9 @@ public class CritterState {
     private CritterType type;
     private CurrentStats stats;
     private List<Ability> abilities;
-    private List<ActiveEffect> activeEffects;
+
+    @Default
+    private List<ActiveEffect> activeEffects = new ArrayList<>();
 
     public Ability getAbilityById(String abilityId) {
         return abilities.stream()

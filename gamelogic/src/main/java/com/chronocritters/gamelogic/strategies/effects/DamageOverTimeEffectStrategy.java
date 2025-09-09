@@ -47,6 +47,41 @@ public class DamageOverTimeEffectStrategy implements EffectStrategy {
                 return BattleOutcome.BATTLE_LOST;
             } else if (opponentAllFainted) {
                 return BattleOutcome.BATTLE_WON;
+            } else {
+                // Switch to next available critter for player if targetCritter belongs to player
+                if (context.getPlayer().getRoster().contains(targetCritter)) {
+                    int nextIndex = -1;
+                    for (int i = 0; i < context.getPlayer().getRoster().size(); i++) {
+                        CritterState c = context.getPlayer().getRoster().get(i);
+                        if (c.getStats().getCurrentHp() > 0) {
+                            nextIndex = i;
+                            break;
+                        }
+                    }
+                    if (nextIndex != -1) {
+                        context.getPlayer().setActiveCritterIndex(nextIndex);
+                        String switchLog = String.format("%s sent out %s!", context.getPlayer().getUsername(),
+                                context.getPlayer().getRoster().get(nextIndex).getName());
+                        context.getBattleState().getActionLogHistory().add(switchLog);
+                    }
+                }
+                // Switch for opponent if targetCritter belongs to opponent
+                if (context.getOpponent().getRoster().contains(targetCritter)) {
+                    int nextIndex = -1;
+                    for (int i = 0; i < context.getOpponent().getRoster().size(); i++) {
+                        CritterState c = context.getOpponent().getRoster().get(i);
+                        if (c.getStats().getCurrentHp() > 0) {
+                            nextIndex = i;
+                            break;
+                        }
+                    }
+                    if (nextIndex != -1) {
+                        context.getOpponent().setActiveCritterIndex(nextIndex);
+                        String switchLog = String.format("%s sent out %s!", context.getOpponent().getUsername(),
+                                context.getOpponent().getRoster().get(nextIndex).getName());
+                        context.getBattleState().getActionLogHistory().add(switchLog);
+                    }
+                }
             }
         }
 
