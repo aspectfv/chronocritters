@@ -4,7 +4,6 @@ import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.factory.EffectContextFactory;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
-import com.chronocritters.lib.model.EffectType;
 import com.chronocritters.lib.model.PlayerState;
 import com.chronocritters.lib.model.effects.Effect;
 import com.chronocritters.lib.model.effects.ExecutionType;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 public class TurnEffectsHandler extends AbstractTurnActionHandler {
