@@ -4,18 +4,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.BaseStats;
 import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.CritterType;
 import com.chronocritters.lib.model.CurrentStats;
-import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.EffectType;
 import com.chronocritters.lib.model.Player;
 import com.chronocritters.lib.model.PlayerState;
+import com.chronocritters.lib.model.effects.DamageEffect;
+import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
+import com.chronocritters.lib.model.effects.Effect;
 import com.chronocritters.proto.player.PlayerProto.AbilityProto;
-import com.chronocritters.proto.player.PlayerProto.AbilityTypeProto;
 import com.chronocritters.proto.player.PlayerProto.BaseStatsProto;
 import com.chronocritters.proto.player.PlayerProto.CritterProto;
 import com.chronocritters.proto.player.PlayerProto.CritterTypeProto;
@@ -98,8 +98,6 @@ public final class PlayerProtoMapper {
         return Ability.builder()
             .id(abilityProto.getId())
             .name(abilityProto.getName())
-            .type(convertAbilityTypeProtoToModel(abilityProto.getType()))
-            .power(abilityProto.getPower())
             .effects(abilityProto.getEffectsList().stream()
                 .map(PlayerProtoMapper::convertEffectProtoToModel)
                 .collect(Collectors.toList()))
@@ -107,14 +105,25 @@ public final class PlayerProtoMapper {
     }
 
     private static Effect convertEffectProtoToModel(EffectProto effectProto) {
-        return Effect.builder()
-            .id(effectProto.getId())
-            .name(effectProto.getName())
-            .type(convertEffectTypeProtoToModel(effectProto.getType()))
-            .power(effectProto.getPower())
-            .duration(effectProto.getDuration())
-            .chance(effectProto.getChance())
-            .build();
+        EffectType type = convertEffectTypeProtoToModel(effectProto.getType());
+        switch (type) {
+            case DAMAGE -> {
+                return DamageEffect.builder()
+                        .id(effectProto.getId())
+                        .type(type)
+                        .damage(effectProto.getDamageEffect().getDamage())
+                        .build();
+            }
+            case DAMAGE_OVER_TIME -> {
+                return DamageOverTimeEffect.builder()
+                        .id(effectProto.getId())
+                        .type(type)
+                        .damagePerTurn(effectProto.getDamageOverTimeEffect().getDamagePerTurn())
+                        .duration(effectProto.getDamageOverTimeEffect().getDuration())
+                        .build();
+            }
+            default -> throw new IllegalArgumentException("Unknown effect type: " + type);
+        }
     }
 
     private static CritterType convertCritterTypeProtoToModel(CritterTypeProto protoType) {
@@ -131,19 +140,9 @@ public final class PlayerProtoMapper {
         };
     }
 
-    private static AbilityType convertAbilityTypeProtoToModel(AbilityTypeProto protoType) {
-        return switch (protoType) {
-            case ATTACK -> AbilityType.ATTACK;
-            case DEFENSE -> AbilityType.DEFENSE;
-            case HEAL -> AbilityType.HEAL;
-            case EFFECT -> AbilityType.EFFECT;
-            case ABILITY_TYPE_UNSPECIFIED, UNRECOGNIZED -> 
-                throw new IllegalArgumentException("Unknown ability type: " + protoType);
-        };
-    }
-
     private static EffectType convertEffectTypeProtoToModel(EffectTypeProto protoType) {
         return switch (protoType) {
+            case DAMAGE -> EffectType.DAMAGE;
             case DAMAGE_OVER_TIME -> EffectType.DAMAGE_OVER_TIME;
             case SKIP_TURN -> EffectType.SKIP_TURN;
             case BUFF -> EffectType.BUFF;
@@ -179,9 +178,7 @@ public final class PlayerProtoMapper {
     private static AbilityProto convertAbilityModelToProto(Ability ability) {
         AbilityProto.Builder builder = AbilityProto.newBuilder()
             .setId(ability.getId())
-            .setName(ability.getName())
-            .setType(convertAbilityTypeModelToProto(ability.getType()))
-            .setPower(ability.getPower());
+            .setName(ability.getName());
 
         ability.getEffects().stream()
             .map(PlayerProtoMapper::convertEffectModelToProto)
@@ -193,11 +190,7 @@ public final class PlayerProtoMapper {
     private static EffectProto convertEffectModelToProto(Effect effect) {
         return EffectProto.newBuilder()
             .setId(effect.getId())
-            .setName(effect.getName())
             .setType(convertEffectTypeModelToProto(effect.getType()))
-            .setPower(effect.getPower())
-            .setDuration(effect.getDuration())
-            .setChance(effect.getChance())
             .build();
     }
 
@@ -213,17 +206,9 @@ public final class PlayerProtoMapper {
         };
     }
 
-    private static AbilityTypeProto convertAbilityTypeModelToProto(AbilityType type) {
-        return switch (type) {
-            case ATTACK -> AbilityTypeProto.ATTACK;
-            case DEFENSE -> AbilityTypeProto.DEFENSE;
-            case HEAL -> AbilityTypeProto.HEAL;
-            case EFFECT -> AbilityTypeProto.EFFECT;
-        };
-    }
-
     private static EffectTypeProto convertEffectTypeModelToProto(EffectType type) {
         return switch (type) {
+            case DAMAGE -> EffectTypeProto.DAMAGE;
             case DAMAGE_OVER_TIME -> EffectTypeProto.DAMAGE_OVER_TIME;
             case SKIP_TURN -> EffectTypeProto.SKIP_TURN;
             case BUFF -> EffectTypeProto.BUFF;

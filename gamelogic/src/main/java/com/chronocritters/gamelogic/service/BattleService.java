@@ -19,11 +19,8 @@ import com.chronocritters.gamelogic.handler.TurnEffectsHandler;
 import com.chronocritters.gamelogic.handler.ExecuteAbilityHandler;
 import com.chronocritters.gamelogic.handler.FaintingHandler;
 import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
-import com.chronocritters.lib.interfaces.AbilityStrategy;
-import com.chronocritters.lib.interfaces.EffectStrategy;
 import com.chronocritters.lib.interfaces.TurnActionHandler;
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
-import com.chronocritters.lib.model.AbilityType;
 import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
@@ -36,9 +33,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BattleService {
     private final Map<String, BattleState> activeBattles = new ConcurrentHashMap<>();
-
-    private final Map<AbilityType, AbilityStrategy> abilityStrategies;
-    private final Map<EffectType, EffectStrategy> effectStrategies;
     
     private final PlayerGrpcClient playerGrpcClient;
     private final LobbyWebClient lobbyWebClient;
@@ -84,10 +78,8 @@ public class BattleService {
         if (currentBattle == null) throw new IllegalArgumentException("Invalid battle ID");
         if (!currentBattle.getActivePlayerId().equals(playerId)) throw new IllegalStateException("It's not the player's turn");
 
-        TurnActionHandler turnChain = new ExecuteAbilityHandler(abilityId, abilityStrategies);
+        TurnActionHandler turnChain = new ExecuteAbilityHandler(abilityId);
         turnChain
-            .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new TurnEffectsHandler(effectStrategies))
             .setNext(new FaintingHandler(eventPublisher))
             .setNext(new TurnTransitionHandler());
 
@@ -116,13 +108,7 @@ public class BattleService {
         
         player.setActiveCritterIndex(targetCritterIndex);
 
-        TurnActionHandler switchChain = new TurnEffectsHandler(effectStrategies);
-        switchChain
-            .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new TurnTransitionHandler());
-
-        switchChain.handle(currentBattle);
-
+        
         finalizeTurn(currentBattle);
         return currentBattle;
     }
@@ -136,12 +122,7 @@ public class BattleService {
         String timeoutLog = String.format("%s ran out of time!", currentBattle.getPlayer().getUsername());
         currentBattle.getActionLogHistory().add(timeoutLog);
 
-        TurnActionHandler timeoutChain = new TurnEffectsHandler(effectStrategies);
-        timeoutChain
-            .setNext(new FaintingHandler(eventPublisher))
-            .setNext(new TurnTransitionHandler());
 
-        timeoutChain.handle(currentBattle);
         finalizeTurn(currentBattle);
     }
 

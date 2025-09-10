@@ -1,27 +1,28 @@
 package com.chronocritters.lib.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.AllArgsConstructor;
+import com.chronocritters.lib.context.EffectContext;
+import com.chronocritters.lib.factory.EffectContextFactory;
+import com.chronocritters.lib.model.effects.Effect;
+
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Builder.Default;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Document(collection = "abilities")
 public class Ability {
     private String id;
     private String name;
-    private int power;
-    private AbilityType type;
+    private List<Effect> effects;
 
-    @Default
-    private List<Effect> effects = new ArrayList<>();
+    public void execute(BattleState battleState) {
+        for (Effect effect : effects) {
+            EffectContext context = EffectContextFactory.createContext(effect.getType(), battleState);
+            effect.apply(context);
+        }
+    }
 }

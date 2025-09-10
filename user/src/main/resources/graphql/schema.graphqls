@@ -8,19 +8,38 @@ enum CritterType {
     KINETIC
 }
 
-enum AbilityType {
-    ATTACK
-    DEFENSE
-    HEAL
-    EFFECT
+enum EffectType {
+    DAMAGE
+    DAMAGE_OVER_TIME
+    SKIP_TURN
+    BUFF
+    DEBUFF
 }
 
 type Ability {
     id: ID
     name: String
-    power: Int
-    type: AbilityType
+    effects: [Effect]
 }
+
+interface Effect {
+  id: ID!
+  type: EffectType!
+}
+
+type DamageEffect implements Effect {
+  id: ID!
+  type: EffectType!
+  power: Int!
+}
+type DamageOverTimeEffect implements Effect {
+  id: ID!
+  type: EffectType!
+  damagePerTurn: Int!
+  duration: Int!
+}
+
+union EffectUnion = DamageEffect | DamageOverTimeEffect
 
 type BaseStats {
     health: Int

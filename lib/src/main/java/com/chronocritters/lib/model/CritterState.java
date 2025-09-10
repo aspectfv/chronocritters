@@ -1,6 +1,5 @@
 package com.chronocritters.lib.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -22,9 +21,6 @@ public class CritterState {
 
     @Default
     private boolean fainted = false;
-    
-    @Default
-    private List<ActiveEffect> activeEffects = new ArrayList<>();
 
     public Ability getAbilityById(String abilityId) {
         return abilities.stream()
