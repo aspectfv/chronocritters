@@ -15,5 +15,6 @@ public abstract class Effect {
     protected String id;
     protected EffectType type;
 
+    public abstract ExecutionType getExecutionType();
     public abstract void apply(EffectContext context);
 }

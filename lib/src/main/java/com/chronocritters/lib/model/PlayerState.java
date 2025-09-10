@@ -17,6 +17,7 @@ public class PlayerState {
     private Boolean hasTurn;
     private int activeCritterIndex;
     private List<CritterState> roster;
+    private String lastSelectedAbilityId;
 
     public CritterState getActiveCritter() {
         return getCritterByIndex(activeCritterIndex);

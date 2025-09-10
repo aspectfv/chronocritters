@@ -1,10 +1,11 @@
 package com.chronocritters.gamelogic.handler;
 
-import com.chronocritters.lib.model.ActiveEffect;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.EffectType;
 import com.chronocritters.lib.model.PlayerState;
+import com.chronocritters.lib.model.effects.Effect;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -21,7 +22,8 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
         battleState.setActivePlayerId(newCurrentPlayer.getId());
 
         CritterState activeCritter = newCurrentPlayer.getActiveCritter();
-        Optional<ActiveEffect> skipTurnEffect = activeCritter.getActiveEffects().stream()
+        
+        Optional<Effect> skipTurnEffect = activeCritter.getActiveStatusEffects().stream()
                 .filter(effect -> effect.getType() == EffectType.SKIP_TURN)
                 .findFirst();
 

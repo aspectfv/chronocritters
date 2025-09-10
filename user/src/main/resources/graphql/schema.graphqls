@@ -32,6 +32,7 @@ type DamageEffect implements Effect {
   type: EffectType!
   power: Int!
 }
+
 type DamageOverTimeEffect implements Effect {
   id: ID!
   type: EffectType!

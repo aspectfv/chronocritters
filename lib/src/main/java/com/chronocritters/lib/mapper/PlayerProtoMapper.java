@@ -19,6 +19,8 @@ import com.chronocritters.proto.player.PlayerProto.AbilityProto;
 import com.chronocritters.proto.player.PlayerProto.BaseStatsProto;
 import com.chronocritters.proto.player.PlayerProto.CritterProto;
 import com.chronocritters.proto.player.PlayerProto.CritterTypeProto;
+import com.chronocritters.proto.player.PlayerProto.DamageEffectProto;
+import com.chronocritters.proto.player.PlayerProto.DamageOverTimeEffectProto;
 import com.chronocritters.proto.player.PlayerProto.EffectProto;
 import com.chronocritters.proto.player.PlayerProto.EffectTypeProto;
 import com.chronocritters.proto.player.PlayerProto.PlayerResponse;
@@ -122,8 +124,8 @@ public final class PlayerProtoMapper {
                         .duration(effectProto.getDamageOverTimeEffect().getDuration())
                         .build();
             }
-            default -> throw new IllegalArgumentException("Unknown effect type: " + type);
         }
+        throw new IllegalArgumentException("Unknown effect type: " + type);
     }
 
     private static CritterType convertCritterTypeProtoToModel(CritterTypeProto protoType) {
@@ -188,10 +190,31 @@ public final class PlayerProtoMapper {
     }
 
     private static EffectProto convertEffectModelToProto(Effect effect) {
-        return EffectProto.newBuilder()
+        EffectProto.Builder builder = EffectProto.newBuilder()
             .setId(effect.getId())
-            .setType(convertEffectTypeModelToProto(effect.getType()))
-            .build();
+            .setType(convertEffectTypeModelToProto(effect.getType()));
+
+        switch (effect.getType()) {
+            case DAMAGE -> {
+                DamageEffect damageEffect = (DamageEffect) effect;
+                builder.setDamageEffect(
+                    DamageEffectProto.newBuilder()
+                        .setDamage(damageEffect.getDamage())
+                        .build()
+                );
+            }
+            case DAMAGE_OVER_TIME -> {
+                DamageOverTimeEffect dotEffect = (DamageOverTimeEffect) effect;
+                builder.setDamageOverTimeEffect(
+                    DamageOverTimeEffectProto.newBuilder()
+                        .setDamagePerTurn(dotEffect.getDamagePerTurn())
+                        .setDuration(dotEffect.getDuration())
+                        .build()
+                );
+            }
+        }
+
+        return builder.build();
     }
 
     private static CritterTypeProto convertCritterTypeModelToProto(CritterType type) {

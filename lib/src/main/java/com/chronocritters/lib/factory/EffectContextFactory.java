@@ -18,16 +18,18 @@ public class EffectContextFactory {
                 return EffectContext.builder()
                     .data(createDamageOverTimeContext(battleState))
                     .build();
-            default:
-                throw new IllegalArgumentException("Unsupported EffectType: " + type);
         }
+        throw new IllegalArgumentException("Unsupported effect type: " + type);
     }
 
     private static Map<EffectContextType, Object> createDamageContext(BattleState battleState) {
         return Map.of(
             EffectContextType.BATTLE_STATE, battleState,
+            EffectContextType.PLAYER, battleState.getPlayer(),
+            EffectContextType.OPPONENT, battleState.getOpponent(),
             EffectContextType.CASTER_CRITTER, battleState.getPlayer().getActiveCritter(),
-            EffectContextType.TARGET_CRITTER, battleState.getOpponent().getActiveCritter()
+            EffectContextType.TARGET_CRITTER, battleState.getOpponent().getActiveCritter(),
+            EffectContextType.ABILITY, battleState.getPlayer().getActiveCritter().getAbilityById(battleState.getPlayer().getLastSelectedAbilityId())
         );
     }
 
@@ -36,4 +38,6 @@ public class EffectContextFactory {
             EffectContextType.BATTLE_STATE, battleState
         );
     }
+
+
 }

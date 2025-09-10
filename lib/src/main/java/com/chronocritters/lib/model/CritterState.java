@@ -1,6 +1,9 @@
 package com.chronocritters.lib.model;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.chronocritters.lib.model.effects.Effect;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +21,9 @@ public class CritterState {
     private CritterType type;
     private CurrentStats stats;
     private List<Ability> abilities;
+
+    @Default
+    private List<Effect> activeStatusEffects = new ArrayList<>();
 
     @Default
     private boolean fainted = false;
