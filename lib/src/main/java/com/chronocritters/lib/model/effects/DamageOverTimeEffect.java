@@ -27,23 +27,23 @@ public class DamageOverTimeEffect extends Effect {
 
     @Override
     public void apply(EffectContext context) {
+        BattleState battleState = (BattleState) context.getData().get(EffectContextType.BATTLE_STATE);
+        if (battleState == null) throw new IllegalArgumentException("BattleState not found in context");  
+
         CritterState target = (CritterState) context.getData().get(com.chronocritters.lib.context.EffectContextType.TARGET_CRITTER);
         if (target == null) throw new IllegalArgumentException("Target critter not found in context");
         
         Ability ability = (Ability) context.getData().get(com.chronocritters.lib.context.EffectContextType.ABILITY);
 
         if (ability != null) {
-            handleApplication(context, ability, target);
+            handleApplication(context, battleState, ability, target);
         } else {
-            handleTurnTick(context);
+            handleTurnTick(context, battleState, target);
         }
 
     }
 
-    private void handleApplication(EffectContext context, Ability ability, CritterState target) {
-        BattleState battleState = (BattleState) context.getData().get(EffectContextType.BATTLE_STATE);
-        if (battleState == null) throw new IllegalArgumentException("BattleState not found in context");
-
+    private void handleApplication(EffectContext context, BattleState battleState, Ability ability, CritterState target) {
         PlayerState player = (PlayerState) context.getData().get(EffectContextType.PLAYER);
         if (player == null) throw new IllegalArgumentException("Player not found in context");
 
@@ -71,10 +71,7 @@ public class DamageOverTimeEffect extends Effect {
         battleState.getActionLogHistory().add(actionLog);
     }
 
-    private void handleTurnTick(EffectContext context) {
-        CritterState target = (CritterState) context.getData().get(EffectContextType.TARGET_CRITTER);
-        BattleState battleState = (BattleState) context.getData().get(EffectContextType.BATTLE_STATE);
-
+    private void handleTurnTick(EffectContext context, BattleState battleState, CritterState target) {
         target.getStats().setCurrentHp(Math.max(0, target.getStats().getCurrentHp() - this.damagePerTurn));
         battleState.getActionLogHistory().add(String.format("%s takes %d damage!", target.getName(), this.damagePerTurn));
         this.duration--;
