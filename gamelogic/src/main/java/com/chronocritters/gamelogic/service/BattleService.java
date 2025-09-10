@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import com.chronocritters.gamelogic.client.LobbyWebClient;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
-import com.chronocritters.gamelogic.handler.TurnEffectsHandler;
 import com.chronocritters.gamelogic.handler.ExecuteAbilityHandler;
 import com.chronocritters.gamelogic.handler.FaintingHandler;
 import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
@@ -24,7 +23,6 @@ import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
-import com.chronocritters.lib.model.EffectType;
 import com.chronocritters.lib.model.PlayerState;
 
 import lombok.RequiredArgsConstructor;
@@ -108,7 +106,7 @@ public class BattleService {
         
         player.setActiveCritterIndex(targetCritterIndex);
 
-        
+
         finalizeTurn(currentBattle);
         return currentBattle;
     }
