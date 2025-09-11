@@ -6,8 +6,8 @@ export function TeamDisplay({ title, team, activeCritterId, isPlayerTurn, onCrit
   
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h3 className="font-semibold text-lg text-gray-800 mb-4">{title}</h3>
-      <div className="grid grid-cols-3 gap-3">
+      <h3 className="font-semibold text-xl text-gray-800 mb-4">{title}</h3>
+      <div className="grid grid-cols-3 gap-4">
         {team
           .filter(critter => critter.id !== activeCritterId)
           .map(critter => {
@@ -27,18 +27,18 @@ export function TeamDisplay({ title, team, activeCritterId, isPlayerTurn, onCrit
                   <img 
                     src={getCritterImageUrl(critter.name)} 
                     alt={critter.name} 
-                    className="w-16 h-16 object-cover rounded-md"
+                    className="w-20 h-20 object-cover rounded-md"
                     onError={e => {
                       const target = e.target as HTMLImageElement;
                       target.src = getCritterImageUrl('Unknown');
                     }}
                   />
                 </div>
-                <p className="text-sm font-bold mt-1 text-gray-700">{critter.name}</p>
-                <p className="text-xs text-gray-500">{critter.type}</p>
-                <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                <p className="text-base font-bold mt-1 text-gray-700">{critter.name}</p>
+                <p className="text-sm text-gray-500">{critter.type}</p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                   <div
-                    className="bg-green-600 h-1.5 rounded-full"
+                    className="bg-green-600 h-2 rounded-full"
                     style={{ width: `${healthPercentage}%` }}
                   ></div>
                 </div>
