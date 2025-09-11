@@ -111,8 +111,24 @@ const GET_MY_CRITTERS_QUERY = gql`
         abilities {
           id
           name
-          power
-          type
+          effects {
+            ... on DamageEffect {
+              id
+              type
+              damage
+            }
+            ... on DamageOverTimeEffect {
+              id
+              type
+              damagePerTurn
+              duration
+            }
+            ... on SkipTurnEffect {
+              id
+              type
+              duration
+            }
+          }
         }
       }
     }

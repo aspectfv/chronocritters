@@ -5,7 +5,7 @@ import type {
   PlayerState,
   CritterState,
 } from '@store/battle/types';
-import { getAbilityDescription } from '@utils/utils';
+import { getEffectDescription } from '@utils/utils';
 
 function getMappedPlayers(playerOne: PlayerState, playerTwo: PlayerState, userId: string) {
   const isPlayerOne = playerOne.id === userId;
@@ -69,7 +69,10 @@ export const useBattleStore = create<BattleState>((set) => ({
               ...activeCritter,
               abilities: activeCritter.abilities.map((ab) => ({
                 ...ab,
-                description: getAbilityDescription(ab),
+                effects: ab.effects.map((ef) => ({
+                  ...ef,
+                  description: getEffectDescription(ef),
+                })),
               })),
             };
           }
@@ -82,7 +85,10 @@ export const useBattleStore = create<BattleState>((set) => ({
               ...activeCritter,
               abilities: activeCritter.abilities.map((ab) => ({
                 ...ab,
-                description: getAbilityDescription(ab),
+                effects: ab.effects.map((ef) => ({
+                  ...ef,
+                  description: getEffectDescription(ef),
+                })),
               })),
             };
           }

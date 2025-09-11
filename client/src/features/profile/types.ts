@@ -1,10 +1,34 @@
-import type { AbilityType, CritterType } from '@store/battle/types';
+import type { CritterType, EffectType } from '@store/battle/types';
 
 export interface CritterCardProps {
   name: string;
   level: number;
   type: CritterType;
 }
+
+interface BaseEffect {
+  __typename: string;
+  id: string;
+  type: EffectType;
+}
+
+interface SkipTurnEffect extends BaseEffect {
+  __typename: 'SkipTurnEffect';
+  duration: number;
+}
+
+interface DamageEffect extends BaseEffect {
+  __typename: 'DamageEffect';
+  damage: number;
+}
+
+interface DamageOverTimeEffect extends BaseEffect {
+  __typename: 'DamageOverTimeEffect';
+  damagePerTurn: number;
+  duration: number;
+}
+
+type AbilityEffect = DamageEffect | DamageOverTimeEffect | SkipTurnEffect;
 
 export interface CritterData {
   __typename?: 'Critter';
@@ -21,8 +45,7 @@ export interface CritterData {
       __typename?: 'Ability';
       id: string;
       name: string;
-      power: number;
-      type: AbilityType;
+      effects: AbilityEffect[];
   }[];
 }
 

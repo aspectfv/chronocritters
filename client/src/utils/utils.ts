@@ -1,5 +1,5 @@
 import { MatchMakingStatus } from "@features/menu/types";
-import { AbilityType, CritterType } from "@store/battle/types";
+import { CritterType, EffectType, type AbilityEffect, type DamageEffect, type DamageOverTimeEffect, type SkipTurnEffect } from "@store/battle/types";
 import { ConnectionStatus } from "@store/lobby/types";
 
 export const critterTypeIcons: Record<CritterType, string> = {
@@ -32,17 +32,14 @@ export function getCritterTypeStyle(type: CritterType): string {
   return critterTypeStyles[type] ?? critterTypeStyles[CritterType.UNKNOWN];
 }
 
-const abilityTypeStyle: Record<AbilityType, string> = {
-  [AbilityType.ATTACK]: 'bg-red-100 text-red-800',
-  [AbilityType.DEFENSE]: 'bg-blue-100 text-blue-800',
-  [AbilityType.HEAL]: 'bg-green-100 text-green-800',
-  [AbilityType.EFFECT]: 'bg-purple-100 text-purple-800',
-  [AbilityType.UNKNOWN]: 'bg-gray-100 text-gray-800',
-};
+// const abilityTypeStyle: Record<AbilityType, string> = {
+//   [AbilityType.ATTACK]: 'bg-red-100 text-red-800',
+//   [AbilityType.DEFENSE]: 'bg-blue-100 text-blue-800',
+//   [AbilityType.HEAL]: 'bg-green-100 text-green-800',
+//   [AbilityType.EFFECT]: 'bg-purple-100 text-purple-800',
+//   [AbilityType.UNKNOWN]: 'bg-gray-100 text-gray-800',
+// };
 
-export function getAbilityTypeStyle(type: AbilityType): string {
-  return abilityTypeStyle[type] ?? abilityTypeStyle[AbilityType.UNKNOWN];
-}
 
 export const getCritterImageUrl = (critterName: string): string => {
   const toTitleCase = (str: string): string =>
@@ -52,6 +49,22 @@ export const getCritterImageUrl = (critterName: string): string => {
 
   const formattedName = toTitleCase(critterName).replace(/\s/g, '');
   return `/src/assets/critters/${formattedName}.jpeg`;
+};
+
+const effectDescriptionMap: Record<EffectType, (effect: AbilityEffect) => string> = {
+  DAMAGE: (effect) =>
+    `Deals ${(effect as DamageEffect).damage} damage.`,
+  DAMAGE_OVER_TIME: (effect) =>
+    `Deals ${(effect as DamageOverTimeEffect).damagePerTurn} damage for ${(effect as DamageOverTimeEffect).duration} turns.`,
+  SKIP_TURN: (effect) =>
+    `Skips target's turn for ${(effect as SkipTurnEffect).duration} turns.`,
+  BUFF: () => 'Buff effect.',
+  DEBUFF: () => 'Debuff effect.',
+};
+
+export const getEffectDescription = (effect: AbilityEffect): string => {
+  const renderer = effectDescriptionMap[effect.type] ?? (() => 'A mysterious effect.');
+  return renderer(effect);
 };
 
 const connectionStatusStyleMap: Record<ConnectionStatus, { text: string; color: string }> = {
@@ -77,16 +90,4 @@ export const getButtonState = (connectionStatus: ConnectionStatus, matchmakingSt
     return { text: 'Searching for Opponent...', disabled: true };
   }
   return buttonStateMap[connectionStatus] || { text: 'Connecting...', disabled: true };
-};
-
-export const getAbilityDescriptionMap: Record<AbilityType, (power: number) => string> = {
-  [AbilityType.ATTACK]: (power: number) => `A powerful strike dealing ${power} damage.`,
-  [AbilityType.DEFENSE]: (power: number) => `Boosts defense by ${power} points.`,
-  [AbilityType.HEAL]: (power: number) => `Restores ${power} health.`,
-  [AbilityType.EFFECT]: () => 'Applies a special effect to the target.',
-  [AbilityType.UNKNOWN]: () => 'An ability with a mysterious effect.',
-};
-
-export const getAbilityDescription = (ability: { type: AbilityType; power: number }): string => {
-  return getAbilityDescriptionMap[ability.type](ability.power) ?? getAbilityDescriptionMap[AbilityType.UNKNOWN](ability.power);
 };

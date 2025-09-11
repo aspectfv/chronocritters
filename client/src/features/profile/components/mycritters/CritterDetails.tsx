@@ -1,5 +1,5 @@
 import type { CritterData } from '@features/profile/types';
-import { getAbilityTypeStyle, getCritterImageUrl } from '@utils/utils';
+import { getCritterImageUrl, getEffectDescription } from '@utils/utils';
 
 export const CritterDetails = ({ critter }: { critter: CritterData | null }) => {
   if (!critter) {
@@ -49,18 +49,13 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
       </div>
 
       <h4 className="font-semibold text-green-800 mb-2">Abilities</h4>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {critter.abilities.map(ability => (
-          <div key={ability.id} className={`p-3 rounded-lg border ${getAbilityTypeStyle(ability.type)}`}>
-            <p className="font-semibold text-sm">{ability.name}</p>
-            <p className="text-xs">Power: {ability.power}</p>
-            <span
-              className={`float-right text-xs px-2 py-0.5 rounded-full ${
-                getAbilityTypeStyle(ability.type)
-              }`}
-            >
-              {ability.type}
-            </span>
+          <div key={ability.id} className="p-4 rounded-lg border bg-white border-gray-200">
+            <p className="font-semibold text-gray-900">{ability.name}</p>
+            <div className="mt-2 pl-2 border-l-2 border-gray-200 space-y-1">
+              {ability.effects.map(effect => getEffectDescription(effect))}
+            </div>
           </div>
         ))}
       </div>

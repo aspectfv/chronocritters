@@ -16,21 +16,12 @@ enum EffectType {
     DEBUFF
 }
 
-type Ability {
-    id: ID
-    name: String
-    effects: [Effect]
-}
+union EffectUnion = DamageEffect | DamageOverTimeEffect | SkipTurnEffect
 
-interface Effect {
+type SkipTurnEffect implements Effect {
   id: ID!
   type: EffectType!
-}
-
-type DamageEffect implements Effect {
-  id: ID!
-  type: EffectType!
-  damage: Int!
+  duration: Int!
 }
 
 type DamageOverTimeEffect implements Effect {
@@ -40,7 +31,22 @@ type DamageOverTimeEffect implements Effect {
   duration: Int!
 }
 
-union EffectUnion = DamageEffect | DamageOverTimeEffect
+type DamageEffect implements Effect {
+  id: ID!
+  type: EffectType!
+  damage: Int!
+}
+
+interface Effect {
+  id: ID!
+  type: EffectType!
+}
+
+type Ability {
+    id: ID
+    name: String
+    effects: [EffectUnion]
+}
 
 type BaseStats {
     health: Int
