@@ -49,7 +49,7 @@ public class DatabaseSeeder {
             // concussion wave
             SkipTurnEffect skipTurn = SkipTurnEffect.builder()
                 .type(EffectType.SKIP_TURN)
-                .duration(3)
+                .duration(2)
                 .build();
 
             effectRepository.save(dmg);
