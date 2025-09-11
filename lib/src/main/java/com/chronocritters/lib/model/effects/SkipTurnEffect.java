@@ -43,8 +43,23 @@ public class SkipTurnEffect extends Effect implements PersistentEffect {
         if (target == null) throw new IllegalArgumentException("Target critter not found in context");
 
         Ability ability = (Ability) context.getData().get(EffectContextType.ABILITY);
+        if (ability == null) throw new IllegalArgumentException("Ability not found in context");
 
-        handleApplication(context, battleState, player, target, ability);
+        Optional<SkipTurnEffect> existingEffect = target.getActiveStatusEffects().stream()
+            .filter(e -> e.getId().equals(this.getId()))
+            .map(e -> (SkipTurnEffect) e)
+            .findFirst();
+
+        if (existingEffect.isPresent()) {
+            existingEffect.get().setDuration(this.duration);
+        } else {
+            target.getActiveStatusEffects().add(this.createInstance());
+        }
+
+        String actionLog = String.format("%s's %s is afflicted with %s for %d turns!",
+            player.getUsername(), target.getName(), ability.getName(), this.duration);
+
+        battleState.getActionLogHistory().add(actionLog);
     }
 
     @Override
@@ -66,26 +81,6 @@ public class SkipTurnEffect extends Effect implements PersistentEffect {
             battleState.getActionLogHistory().add(actionLog);
             return true;
         }
-    }
-    
-    private void handleApplication(EffectContext context, BattleState battleState, PlayerState player, 
-    CritterState target, Ability ability
-    ) {
-        Optional<SkipTurnEffect> existingEffect = target.getActiveStatusEffects().stream()
-            .filter(e -> e.getId().equals(this.getId()))
-            .map(e -> (SkipTurnEffect) e)
-            .findFirst();
-
-        if (existingEffect.isPresent()) {
-            existingEffect.get().setDuration(this.duration);
-        } else {
-            target.getActiveStatusEffects().add(this.createInstance());
-        }
-
-        String actionLog = String.format("%s's %s is afflicted with %s for %d turns!",
-            player.getUsername(), target.getName(), ability.getName(), this.duration);
-
-        battleState.getActionLogHistory().add(actionLog);
     }
 
     private Effect createInstance() {

@@ -44,8 +44,24 @@ public class DamageOverTimeEffect extends Effect implements PersistentEffect {
         if (target == null) throw new IllegalArgumentException("Target critter not found in context");
         
         Ability ability = (Ability) context.getData().get(EffectContextType.ABILITY);
+        if (ability == null) throw new IllegalArgumentException("Ability not found in context");
 
-        handleApplication(context, battleState, player, opponent, caster, target, ability);
+        Optional<DamageOverTimeEffect> existingEffect = target.getActiveStatusEffects().stream()
+            .filter(e -> e.getId().equals(this.getId()))
+            .map(e -> (DamageOverTimeEffect) e)
+            .findFirst();
+
+        if (existingEffect.isPresent()) {
+            existingEffect.get().setDuration(this.duration);
+        } else {
+            target.getActiveStatusEffects().add(this.createInstance());
+        }
+
+        String actionLog = String.format("%s's %s is afflicted with %s from %s's %s for %d turns, taking %d damage per turn!",
+            opponent.getUsername(), target.getName(), ability.getName(), player.getUsername(), caster.getName(),
+            this.duration, this.damagePerTurn);
+
+        battleState.getActionLogHistory().add(actionLog);
     }
 
     @Override
@@ -68,27 +84,6 @@ public class DamageOverTimeEffect extends Effect implements PersistentEffect {
             battleState.getActionLogHistory().add(actionLog);
             return true;
         }
-    }
-
-    private void handleApplication(EffectContext context, BattleState battleState, PlayerState player, 
-    PlayerState opponent, CritterState caster, CritterState target, Ability ability
-    ) {
-        Optional<DamageOverTimeEffect> existingEffect = target.getActiveStatusEffects().stream()
-            .filter(e -> e.getId().equals(this.getId()))
-            .map(e -> (DamageOverTimeEffect) e)
-            .findFirst();
-
-        if (existingEffect.isPresent()) {
-            existingEffect.get().setDuration(this.duration);
-        } else {
-            target.getActiveStatusEffects().add(this.createInstance());
-        }
-
-        String actionLog = String.format("%s's %s is afflicted with %s from %s's %s for %d turns, taking %d damage per turn!",
-            opponent.getUsername(), target.getName(), ability.getName(), player.getUsername(), caster.getName(),
-            this.duration, this.damagePerTurn);
-
-        battleState.getActionLogHistory().add(actionLog);
     }
 
     private Effect createInstance() {
