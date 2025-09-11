@@ -11,7 +11,7 @@ export function BattleLog({ log }: BattleLogProps) {
   }, [log]);
 
   return (
-    <div className="my-8">
+    <div>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h3 className="text-center font-bold text-lg text-gray-800 mb-4">Battle Log</h3>
         <div ref={logContainerRef} className="space-y-3 max-h-48 overflow-y-auto pr-2">

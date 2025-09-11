@@ -96,20 +96,18 @@ function BattlePage() {
   }, [battleId, user?.id, player.hasTurn]);
   
   return (
-    <div className="min-h-screen bg-[#f0f7f3] p-4 sm:p-6 md:p-8">
-      <div className="max-w-screen-2xl mx-auto">
+    <div className="min-h-screen bg-[#f0f7f3] p-4">
+      <div className="max-w-screen-xl mx-auto">
         <BattleHeader isPlayerTurn={player.hasTurn} />
         <TimerBar timeRemaining={timeRemaining} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[3fr_4fr_3fr] gap-8 mt-8">
-          {/* Player Column */}
-          <div className="flex flex-col gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[2.5fr_3fr_2.5fr] gap-4 mt-4">
+          <div className="flex flex-col gap-4">
             <CritterDisplayCard playerName={player.username} critter={player.activeCritter} />
             <TeamDisplay title="Your Team" team={player.roster} activeCritterId={player.activeCritter.id} isPlayerTurn={player.hasTurn} onCritterClick={handleSwitchCritter} />
           </div>
 
-          {/* Center Column */}
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-4">
             <BattleLog log={actionLogHistory} />
             <AbilitySelector 
               abilities={player.activeCritter.abilities} 
@@ -119,8 +117,7 @@ function BattlePage() {
             />
           </div>
 
-          {/* Opponent Column */}
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-4">
             <CritterDisplayCard playerName={opponent.username} critter={opponent.activeCritter} />
             <TeamDisplay title="Opponent's Team" team={opponent.roster} activeCritterId={opponent.activeCritter.id} isPlayerTurn={false} onCritterClick={() => {}} />
           </div>
