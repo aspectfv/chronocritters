@@ -1,5 +1,6 @@
 package com.chronocritters.lib.factory;
 
+import java.util.EnumMap;
 import java.util.Map;
 
 import com.chronocritters.lib.context.EffectContext;
@@ -27,35 +28,35 @@ public class EffectContextFactory {
     }
 
     private static Map<EffectContextType, Object> createDamageContext(BattleState battleState) {
-        return Map.of(
+        return new EnumMap<>(Map.of(
             EffectContextType.BATTLE_STATE, battleState,
             EffectContextType.PLAYER, battleState.getPlayer(),
             EffectContextType.OPPONENT, battleState.getOpponent(),
             EffectContextType.CASTER_CRITTER, battleState.getPlayer().getActiveCritter(),
             EffectContextType.TARGET_CRITTER, battleState.getOpponent().getActiveCritter(),
             EffectContextType.ABILITY, battleState.getPlayer().getActiveCritter().getAbilityById(battleState.getPlayer().getLastSelectedAbilityId())
-        );
+        ));
     }
 
     private static Map<EffectContextType, Object> createDamageOverTimeContext(BattleState battleState) {
-        return Map.of(
+        return new EnumMap<>(Map.of(
             EffectContextType.BATTLE_STATE, battleState,
             EffectContextType.PLAYER, battleState.getPlayer(),
             EffectContextType.OPPONENT, battleState.getOpponent(),
             EffectContextType.CASTER_CRITTER, battleState.getPlayer().getActiveCritter(),
             EffectContextType.TARGET_CRITTER, battleState.getOpponent().getActiveCritter(),
             EffectContextType.ABILITY, battleState.getPlayer().getActiveCritter().getAbilityById(battleState.getPlayer().getLastSelectedAbilityId())
-        );
+        ));
     }
 
     private static Map<EffectContextType, Object> createSkipTurnContext(BattleState battleState) {
-        return Map.of(
+        return new EnumMap<>(Map.of(
             EffectContextType.BATTLE_STATE, battleState,
             EffectContextType.PLAYER, battleState.getPlayer(),
             EffectContextType.OPPONENT, battleState.getOpponent(),
             EffectContextType.CASTER_CRITTER, battleState.getPlayer().getActiveCritter(),
             EffectContextType.TARGET_CRITTER, battleState.getOpponent().getActiveCritter(),
             EffectContextType.ABILITY, battleState.getPlayer().getActiveCritter().getAbilityById(battleState.getPlayer().getLastSelectedAbilityId())
-        );
+        ));
     }
 }
