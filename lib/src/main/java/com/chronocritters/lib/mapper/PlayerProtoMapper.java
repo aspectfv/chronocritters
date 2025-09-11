@@ -15,6 +15,7 @@ import com.chronocritters.lib.model.Player;
 import com.chronocritters.lib.model.PlayerState;
 import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
+import com.chronocritters.lib.model.effects.SkipTurnEffect;
 import com.chronocritters.proto.player.PlayerProto.AbilityProto;
 import com.chronocritters.proto.player.PlayerProto.BaseStatsProto;
 import com.chronocritters.proto.player.PlayerProto.CritterProto;
@@ -24,6 +25,7 @@ import com.chronocritters.proto.player.PlayerProto.DamageOverTimeEffectProto;
 import com.chronocritters.proto.player.PlayerProto.EffectProto;
 import com.chronocritters.proto.player.PlayerProto.EffectTypeProto;
 import com.chronocritters.proto.player.PlayerProto.PlayerResponse;
+import com.chronocritters.proto.player.PlayerProto.SkipTurnEffectProto;
 
 public final class PlayerProtoMapper {
 
@@ -124,6 +126,13 @@ public final class PlayerProtoMapper {
                         .duration(effectProto.getDamageOverTimeEffect().getDuration())
                         .build();
             }
+            case SKIP_TURN -> {
+                return SkipTurnEffect.builder()
+                        .id(effectProto.getId())
+                        .type(type)
+                        .duration(effectProto.getDamageOverTimeEffect().getDuration())
+                        .build();
+            }
         }
         throw new IllegalArgumentException("Unknown effect type: " + type);
     }
@@ -209,6 +218,14 @@ public final class PlayerProtoMapper {
                     DamageOverTimeEffectProto.newBuilder()
                         .setDamagePerTurn(dotEffect.getDamagePerTurn())
                         .setDuration(dotEffect.getDuration())
+                        .build()
+                );
+            }
+            case SKIP_TURN -> {
+                SkipTurnEffect skipTurnEffect = (SkipTurnEffect) effect;
+                builder.setSkipTurnEffect(
+                    SkipTurnEffectProto.newBuilder()
+                        .setDuration(skipTurnEffect.getDuration())
                         .build()
                 );
             }

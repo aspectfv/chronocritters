@@ -16,21 +16,24 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
 
     @Override
     public void handle(BattleState battleState) {
-        PlayerState newCurrentPlayer = battleState.getOpponent();
-        battleState.getPlayer().setHasTurn(false);
-        newCurrentPlayer.setHasTurn(true);
-        battleState.setActivePlayerId(newCurrentPlayer.getId());
+        PlayerState currentPlayer = battleState.getPlayer();
+        PlayerState nextPlayer = battleState.getOpponent();
 
-        CritterState activeCritter = newCurrentPlayer.getActiveCritter();
+        if (currentPlayer == null || nextPlayer == null) {
+            return;
+        }
+
+        currentPlayer.setHasTurn(false);
+        nextPlayer.setHasTurn(true);
+        battleState.setActivePlayerId(nextPlayer.getId());
+
+        CritterState activeCritter = nextPlayer.getActiveCritter();
         
         Optional<Effect> skipTurnEffect = activeCritter.getActiveStatusEffects().stream()
                 .filter(effect -> effect.getType() == EffectType.SKIP_TURN)
                 .findFirst();
 
         if (skipTurnEffect.isPresent()) {
-            String skipLog = String.format("%s is stunned and unable to move!", activeCritter.getName());
-            battleState.getActionLogHistory().add(skipLog);
-
             this.handle(battleState);
             return;
         }

@@ -6,7 +6,6 @@ import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
-import com.chronocritters.lib.model.ExecutionType;
 import com.chronocritters.lib.model.PlayerState;
 
 import lombok.AllArgsConstructor;
@@ -22,11 +21,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class DamageEffect extends Effect {
     private int damage;
-
-    @Override
-    public ExecutionType getExecutionType() {
-        return ExecutionType.INSTANT;
-    }
 
     public void apply(EffectContext context) {
         BattleState battleState = (BattleState) context.getData().get(EffectContextType.BATTLE_STATE);

@@ -15,6 +15,7 @@ import com.chronocritters.lib.model.Player;
 import com.chronocritters.lib.model.PlayerStats;
 import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
+import com.chronocritters.lib.model.effects.SkipTurnEffect;
 import com.chronocritters.lib.util.PasswordUtil;
 import com.chronocritters.user.repository.AbilityRepository;
 import com.chronocritters.user.repository.CritterRepository;
@@ -46,24 +47,14 @@ public class DatabaseSeeder {
                 .build();
 
             // concussion wave
-            // DamageOverTimeEffect stun = DamageOverTimeEffect.builder()
-            //     .id("eff-statuseffect-1")
-            //     .type(EffectType.DAMAGE_OVER_TIME)
-            //     .damagePerTurn(0)
-            //     .duration(3)
-            //     .build();
-
-            // DamageOverTimeEffect concussionWave = DamageOverTimeEffect.builder()
-            //     .id("eff-skip_turn-1")
-            //     .type(EffectType.SKIP_TURN)
-            //     .damagePerTurn(0)
-            //     .duration(3)
-            //     .build();
+            SkipTurnEffect skipTurn = SkipTurnEffect.builder()
+                .type(EffectType.SKIP_TURN)
+                .duration(3)
+                .build();
 
             effectRepository.save(dmg);
             effectRepository.save(dot);
-            // effectRepository.save(stun);
-            // effectRepository.save(concussionWave);
+            effectRepository.save(skipTurn);
 
             // Abilities
 
@@ -145,13 +136,11 @@ public class DatabaseSeeder {
                 .build();
 
             // Strikon Abilities
-            // Ability concussionWave = Ability.builder()
-            //     .id("eff-concussionwave")
-            //     .name("Concussion Wave")
-            //     .power(1)
-            //     .type(AbilityType.EFFECT)
-            //     .effects(List.of(stun))
-            //     .build();
+            Ability concussionWave = Ability.builder()
+                .id("eff-concussionwave")
+                .name("Concussion Wave")
+                .effects(List.of(skipTurn))
+                .build();
 
             Ability impactPunch = Ability.builder()
                 .id("atk-impactpunch")
@@ -185,7 +174,7 @@ public class DatabaseSeeder {
             abilityRepository.save(corrosiveBite);
 
             // Strikon Abilities
-            // abilityRepository.save(concussionWave);
+            abilityRepository.save(concussionWave);
             abilityRepository.save(impactPunch);
 
             // Critters
@@ -236,7 +225,7 @@ public class DatabaseSeeder {
                 .name("Strikon")
                 .type(CritterType.KINETIC)
                 .baseStats(BaseStats.builder().health(5).attack(5).defense(2).build())
-                .abilities(List.of(/* concussionWave, */ impactPunch))
+                .abilities(List.of(concussionWave, impactPunch))
                 .build();
 
             critterRepository.save(aquaLing);

@@ -5,7 +5,6 @@ import java.util.Map;
 import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.context.EffectContextType;
 import com.chronocritters.lib.model.BattleState;
-import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.EffectType;
 
 public class EffectContextFactory {

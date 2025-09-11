@@ -71,6 +71,7 @@ message EffectProto {
   oneof effect_data {
     DamageEffectProto damage_effect = 3;
     DamageOverTimeEffectProto damage_over_time_effect = 4;
+    SkipTurnEffectProto skip_turn_effect = 5;
   }
 }
 
@@ -81,6 +82,10 @@ message DamageEffectProto {
 message DamageOverTimeEffectProto {
   int32 damage_per_turn = 1;
   int32 duration = 2;
+}
+
+message SkipTurnEffectProto {
+  int32 duration = 1;
 }
 
 message MatchHistoryRequest {

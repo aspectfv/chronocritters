@@ -4,11 +4,11 @@ import java.util.Optional;
 
 import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.context.EffectContextType;
+import com.chronocritters.lib.interfaces.PersistentEffect;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
-import com.chronocritters.lib.model.ExecutionType;
 import com.chronocritters.lib.model.PlayerState;
 
 import lombok.AllArgsConstructor;
@@ -22,13 +22,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
-public class SkipTurnEffect extends Effect {
+public class SkipTurnEffect extends Effect implements PersistentEffect {
     private int duration;
-
-    @Override
-    public ExecutionType getExecutionType() {
-        return ExecutionType.PERSISTENT;
-    }
 
     @Override
     public void apply(EffectContext context) {
@@ -44,19 +39,35 @@ public class SkipTurnEffect extends Effect {
         CritterState caster = (CritterState) context.getData().get(EffectContextType.CASTER_CRITTER);
         if (caster == null) throw new IllegalArgumentException("Caster critter not found in context");  
 
-        CritterState target = (CritterState) context.getData().get(com.chronocritters.lib.context.EffectContextType.TARGET_CRITTER);
+        CritterState target = (CritterState) context.getData().get(EffectContextType.TARGET_CRITTER);
         if (target == null) throw new IllegalArgumentException("Target critter not found in context");
-        
-        Ability ability = (Ability) context.getData().get(com.chronocritters.lib.context.EffectContextType.ABILITY);
 
-        if (ability != null) {
-            handleApplication(context, battleState, player, target, ability);
-        } else {
-            handleTurnTick(battleState, target);
-        }
+        Ability ability = (Ability) context.getData().get(EffectContextType.ABILITY);
 
+        handleApplication(context, battleState, player, target, ability);
     }
 
+    @Override
+    public boolean onTick(EffectContext context) {
+        BattleState battleState = (BattleState) context.getData().get(EffectContextType.BATTLE_STATE);
+        if (battleState == null) throw new IllegalArgumentException("BattleState not found in context");
+
+        CritterState target = (CritterState) context.getData().get(EffectContextType.TARGET_CRITTER);
+        if (target == null) throw new IllegalArgumentException("Target critter not found in context");
+        
+        this.duration--;
+
+        if (this.duration >= 0) {
+            String actionLog = String.format("%s is stunned and unable to move!", target.getName());
+            battleState.getActionLogHistory().add(actionLog);
+            return false;
+        } else {
+            String actionLog = String.format("The stun effect on %s wore off.", target.getName());
+            battleState.getActionLogHistory().add(actionLog);
+            return true;
+        }
+    }
+    
     private void handleApplication(EffectContext context, BattleState battleState, PlayerState player, 
     CritterState target, Ability ability
     ) {
@@ -75,12 +86,6 @@ public class SkipTurnEffect extends Effect {
             player.getUsername(), target.getName(), ability.getName(), this.duration);
 
         battleState.getActionLogHistory().add(actionLog);
-    }
-
-    private void handleTurnTick(BattleState battleState, CritterState target) {
-        String actionLog = String.format("%s is stunned and cannot move this turn!", target.getName());
-        battleState.getActionLogHistory().add(actionLog);
-        this.duration--;
     }
 
     private Effect createInstance() {

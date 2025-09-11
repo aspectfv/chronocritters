@@ -49,7 +49,7 @@ public class GameLogicWebClient {
                 .retryWhen(defaultRetrySpec)
                 .onErrorResume(error -> {
                     logger.warn("Could not retrieve battle state for battleId '{}'. Reason: {}", battleId, error.getMessage());
-                    return Mono.empty(); // Return an empty Mono instead of an error signal
+                    return Mono.empty();
                 });
     }
 

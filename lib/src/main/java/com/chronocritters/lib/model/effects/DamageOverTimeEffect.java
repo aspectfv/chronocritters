@@ -4,11 +4,11 @@ import java.util.Optional;
 
 import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.context.EffectContextType;
+import com.chronocritters.lib.interfaces.PersistentEffect;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
-import com.chronocritters.lib.model.ExecutionType;
 import com.chronocritters.lib.model.PlayerState;
 
 import lombok.AllArgsConstructor;
@@ -22,14 +22,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
-public class DamageOverTimeEffect extends Effect {
+public class DamageOverTimeEffect extends Effect implements PersistentEffect {
     private int damagePerTurn;
     private int duration;
-
-    @Override
-    public ExecutionType getExecutionType() {
-        return ExecutionType.PERSISTENT;
-    }
 
     @Override
     public void apply(EffectContext context) {
@@ -45,17 +40,35 @@ public class DamageOverTimeEffect extends Effect {
         CritterState caster = (CritterState) context.getData().get(EffectContextType.CASTER_CRITTER);
         if (caster == null) throw new IllegalArgumentException("Caster critter not found in context");
 
-        CritterState target = (CritterState) context.getData().get(com.chronocritters.lib.context.EffectContextType.TARGET_CRITTER);
+        CritterState target = (CritterState) context.getData().get(EffectContextType.TARGET_CRITTER);
         if (target == null) throw new IllegalArgumentException("Target critter not found in context");
         
-        Ability ability = (Ability) context.getData().get(com.chronocritters.lib.context.EffectContextType.ABILITY);
+        Ability ability = (Ability) context.getData().get(EffectContextType.ABILITY);
 
-        if (ability != null) {
-            handleApplication(context, battleState, player, opponent, caster, target, ability);
+        handleApplication(context, battleState, player, opponent, caster, target, ability);
+    }
+
+    @Override
+    public boolean onTick(EffectContext context) {
+        BattleState battleState = (BattleState) context.getData().get(EffectContextType.BATTLE_STATE);
+        if (battleState == null) throw new IllegalArgumentException("BattleState not found in context");
+
+        CritterState target = (CritterState) context.getData().get(EffectContextType.TARGET_CRITTER);
+        if (target == null) throw new IllegalArgumentException("Target critter not found in context");
+
+        this.duration--;
+
+        if (this.duration >= 0) {
+            target.getStats().setCurrentHp(Math.max(0, target.getStats().getCurrentHp() - this.damagePerTurn));
+            String actionLog = String.format("%s takes %d damage!", target.getName(), this.damagePerTurn);
+            battleState.getActionLogHistory().add(actionLog);
+            return false;
         } else {
-            handleTurnTick(context, battleState, target);
+            target.getActiveStatusEffects().removeIf(e -> e.getId().equals(this.getId()));
+            String actionLog = String.format("%s is no longer affected by damage over time.", target.getName());
+            battleState.getActionLogHistory().add(actionLog);
+            return true;
         }
-
     }
 
     private void handleApplication(EffectContext context, BattleState battleState, PlayerState player, 
@@ -77,13 +90,6 @@ public class DamageOverTimeEffect extends Effect {
             this.duration, this.damagePerTurn);
 
         battleState.getActionLogHistory().add(actionLog);
-    }
-
-    private void handleTurnTick(EffectContext context, BattleState battleState, CritterState target) {
-        target.getStats().setCurrentHp(Math.max(0, target.getStats().getCurrentHp() - this.damagePerTurn));
-        String actionLog = String.format("%s takes %d damage!", target.getName(), this.damagePerTurn);
-        battleState.getActionLogHistory().add(actionLog);
-        this.duration--;
     }
 
     private Effect createInstance() {

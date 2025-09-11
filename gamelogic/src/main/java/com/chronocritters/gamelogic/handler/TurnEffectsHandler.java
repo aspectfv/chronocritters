@@ -2,10 +2,10 @@ package com.chronocritters.gamelogic.handler;
 
 import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.factory.EffectContextFactory;
+import com.chronocritters.lib.interfaces.PersistentEffect;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
-import com.chronocritters.lib.model.ExecutionType;
 import com.chronocritters.lib.model.PlayerState;
 
 import lombok.RequiredArgsConstructor;
@@ -34,9 +34,11 @@ public class TurnEffectsHandler extends AbstractTurnActionHandler {
         while (iterator.hasNext()) {
             Effect effect = iterator.next();
 
-            if (effect.getExecutionType() == ExecutionType.PERSISTENT) {
+            if (effect instanceof PersistentEffect persistentEffect) {
                 EffectContext context = EffectContextFactory.createContext(effect.getType(), battleState);
-                effect.apply(context);
+
+                boolean isExpired = persistentEffect.onTick(context);
+                if (isExpired) iterator.remove();
             }
         }
     }
