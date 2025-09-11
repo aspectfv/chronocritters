@@ -18,14 +18,15 @@ export function MyCrittersTab() {
   }, [roster, selectedCritter]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <CritterList 
-        roster={roster}
-        selectedCritter={selectedCritter}
-        onCritterSelect={setSelectedCritter}
-      />
-
-      <div className="md:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="lg:col-span-2">
+        <CritterList 
+          roster={roster}
+          selectedCritter={selectedCritter}
+          onCritterSelect={setSelectedCritter}
+        />
+      </div>
+      <div className="lg:col-span-3">
         <CritterDetails critter={selectedCritter} />
       </div>
     </div>
