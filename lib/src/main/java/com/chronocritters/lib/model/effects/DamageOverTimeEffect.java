@@ -61,7 +61,7 @@ public class DamageOverTimeEffect extends Effect implements PersistentEffect {
 
         if (this.duration >= 0) {
             target.getStats().setCurrentHp(Math.max(0, target.getStats().getCurrentHp() - this.damagePerTurn));
-            String actionLog = String.format("%s takes %d damage!", target.getName(), this.damagePerTurn);
+            String actionLog = String.format("%s takes %d damage! %d Turns remaining.", target.getName(), this.damagePerTurn, this.duration);
             battleState.getActionLogHistory().add(actionLog);
             return false;
         } else {

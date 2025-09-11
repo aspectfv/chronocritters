@@ -56,7 +56,7 @@ public class SkipTurnEffect extends Effect implements PersistentEffect {
         this.duration--;
 
         if (this.duration >= 0) {
-            String actionLog = String.format("%s is stunned and unable to move!", target.getName());
+            String actionLog = String.format("%s is stunned and unable to move! %d Turns remaining.", target.getName(), this.duration);
             battleState.getActionLogHistory().add(actionLog);
             return false;
         } else {
