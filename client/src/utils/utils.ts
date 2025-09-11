@@ -1,6 +1,6 @@
 import { MatchMakingStatus } from "@features/menu/types";
 import { ConnectionStatus } from "@store/lobby/types";
-import { CritterType, EffectType, type DamageEffect, type DamageOverTimeEffect, type EffectUnion, type SkipTurnEffect } from "src/gql/graphql";
+import { CritterType, EffectType, type DamageEffect, type DamageOverTimeEffect, type EffectUnion, type SkipTurnEffect } from "@/gql/graphql";
 
 export const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.Fire]: '🔥',

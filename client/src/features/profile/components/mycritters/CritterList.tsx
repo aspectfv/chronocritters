@@ -1,6 +1,6 @@
 import type { CritterListProps } from '@features/profile/types';
 import { getCritterTypeIcon } from '@utils/utils';
-import { CritterType } from 'src/gql/graphql';
+import { CritterType } from '@/gql/graphql';
 
 export const CritterList = ({ roster, selectedCritter, onCritterSelect }: CritterListProps) => {
   return (

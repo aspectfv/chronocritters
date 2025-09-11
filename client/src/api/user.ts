@@ -1,15 +1,16 @@
 import client from './apollo';
 import type { LoginCredentials, RegisterCredentials } from '@store/auth/types';
-import { graphql } from 'src/gql';
+import { gql } from '@apollo/client';
+
 import type { 
   GetMyCrittersQuery, 
   GetPlayerOverviewQuery, 
   GetPlayerStatsQuery, 
   LoginMutation, 
   RegisterMutation 
-} from 'src/gql/graphql';
+} from '@/gql/graphql';
 
-const LOGIN_MUTATION = graphql(`
+const LOGIN_MUTATION = gql(`
   mutation Login($username: String!, $password: String!) {
     login(username: $username, password: $password) {
       user {
@@ -31,7 +32,7 @@ export const login = (credentials: LoginCredentials) => {
   });
 };
 
-const REGISTER_MUTATION = graphql(`
+const REGISTER_MUTATION = gql(`
   mutation Register($username: String!, $password: String!) {
     register(username: $username, password: $password) {
       user {
@@ -53,7 +54,7 @@ export const register = (credentials: RegisterCredentials) => {
   });
 };
 
-const GET_PLAYER_STATS_QUERY = graphql(`
+const GET_PLAYER_STATS_QUERY = gql(`
   query GetPlayerStats($id: ID!) {
     getPlayer(id: $id) {
       stats {
@@ -72,7 +73,7 @@ export const getPlayerStats = async (userId: string) => {
   });
 };
 
-const GET_PLAYER_OVERVIEW_QUERY = graphql(`
+const GET_PLAYER_OVERVIEW_QUERY = gql(`
   query GetPlayerOverview($id: ID!) {
     getPlayer(id: $id) {
       id
@@ -97,7 +98,7 @@ export const getPlayerOverview = async (userId: string) => {
   });
 };
 
-const GET_MY_CRITTERS_QUERY = graphql(`
+const GET_MY_CRITTERS_QUERY = gql(`
   #import "./fragments.ts"
   query GetMyCritters($id: ID!) {
     getPlayer(id: $id) {

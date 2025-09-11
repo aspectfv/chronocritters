@@ -9,7 +9,8 @@
       "@types/*": ["src/types/*"],
       "@components/*": ["src/components/*"],
       "@store/*": ["src/store/*"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@/*": ["src/*"]
     }
   },
   "files": [],
