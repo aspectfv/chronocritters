@@ -2,8 +2,8 @@ import { Outlet } from 'react-router-dom';
 
 function AuthPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-green-50 border border-green-100 rounded-lg p-8 w-full max-w-md shadow-sm">
+    <div className="min-h-screen bg-[#f0f7f3] flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-lg">
         <Outlet />
       </div>
     </div>

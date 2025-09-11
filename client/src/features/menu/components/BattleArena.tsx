@@ -17,7 +17,6 @@ export function BattleArena() {
 
     const matchStatusSubscription = subscribe(`/user/${user.id}/matchmaking/status`, (match: MatchResponse) => {
       setMatchmakingStatus(MatchMakingStatus.FOUND);
-
       navigate(`/battle/${match.battleId}`);
     });
 
@@ -30,39 +29,37 @@ export function BattleArena() {
       matchStatusSubscription?.unsubscribe();
       matchErrorSubscription?.unsubscribe();
     };
-  }, [connectionStatus , user, subscribe, navigate]);
+  }, [connectionStatus, user, subscribe, navigate]);
 
   const handleFindMatch = () => {
-    if (connectionStatus ) {
+    if (connectionStatus) {
       setMatchmakingStatus(MatchMakingStatus.SEARCHING);
       publish('/app/matchmaking/join', {});
     }
   };
 
-  
-
   const { text: buttonText, disabled: isButtonDisabled } = getButtonState(connectionStatus, matchmakingStatus);
 
   return (
-    <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-      <div className="flex items-center gap-2 text-green-700 mb-4">
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+      <div className="flex items-center gap-2 text-gray-700 mb-4">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v11.494m-5.747-5.747h11.494" />
         </svg>
         <span className="font-semibold">Battle Arena</span>
       </div>
       
-      <p className="text-gray-700 mb-6">
+      <p className="text-gray-600 mb-6">
         Challenge other trainers in epic critter battles!
       </p>
       
       <button 
         onClick={handleFindMatch}
         disabled={isButtonDisabled}
-        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        className="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
-        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M8 7a2 2 0 100-4 2 2 0 000 4zM8 14a2 2 0 100-4 2 2 0 000 4zm4-7a2 2 0 100-4 2 2 0 000 4zm4 7a2 2 0 100-4 2 2 0 000 4z" />
         </svg>
         {buttonText}
       </button>
