@@ -24,21 +24,6 @@ export interface MatchResponse {
   battleId: string;
 }
 
-export interface GetPlayerStatsVars {
-  id: string;
-}
-
-export interface GetPlayerStatsData {
-  getPlayer: {
-    __typename?: 'Player';
-    stats: {
-      __typename?: 'PlayerStats';
-      wins: number;
-      losses: number;
-    };
-  };
-}
-
 export interface TrainerProfileProps {
   wins: number;
   losses: number;

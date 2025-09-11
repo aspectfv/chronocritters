@@ -1,4 +1,5 @@
-import type { Ability, CritterState, CritterType } from "@store/battle/types";
+import type { CritterState } from "@store/battle/types";
+import type { Ability, CritterType } from "src/gql/graphql";
 
 export interface BattleHeaderProps {
   isPlayerTurn: boolean;

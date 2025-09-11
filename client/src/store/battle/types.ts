@@ -1,48 +1,9 @@
-export enum CritterType {
-  FIRE = 'FIRE',
-  WATER = 'WATER',
-  GRASS = 'GRASS',
-  ELECTRIC = 'ELECTRIC',
-  METAL = 'METAL',
-  TOXIC = 'TOXIC',
-  KINETIC = 'KINETIC',
-  UNKNOWN = 'UNKNOWN'
-}
-
-export enum EffectType {
-  DAMAGE = 'DAMAGE',
-  DAMAGE_OVER_TIME = 'DAMAGE_OVER_TIME',
-  SKIP_TURN = 'SKIP_TURN',
-  BUFF = 'BUFF',
-  DEBUFF = 'DEBUFF'
-}
-
-
-export interface SkipTurnEffect extends Effect {
-  duration: number;
-}
-
-export interface DamageOverTimeEffect extends Effect {
-  damagePerTurn: number;
-  duration: number;
-}
-
-export interface DamageEffect extends Effect {
-  damage: number;
-}
-
-export type AbilityEffect = DamageEffect | DamageOverTimeEffect | SkipTurnEffect;
+import type { Ability, CritterType, EffectType } from "src/gql/graphql";
 
 export interface Effect {
   id: string;
   type: EffectType;
   description?: string;
-}
-
-export interface Ability {
-  id: string;
-  name: string;
-  effects: AbilityEffect[];
 }
 
 export interface CurrentStats {

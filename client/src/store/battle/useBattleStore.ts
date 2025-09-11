@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { CritterType } from '@store/battle/types';
 import type {
   BattleState,
   PlayerState,
   CritterState,
 } from '@store/battle/types';
 import { getEffectDescription } from '@utils/utils';
+import { CritterType } from 'src/gql/graphql';
 
 function getMappedPlayers(playerOne: PlayerState, playerTwo: PlayerState, userId: string) {
   const isPlayerOne = playerOne.id === userId;
@@ -19,7 +19,7 @@ function getMappedPlayers(playerOne: PlayerState, playerTwo: PlayerState, userId
 const defaultEmptyCritter: CritterState = {
   id: '',
   name: '',
-  type: CritterType.UNKNOWN,
+  type: CritterType.Fire,
   stats: { maxHp: 100, currentHp: 100, currentAtk: 0, currentDef: 0 },
   abilities: [],
 };

@@ -1,5 +1,6 @@
 import type { CritterListProps } from '@features/profile/types';
 import { getCritterTypeIcon } from '@utils/utils';
+import { CritterType } from 'src/gql/graphql';
 
 export const CritterList = ({ roster, selectedCritter, onCritterSelect }: CritterListProps) => {
   return (
@@ -17,7 +18,7 @@ export const CritterList = ({ roster, selectedCritter, onCritterSelect }: Critte
             }`}
           >
             <p className="font-bold text-gray-800">
-              {getCritterTypeIcon(critter.type)} {critter.name}
+              {getCritterTypeIcon(critter.type ?? CritterType.Unknown)} {critter.name}
             </p>
             <p className="text-sm text-gray-500">{critter.type}</p>
           </div>

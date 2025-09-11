@@ -6,6 +6,7 @@ enum CritterType {
     METAL
     TOXIC
     KINETIC
+    UNKNOWN
 }
 
 enum EffectType {
@@ -14,6 +15,7 @@ enum EffectType {
     SKIP_TURN
     BUFF
     DEBUFF
+    UNKNOWN
 }
 
 union EffectUnion = DamageEffect | DamageOverTimeEffect | SkipTurnEffect

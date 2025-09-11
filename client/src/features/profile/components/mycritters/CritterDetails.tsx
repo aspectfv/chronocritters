@@ -19,8 +19,8 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
       <div className="text-center mb-6">
         <div className="mx-auto flex items-center justify-center mb-2">
           <img
-            src={getCritterImageUrl(critter.name)}
-            alt={critter.name}
+            src={getCritterImageUrl(critter.name ?? 'Unknown')}
+            alt={critter.name ?? 'Unknown Critter'}
             className="w-26 h-26 object-cover rounded-full"
             onError={e => {
               const target = e.target as HTMLImageElement;
@@ -28,33 +28,33 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
             }}
           />
         </div>
-        <h3 className="font-bold text-2xl text-gray-800">{critter.name}</h3>
-        <p className="text-sm text-gray-500">{critter.type}</p>
+        <h3 className="font-bold text-2xl text-gray-800">{critter.name ?? 'Unknown Critter'}</h3>
+        <p className="text-sm text-gray-500">{critter.type ?? 'Unknown Type'}</p>
       </div>
 
       <h4 className="font-semibold text-green-800 mb-2">Base Stats</h4>
       <div className="grid grid-cols-3 gap-4 text-center bg-gray-50 p-4 rounded-lg mb-6">
         <div>
-          <p className="font-bold text-lg">{critter.baseStats.health}</p>
+          <p className="font-bold text-lg">{critter.baseStats?.health ?? 0}</p>
           <p className="text-xs text-gray-500">Health</p>
         </div>
         <div>
-          <p className="font-bold text-lg">{critter.baseStats.attack}</p>
+          <p className="font-bold text-lg">{critter.baseStats?.attack ?? 0}</p>
           <p className="text-xs text-gray-500">Attack</p>
         </div>
         <div>
-          <p className="font-bold text-lg">{critter.baseStats.defense}</p>
+          <p className="font-bold text-lg">{critter.baseStats?.defense ?? 0}</p>
           <p className="text-xs text-gray-500">Defense</p>
         </div>
       </div>
 
       <h4 className="font-semibold text-green-800 mb-2">Abilities</h4>
       <div className="space-y-3">
-        {critter.abilities.map(ability => (
-          <div key={ability.id} className="p-4 rounded-lg border bg-white border-gray-200">
-            <p className="font-semibold text-gray-900">{ability.name}</p>
+        {critter.abilities?.map(ability => (
+          <div key={ability?.id} className="p-4 rounded-lg border bg-white border-gray-200">
+            <p className="font-semibold text-gray-900">{ability?.name}</p>
             <div className="mt-2 pl-2 border-l-2 border-gray-200 space-y-1">
-              {ability.effects.map(effect => getEffectDescription(effect))}
+              {ability?.effects?.map(effect => getEffectDescription(effect))}
             </div>
           </div>
         ))}

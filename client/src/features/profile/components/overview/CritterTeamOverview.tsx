@@ -27,8 +27,8 @@ export function CritterTeamOverview({ roster }: CritterTeamOverviewProps) {
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h3 className="font-semibold text-green-800 mb-4">Critter Team Overview</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {roster.map((critter) => (
-          <CritterCard key={critter.name} name={critter.name} type={critter.type} level={1} />
+        {roster?.map((critter) => (
+          <CritterCard key={critter?.name ?? 'Unknown'} name={critter?.name ?? 'Unknown'} level={1} />
         ))}
       </div>
     </div>

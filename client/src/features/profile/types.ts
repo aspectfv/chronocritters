@@ -1,92 +1,20 @@
-import type { CritterType, EffectType } from '@store/battle/types';
+import type { GetMyCrittersQuery, GetPlayerOverviewQuery } from 'src/gql/graphql';
+
+type ArrayElement<ArrayType extends readonly unknown[]> = 
+  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+
+export type CritterData = NonNullable<ArrayElement<NonNullable<NonNullable<GetMyCrittersQuery['getPlayer']>['roster']>>>;
+export type PlayerOverviewData = NonNullable<GetPlayerOverviewQuery['getPlayer']>;
 
 export interface CritterCardProps {
   name: string;
   level: number;
-  type: CritterType;
-}
-
-interface BaseEffect {
-  __typename: string;
-  id: string;
-  type: EffectType;
-}
-
-interface SkipTurnEffect extends BaseEffect {
-  __typename: 'SkipTurnEffect';
-  duration: number;
-}
-
-interface DamageEffect extends BaseEffect {
-  __typename: 'DamageEffect';
-  damage: number;
-}
-
-interface DamageOverTimeEffect extends BaseEffect {
-  __typename: 'DamageOverTimeEffect';
-  damagePerTurn: number;
-  duration: number;
-}
-
-type AbilityEffect = DamageEffect | DamageOverTimeEffect | SkipTurnEffect;
-
-export interface CritterData {
-  __typename?: 'Critter';
-  id: string;
-  name: string;
-  type: CritterType;
-  baseStats: {
-    __typename?: 'BaseStats';
-    health: number;
-    attack: number;
-    defense: number;
-  };
-  abilities: {
-      __typename?: 'Ability';
-      id: string;
-      name: string;
-      effects: AbilityEffect[];
-  }[];
-}
-
-export interface GetMyCrittersData {
-  getPlayer: {
-    __typename?: 'Player';
-    id: string;
-    roster: CritterData[];
-  };
-}
-
-export interface GetMyCrittersVars {
-  id: string;
 }
 
 export interface CritterListProps {
   roster: CritterData[];
   selectedCritter: CritterData | null;
   onCritterSelect: (critter: CritterData) => void;
-}
-
-export interface GetPlayerOverviewData {
-  getPlayer: {
-    __typename?: 'Player';
-    id: string;
-    username: string;
-    stats: {
-      __typename?: 'PlayerStats';
-      wins: number;
-      losses: number;
-    };
-    roster: {
-      __typename?: 'Critter';
-      name: string;
-      type: CritterType;
-    }[];
-  };
-}
-
-export interface GetPlayerOverviewVars {
-  id: string;
 }
 
 export interface TrainerInfoProps {
@@ -99,8 +27,5 @@ export interface BattleStatisticsProps {
 }
 
 export interface CritterTeamOverviewProps {
-  roster: {
-    name: string;
-    type: CritterType;
-  }[];
+  roster: PlayerOverviewData['roster'];
 }

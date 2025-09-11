@@ -11,9 +11,6 @@ export async function overviewLoader() {
 
   try {
     const overviewData = await getPlayerOverview(user.id);
-    if (!overviewData) {
-        throw new Error("Player overview data not found.");
-    }
     return overviewData;
   } catch (error) {
     console.error("Failed to load player overview:", error);

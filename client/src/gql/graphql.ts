@@ -46,6 +46,7 @@ export enum CritterType {
   Kinetic = 'KINETIC',
   Metal = 'METAL',
   Toxic = 'TOXIC',
+  Unknown = 'UNKNOWN',
   Water = 'WATER'
 }
 
@@ -74,7 +75,8 @@ export enum EffectType {
   Damage = 'DAMAGE',
   DamageOverTime = 'DAMAGE_OVER_TIME',
   Debuff = 'DEBUFF',
-  SkipTurn = 'SKIP_TURN'
+  SkipTurn = 'SKIP_TURN',
+  Unknown = 'UNKNOWN'
 }
 
 export type EffectUnion = DamageEffect | DamageOverTimeEffect | SkipTurnEffect;

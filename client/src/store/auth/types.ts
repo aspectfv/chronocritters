@@ -1,7 +1,7 @@
-export interface User {
-  id: string;
-  username: string;
-}
+import type { LoginMutation } from 'src/gql/graphql';
+
+export type LoginResponse = NonNullable<LoginMutation['login']>;
+export type User = LoginResponse['user'];
 
 export interface AuthState {
   user: User | null;
@@ -20,11 +20,6 @@ export interface RegisterCredentials {
   username: string;
   password: string;
   confirmPassword: string;
-}
-
-export interface LoginResponse {
-  user: User;
-  token: string;
 }
 
 export interface AuthError {

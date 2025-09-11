@@ -4,11 +4,13 @@ import { BattleArena } from '@features/menu/components/BattleArena';
 import { TrainerProfile } from '@features/menu/components/TrainerProfile';
 import { LogoutButton } from '@features/menu/components/LogoutButton';
 import { useLoaderData } from 'react-router-dom';
-import type { GetPlayerStatsData } from '../types';
+import type { GetPlayerStatsQuery } from 'src/gql/graphql';
 
 function MenuPage() {
-  const { wins, losses } = useLoaderData() as GetPlayerStatsData['getPlayer']['stats'];
-
+  const loaderData = useLoaderData() as GetPlayerStatsQuery;
+  const wins = loaderData?.getPlayer?.stats?.wins ?? 0;
+  const losses = loaderData?.getPlayer?.stats?.losses ?? 0;
+  
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 py-8">
