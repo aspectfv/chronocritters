@@ -16,8 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
-public class DamageOverTimeEffect extends Effect {
-    private int damagePerTurn;
+public class SkipTurnEffect extends Effect {
     private int duration;
 
     @Override
@@ -37,7 +36,7 @@ public class DamageOverTimeEffect extends Effect {
         if (opponent == null) throw new IllegalArgumentException("Opponent not found in context");
 
         CritterState caster = (CritterState) context.getData().get(EffectContextType.CASTER_CRITTER);
-        if (caster == null) throw new IllegalArgumentException("Caster critter not found in context");
+        if (caster == null) throw new IllegalArgumentException("Caster critter not found in context");  
 
         CritterState target = (CritterState) context.getData().get(com.chronocritters.lib.context.EffectContextType.TARGET_CRITTER);
         if (target == null) throw new IllegalArgumentException("Target critter not found in context");
@@ -45,19 +44,19 @@ public class DamageOverTimeEffect extends Effect {
         Ability ability = (Ability) context.getData().get(com.chronocritters.lib.context.EffectContextType.ABILITY);
 
         if (ability != null) {
-            handleApplication(context, battleState, player, opponent, caster, target, ability);
+            handleApplication(context, battleState, player, target, ability);
         } else {
-            handleTurnTick(context, battleState, target);
+            handleTurnTick(battleState, target);
         }
 
     }
 
     private void handleApplication(EffectContext context, BattleState battleState, PlayerState player, 
-    PlayerState opponent, CritterState caster, CritterState target, Ability ability
+    CritterState target, Ability ability
     ) {
-        Optional<DamageOverTimeEffect> existingEffect = target.getActiveStatusEffects().stream()
+        Optional<SkipTurnEffect> existingEffect = target.getActiveStatusEffects().stream()
             .filter(e -> e.getId().equals(this.getId()))
-            .map(e -> (DamageOverTimeEffect) e)
+            .map(e -> (SkipTurnEffect) e)
             .findFirst();
 
         if (existingEffect.isPresent()) {
@@ -66,25 +65,22 @@ public class DamageOverTimeEffect extends Effect {
             target.getActiveStatusEffects().add(this.createInstance());
         }
 
-        String actionLog = String.format("%s's %s is afflicted with %s from %s's %s for %d turns, taking %d damage per turn!",
-            opponent.getUsername(), target.getName(), ability.getName(), player.getUsername(), caster.getName(),
-            this.duration, this.damagePerTurn);
+        String actionLog = String.format("%s's %s is afflicted with %s for %d turns!",
+            player.getUsername(), target.getName(), ability.getName(), this.duration);
 
         battleState.getActionLogHistory().add(actionLog);
     }
 
-    private void handleTurnTick(EffectContext context, BattleState battleState, CritterState target) {
-        target.getStats().setCurrentHp(Math.max(0, target.getStats().getCurrentHp() - this.damagePerTurn));
-        String actionLog = String.format("%s takes %d damage!", target.getName(), this.damagePerTurn);
+    private void handleTurnTick(BattleState battleState, CritterState target) {
+        String actionLog = String.format("%s is stunned and cannot move this turn!", target.getName());
         battleState.getActionLogHistory().add(actionLog);
         this.duration--;
     }
 
     private Effect createInstance() {
-        return DamageOverTimeEffect.builder()
+        return SkipTurnEffect.builder()
                 .id(this.id)
                 .type(this.type)
-                .damagePerTurn(this.damagePerTurn)
                 .duration(this.duration)
                 .build();
     }

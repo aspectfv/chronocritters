@@ -6,5 +6,6 @@ public enum EffectContextType {
     OPPONENT,
     CASTER_CRITTER,
     TARGET_CRITTER,
-    ABILITY
+    ABILITY,
+    TURN_TRANSITION_HANDLER
 }
