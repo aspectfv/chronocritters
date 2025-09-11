@@ -17,6 +17,7 @@ import com.chronocritters.gamelogic.client.LobbyWebClient;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
 import com.chronocritters.gamelogic.handler.ExecuteAbilityHandler;
 import com.chronocritters.gamelogic.handler.FaintingHandler;
+import com.chronocritters.gamelogic.handler.TurnEffectsHandler;
 import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
 import com.chronocritters.lib.interfaces.TurnActionHandler;
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
@@ -79,6 +80,8 @@ public class BattleService {
         TurnActionHandler turnChain = new ExecuteAbilityHandler(abilityId);
         turnChain
             .setNext(new FaintingHandler(eventPublisher))
+            .setNext(new TurnEffectsHandler())
+            .setNext(new FaintingHandler(eventPublisher))
             .setNext(new TurnTransitionHandler());
 
         turnChain.handle(currentBattle);
@@ -106,6 +109,10 @@ public class BattleService {
         
         player.setActiveCritterIndex(targetCritterIndex);
 
+        TurnActionHandler turnChain = new TurnEffectsHandler();
+        turnChain
+            .setNext(new FaintingHandler(eventPublisher))
+            .setNext(new TurnTransitionHandler());
 
         finalizeTurn(currentBattle);
         return currentBattle;
@@ -120,6 +127,10 @@ public class BattleService {
         String timeoutLog = String.format("%s ran out of time!", currentBattle.getPlayer().getUsername());
         currentBattle.getActionLogHistory().add(timeoutLog);
 
+        TurnActionHandler turnChain = new TurnEffectsHandler();
+        turnChain
+            .setNext(new FaintingHandler(eventPublisher))
+            .setNext(new TurnTransitionHandler());
 
         finalizeTurn(currentBattle);
     }
