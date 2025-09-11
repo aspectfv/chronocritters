@@ -49,9 +49,12 @@ public class DamageOverTimeEffect extends Effect implements PersistentEffect {
     }
 
     @Override
-    public boolean onTick(EffectContext context, CritterState target) {
+    public boolean onTick(EffectContext context) {
         BattleState battleState = (BattleState) context.getData().get(EffectContextType.BATTLE_STATE);
         if (battleState == null) throw new IllegalArgumentException("BattleState not found in context");
+
+        CritterState target = (CritterState) context.getData().get(EffectContextType.TARGET_CRITTER);
+        if (target == null) throw new IllegalArgumentException("Target critter not found in context");
 
         this.duration--;
 

@@ -1,6 +1,7 @@
 package com.chronocritters.gamelogic.handler;
 
 import com.chronocritters.lib.context.EffectContext;
+import com.chronocritters.lib.context.EffectContextType;
 import com.chronocritters.lib.factory.EffectContextFactory;
 import com.chronocritters.lib.interfaces.PersistentEffect;
 import com.chronocritters.lib.model.BattleState;
@@ -36,8 +37,9 @@ public class TurnEffectsHandler extends AbstractTurnActionHandler {
 
             if (effect instanceof PersistentEffect persistentEffect) {
                 EffectContext context = EffectContextFactory.createContext(effect.getType(), battleState);
-                
-                boolean isExpired = persistentEffect.onTick(context, critter);
+                context.getData().put(EffectContextType.TARGET_CRITTER, critter); 
+
+                boolean isExpired = persistentEffect.onTick(context);
                 if (isExpired) iterator.remove();
             }
         }
