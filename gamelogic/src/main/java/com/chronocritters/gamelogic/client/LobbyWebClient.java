@@ -41,7 +41,12 @@ public class LobbyWebClient {
                 .onStatus(status -> status.is4xxClientError(),
                         response -> Mono.error(new IllegalArgumentException("Invalid battle state update request")))
                 .bodyToMono(Void.class)
-                .retryWhen(defaultRetrySpec);
+                .retryWhen(defaultRetrySpec)
+                .onErrorResume(error -> {
+                    log.warn("Failed to update battle state for battleId '{}' in Lobby. The lobby might be down. Reason: {}",
+                            battleId, error.getMessage());
+                    return Mono.empty();
+                });
     }
 
     private boolean isRetryableException(Throwable throwable) {

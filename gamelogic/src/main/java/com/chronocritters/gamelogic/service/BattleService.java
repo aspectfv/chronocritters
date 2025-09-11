@@ -113,6 +113,8 @@ public class BattleService {
         turnChain
             .setNext(new FaintingHandler(eventPublisher))
             .setNext(new TurnTransitionHandler());
+        
+        turnChain.handle(currentBattle);
 
         finalizeTurn(currentBattle);
         return currentBattle;
@@ -131,6 +133,8 @@ public class BattleService {
         turnChain
             .setNext(new FaintingHandler(eventPublisher))
             .setNext(new TurnTransitionHandler());
+
+        turnChain.handle(currentBattle);
 
         finalizeTurn(currentBattle);
     }

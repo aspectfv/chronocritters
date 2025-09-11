@@ -1,6 +1,6 @@
 import type { AbilitySelectorProps } from '@features/battle/types';
 import { type Ability, CritterType } from '@store/battle/types';
-import { getCritterTypeStyle } from '@utils/utils';
+import { getCritterTypeStyle, getEffectDescription } from '@utils/utils';
 
 
 const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: boolean; critterType: CritterType }> = 
@@ -13,13 +13,13 @@ const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: b
     <div className="flex justify-between items-start">
       <div>
         <h4 className="font-bold text-green-900">{ability.name}</h4>
-        <p className="text-xs text-gray-500 mt-1">{ability.description}</p>
+        <p className="text-xs text-gray-500 mt-1">{getEffectDescription(ability.effects[0])}</p>
       </div>
       <span
         className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap 
           ${getCritterTypeStyle(critterType)}`}
       >
-        PWR: {ability.power}
+        PWR: {ability.effects[0].damage ?? 0}
       </span>
     </div>
   </button>

@@ -46,7 +46,11 @@ public class GameLogicWebClient {
                 .onStatus(status -> status.is5xxServerError(),
                         response -> Mono.error(new IllegalStateException("Server error while fetching battle state for: " + battleId)))
                 .bodyToMono(BattleState.class)
-                .retryWhen(defaultRetrySpec);
+                .retryWhen(defaultRetrySpec)
+                .onErrorResume(error -> {
+                    log.warn("Could not retrieve battle state for battleId '{}'. Reason: {}", battleId, error.getMessage());
+                    return Mono.empty(); // Return an empty Mono instead of an error signal
+                });
     }
 
     public Mono<Void> createBattle(String battleId, String playerOneId, String playerTwoId) {
@@ -63,7 +67,11 @@ public class GameLogicWebClient {
                 .onStatus(status -> status.is5xxServerError(),
                         response -> Mono.error(new IllegalStateException("Server error while creating battle")))
                 .bodyToMono(Void.class)
-                .retryWhen(defaultRetrySpec);
+                .retryWhen(defaultRetrySpec)
+                .onErrorResume(error -> {
+                    log.warn("Could not create battle for battleId '{}'. Reason: {}", battleId, error.getMessage());
+                    return Mono.empty();
+                });
     }
 
     public Mono<Void> handleTurnTimeout(String battleId) {
@@ -77,11 +85,14 @@ public class GameLogicWebClient {
                 .onStatus(status -> status.is5xxServerError(),
                         response -> Mono.error(new IllegalStateException("Server error while handling turn timeout")))
                 .bodyToMono(Void.class)
-                .retryWhen(defaultRetrySpec);
+                .retryWhen(defaultRetrySpec)
+                .onErrorResume(error -> {
+                    log.warn("Could not handle turn timeout for battleId '{}'. The battle may have ended. Reason: {}", battleId, error.getMessage());
+                    return Mono.empty();
+                });
     }
 
     private boolean isRetryableException(Throwable throwable) {
-        // Retry on network errors (e.g., Connection Refused) or 5xx server errors
         return throwable instanceof WebClientRequestException ||
                (throwable instanceof WebClientResponseException && 
                 ((WebClientResponseException) throwable).getStatusCode().is5xxServerError());
