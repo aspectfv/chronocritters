@@ -61,7 +61,6 @@ public class DamageOverTimeEffect extends Effect implements PersistentEffect {
             battleState.getActionLogHistory().add(actionLog);
             return false;
         } else {
-            target.getActiveStatusEffects().removeIf(e -> e.getId().equals(this.getId()));
             String actionLog = String.format("%s is no longer affected by damage over time.", target.getName());
             battleState.getActionLogHistory().add(actionLog);
             return true;
