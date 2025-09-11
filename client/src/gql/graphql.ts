@@ -141,18 +141,6 @@ export type User = {
   username: Scalars['String']['output'];
 };
 
-type EffectFields_DamageEffect_Fragment = { __typename: 'DamageEffect', damage: number, id: string, type: EffectType };
-
-type EffectFields_DamageOverTimeEffect_Fragment = { __typename: 'DamageOverTimeEffect', damagePerTurn: number, duration: number, id: string, type: EffectType };
-
-type EffectFields_SkipTurnEffect_Fragment = { __typename: 'SkipTurnEffect', duration: number, id: string, type: EffectType };
-
-export type EffectFieldsFragment =
-  | EffectFields_DamageEffect_Fragment
-  | EffectFields_DamageOverTimeEffect_Fragment
-  | EffectFields_SkipTurnEffect_Fragment
-;
-
 export type LoginMutationVariables = Exact<{
   username: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -189,7 +177,7 @@ export type GetMyCrittersQueryVariables = Exact<{
 
 
 export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', health?: number | null, attack?: number | null, defense?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, effects?: Array<
-          | { __typename: 'DamageEffect', damage: number, id: string, type: EffectType }
-          | { __typename: 'DamageOverTimeEffect', damagePerTurn: number, duration: number, id: string, type: EffectType }
-          | { __typename: 'SkipTurnEffect', duration: number, id: string, type: EffectType }
+          | { __typename?: 'DamageEffect', id: string, type: EffectType, damage: number }
+          | { __typename?: 'DamageOverTimeEffect', id: string, type: EffectType, damagePerTurn: number, duration: number }
+          | { __typename?: 'SkipTurnEffect', id: string, type: EffectType, duration: number }
          | null> | null } | null> | null } | null> | null } | null };

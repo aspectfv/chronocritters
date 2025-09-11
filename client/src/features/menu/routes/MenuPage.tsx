@@ -10,7 +10,7 @@ function MenuPage() {
   const loaderData = useLoaderData() as GetPlayerStatsQuery;
   const wins = loaderData?.getPlayer?.stats?.wins ?? 0;
   const losses = loaderData?.getPlayer?.stats?.losses ?? 0;
-  
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 py-8">

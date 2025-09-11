@@ -54,7 +54,7 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
           <div key={ability?.id} className="p-4 rounded-lg border bg-white border-gray-200">
             <p className="font-semibold text-gray-900">{ability?.name}</p>
             <div className="mt-2 pl-2 border-l-2 border-gray-200 space-y-1">
-              {ability?.effects?.map(effect => getEffectDescription(effect))}
+              {ability?.effects?.map(ef => ef ? getEffectDescription(ef) : '')}
             </div>
           </div>
         ))}

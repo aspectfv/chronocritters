@@ -66,11 +66,12 @@ const GET_PLAYER_STATS_QUERY = gql(`
 `);
 
 export const getPlayerStats = async (userId: string) => {
-  return await client.query<GetPlayerStatsQuery>({
+  const response = await client.query<GetPlayerStatsQuery>({
     query: GET_PLAYER_STATS_QUERY,
     variables: { id: userId },
     fetchPolicy: 'network-only'
   });
+  return response.data;
 };
 
 const GET_PLAYER_OVERVIEW_QUERY = gql(`
@@ -91,15 +92,15 @@ const GET_PLAYER_OVERVIEW_QUERY = gql(`
 `);
 
 export const getPlayerOverview = async (userId: string) => {
-  return await client.query<GetPlayerOverviewQuery>({
+  const response = await client.query<GetPlayerOverviewQuery>({
     query: GET_PLAYER_OVERVIEW_QUERY,
     variables: { id: userId },
     fetchPolicy: 'network-only'
   });
+  return response.data;
 };
 
 const GET_MY_CRITTERS_QUERY = gql(`
-  #import "./fragments.ts"
   query GetMyCritters($id: ID!) {
     getPlayer(id: $id) {
       roster {
@@ -115,7 +116,22 @@ const GET_MY_CRITTERS_QUERY = gql(`
           id
           name
           effects {
-            ...EffectFields
+            ... on DamageEffect {
+              id
+              type
+              damage
+            }
+            ... on DamageOverTimeEffect {
+              id
+              type
+              damagePerTurn
+              duration
+            }
+            ... on SkipTurnEffect {
+              id
+              type
+              duration
+            }
           }
         }
       }
@@ -124,9 +140,10 @@ const GET_MY_CRITTERS_QUERY = gql(`
 `);
 
 export const getMyCritters = async (userId: string) => {
-  return await client.query<GetMyCrittersQuery>({
+  const response = await client.query<GetMyCrittersQuery>({
     query: GET_MY_CRITTERS_QUERY,
     variables: { id: userId },
     fetchPolicy: 'network-only'
   });
+  return response.data;
 };

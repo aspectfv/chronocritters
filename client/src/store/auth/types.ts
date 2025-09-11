@@ -1,7 +1,5 @@
-import type { LoginMutation } from 'src/gql/graphql';
+import type { User } from 'src/gql/graphql';
 
-export type LoginResponse = NonNullable<LoginMutation['login']>;
-export type User = LoginResponse['user'];
 
 export interface AuthState {
   user: User | null;

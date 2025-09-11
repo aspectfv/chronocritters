@@ -1,10 +1,4 @@
-import type { Ability, CritterType, EffectType } from "src/gql/graphql";
-
-export interface Effect {
-  id: string;
-  type: EffectType;
-  description?: string;
-}
+import type { Ability, CritterType } from "src/gql/graphql";
 
 export interface CurrentStats {
   maxHp: number;

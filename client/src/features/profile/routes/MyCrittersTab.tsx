@@ -3,10 +3,13 @@ import { useLoaderData } from 'react-router-dom';
 import type { CritterData } from '@features/profile/types';
 import { CritterDetails } from '@features/profile/components/mycritters/CritterDetails';
 import { CritterList } from '@features/profile/components/mycritters/CritterList';
+import type { GetPlayerOverviewQuery } from '@/gql/graphql';
 
 export function MyCrittersTab() {
-  const roster = useLoaderData() as CritterData[];
+  const loaderData = useLoaderData() as GetPlayerOverviewQuery;
   const [selectedCritter, setSelectedCritter] = useState<CritterData | null>(null);
+
+  const roster = (loaderData?.getPlayer?.roster?.filter((c): c is CritterData => c !== null) || []) as CritterData[];
 
   useEffect(() => {
     if (!selectedCritter && roster && roster.length > 0) {

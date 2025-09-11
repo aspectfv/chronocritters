@@ -5,12 +5,12 @@ import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import { useBattleStore } from '@store/battle/useBattleStore';
 import type { BattleState } from '@store/battle/types';
 
-import { BattleHeader } from '../components/BattleHeader';
-import { TimerBar } from '../components/TimerBar';
-import { CritterDisplayCard } from '../components/CritterDisplayCard';
-import { TeamDisplay } from '../components/TeamDisplay';
-import { BattleLog } from '../components/BattleLog';
-import { AbilitySelector } from '../components/AbilitySelector';
+import { BattleHeader } from '@features/battle/components/BattleHeader';
+import { TimerBar } from '@features/battle/components/TimerBar';
+import { CritterDisplayCard } from '@features/battle/components/CritterDisplayCard';
+import { TeamDisplay } from '@features/battle/components/TeamDisplay';
+import { BattleLog } from '@features/battle/components/BattleLog';
+import { AbilitySelector } from '@features/battle/components/AbilitySelector';
 import { getBattleState, executeAbility, switchCritter } from '@api/gamelogic';
 import { ConnectionStatus } from '@store/lobby/types';
 

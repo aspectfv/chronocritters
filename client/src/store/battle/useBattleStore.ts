@@ -19,7 +19,7 @@ function getMappedPlayers(playerOne: PlayerState, playerTwo: PlayerState, userId
 const defaultEmptyCritter: CritterState = {
   id: '',
   name: '',
-  type: CritterType.Fire,
+  type: CritterType.Unknown,
   stats: { maxHp: 100, currentHp: 100, currentAtk: 0, currentDef: 0 },
   abilities: [],
 };
@@ -70,7 +70,7 @@ export const useBattleStore = create<BattleState>((set) => ({
               abilities: activeCritter.abilities?.map((ab) => ({
                 ...ab,
                 effects: ab.effects,
-                effectDescriptions: ab.effects?.map((ef) => getEffectDescription(ef as any)),
+                effectDescriptions: ab.effects?.map((ef) => ef ? getEffectDescription(ef) : ''),
               })),
             };
           }
@@ -84,7 +84,7 @@ export const useBattleStore = create<BattleState>((set) => ({
               abilities: activeCritter.abilities?.map((ab) => ({
                 ...ab,
                 effects: ab.effects,
-                effectDescriptions: ab.effects?.map((ef) => getEffectDescription(ef as any)),
+                effectDescriptions: ab.effects?.map((ef) => ef ? getEffectDescription(ef) : ''),
               })),
             };
           }
