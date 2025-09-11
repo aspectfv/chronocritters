@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.factory.EffectContextFactory;
-import com.chronocritters.lib.model.effects.Effect;
 
 import lombok.Builder;
 import lombok.Data;

@@ -3,8 +3,6 @@ package com.chronocritters.lib.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.chronocritters.lib.model.effects.Effect;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

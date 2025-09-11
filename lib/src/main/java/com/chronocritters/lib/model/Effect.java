@@ -1,14 +1,17 @@
-package com.chronocritters.lib.model.effects;
+package com.chronocritters.lib.model;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.chronocritters.lib.context.EffectContext;
-import com.chronocritters.lib.model.EffectType;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder
 @Document(collection = "effects")
 public abstract class Effect {

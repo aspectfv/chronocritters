@@ -7,13 +7,19 @@ import com.chronocritters.lib.context.EffectContextType;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
+import com.chronocritters.lib.model.Effect;
+import com.chronocritters.lib.model.ExecutionType;
 import com.chronocritters.lib.model.PlayerState;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 public class SkipTurnEffect extends Effect {

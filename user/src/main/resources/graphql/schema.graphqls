@@ -30,7 +30,7 @@ interface Effect {
 type DamageEffect implements Effect {
   id: ID!
   type: EffectType!
-  power: Int!
+  damage: Int!
 }
 
 type DamageOverTimeEffect implements Effect {

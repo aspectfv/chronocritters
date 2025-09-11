@@ -4,9 +4,9 @@ import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.factory.EffectContextFactory;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
+import com.chronocritters.lib.model.Effect;
+import com.chronocritters.lib.model.ExecutionType;
 import com.chronocritters.lib.model.PlayerState;
-import com.chronocritters.lib.model.effects.Effect;
-import com.chronocritters.lib.model.effects.ExecutionType;
 
 import lombok.RequiredArgsConstructor;
 

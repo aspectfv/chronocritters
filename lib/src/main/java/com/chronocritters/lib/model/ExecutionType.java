@@ -1,4 +1,4 @@
-package com.chronocritters.lib.model.effects;
+package com.chronocritters.lib.model;
 
 public enum ExecutionType {
     INSTANT, 
