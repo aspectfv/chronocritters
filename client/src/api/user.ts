@@ -1,10 +1,9 @@
-import { gql } from '@apollo/client';
 import client from './apollo';
-import type { LoginCredentials, LoginResponse, RegisterCredentials } from '@store/auth/types';
-import type { GetPlayerStatsData, GetPlayerStatsVars } from '@features/menu/types';
-import type { GetMyCrittersData, GetMyCrittersVars, GetPlayerOverviewData, GetPlayerOverviewVars } from '@features/profile/types';
+import type { LoginCredentials, RegisterCredentials } from '@store/auth/types';
+import { graphql } from 'src/gql';
+import type { GetMyCrittersQuery, GetMyCrittersQueryVariables, GetPlayerOverviewQuery, GetPlayerOverviewQueryVariables, GetPlayerStatsQuery, GetPlayerStatsQueryVariables, LoginMutation, LoginMutationVariables, RegisterMutation, RegisterMutationVariables } from 'src/gql/graphql';
 
-const LOGIN_MUTATION = gql`
+const LOGIN_MUTATION = graphql(`
   mutation Login($username: String!, $password: String!) {
     login(username: $username, password: $password) {
       user {
@@ -14,10 +13,10 @@ const LOGIN_MUTATION = gql`
       token
     }
   }
-`;
+`);
 
 export const login = (credentials: LoginCredentials) => {
-  return client.mutate<{ login: LoginResponse }>({
+  return client.mutate<LoginMutation, LoginMutationVariables>({
     mutation: LOGIN_MUTATION,
     variables: {
       username: credentials.username,
@@ -26,7 +25,7 @@ export const login = (credentials: LoginCredentials) => {
   });
 };
 
-const REGISTER_MUTATION = gql`
+const REGISTER_MUTATION = graphql(`
   mutation Register($username: String!, $password: String!) {
     register(username: $username, password: $password) {
       user {
@@ -36,10 +35,10 @@ const REGISTER_MUTATION = gql`
       token
     }
   }
-`;
+`);
 
 export const register = (credentials: RegisterCredentials) => {
-  return client.mutate<{ register: LoginResponse }>({
+  return client.mutate<RegisterMutation, RegisterMutationVariables>({
     mutation: REGISTER_MUTATION,
     variables: {
       username: credentials.username,
@@ -48,7 +47,7 @@ export const register = (credentials: RegisterCredentials) => {
   });
 };
 
-const GET_PLAYER_STATS_QUERY = gql`
+const GET_PLAYER_STATS_QUERY = graphql(`
   query GetPlayerStats($id: ID!) {
     getPlayer(id: $id) {
       stats {
@@ -57,19 +56,19 @@ const GET_PLAYER_STATS_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 export const getPlayerStats = async (userId: string) => {
-  const { data } = await client.query<GetPlayerStatsData, GetPlayerStatsVars>({
+  const { data } = await client.query<GetPlayerStatsQuery, GetPlayerStatsQueryVariables>({
     query: GET_PLAYER_STATS_QUERY,
     variables: { id: userId },
     fetchPolicy: 'network-only'
   });
 
-  return data?.getPlayer.stats ?? null;
+  return data?.getPlayer?.stats ?? null;
 };
 
-const GET_PLAYER_OVERVIEW_QUERY = gql`
+const GET_PLAYER_OVERVIEW_QUERY = graphql(`
   query GetPlayerOverview($id: ID!) {
     getPlayer(id: $id) {
       id
@@ -84,10 +83,10 @@ const GET_PLAYER_OVERVIEW_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 export const getPlayerOverview = async (userId: string) => {
-  const { data } = await client.query<GetPlayerOverviewData, GetPlayerOverviewVars>({
+  const { data } = await client.query<GetPlayerOverviewQuery, GetPlayerOverviewQueryVariables>({
     query: GET_PLAYER_OVERVIEW_QUERY,
     variables: { id: userId },
     fetchPolicy: 'network-only'
@@ -96,7 +95,8 @@ export const getPlayerOverview = async (userId: string) => {
   return data?.getPlayer ?? null;
 };
 
-const GET_MY_CRITTERS_QUERY = gql`
+const GET_MY_CRITTERS_QUERY = graphql(`
+  #import "./fragments.ts"
   query GetMyCritters($id: ID!) {
     getPlayer(id: $id) {
       roster {
@@ -112,31 +112,16 @@ const GET_MY_CRITTERS_QUERY = gql`
           id
           name
           effects {
-            ... on DamageEffect {
-              id
-              type
-              damage
-            }
-            ... on DamageOverTimeEffect {
-              id
-              type
-              damagePerTurn
-              duration
-            }
-            ... on SkipTurnEffect {
-              id
-              type
-              duration
-            }
+            ...EffectFields
           }
         }
       }
     }
   }
-`;
+`);
 
 export const getMyCritters = async (userId: string) => {
-  const { data } = await client.query<GetMyCrittersData, GetMyCrittersVars>({
+  const { data } = await client.query<GetMyCrittersQuery, GetMyCrittersQueryVariables>({
     query: GET_MY_CRITTERS_QUERY,
     variables: { id: userId },
     fetchPolicy: 'network-only'
