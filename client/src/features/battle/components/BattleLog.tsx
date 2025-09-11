@@ -11,21 +11,22 @@ export function BattleLog({ log }: BattleLogProps) {
   }, [log]);
 
   return (
-    <div className="my-6">
-      <h3 className="text-center font-bold text-green-800 mb-4">Battle Log</h3>
-      <div
-        ref={logContainerRef}
-        className="bg-green-50 border border-green-200 rounded-lg p-4 h-40 overflow-y-auto space-y-2 text-left"
-      >
-        {log.length > 0 ? (
-          log.map((message, index) => (
-            <p key={index} className="text-gray-700 text-sm">
-              <span className="font-semibold text-green-700">&gt;</span> {message}
-            </p>
-          ))
-        ) : (
-          <p className="text-gray-500 italic text-center">Waiting for action...</p>
-        )}
+    <div className="my-8">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 className="text-center font-bold text-lg text-gray-800 mb-4">Battle Log</h3>
+        <div ref={logContainerRef} className="space-y-3 max-h-48 overflow-y-auto pr-2">
+          {log.length > 0 ? (
+            log.map((message, index) => (
+              <div key={index} className="bg-cyan-50/60 p-3 rounded-lg">
+                <p className="text-gray-800 font-medium text-sm">{message}</p>
+              </div>
+            ))
+          ) : (
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-gray-500 italic text-center font-medium">Waiting for battle to start...</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

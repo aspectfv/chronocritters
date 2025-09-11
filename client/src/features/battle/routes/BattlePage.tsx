@@ -96,8 +96,8 @@ function BattlePage() {
   }, [battleId, user?.id, player.hasTurn]);
   
   return (
-    <div className="min-h-screen bg-[#F8FFF8] p-4 sm:p-6 md:p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[#f0f7f3] p-4 sm:p-6 md:p-8">
+      <div className="max-w-6xl mx-auto">
         <BattleHeader isPlayerTurn={player.hasTurn} />
         <TimerBar timeRemaining={timeRemaining} />
 
@@ -106,7 +106,7 @@ function BattlePage() {
           <CritterDisplayCard playerName={opponent.username} critter={opponent.activeCritter} />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-8">
           <TeamDisplay title="Your Team" team={player.roster} activeCritterId={player.activeCritter.id} isPlayerTurn={player.hasTurn} onCritterClick={handleSwitchCritter} />
           <TeamDisplay title="Opponent's Team" team={opponent.roster} activeCritterId={opponent.activeCritter.id} isPlayerTurn={false} onCritterClick={() => {}} />
         </div>

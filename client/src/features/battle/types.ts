@@ -5,6 +5,11 @@ export interface BattleHeaderProps {
   isPlayerTurn: boolean;
 }
 
+export interface TimerBarProps {
+  timeRemaining: number;
+}
+
+
 export type AbilitySelectorProps = {
   abilities: Ability[];
   onAbilityClick: (abilityId: string) => void;
