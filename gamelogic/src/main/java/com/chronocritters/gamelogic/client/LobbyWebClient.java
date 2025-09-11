@@ -18,7 +18,7 @@ import java.time.Duration;
 public class LobbyWebClient {
     private final WebClient webClient;
     private final Retry defaultRetrySpec;
-    private static final Logger log = LoggerFactory.getLogger(LobbyWebClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(LobbyWebClient.class);
 
     public LobbyWebClient() {
         this.webClient = WebClient.builder()
@@ -28,7 +28,7 @@ public class LobbyWebClient {
 
         this.defaultRetrySpec = Retry.backoff(3, Duration.ofMillis(500))
                 .filter(this::isRetryableException)
-                .doBeforeRetry(retrySignal -> log.warn("Retrying request to Lobby service after failure: attempt #{}, error: {}",
+                .doBeforeRetry(retrySignal -> logger.warn("Retrying request to Lobby service after failure: attempt #{}, error: {}",
                         retrySignal.totalRetries() + 1,
                         retrySignal.failure().getMessage()));
     }
@@ -43,7 +43,7 @@ public class LobbyWebClient {
                 .bodyToMono(Void.class)
                 .retryWhen(defaultRetrySpec)
                 .onErrorResume(error -> {
-                    log.warn("Failed to update battle state for battleId '{}' in Lobby. The lobby might be down. Reason: {}",
+                    logger.warn("Failed to update battle state for battleId '{}' in Lobby. The lobby might be down. Reason: {}",
                             battleId, error.getMessage());
                     return Mono.empty();
                 });

@@ -40,7 +40,7 @@ public class BattleService {
 
     private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final int TURN_DURATION_SECONDS = 30;
     private static final int CLEANUP_DELAY_SECONDS = 60;
@@ -170,7 +170,7 @@ public class BattleService {
         cleanupScheduler.schedule(() -> {
             BattleState removed = activeBattles.remove(battleState.getBattleId());
             if (removed != null) {
-                log.info("Battle {} cleaned up.", battleState.getBattleId());
+                logger.info("Battle {} cleaned up.", battleState.getBattleId());
             }
         }, CLEANUP_DELAY_SECONDS, TimeUnit.SECONDS);
     }

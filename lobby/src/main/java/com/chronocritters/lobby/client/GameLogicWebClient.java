@@ -19,7 +19,7 @@ public class GameLogicWebClient {
 
     private final WebClient webClient;
     private final Retry defaultRetrySpec;
-    private static final Logger log = LoggerFactory.getLogger(GameLogicWebClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(GameLogicWebClient.class);
 
 
     public GameLogicWebClient() {
@@ -30,7 +30,7 @@ public class GameLogicWebClient {
 
         this.defaultRetrySpec = Retry.backoff(3, Duration.ofMillis(500))
                 .filter(this::isRetryableException)
-                .doBeforeRetry(retrySignal -> log.warn("Retrying request after failure: attempt #{}, error: {}",
+                .doBeforeRetry(retrySignal -> logger.warn("Retrying request after failure: attempt #{}, error: {}",
                         retrySignal.totalRetries() + 1,
                         retrySignal.failure().getMessage()));
     }
@@ -48,7 +48,7 @@ public class GameLogicWebClient {
                 .bodyToMono(BattleState.class)
                 .retryWhen(defaultRetrySpec)
                 .onErrorResume(error -> {
-                    log.warn("Could not retrieve battle state for battleId '{}'. Reason: {}", battleId, error.getMessage());
+                    logger.warn("Could not retrieve battle state for battleId '{}'. Reason: {}", battleId, error.getMessage());
                     return Mono.empty(); // Return an empty Mono instead of an error signal
                 });
     }
@@ -69,7 +69,7 @@ public class GameLogicWebClient {
                 .bodyToMono(Void.class)
                 .retryWhen(defaultRetrySpec)
                 .onErrorResume(error -> {
-                    log.warn("Could not create battle for battleId '{}'. Reason: {}", battleId, error.getMessage());
+                    logger.warn("Could not create battle for battleId '{}'. Reason: {}", battleId, error.getMessage());
                     return Mono.empty();
                 });
     }
@@ -87,7 +87,7 @@ public class GameLogicWebClient {
                 .bodyToMono(Void.class)
                 .retryWhen(defaultRetrySpec)
                 .onErrorResume(error -> {
-                    log.warn("Could not handle turn timeout for battleId '{}'. The battle may have ended. Reason: {}", battleId, error.getMessage());
+                    logger.warn("Could not handle turn timeout for battleId '{}'. The battle may have ended. Reason: {}", battleId, error.getMessage());
                     return Mono.empty();
                 });
     }
