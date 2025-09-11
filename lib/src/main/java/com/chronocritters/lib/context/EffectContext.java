@@ -1,11 +1,28 @@
 package com.chronocritters.lib.context;
 
+import com.chronocritters.lib.model.Ability;
+import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.CritterState;
+import com.chronocritters.lib.model.PlayerState;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NonNull;
 
-import java.util.Map;
-@Data
-@Builder
+@Getter
+@Builder(toBuilder = true)
 public class EffectContext {
-    private Map<EffectContextType, Object> data;
+    @NonNull
+    private final BattleState battleState;
+
+    @NonNull
+    private final PlayerState player;
+
+    @NonNull
+    private final PlayerState opponent;
+
+    @NonNull
+    private final CritterState targetCritter;
+
+    private final CritterState casterCritter;
+    private final Ability sourceAbility;
 }

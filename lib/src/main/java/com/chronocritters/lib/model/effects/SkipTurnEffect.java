@@ -3,7 +3,6 @@ package com.chronocritters.lib.model.effects;
 import java.util.Optional;
 
 import com.chronocritters.lib.context.EffectContext;
-import com.chronocritters.lib.context.EffectContextType;
 import com.chronocritters.lib.interfaces.PersistentEffect;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
@@ -27,23 +26,10 @@ public class SkipTurnEffect extends Effect implements PersistentEffect {
 
     @Override
     public void apply(EffectContext context) {
-        BattleState battleState = (BattleState) context.getData().get(EffectContextType.BATTLE_STATE);
-        if (battleState == null) throw new IllegalArgumentException("BattleState not found in context");  
-
-        PlayerState player = (PlayerState) context.getData().get(EffectContextType.PLAYER);
-        if (player == null) throw new IllegalArgumentException("Player not found in context");
-
-        PlayerState opponent = (PlayerState) context.getData().get(EffectContextType.OPPONENT);
-        if (opponent == null) throw new IllegalArgumentException("Opponent not found in context");
-
-        CritterState caster = (CritterState) context.getData().get(EffectContextType.CASTER_CRITTER);
-        if (caster == null) throw new IllegalArgumentException("Caster critter not found in context");  
-
-        CritterState target = (CritterState) context.getData().get(EffectContextType.TARGET_CRITTER);
-        if (target == null) throw new IllegalArgumentException("Target critter not found in context");
-
-        Ability ability = (Ability) context.getData().get(EffectContextType.ABILITY);
-        if (ability == null) throw new IllegalArgumentException("Ability not found in context");
+        BattleState battleState = context.getBattleState();
+        PlayerState player = context.getPlayer();
+        CritterState target = context.getTargetCritter();
+        Ability ability = context.getSourceAbility();
 
         Optional<SkipTurnEffect> existingEffect = target.getActiveStatusEffects().stream()
             .filter(e -> e.getId().equals(this.getId()))
@@ -64,11 +50,8 @@ public class SkipTurnEffect extends Effect implements PersistentEffect {
 
     @Override
     public boolean onTick(EffectContext context) {
-        BattleState battleState = (BattleState) context.getData().get(EffectContextType.BATTLE_STATE);
-        if (battleState == null) throw new IllegalArgumentException("BattleState not found in context");
-        
-        CritterState target = (CritterState) context.getData().get(EffectContextType.TARGET_CRITTER);
-        if (target == null) throw new IllegalArgumentException("Target critter not found in context");
+        BattleState battleState = context.getBattleState();
+        CritterState target = context.getTargetCritter();
         
         this.duration--;
 
