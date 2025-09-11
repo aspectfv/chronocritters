@@ -36,8 +36,8 @@ public class TurnEffectsHandler extends AbstractTurnActionHandler {
 
             if (effect instanceof PersistentEffect persistentEffect) {
                 EffectContext context = EffectContextFactory.createContext(effect.getType(), battleState);
-
-                boolean isExpired = persistentEffect.onTick(context);
+                
+                boolean isExpired = persistentEffect.onTick(context, critter);
                 if (isExpired) iterator.remove();
             }
         }

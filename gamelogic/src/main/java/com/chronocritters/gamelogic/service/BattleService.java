@@ -92,6 +92,7 @@ public class BattleService {
 
     public BattleState switchCritter(String battleId, String playerId, int targetCritterIndex) {
         BattleState currentBattle = getBattleState(battleId);
+        System.out.println("BattleState retrieved: " + currentBattle);
         if (currentBattle == null) throw new IllegalArgumentException("Invalid battle ID");
         if (!currentBattle.getActivePlayerId().equals(playerId)) throw new IllegalStateException("It's not the player's turn");
 

@@ -130,7 +130,7 @@ public final class PlayerProtoMapper {
                 return SkipTurnEffect.builder()
                         .id(effectProto.getId())
                         .type(type)
-                        .duration(effectProto.getDamageOverTimeEffect().getDuration())
+                        .duration(effectProto.getSkipTurnEffect().getDuration())
                         .build();
             }
         }
