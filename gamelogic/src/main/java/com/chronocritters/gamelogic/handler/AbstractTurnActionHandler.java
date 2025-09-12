@@ -1,13 +1,13 @@
 package com.chronocritters.gamelogic.handler;
 
-import com.chronocritters.lib.interfaces.TurnActionHandler;
+import com.chronocritters.lib.interfaces.ITurnActionHandler;
 import com.chronocritters.lib.model.BattleState;
 
-public abstract class AbstractTurnActionHandler implements TurnActionHandler {
-    protected TurnActionHandler next;
+public abstract class AbstractTurnActionHandler implements ITurnActionHandler {
+    protected ITurnActionHandler next;
 
     @Override
-    public TurnActionHandler setNext(TurnActionHandler next) {
+    public ITurnActionHandler setNext(ITurnActionHandler next) {
         this.next = next;
         return next;
     }

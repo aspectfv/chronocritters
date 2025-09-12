@@ -19,7 +19,7 @@ import com.chronocritters.gamelogic.handler.ExecuteAbilityHandler;
 import com.chronocritters.gamelogic.handler.FaintingHandler;
 import com.chronocritters.gamelogic.handler.TurnEffectsHandler;
 import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
-import com.chronocritters.lib.interfaces.TurnActionHandler;
+import com.chronocritters.lib.interfaces.ITurnActionHandler;
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.BattleState;
@@ -77,7 +77,7 @@ public class BattleService {
         if (currentBattle == null) throw new IllegalArgumentException("Invalid battle ID");
         if (!currentBattle.getActivePlayerId().equals(playerId)) throw new IllegalStateException("It's not the player's turn");
 
-        TurnActionHandler turnChain = new ExecuteAbilityHandler(abilityId);
+        ITurnActionHandler turnChain = new ExecuteAbilityHandler(abilityId);
         turnChain
             .setNext(new FaintingHandler(eventPublisher))
             .setNext(new TurnEffectsHandler())
@@ -109,7 +109,7 @@ public class BattleService {
         
         player.setActiveCritterIndex(targetCritterIndex);
 
-        TurnActionHandler turnChain = new TurnEffectsHandler();
+        ITurnActionHandler turnChain = new TurnEffectsHandler();
         turnChain
             .setNext(new FaintingHandler(eventPublisher))
             .setNext(new TurnTransitionHandler());
@@ -129,7 +129,7 @@ public class BattleService {
         String timeoutLog = String.format("%s ran out of time!", currentBattle.getPlayer().getUsername());
         currentBattle.getActionLogHistory().add(timeoutLog);
 
-        TurnActionHandler turnChain = new TurnEffectsHandler();
+        ITurnActionHandler turnChain = new TurnEffectsHandler();
         turnChain
             .setNext(new FaintingHandler(eventPublisher))
             .setNext(new TurnTransitionHandler());
