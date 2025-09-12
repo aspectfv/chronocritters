@@ -9,44 +9,36 @@ enum CritterType {
     UNKNOWN
 }
 
-enum EffectType {
-    DAMAGE
-    DAMAGE_OVER_TIME
-    SKIP_TURN
-    BUFF
-    DEBUFF
-    UNKNOWN
-}
-
 union EffectUnion = DamageEffect | DamageOverTimeEffect | SkipTurnEffect
 
 type SkipTurnEffect implements Effect {
   id: ID!
-  type: EffectType!
+  description: String!
   duration: Int!
 }
 
 type DamageOverTimeEffect implements Effect {
   id: ID!
-  type: EffectType!
+  description: String!
   damagePerTurn: Int!
   duration: Int!
 }
 
 type DamageEffect implements Effect {
   id: ID!
-  type: EffectType!
+  description: String!
   damage: Int!
 }
 
 interface Effect {
   id: ID!
-  type: EffectType!
+  description: String!
 }
 
 type Ability {
     id: ID
     name: String
+    description: String
     effects: [EffectUnion]
 }
 
@@ -57,8 +49,9 @@ type BaseStats {
 }
 
 type Critter {
-    id: ID
-    name: String
+    id: ID!
+    name: String!
+    description: String!
     type: CritterType
     baseStats: BaseStats
     abilities: [Ability]

@@ -16,15 +16,6 @@ enum CritterTypeProto {
   KINETIC = 7;
 }
 
-enum EffectTypeProto {
-  EFFECT_TYPE_UNSPECIFIED = 0;
-  DAMAGE = 1;
-  DAMAGE_OVER_TIME = 2;
-  SKIP_TURN = 3;
-  BUFF = 4;
-  DEBUFF = 5;
-}
-
 service PlayerService {
   rpc GetPlayer(PlayerRequest) returns (PlayerResponse);
   rpc UpdateMatchHistory(MatchHistoryRequest) returns (MatchHistoryResponse);
@@ -48,9 +39,10 @@ message PlayerStatsProto {
 message CritterProto {
   string id = 1;
   string name = 2;
-  CritterTypeProto type = 3;
-  BaseStatsProto base_stats = 4;
-  repeated AbilityProto abilities = 5;
+  string description = 3;
+  CritterTypeProto type = 4;
+  BaseStatsProto base_stats = 5;
+  repeated AbilityProto abilities = 6;
 }
 
 message BaseStatsProto {
@@ -62,12 +54,13 @@ message BaseStatsProto {
 message AbilityProto {
   string id = 1;
   string name = 2;
-  repeated EffectProto effects = 5;
+  string description = 3;
+  repeated EffectProto effects = 4;
 }
 
 message EffectProto {
   string id = 1;
-  EffectTypeProto type = 2;
+  string description = 2;
   oneof effect_data {
     DamageEffectProto damage_effect = 3;
     DamageOverTimeEffectProto damage_over_time_effect = 4;

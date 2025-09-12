@@ -2,17 +2,17 @@ package com.chronocritters.lib.model;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.effects.SkipTurnEffect;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -20,18 +20,19 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Document(collection = "effects")
 @JsonTypeInfo(
-  use = JsonTypeInfo.Id.NAME, 
-  include = JsonTypeInfo.As.PROPERTY, 
-  property = "type"
+  use = JsonTypeInfo.Id.NAME,
+  include = JsonTypeInfo.As.PROPERTY,
+  property = "_type"
 )
-@JsonSubTypes({ 
-  @JsonSubTypes.Type(value = DamageEffect.class, name = "DAMAGE"), 
-  @JsonSubTypes.Type(value = DamageOverTimeEffect.class, name = "DAMAGE_OVER_TIME"),
-  @JsonSubTypes.Type(value = SkipTurnEffect.class, name = "SKIP_TURN")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = DamageEffect.class, name = "DamageEffect"),
+  @JsonSubTypes.Type(value = DamageOverTimeEffect.class, name = "DamageOverTimeEffect"),
+  @JsonSubTypes.Type(value = SkipTurnEffect.class, name = "SkipTurnEffect"),
 })
 public abstract class Effect {
+    @NotBlank(message = "Effect ID cannot be blank")
     protected String id;
-    protected EffectType type;
-
-    public abstract void apply(EffectContext context);
+    
+    @NotBlank(message = "Effect description cannot be blank")
+    protected String description;
 }

@@ -16,6 +16,7 @@ export type Scalars = {
 
 export type Ability = {
   __typename?: 'Ability';
+  description?: Maybe<Scalars['String']['output']>;
   effects?: Maybe<Array<Maybe<EffectUnion>>>;
   id?: Maybe<Scalars['ID']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -32,8 +33,9 @@ export type Critter = {
   __typename?: 'Critter';
   abilities?: Maybe<Array<Maybe<Ability>>>;
   baseStats?: Maybe<BaseStats>;
-  id?: Maybe<Scalars['ID']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
   type?: Maybe<CritterType>;
 };
 
@@ -51,31 +53,22 @@ export enum CritterType {
 export type DamageEffect = Effect & {
   __typename?: 'DamageEffect';
   damage: Scalars['Int']['output'];
+  description: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  type: EffectType;
 };
 
 export type DamageOverTimeEffect = Effect & {
   __typename?: 'DamageOverTimeEffect';
   damagePerTurn: Scalars['Int']['output'];
+  description: Scalars['String']['output'];
   duration: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  type: EffectType;
 };
 
 export type Effect = {
+  description: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  type: EffectType;
 };
-
-export enum EffectType {
-  Buff = 'BUFF',
-  Damage = 'DAMAGE',
-  DamageOverTime = 'DAMAGE_OVER_TIME',
-  Debuff = 'DEBUFF',
-  SkipTurn = 'SKIP_TURN',
-  Unknown = 'UNKNOWN'
-}
 
 export type EffectUnion = DamageEffect | DamageOverTimeEffect | SkipTurnEffect;
 
@@ -130,9 +123,9 @@ export type QueryGetPlayerArgs = {
 
 export type SkipTurnEffect = Effect & {
   __typename?: 'SkipTurnEffect';
+  description: Scalars['String']['output'];
   duration: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  type: EffectType;
 };
 
 export type User = {
@@ -169,15 +162,15 @@ export type GetPlayerOverviewQueryVariables = Exact<{
 }>;
 
 
-export type GetPlayerOverviewQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', id?: string | null, username?: string | null, stats?: { __typename?: 'PlayerStats', wins?: number | null, losses?: number | null } | null, roster?: Array<{ __typename?: 'Critter', name?: string | null, type?: CritterType | null } | null> | null } | null };
+export type GetPlayerOverviewQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', id?: string | null, username?: string | null, stats?: { __typename?: 'PlayerStats', wins?: number | null, losses?: number | null } | null, roster?: Array<{ __typename?: 'Critter', name: string, description: string, type?: CritterType | null } | null> | null } | null };
 
 export type GetMyCrittersQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', health?: number | null, attack?: number | null, defense?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, effects?: Array<
-          | { __typename?: 'DamageEffect', id: string, type: EffectType, damage: number }
-          | { __typename?: 'DamageOverTimeEffect', id: string, type: EffectType, damagePerTurn: number, duration: number }
-          | { __typename?: 'SkipTurnEffect', id: string, type: EffectType, duration: number }
+export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', roster?: Array<{ __typename?: 'Critter', id: string, name: string, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', health?: number | null, attack?: number | null, defense?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, effects?: Array<
+          | { __typename?: 'DamageEffect', id: string, description: string, damage: number }
+          | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
+          | { __typename?: 'SkipTurnEffect', id: string, description: string, duration: number }
          | null> | null } | null> | null } | null> | null } | null };

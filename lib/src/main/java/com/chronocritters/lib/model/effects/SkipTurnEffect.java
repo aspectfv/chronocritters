@@ -2,7 +2,6 @@ package com.chronocritters.lib.model.effects;
 
 import java.util.Optional;
 
-import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.interfaces.IPersistentEffect;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
@@ -10,6 +9,7 @@ import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.PlayerState;
 
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,14 +22,14 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 public class SkipTurnEffect extends Effect implements IPersistentEffect {
+    @Min(value = 1, message = "Duration must be at least 1 turn")
     private int duration;
 
     @Override
-    public void apply(EffectContext context) {
-        BattleState battleState = context.getBattleState();
-        PlayerState player = context.getPlayer();
-        CritterState target = context.getTargetCritter();
-        Ability ability = context.getSourceAbility();
+    public void onApply(BattleState battleState) {
+        PlayerState player = battleState.getPlayer();
+        CritterState target = player.getActiveCritter();
+        Ability ability = player.getActiveCritter().getAbilityById(player.getLastSelectedAbilityId());
 
         Optional<SkipTurnEffect> existingEffect = target.getActiveStatusEffects().stream()
             .filter(e -> e.getId().equals(this.getId()))
@@ -49,10 +49,7 @@ public class SkipTurnEffect extends Effect implements IPersistentEffect {
     }
 
     @Override
-    public boolean onTick(EffectContext context) {
-        BattleState battleState = context.getBattleState();
-        CritterState target = context.getTargetCritter();
-        
+    public boolean onTick(BattleState battleState, CritterState target) {
         this.duration--;
 
         if (this.duration >= 0) {
@@ -69,7 +66,6 @@ public class SkipTurnEffect extends Effect implements IPersistentEffect {
     private Effect createInstance() {
         return SkipTurnEffect.builder()
                 .id(this.id)
-                .type(this.type)
                 .duration(this.duration)
                 .build();
     }

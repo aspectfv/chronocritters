@@ -1,7 +1,9 @@
 package com.chronocritters.lib.interfaces;
 
-import com.chronocritters.lib.context.EffectContext;
+import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.CritterState;
 
 public interface IPersistentEffect {
-    boolean onTick(EffectContext context);
+    void onApply(BattleState battleState);
+    boolean onTick(BattleState battleState, CritterState target);
 }

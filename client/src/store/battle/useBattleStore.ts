@@ -4,7 +4,6 @@ import type {
   PlayerState,
   CritterState,
 } from '@store/battle/types';
-import { getEffectDescription } from '@utils/utils';
 import { CritterType } from '@/gql/graphql';
 
 function getMappedPlayers(playerOne: PlayerState, playerTwo: PlayerState, userId: string) {
@@ -69,8 +68,6 @@ export const useBattleStore = create<BattleState>((set) => ({
               ...activeCritter,
               abilities: activeCritter.abilities?.map((ab) => ({
                 ...ab,
-                effects: ab.effects,
-                effectDescriptions: ab.effects?.map((ef) => ef ? getEffectDescription(ef) : ''),
               })),
             };
           }
@@ -83,8 +80,6 @@ export const useBattleStore = create<BattleState>((set) => ({
               ...activeCritter,
               abilities: activeCritter.abilities?.map((ab) => ({
                 ...ab,
-                effects: ab.effects,
-                effectDescriptions: ab.effects?.map((ef) => ef ? getEffectDescription(ef) : ''),
               })),
             };
           }

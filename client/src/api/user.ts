@@ -85,6 +85,7 @@ const GET_PLAYER_OVERVIEW_QUERY = gql(`
       }
       roster {
         name
+        description
         type
       }
     }
@@ -115,21 +116,22 @@ const GET_MY_CRITTERS_QUERY = gql(`
         abilities {
           id
           name
+          description
           effects {
             ... on DamageEffect {
               id
-              type
+              description
               damage
             }
             ... on DamageOverTimeEffect {
               id
-              type
+              description
               damagePerTurn
               duration
             }
             ... on SkipTurnEffect {
               id
-              type
+              description
               duration
             }
           }

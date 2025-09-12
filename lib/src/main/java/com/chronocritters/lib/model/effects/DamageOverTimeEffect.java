@@ -2,7 +2,6 @@ package com.chronocritters.lib.model.effects;
 
 import java.util.Optional;
 
-import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.interfaces.IPersistentEffect;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
@@ -10,6 +9,7 @@ import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.PlayerState;
 
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,17 +22,19 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 public class DamageOverTimeEffect extends Effect implements IPersistentEffect {
+    @Min(value = 0, message = "Damage per turn must not be negative")
     private int damagePerTurn;
+
+    @Min(value = 1, message = "Duration must be at least 1 turn")
     private int duration;
 
     @Override
-    public void apply(EffectContext context) {
-        BattleState battleState = context.getBattleState();
-        PlayerState player = context.getPlayer();
-        PlayerState opponent = context.getOpponent();
-        CritterState caster = context.getCasterCritter();
-        CritterState target = context.getTargetCritter();
-        Ability ability = context.getSourceAbility();
+    public void onApply(BattleState battleState) {
+        PlayerState player = battleState.getPlayer();
+        PlayerState opponent = battleState.getOpponent();
+        CritterState caster = player.getActiveCritter();
+        CritterState target = opponent.getActiveCritter();
+        Ability ability = caster.getAbilityById(player.getLastSelectedAbilityId());
 
         Optional<DamageOverTimeEffect> existingEffect = target.getActiveStatusEffects().stream()
             .filter(e -> e.getId().equals(this.getId()))
@@ -53,10 +55,7 @@ public class DamageOverTimeEffect extends Effect implements IPersistentEffect {
     }
 
     @Override
-    public boolean onTick(EffectContext context) {
-        BattleState battleState = context.getBattleState();
-        CritterState target = context.getTargetCritter();
-
+    public boolean onTick(BattleState battleState, CritterState target) {
         this.duration--;
 
         if (this.duration >= 0) {
@@ -74,7 +73,6 @@ public class DamageOverTimeEffect extends Effect implements IPersistentEffect {
     private Effect createInstance() {
         return DamageOverTimeEffect.builder()
                 .id(this.id)
-                .type(this.type)
                 .damagePerTurn(this.damagePerTurn)
                 .duration(this.duration)
                 .build();

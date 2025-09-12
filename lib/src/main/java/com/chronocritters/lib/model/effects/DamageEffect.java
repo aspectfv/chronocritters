@@ -1,6 +1,6 @@
 package com.chronocritters.lib.model.effects;
 
-import com.chronocritters.lib.context.EffectContext;
+import com.chronocritters.lib.interfaces.IInstantEffect;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
@@ -8,6 +8,7 @@ import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.PlayerState;
 import com.chronocritters.lib.util.TypeAdvantageUtil;
 
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,16 +20,16 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
-public class DamageEffect extends Effect {
+public class DamageEffect extends Effect implements IInstantEffect {
+    @Min(value = 0, message = "Damage cannot be negative")
     private int damage;
 
-    public void apply(EffectContext context) {
-        BattleState battleState = context.getBattleState();
-        PlayerState player = context.getPlayer();
-        PlayerState opponent = context.getOpponent();
-        CritterState caster = context.getCasterCritter();
-        CritterState target = context.getTargetCritter();
-        Ability ability = context.getSourceAbility();
+    public void apply(BattleState battleState) {
+        PlayerState player = battleState.getPlayer();
+        PlayerState opponent = battleState.getOpponent();
+        CritterState caster = player.getActiveCritter();
+        CritterState target = opponent.getActiveCritter();
+        Ability ability = player.getActiveCritter().getAbilityById(player.getLastSelectedAbilityId());
 
         int atk = caster.getStats().getCurrentAtk();
         int def = target.getStats().getCurrentDef();

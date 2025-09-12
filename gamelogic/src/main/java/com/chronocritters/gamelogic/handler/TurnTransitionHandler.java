@@ -1,15 +1,10 @@
 package com.chronocritters.gamelogic.handler;
 
 import com.chronocritters.lib.model.BattleState;
-import com.chronocritters.lib.model.CritterState;
-import com.chronocritters.lib.model.Effect;
-import com.chronocritters.lib.model.EffectType;
 import com.chronocritters.lib.model.PlayerState;
+import com.chronocritters.lib.model.effects.SkipTurnEffect;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.Optional;
-
 @RequiredArgsConstructor
 public class TurnTransitionHandler extends AbstractTurnActionHandler {
     private static final int TURN_DURATION_SECONDS = 30;
@@ -24,14 +19,11 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
         currentPlayer.setHasTurn(false);
         nextPlayer.setHasTurn(true);
         battleState.setActivePlayerId(nextPlayer.getId());
-
-        CritterState activeCritter = nextPlayer.getActiveCritter();
         
-        Optional<Effect> skipTurnEffect = activeCritter.getActiveStatusEffects().stream()
-                .filter(effect -> effect.getType() == EffectType.SKIP_TURN)
-                .findFirst();
+        boolean shouldSkipTurn = nextPlayer.getActiveCritter().getActiveStatusEffects().stream()
+                .anyMatch(effect -> effect instanceof SkipTurnEffect);
 
-        if (skipTurnEffect.isPresent()) {
+        if (shouldSkipTurn) {
             this.handle(battleState);
             return;
         }
