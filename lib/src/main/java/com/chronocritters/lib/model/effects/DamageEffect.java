@@ -30,10 +30,15 @@ public class DamageEffect extends Effect {
         CritterState target = context.getTargetCritter();
         Ability ability = context.getSourceAbility();
 
+        int atk = caster.getStats().getCurrentAtk();
+        int def = target.getStats().getCurrentDef();
         double typeMultiplier = TypeAdvantageUtil.getMultiplier(caster.getType(), target.getType());
 
-        int baseDamage = (int) Math.max(0, damage * (caster.getStats().getCurrentAtk() / (double)(caster.getStats().getCurrentDef() + target.getStats().getCurrentDef())));
-        int finalDamage = (int) Math.max(1, baseDamage * typeMultiplier);
+        double baseDamage = damage * Math.min(3.0, atk / (double) def);
+        
+        int finalDamage = (int) Math.round(baseDamage * typeMultiplier);
+
+        finalDamage = Math.max(0, finalDamage);
 
         int newHealth = Math.max(0, target.getStats().getCurrentHp() - finalDamage);
         target.getStats().setCurrentHp(newHealth);
