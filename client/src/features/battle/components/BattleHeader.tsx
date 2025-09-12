@@ -23,11 +23,13 @@ export function BattleHeader({ isPlayerTurn }: BattleHeaderProps) {
           {getConnectionStatusStyle(connectionStatus).text}
         </div>
         <h1 className="text-4xl font-bold text-green-800">Battle Arena</h1>
-        {isPlayerTurn && (
-          <div className="mt-3 inline-block bg-green-700 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md">
-            Your Turn
-          </div>
-        )}
+        <div style={{ height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 15 }}>
+          {isPlayerTurn && (
+            <div className="inline-block bg-green-700 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md">
+              Your Turn
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
