@@ -11,6 +11,7 @@ import { CritterDisplayCard } from '@features/battle/components/CritterDisplayCa
 import { TeamDisplay } from '@features/battle/components/TeamDisplay';
 import { BattleLog } from '@features/battle/components/BattleLog';
 import { AbilitySelector } from '@features/battle/components/AbilitySelector';
+import { BattleMusicControl } from '@features/battle/components/BattleMusicControl';
 import { getBattleState, executeAbility, switchCritter } from '@api/gamelogic';
 import { ConnectionStatus } from '@store/lobby/types';
 
@@ -97,7 +98,8 @@ function BattlePage() {
   
   return (
     <div className="min-h-screen bg-[#f0f7f3] p-4">
-      <div className="max-w-screen-xl mx-auto">
+      <div className="max-w-screen-xl mx-auto relative">
+        <BattleMusicControl />
         <BattleHeader isPlayerTurn={player.hasTurn} />
         <TimerBar timeRemaining={timeRemaining} />
 
