@@ -54,8 +54,8 @@ const effectDescriptionMap: Record<EffectType, (effect: EffectUnion) => string> 
   [EffectType.Unknown]: () => 'A mysterious effect.',
 };
 
-export const getEffectDescription = (effect: EffectType | null | undefined): string => {
-  return effectDescriptionMap[effect ?? EffectType.Unknown]({} as EffectUnion);
+export const getEffectDescription = (effect: EffectUnion | null | undefined): string => {
+  return effectDescriptionMap[effect?.type ?? EffectType.Unknown](effect as EffectUnion);
 };
 
 const effectTypeStyles: Record<EffectType, string> = {

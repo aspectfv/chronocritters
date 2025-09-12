@@ -15,7 +15,7 @@ const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: b
       <div className="flex justify-between items-center">
         <div>
           <h4 className="font-bold text-lg text-gray-800">{ability.name}</h4>
-          <p className="text-sm text-gray-500 mt-1">{effect ? getEffectDescription(effect.type) : 'No effect description.'}</p>
+          <p className="text-sm text-gray-500 mt-1">{effect ? getEffectDescription(effect) : 'No effect description.'}</p>
         </div>
         <span className={`text-xs font-semibold px-3 py-1 rounded-full border-2 ${typeStyle}`}>
           {effect?.type ?? 'UNKNOWN'}
