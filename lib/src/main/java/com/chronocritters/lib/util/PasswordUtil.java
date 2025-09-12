@@ -10,6 +10,8 @@ public class PasswordUtil {
     }
 
     public static boolean checkPassword(String rawPassword, String hashedPassword) {
+        if (hashedPassword == null) throw new IllegalArgumentException("Hashed password cannot be null");
+        if (rawPassword == null) return false;
         return encoder.matches(rawPassword, hashedPassword);
     }
 }

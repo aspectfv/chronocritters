@@ -17,9 +17,7 @@ public class AuthService {
     private final PlayerRepository playerRepository;
 
     public LoginResponse register(String username, String password) {
-        if (playerRepository.findByUsername(username.trim()).isPresent()) {
-            throw new IllegalArgumentException("Username already exists");
-        }
+        if (playerRepository.findByUsername(username.trim()).isPresent()) throw new IllegalArgumentException("Username already taken");
 
         Player player = new Player();
         player.setUsername(username.trim());
@@ -38,9 +36,7 @@ public class AuthService {
         Player player = playerRepository.findByUsername(username.trim())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
-        if (!PasswordUtil.checkPassword(password, player.getPassword())) {
-            throw new IllegalArgumentException("Invalid username or password");
-        }
+        if (!PasswordUtil.checkPassword(password, player.getPassword())) throw new IllegalArgumentException("Invalid username or password");
 
         User user = new User(player.getId(), player.getUsername());
         return new LoginResponse(user, JwtUtil.generateToken(player.getId(), player.getUsername()));
