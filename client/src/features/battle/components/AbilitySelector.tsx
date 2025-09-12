@@ -1,26 +1,10 @@
-import type { Ability, EffectUnion } from '@/gql/graphql';
+import type { Ability } from '@/gql/graphql';
 import type { AbilitySelectorProps } from '@features/battle/types';
-import { getEffectDescription } from '@utils/utils';
-
-const getEffectType = (effect: EffectUnion | null | undefined): 'DAMAGE' | 'BUFF' | 'DEBUFF' | 'UNKNOWN' => {
-  if (!effect) return 'UNKNOWN';
-  if (effect.type.includes('DAMAGE')) return 'DAMAGE';
-  if (effect.type === 'BUFF') return 'BUFF';
-  if (effect.type === 'DEBUFF') return 'DEBUFF';
-  return 'UNKNOWN';
-};
-
-const effectTypeStyles = {
-  DAMAGE: 'bg-red-100 text-red-800 border-red-300',
-  BUFF: 'bg-green-100 text-green-800 border-green-300',
-  DEBUFF: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  UNKNOWN: 'bg-gray-100 text-gray-800 border-gray-300',
-};
+import { getEffectDescription, getEffectTypeStyle } from '@utils/utils';
 
 const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: boolean }> = ({ ability, onClick, disabled }) => {
   const effect = ability.effects?.[0];
-  const effectType = getEffectType(effect);
-  const typeStyle = effectTypeStyles[effectType];
+  const typeStyle = getEffectTypeStyle(effect?.type);
 
   return (
     <button
@@ -31,10 +15,10 @@ const AbilityCard: React.FC<{ ability: Ability; onClick: () => void; disabled: b
       <div className="flex justify-between items-center">
         <div>
           <h4 className="font-bold text-lg text-gray-800">{ability.name}</h4>
-          <p className="text-sm text-gray-500 mt-1">{effect ? getEffectDescription(effect) : 'No effect description.'}</p>
+          <p className="text-sm text-gray-500 mt-1">{effect ? getEffectDescription(effect.type) : 'No effect description.'}</p>
         </div>
         <span className={`text-xs font-semibold px-3 py-1 rounded-full border-2 ${typeStyle}`}>
-          {effectType}
+          {effect?.type ?? 'UNKNOWN'}
         </span>
       </div>
     </button>
