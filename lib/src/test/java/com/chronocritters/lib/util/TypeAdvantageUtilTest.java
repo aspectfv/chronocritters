@@ -6,9 +6,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class TypeAdvantageUtilTest {
 
@@ -16,51 +23,50 @@ class TypeAdvantageUtilTest {
     private static final double NOT_VERY_EFFECTIVE = 0.5;
     private static final double NORMAL_EFFECTIVE = 1.0;
 
-    // Provides all super-effective matchup combinations
+    // Helper method to access the private static map using reflection
+    @SuppressWarnings("unchecked")
+    private static Map<CritterType, Set<CritterType>> getAdvantageMap() {
+        try {
+            Field field = TypeAdvantageUtil.class.getDeclaredField("TYPE_ADVANTAGES");
+            field.setAccessible(true);
+            return (Map<CritterType, Set<CritterType>>) field.get(null);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            fail("Failed to access TYPE_ADVANTAGES map via reflection", e);
+            return null; // Should be unreachable
+        }
+    }
+
+    // 1. Dynamically generates super-effective matchups from the real implementation
     private static Stream<Arguments> superEffectiveMatchups() {
-        return Stream.of(
-                Arguments.of(CritterType.FIRE, CritterType.GRASS),
-                Arguments.of(CritterType.FIRE, CritterType.METAL),
-                Arguments.of(CritterType.WATER, CritterType.FIRE),
-                Arguments.of(CritterType.WATER, CritterType.KINETIC),
-                Arguments.of(CritterType.GRASS, CritterType.WATER),
-                Arguments.of(CritterType.ELECTRIC, CritterType.WATER),
-                Arguments.of(CritterType.METAL, CritterType.ELECTRIC),
-                Arguments.of(CritterType.TOXIC, CritterType.GRASS),
-                Arguments.of(CritterType.KINETIC, CritterType.METAL)
-        );
+        return getAdvantageMap().entrySet().stream()
+                .flatMap(entry -> {
+                    CritterType attacker = entry.getKey();
+                    return entry.getValue().stream()
+                            .map(defender -> Arguments.of(attacker, defender));
+                });
     }
 
-    // Provides all not-very-effective matchup combinations (the reverse of super-effective)
+    // 2. Dynamically generates not-very-effective matchups by reversing the super-effective ones
     private static Stream<Arguments> notVeryEffectiveMatchups() {
-        return Stream.of(
-                Arguments.of(CritterType.GRASS, CritterType.FIRE),
-                Arguments.of(CritterType.METAL, CritterType.FIRE),
-                Arguments.of(CritterType.FIRE, CritterType.WATER),
-                Arguments.of(CritterType.KINETIC, CritterType.WATER),
-                Arguments.of(CritterType.WATER, CritterType.GRASS),
-                Arguments.of(CritterType.WATER, CritterType.ELECTRIC),
-                Arguments.of(CritterType.ELECTRIC, CritterType.METAL),
-                Arguments.of(CritterType.GRASS, CritterType.TOXIC),
-                Arguments.of(CritterType.METAL, CritterType.KINETIC)
-        );
+        return superEffectiveMatchups()
+                .map(args -> Arguments.of(args.get()[1], args.get()[0])); // Reverse attacker and defender
     }
 
-    // Provides a representative set of neutral matchups
+    // 3. Dynamically generates all remaining matchups as neutral
     private static Stream<Arguments> neutralMatchups() {
-        return Stream.of(
-                // A type against itself
-                Arguments.of(CritterType.FIRE, CritterType.FIRE),
-                Arguments.of(CritterType.WATER, CritterType.WATER),
-                Arguments.of(CritterType.KINETIC, CritterType.KINETIC),
-                // Unrelated types
-                Arguments.of(CritterType.FIRE, CritterType.ELECTRIC),
-                Arguments.of(CritterType.TOXIC, CritterType.WATER),
-                Arguments.of(CritterType.METAL, CritterType.GRASS)
-        );
+        Set<List<CritterType>> nonNeutralMatchups = new HashSet<>();
+        superEffectiveMatchups().forEach(args -> nonNeutralMatchups.add(Arrays.asList((CritterType) args.get()[0], (CritterType) args.get()[1])));
+        notVeryEffectiveMatchups().forEach(args -> nonNeutralMatchups.add(Arrays.asList((CritterType) args.get()[0], (CritterType) args.get()[1])));
+
+        return Arrays.stream(CritterType.values())
+                .flatMap(attacker -> Arrays.stream(CritterType.values())
+                        .map(defender -> List.of(attacker, defender))
+                )
+                .filter(matchup -> !nonNeutralMatchups.contains(matchup))
+                .map(matchup -> Arguments.of(matchup.get(0), matchup.get(1)));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0} (attacker) vs {1} (defender) should be SUPER effective")
     @MethodSource("superEffectiveMatchups")
     @DisplayName("getMultiplier should return 1.5 for super-effective matchups")
     void getMultiplier_forAdvantageousMatchups_shouldReturnSuperEffective(CritterType attacker, CritterType defender) {
@@ -71,7 +77,7 @@ class TypeAdvantageUtilTest {
         assertThat(multiplier).isEqualTo(SUPER_EFFECTIVE);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0} (attacker) vs {1} (defender) should be NOT VERY effective")
     @MethodSource("notVeryEffectiveMatchups")
     @DisplayName("getMultiplier should return 0.5 for not-very-effective matchups")
     void getMultiplier_forDisadvantageousMatchups_shouldReturnNotVeryEffective(CritterType attacker, CritterType defender) {
@@ -82,7 +88,7 @@ class TypeAdvantageUtilTest {
         assertThat(multiplier).isEqualTo(NOT_VERY_EFFECTIVE);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0} (attacker) vs {1} (defender) should be NORMAL effective")
     @MethodSource("neutralMatchups")
     @DisplayName("getMultiplier should return 1.0 for neutral matchups")
     void getMultiplier_forNeutralMatchups_shouldReturnNormalEffective(CritterType attacker, CritterType defender) {
