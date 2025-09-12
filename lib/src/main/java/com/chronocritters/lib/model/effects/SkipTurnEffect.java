@@ -3,7 +3,7 @@ package com.chronocritters.lib.model.effects;
 import java.util.Optional;
 
 import com.chronocritters.lib.context.EffectContext;
-import com.chronocritters.lib.interfaces.PersistentEffect;
+import com.chronocritters.lib.interfaces.IPersistentEffect;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
@@ -21,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
-public class SkipTurnEffect extends Effect implements PersistentEffect {
+public class SkipTurnEffect extends Effect implements IPersistentEffect {
     private int duration;
 
     @Override

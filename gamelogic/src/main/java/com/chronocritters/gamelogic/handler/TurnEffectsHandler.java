@@ -2,7 +2,7 @@ package com.chronocritters.gamelogic.handler;
 
 import com.chronocritters.lib.context.EffectContext;
 import com.chronocritters.lib.factory.EffectContextFactory;
-import com.chronocritters.lib.interfaces.PersistentEffect;
+import com.chronocritters.lib.interfaces.IPersistentEffect;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
@@ -34,7 +34,7 @@ public class TurnEffectsHandler extends AbstractTurnActionHandler {
         while (iterator.hasNext()) {
             Effect effect = iterator.next();
 
-            if (effect instanceof PersistentEffect persistentEffect) {
+            if (effect instanceof IPersistentEffect persistentEffect) {
                 EffectContext context = EffectContextFactory.createOnTickContext(battleState, critter);
 
                 boolean isExpired = persistentEffect.onTick(context);
