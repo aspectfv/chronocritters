@@ -2,10 +2,14 @@ package com.chronocritters.user.controller;
 
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 
+import com.chronocritters.lib.model.BaseStats;
 import com.chronocritters.lib.model.Player;
+import com.chronocritters.lib.model.PlayerStats;
+import com.chronocritters.lib.util.ExperienceUtil;
 import com.chronocritters.user.service.PlayerService;
 
 import jakarta.validation.constraints.NotBlank;
@@ -24,5 +28,15 @@ public class PlayerController {
 		String id
 	) {
 		return playerService.findById(id);
+	}
+
+	@SchemaMapping(typeName = "PlayerStats", field = "expToNextLevel")
+	public Long getExpToNextLevel(PlayerStats player) {
+		return ExperienceUtil.getRequiredExpForPlayerLevel(player.getLevel() + 1);
+	}
+
+	@SchemaMapping(typeName = "BaseStats", field = "expToNextLevel")
+	public Long getExpToNextLevel(BaseStats baseStats) {
+		return ExperienceUtil.getRequiredExpForCritterLevel(baseStats.getLevel() + 1);
 	}
 }
