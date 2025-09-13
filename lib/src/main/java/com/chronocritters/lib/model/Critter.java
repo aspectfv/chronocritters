@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,12 +25,6 @@ public class Critter {
 
     @NotBlank(message = "Critter description cannot be blank")
     private String description;
-
-    @Default
-    private int level = 1;
-
-    @Default 
-    private long experience = 0;
 
     @NotNull(message = "Critter type cannot be null")
     private CritterType type;

@@ -35,7 +35,7 @@ public final class ExperienceUtil {
 
 
     public static long calculatePlayerXpForWin(Player winner, Player loser) {
-        int levelDifference = loser.getLevel() - winner.getLevel();
+        int levelDifference = loser.getStats().getLevel() - winner.getStats().getLevel();
         long levelBonus = Math.max(0, levelDifference * 10);
         long totalXp = PLAYER_BASE_WIN_EXP_GAIN + levelBonus;
         return Math.max(PLAYER_MIN_EXP_GAIN, totalXp);
@@ -43,11 +43,11 @@ public final class ExperienceUtil {
 
     public static long calculateCritterXpForWin(Critter winningCritter, Player loser) {
         double averageLoserCritterLevel = loser.getRoster().stream()
-            .mapToInt(Critter::getLevel)
+            .mapToInt(critter -> critter.getBaseStats().getLevel())
             .average()
             .orElse(1.0);
-            
-        int levelDifference = (int) Math.round(averageLoserCritterLevel - winningCritter.getLevel());
+
+        int levelDifference = (int) Math.round(averageLoserCritterLevel - winningCritter.getBaseStats().getLevel());
         long levelBonus = Math.max(0, levelDifference * 5);
         long totalXp = CRITTER_BASE_WIN_EXP_GAIN + levelBonus;
 

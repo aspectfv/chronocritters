@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BattleRewards {
     @Default
-    private Map<String, Long> playersExp = new HashMap<>();
+    private Map<String, Long> playersExpGained = new HashMap<>();
     @Default
-    private Map<String, Long> crittersExp = new HashMap<>();
+    private Map<String, Long> crittersExpGained = new HashMap<>();
 }

@@ -2,6 +2,7 @@ package com.chronocritters.lib.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PlayerStats {
-    private int wins;
-    private int losses;
+    @Default 
+    private int wins = 0;
+
+    @Default
+    private int losses = 0;
+
+    @Default
+    private int level = 0;
+
+    @Default
+    private long experience = 0;
 }

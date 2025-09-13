@@ -130,19 +130,19 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
             long winnerExpGain = ExperienceUtil.calculatePlayerXpForWin(winner, loser);
             long loserExpGain = ExperienceUtil.calculatePlayerXpForLoss(loser);
             
-            long totalWinnerExp = winner.getExperience() + winnerExpGain;
-            while (totalWinnerExp >= ExperienceUtil.getRequiredExpForPlayerLevel(winner.getLevel() + 1)) {
-                totalWinnerExp -= ExperienceUtil.getRequiredExpForPlayerLevel(winner.getLevel() + 1);
-                winner.setLevel(winner.getLevel() + 1);
+            long totalWinnerExp = winner.getStats().getExperience() + winnerExpGain;
+            while (totalWinnerExp >= ExperienceUtil.getRequiredExpForPlayerLevel(winner.getStats().getLevel() + 1)) {
+                totalWinnerExp -= ExperienceUtil.getRequiredExpForPlayerLevel(winner.getStats().getLevel() + 1);
+                winner.getStats().setLevel(winner.getStats().getLevel() + 1);
             }
-            winner.setExperience(totalWinnerExp);
+            winner.getStats().setExperience(totalWinnerExp);
 
-            long totalLoserExp = loser.getExperience() + loserExpGain;
-            while (totalLoserExp >= ExperienceUtil.getRequiredExpForPlayerLevel(loser.getLevel() + 1)) {
-                totalLoserExp -= ExperienceUtil.getRequiredExpForPlayerLevel(loser.getLevel() + 1);
-                loser.setLevel(loser.getLevel() + 1);
+            long totalLoserExp = loser.getStats().getExperience() + loserExpGain;
+            while (totalLoserExp >= ExperienceUtil.getRequiredExpForPlayerLevel(loser.getStats().getLevel() + 1)) {
+                totalLoserExp -= ExperienceUtil.getRequiredExpForPlayerLevel(loser.getStats().getLevel() + 1);
+                loser.getStats().setLevel(loser.getStats().getLevel() + 1);
             }
-            loser.setExperience(totalLoserExp);
+            loser.getStats().setExperience(totalLoserExp);
 
             Map<String, Long> playersExpGain = Map.of(
                 winnerId, winnerExpGain,
@@ -153,23 +153,23 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
 
             for (Critter critter : winner.getRoster()) {
                 long critterExpGain = ExperienceUtil.calculateCritterXpForWin(critter, loser);
-                long totalCritterExp = critter.getExperience() + critterExpGain;
-                while (totalCritterExp >= ExperienceUtil.getRequiredExpForCritterLevel(critter.getLevel() + 1)) {
-                    totalCritterExp -= ExperienceUtil.getRequiredExpForCritterLevel(critter.getLevel() + 1);
-                    critter.setLevel(critter.getLevel() + 1);
+                long totalCritterExp = critter.getBaseStats().getExperience() + critterExpGain;
+                while (totalCritterExp >= ExperienceUtil.getRequiredExpForCritterLevel(critter.getBaseStats().getLevel() + 1)) {
+                    totalCritterExp -= ExperienceUtil.getRequiredExpForCritterLevel(critter.getBaseStats().getLevel() + 1);
+                    critter.getBaseStats().setLevel(critter.getBaseStats().getLevel() + 1);
                 }
-                critter.setExperience(totalCritterExp);
+                critter.getBaseStats().setExperience(totalCritterExp);
                 crittersExpGain.put(critter.getId(), critterExpGain);
             }
 
             for (Critter critter : loser.getRoster()) {
                 long critterExpGain = ExperienceUtil.calculateCritterXpForLoss(critter);
-                long totalCritterExp = critter.getExperience() + critterExpGain;
-                while (totalCritterExp >= ExperienceUtil.getRequiredExpForCritterLevel(critter.getLevel() + 1)) {
-                    totalCritterExp -= ExperienceUtil.getRequiredExpForCritterLevel(critter.getLevel() + 1);
-                    critter.setLevel(critter.getLevel() + 1);
+                long totalCritterExp = critter.getBaseStats().getExperience() + critterExpGain;
+                while (totalCritterExp >= ExperienceUtil.getRequiredExpForCritterLevel(critter.getBaseStats().getLevel() + 1)) {
+                    totalCritterExp -= ExperienceUtil.getRequiredExpForCritterLevel(critter.getBaseStats().getLevel() + 1);
+                    critter.getBaseStats().setLevel(critter.getBaseStats().getLevel() + 1);
                 }
-                critter.setExperience(totalCritterExp);
+                critter.getBaseStats().setExperience(totalCritterExp);
                 crittersExpGain.put(critter.getId(), critterExpGain);
             }
 

@@ -70,8 +70,8 @@ public final class PlayerProtoMapper {
         if (rewardsResponse.getCrittersExpGainedMap() == null) throw new IllegalArgumentException("CrittersExpGained map from BattleRewardsResponse cannot be null");
 
         return BattleRewards.builder()
-            .playersExp(rewardsResponse.getPlayersExpGainedMap())
-            .crittersExp(rewardsResponse.getCrittersExpGainedMap())
+            .playersExpGained(rewardsResponse.getPlayersExpGainedMap())
+            .crittersExpGained(rewardsResponse.getCrittersExpGainedMap())
             .build();
     }
 
