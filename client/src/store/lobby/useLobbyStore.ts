@@ -45,6 +45,7 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
         console.error('Broker error:', frame.headers['message'], frame.body);
         set({ connectionStatus: ConnectionStatus.ERROR });
         get().disconnect();
+        useAuthStore.getState().logout();
       },
       reconnectDelay: 5000,
     });
