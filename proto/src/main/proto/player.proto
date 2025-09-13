@@ -95,7 +95,10 @@ message MatchHistoryResponse {
 }
 
 message BattleRewardsRequest {
-  string player_id = 1;
+  string winner_id = 1;
+  string loser_id = 2;
+  repeated string winner_critter_ids = 3;
+  repeated string loser_critter_ids = 4;
 }
 
 message BattleRewardsResponse {
