@@ -1,4 +1,4 @@
-export const RewardsSummary = () => {
+export const RewardsSummary = ({ expGained }: { expGained: number }) => {
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6 h-full">
       <h3 className="font-semibold text-green-800 mb-4 flex items-center gap-2">
@@ -10,7 +10,7 @@ export const RewardsSummary = () => {
       <div className="space-y-3">
         <div className="flex justify-between items-center bg-white p-3 rounded-lg">
           <span className="font-medium text-gray-700 text-sm">Experience</span>
-          <span className="font-bold text-green-600">+150</span>
+          <span className="font-bold text-green-600">+{expGained}</span>
         </div>
         <div className="flex justify-between items-center bg-white p-3 rounded-lg">
           <span className="font-medium text-gray-700 text-sm">Coins</span>

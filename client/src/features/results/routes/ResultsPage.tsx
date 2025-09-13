@@ -54,9 +54,9 @@ function ResultsPage() {
                <ProgressSummary 
                 player={finalPlayer}
                 critters={finalRoster}
-                xpGained={xpGained}
+                expGained={xpGained}
               />
-              <RewardsSummary />
+              <RewardsSummary expGained={xpGained} />
             </div>
             <BattleSummary />
             <AchievementNotification />

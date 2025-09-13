@@ -10,13 +10,13 @@ export interface ResultsHeaderProps {
 export interface ProgressSummaryProps {
   player: Player | null | undefined;
   critters: Critter[] | null | undefined;
-  xpGained: number;
+  expGained: number;
 }
 
 export interface ProgressBarProps {
   name: string;
   finalStats: PlayerStats | BaseStats | null | undefined;
-  xpGained: number;
+  expGained: number;
 }
 
 export interface LocationState {

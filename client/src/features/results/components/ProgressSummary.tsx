@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import type { ProgressBarProps, ProgressSummaryProps } from '@features/results/types';
 
 // Reusable progress bar component for player or critter
-const ProgressBar = ({ name, finalStats, xpGained }: ProgressBarProps) => {
-  const [currentXp, setCurrentXp] = useState((finalStats?.experience ?? 0) - xpGained);
+const ProgressBar = ({ name, finalStats, expGained }: ProgressBarProps) => {
+  const [currentXp, setCurrentXp] = useState((finalStats?.experience ?? 0) - expGained);
   const [currentLevel, setCurrentLevel] = useState(finalStats?.level ?? 1);
   const [expToNextLevel, setExpToNextLevel] = useState(finalStats?.expToNextLevel ?? 0);
 
@@ -12,7 +12,7 @@ const ProgressBar = ({ name, finalStats, xpGained }: ProgressBarProps) => {
   const finalStatsExpToNextLevel = finalStats?.expToNextLevel ?? 0;
 
   useEffect(() => {
-    let xp = finalStatsExp - xpGained;
+    let xp = finalStatsExp - expGained;
     let level = finalStats?.level ?? 1;
     let expToNext = finalStats?.expToNextLevel ?? 0;
 
@@ -32,7 +32,7 @@ const ProgressBar = ({ name, finalStats, xpGained }: ProgressBarProps) => {
         setExpToNextLevel(finalStatsExpToNextLevel);
     }, 500);
 
-  }, [finalStats, xpGained]);
+  }, [finalStats, expGained]);
 
   const xpPercentage = Math.min(100, (currentXp / expToNextLevel) * 100);
 
@@ -49,23 +49,23 @@ const ProgressBar = ({ name, finalStats, xpGained }: ProgressBarProps) => {
   );
 };
 
-export const ProgressSummary = ({ player, critters, xpGained }: ProgressSummaryProps) => {
+export const ProgressSummary = ({ player, critters, expGained }: ProgressSummaryProps) => {
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6 h-full">
       <h3 className="font-semibold text-green-800 mb-4 flex items-center gap-2">
         Your Progress
       </h3>
 
-      <ProgressBar name={player?.username ?? 'Trainer'} finalStats={player?.stats} xpGained={xpGained} />
+      <ProgressBar name={player?.username ?? 'Trainer'} finalStats={player?.stats} expGained={expGained} />
 
       <hr className="my-4 border-gray-300"/>
 
       <h4 className="font-semibold text-gray-700 mb-2 text-sm">Critter Progression</h4>
       {critters?.map(critter => (
-        <ProgressBar key={critter?.id} name={critter?.name ?? 'Unknown'} finalStats={critter?.baseStats} xpGained={xpGained} />
+        <ProgressBar key={critter?.id} name={critter?.name ?? 'Unknown'} finalStats={critter?.baseStats} expGained={expGained} />
       ))}
 
-      <p className="text-xs text-green-700 font-semibold mt-4 text-center">+{xpGained} XP gained for everyone!</p>
+      <p className="text-xs text-green-700 font-semibold mt-4 text-center">+{expGained} XP gained for everyone!</p>
     </div>
   );
 };
