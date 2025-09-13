@@ -1,8 +1,14 @@
 package com.chronocritters.user.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.Player;
+import com.chronocritters.lib.util.ExperienceUtil;
+import com.chronocritters.proto.player.PlayerProto.BattleRewardsRequest;
+import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
 import com.chronocritters.proto.player.PlayerProto.CritterProto;
 import com.chronocritters.proto.player.PlayerProto.MatchHistoryRequest;
 import com.chronocritters.proto.player.PlayerProto.MatchHistoryResponse;
@@ -100,6 +106,85 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
                     .build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        }
+    }
+
+    @Override
+    public void getBattleRewards(BattleRewardsRequest request, StreamObserver<BattleRewardsResponse> responseObserver) {
+        try {
+            String winnerId = request.getWinnerId();
+            String loserId = request.getLoserId();
+
+            Player winner = playerService.findById(winnerId);
+            if (winner == null) {
+                responseObserver.onError(new RuntimeException("Winner not found with ID: " + winnerId));
+                return;
+            }
+
+            Player loser = playerService.findById(loserId);
+            if (loser == null) {
+                responseObserver.onError(new RuntimeException("Loser not found with ID: " + loserId));
+                return;
+            }
+
+            long winnerExpGain = ExperienceUtil.calculatePlayerXpForWin(winner, loser);
+            long loserExpGain = ExperienceUtil.calculatePlayerXpForLoss(loser);
+            
+            long totalWinnerExp = winner.getExperience() + winnerExpGain;
+            while (totalWinnerExp >= ExperienceUtil.getRequiredExpForPlayerLevel(winner.getLevel() + 1)) {
+                totalWinnerExp -= ExperienceUtil.getRequiredExpForPlayerLevel(winner.getLevel() + 1);
+                winner.setLevel(winner.getLevel() + 1);
+            }
+            winner.setExperience(totalWinnerExp);
+
+            long totalLoserExp = loser.getExperience() + loserExpGain;
+            while (totalLoserExp >= ExperienceUtil.getRequiredExpForPlayerLevel(loser.getLevel() + 1)) {
+                totalLoserExp -= ExperienceUtil.getRequiredExpForPlayerLevel(loser.getLevel() + 1);
+                loser.setLevel(loser.getLevel() + 1);
+            }
+            loser.setExperience(totalLoserExp);
+
+            Map<String, Long> playersExpGain = Map.of(
+                winnerId, winnerExpGain,
+                loserId, loserExpGain
+            );
+
+            Map<String, Long> crittersExpGain = new HashMap<>();
+
+            for (Critter critter : winner.getRoster()) {
+                long critterExpGain = ExperienceUtil.calculateCritterXpForWin(critter, loser);
+                long totalCritterExp = critter.getExperience() + critterExpGain;
+                while (totalCritterExp >= ExperienceUtil.getRequiredExpForCritterLevel(critter.getLevel() + 1)) {
+                    totalCritterExp -= ExperienceUtil.getRequiredExpForCritterLevel(critter.getLevel() + 1);
+                    critter.setLevel(critter.getLevel() + 1);
+                }
+                critter.setExperience(totalCritterExp);
+                crittersExpGain.put(critter.getId(), critterExpGain);
+            }
+
+            for (Critter critter : loser.getRoster()) {
+                long critterExpGain = ExperienceUtil.calculateCritterXpForLoss(critter);
+                long totalCritterExp = critter.getExperience() + critterExpGain;
+                while (totalCritterExp >= ExperienceUtil.getRequiredExpForCritterLevel(critter.getLevel() + 1)) {
+                    totalCritterExp -= ExperienceUtil.getRequiredExpForCritterLevel(critter.getLevel() + 1);
+                    critter.setLevel(critter.getLevel() + 1);
+                }
+                critter.setExperience(totalCritterExp);
+                crittersExpGain.put(critter.getId(), critterExpGain);
+            }
+
+            playerService.save(winner);
+            playerService.save(loser);
+
+            BattleRewardsResponse response = BattleRewardsResponse.newBuilder()
+                    .putAllPlayersExpGained(playersExpGain)
+                    .putAllCrittersExpGained(crittersExpGain)
+                    .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            responseObserver.onError(e);
         }
     }
 }
