@@ -22,14 +22,13 @@ function BattlePage() {
   const initialBattleState = useLoaderData() as BattleState;
 
   const isConnected = useLobbyStore((state) => state.connectionStatus === ConnectionStatus.CONNECTED);
-  const { player, opponent, actionLogHistory, timeRemaining } = useBattleStore();
+  const { player, opponent, actionLogHistory, timeRemaining, battleId: storeBattleId, setBattleState } = useBattleStore();
 
   useEffect(() => {
-    const { setBattleState } = useBattleStore.getState();
-    if (initialBattleState && user?.id) {
+    if (initialBattleState && user?.id && storeBattleId !== battleId) {
       setBattleState(initialBattleState, user.id);
     }
-  }, [initialBattleState, user?.id]);
+  }, [initialBattleState, user?.id, battleId, storeBattleId, setBattleState]);
 
   useEffect(() => {
     const { subscribe } = useLobbyStore.getState();
