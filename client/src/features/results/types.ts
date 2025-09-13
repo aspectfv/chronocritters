@@ -18,3 +18,15 @@ export interface ProgressBarProps {
   finalStats: PlayerStats | BaseStats | null | undefined;
   xpGained: number;
 }
+
+export interface LocationState {
+  result: Result;
+  battleRewards?: {
+    playersExpGained: {
+      [playerId: string]: number
+    }
+    crittersExpGained: {
+      [critterId: string]: number
+    }
+  };
+}

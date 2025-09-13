@@ -41,9 +41,9 @@ export interface BattleState {
   playerOne: PlayerState;
   playerTwo: PlayerState;
   actionLogHistory: string[];
-  outcome: BattleOutcome;
+  battleOutcome: BattleOutcome;
   winnerId?: string;
-  rewards?: BattleRewards;
+  battleRewards?: BattleRewards;
 
   // client specific props
   player: PlayerState;

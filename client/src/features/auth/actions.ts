@@ -24,7 +24,10 @@ export async function loginAction({ request }: { request: Request }) {
     if (!response.data) {
       throw new Error('Login failed: No data returned.');
     }
-    const { user, token } = response.data.login;
+
+    const loginData = response.data.login;
+    if (!loginData) throw new Error('Login failed: Invalid credentials.');
+    const { user, token } = loginData;
 
     const { login } = useAuthStore.getState();
     login(user, token);
@@ -77,8 +80,10 @@ export async function registerAction({ request }: { request: Request }) {
     if (!response.data) {
         throw new Error('Registration failed: No data returned.');
     }
-    const { user, token } = response.data.register;
-
+    const registerData = response.data.register;
+    if (!registerData) throw new Error('Registration failed: Invalid data returned.');
+    const { user, token } = registerData;
+    
     const { login } = useAuthStore.getState();
     login(user, token);
 

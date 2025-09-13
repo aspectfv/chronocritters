@@ -8,21 +8,24 @@ import { RewardsSummary } from '@features/results/components/RewardsSummary';
 import { BattleSummary } from '@features/results/components/BattleSummary';
 import { AchievementNotification } from '@features/results/components/AchievementNotification';
 import { ActionButtons } from '@features/results/components/ActionButtons';
-import type { Result } from '@features/results/types';
+import type { LocationState, Result } from '@features/results/types';
 import type { Critter, GetPlayerResultsQuery } from '@/gql/graphql';
+import { useAuthStore } from '@store/auth/useAuthStore';
 
 function ResultsPage() {
-  const { state } = useLocation();
+  const locationData = useLocation();
+  const user = useAuthStore((store) => store.user);
   const navigate = useNavigate();
   const { resetBattleState } = useBattleStore();
   const loaderData = useLoaderData() as GetPlayerResultsQuery;
 
   console.log('Loader Data:', loaderData);
-  console.log('Location State:', state);
+  console.log('Location Data:', locationData);
 
+  const state = locationData.state as LocationState;
   const battleResult = state?.result as Result;
-  const xpGained = state?.xpGained || 0;
-  
+  const xpGained = state?.battleRewards?.playersExpGained[user?.id || ''] || 0;
+
   const finalPlayer = loaderData?.getPlayer ?? null;
   const finalRoster = (loaderData?.getPlayer?.roster || [])
     .filter((c): c is Critter => c !== null && typeof c.name === 'string');

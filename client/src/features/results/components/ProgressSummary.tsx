@@ -30,7 +30,7 @@ const ProgressBar = ({ name, finalStats, xpGained }: ProgressBarProps) => {
         setCurrentXp(finalStatsExp);
         setCurrentLevel(finalStatsLevel);
         setExpToNextLevel(finalStatsExpToNextLevel);
-    }, 100);
+    }, 500);
 
   }, [finalStats, xpGained]);
 
@@ -43,7 +43,7 @@ const ProgressBar = ({ name, finalStats, xpGained }: ProgressBarProps) => {
         <span>{Math.floor(currentXp)}/{expToNextLevel} XP</span>
       </div>
       <div className="w-full bg-green-200 rounded-full h-2.5">
-        <div className="bg-green-600 h-2.5 rounded-full transition-all duration-500 ease-out" style={{ width: `${xpPercentage}%` }}></div>
+        <div className="bg-green-600 h-2.5 rounded-full transition-all duration-1500 ease-out" style={{ width: `${xpPercentage}%` }}></div>
       </div>
     </div>
   );
