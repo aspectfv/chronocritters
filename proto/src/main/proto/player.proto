@@ -19,6 +19,7 @@ enum CritterTypeProto {
 service PlayerService {
   rpc GetPlayer(PlayerRequest) returns (PlayerResponse);
   rpc UpdateMatchHistory(MatchHistoryRequest) returns (MatchHistoryResponse);
+  rpc GetBattleRewards(BattleRewardsRequest) returns (BattleRewardsResponse);
 }
 
 message PlayerRequest {
@@ -91,4 +92,13 @@ message MatchHistoryRequest {
 message MatchHistoryResponse {
   bool success = 1;
   string message = 2;
+}
+
+message BattleRewardsRequest {
+  string player_id = 1;
+}
+
+message BattleRewardsResponse {
+  map<string, int64> players_exp_gained = 1;
+  map<string, int64> critters_exp_gained = 2;
 }
