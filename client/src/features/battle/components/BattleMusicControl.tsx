@@ -70,7 +70,7 @@ export function BattleMusicControl() {
           className="w-24 h-2 accent-green-700"
           disabled={isMuted}
         />
-        <span className="text-sm font-semibold text-gray-700 w-8 text-center">{Math.round(volume * 100)}</span>
+        <span className="text-sm font-semibold text-gray-700 w-8 text-center">{!isMuted ? Math.round(volume * 100) : 0}</span>
       </div>
     </>
   );
