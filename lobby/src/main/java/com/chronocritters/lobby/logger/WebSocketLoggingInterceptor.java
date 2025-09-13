@@ -46,12 +46,17 @@ public class WebSocketLoggingInterceptor implements ChannelInterceptor {
     public void afterSendCompletion(@NonNull Message<?> message, @NonNull MessageChannel channel, boolean sent, @Nullable Exception ex) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         String sessionId = accessor.getSessionId();
-        String destination = accessor.getDestination();
-
+        
         if (ex != null) {
-            logger.error("Message Send Failed: sessionId='{}', destination='{}', error='{}'",
-                    sessionId, destination, ex.getMessage(), ex);
+            if (ex instanceof IllegalArgumentException) {
+                logger.warn("WebSocket connection for session '{}' rejected: {}", sessionId, ex.getMessage());
+            } else {
+                String destination = accessor.getDestination();
+                logger.error("Message Send Failed: sessionId='{}', destination='{}', error='{}'",
+                        sessionId, destination, ex.getMessage(), ex);
+            }
         } else if (!sent) {
+            String destination = accessor.getDestination();
             logger.warn("Message Send Failed (no exception): sessionId='{}', destination='{}'",
                     sessionId, destination);
         }
