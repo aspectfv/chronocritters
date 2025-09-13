@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import type {
-  BattleState,
-  PlayerState,
-  CritterState,
+import {
+  type BattleState,
+  type PlayerState,
+  type CritterState,
+  BattleOutcome,
 } from '@store/battle/types';
 import { CritterType } from '@/gql/graphql';
 
@@ -38,11 +39,11 @@ const initialState: BattleState = {
   playerOne: defaultEmptyBattlePlayer,
   playerTwo: defaultEmptyBattlePlayer,
   actionLogHistory: ['Waiting for battle to start...'],
+  outcome: BattleOutcome.CONTINUE,
 
   player: defaultEmptyBattlePlayer,
   opponent: defaultEmptyBattlePlayer,
   timeRemaining: 30,
-  battleResult: null,
   setBattleState: () => {},
   addLogMessage: () => {},
   resetBattleState: () => {},

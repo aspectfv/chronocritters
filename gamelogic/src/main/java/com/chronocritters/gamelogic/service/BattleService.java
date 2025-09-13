@@ -22,6 +22,7 @@ import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
 import com.chronocritters.lib.interfaces.ITurnActionHandler;
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.BattleOutcome;
+import com.chronocritters.lib.model.BattleRewards;
 import com.chronocritters.lib.model.BattleState;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.PlayerState;
@@ -166,12 +167,13 @@ public class BattleService {
     private void applyWinLoss(BattleState battleState, PlayerState winner, PlayerState loser) {
         battleState.setActivePlayerId(null);
         playerGrpcClient.updateMatchHistory(winner.getId(), loser.getId());
-        playerGrpcClient.grantBattleRewards(
-            winner.getId(), 
-            loser.getId(), 
-            winner.getRoster().stream().map(CritterState::getId).toList(), 
+        
+        BattleRewards rewards = PlayerProtoMapper.convertToBattleRewards(playerGrpcClient.getBattleRewards(
+            winner.getId(), loser.getId(), 
+            winner.getRoster().stream().map(CritterState::getId).toList(),
             loser.getRoster().stream().map(CritterState::getId).toList()
-        );
+        ));
+        battleState.setBattleRewards(rewards);
 
         cleanupScheduler.schedule(() -> {
             BattleState removed = activeBattles.remove(battleState.getBattleId());

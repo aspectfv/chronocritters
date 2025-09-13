@@ -1,5 +1,9 @@
 import type { Ability, CritterType } from "src/gql/graphql";
 
+export enum BattleOutcome {
+  CONTINUE = 'CONTINUE',
+  BATTLE_END = 'BATTLE_END',
+}
 export interface CurrentStats {
   maxHp: number;
   currentHp: number;
@@ -26,18 +30,25 @@ export interface PlayerState {
   activeCritter: CritterState;
 }
 
+export interface BattleRewards {
+  playersExp: Map<string, number>;
+  crittersExp: Map<string, number>;
+}
+
 export interface BattleState {
   battleId: string;
   activePlayerId: string;
   playerOne: PlayerState;
   playerTwo: PlayerState;
   actionLogHistory: string[];
+  outcome: BattleOutcome;
+  winnerId?: string;
+  rewards?: BattleRewards;
 
   // client specific props
   player: PlayerState;
   opponent: PlayerState;
   timeRemaining: number;
-  battleResult: 'victory' | 'defeat' | null;
   setBattleState: (newState: Partial<BattleState>, userId: string) => void;
   addLogMessage: (message: string) => void;
   resetBattleState: () => void;

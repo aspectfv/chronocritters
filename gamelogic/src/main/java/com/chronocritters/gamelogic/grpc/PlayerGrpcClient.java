@@ -37,7 +37,7 @@ public class PlayerGrpcClient {
         return playerServiceStub.updateMatchHistory(request);
     }
 
-    public BattleRewardsResponse grantBattleRewards(String winnerId, String loserId, List<String> winnerCrittersIds, List<String> loserCrittersIds) {
+    public BattleRewardsResponse getBattleRewards(String winnerId, String loserId, List<String> winnerCrittersIds, List<String> loserCrittersIds) {
         BattleRewardsRequest request = BattleRewardsRequest.newBuilder()
             .setWinnerId(winnerId)
             .setLoserId(loserId)

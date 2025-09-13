@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BaseStats;
+import com.chronocritters.lib.model.BattleRewards;
 import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.CritterType;
@@ -17,6 +18,7 @@ import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.effects.SkipTurnEffect;
 import com.chronocritters.proto.player.PlayerProto.AbilityProto;
 import com.chronocritters.proto.player.PlayerProto.BaseStatsProto;
+import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
 import com.chronocritters.proto.player.PlayerProto.CritterProto;
 import com.chronocritters.proto.player.PlayerProto.CritterTypeProto;
 import com.chronocritters.proto.player.PlayerProto.DamageEffectProto;
@@ -59,6 +61,17 @@ public final class PlayerProtoMapper {
             .hasTurn(false)
             .activeCritterIndex(battleRoster.isEmpty() ? -1 : 0)
             .roster(battleRoster)
+            .build();
+    }
+
+    public static BattleRewards convertToBattleRewards(BattleRewardsResponse rewardsResponse) {
+        if (rewardsResponse == null) throw new IllegalArgumentException("BattleRewardsResponse cannot be null");
+        if (rewardsResponse.getPlayersExpGainedMap() == null) throw new IllegalArgumentException("PlayersExpGained map from BattleRewardsResponse cannot be null");
+        if (rewardsResponse.getCrittersExpGainedMap() == null) throw new IllegalArgumentException("CrittersExpGained map from BattleRewardsResponse cannot be null");
+
+        return BattleRewards.builder()
+            .playersExp(rewardsResponse.getPlayersExpGainedMap())
+            .crittersExp(rewardsResponse.getCrittersExpGainedMap())
             .build();
     }
 
