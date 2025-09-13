@@ -6,7 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
-public class JwtUtil {
+public final class JwtUtil {
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(
         "replace-this-with-a-very-long-random-secret-key-32-bytes-min".getBytes()
     );
