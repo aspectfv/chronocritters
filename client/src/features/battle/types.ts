@@ -33,3 +33,9 @@ export interface TeamDisplayProps {
   isPlayerTurn: boolean;
   onCritterClick: (targetCritterIndex: number) => void;
 }
+
+export interface BattleLoaderParams {
+  params: {
+    battleId?: string;
+  };
+}

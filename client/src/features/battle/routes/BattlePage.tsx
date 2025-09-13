@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLoaderData } from 'react-router-dom';
 import { useAuthStore } from '@store/auth/useAuthStore';
 import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import { useBattleStore } from '@store/battle/useBattleStore';
@@ -12,34 +12,24 @@ import { TeamDisplay } from '@features/battle/components/TeamDisplay';
 import { BattleLog } from '@features/battle/components/BattleLog';
 import { AbilitySelector } from '@features/battle/components/AbilitySelector';
 import { BattleMusicControl } from '@features/battle/components/BattleMusicControl';
-import { getBattleState, executeAbility, switchCritter } from '@api/gamelogic';
+import { executeAbility, switchCritter } from '@api/gamelogic';
 import { ConnectionStatus } from '@store/lobby/types';
 
 function BattlePage() {
   const { battleId } = useParams<{ battleId: string }>();
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const initialBattleState = useLoaderData() as BattleState;
 
   const isConnected = useLobbyStore((state) => state.connectionStatus === ConnectionStatus.CONNECTED);
   const { player, opponent, actionLogHistory, timeRemaining } = useBattleStore();
 
   useEffect(() => {
     const { setBattleState } = useBattleStore.getState();
-
-    if (!battleId || !user?.id) return;
-
-    const fetchBattleState = async () => {
-      try {
-        const response = await getBattleState(battleId);
-        setBattleState(response.data, user.id);
-      } catch (error) {
-        console.error("Failed to fetch initial battle state:", error);
-        navigate('/menu');
-      }
-    };
-
-    fetchBattleState();
-  }, [battleId, user?.id, navigate]);
+    if (initialBattleState && user?.id) {
+      setBattleState(initialBattleState, user.id);
+    }
+  }, [initialBattleState, user?.id]);
 
   useEffect(() => {
     const { subscribe } = useLobbyStore.getState();
