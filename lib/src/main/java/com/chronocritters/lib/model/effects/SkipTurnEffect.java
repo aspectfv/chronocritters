@@ -28,7 +28,8 @@ public class SkipTurnEffect extends Effect implements IPersistentEffect {
     @Override
     public void onApply(BattleState battleState) {
         PlayerState player = battleState.getPlayer();
-        CritterState target = player.getActiveCritter();
+        PlayerState opponent = battleState.getOpponent();
+        CritterState target = opponent.getActiveCritter();
         Ability ability = player.getActiveCritter().getAbilityById(player.getLastSelectedAbilityId());
 
         Optional<SkipTurnEffect> existingEffect = target.getActiveStatusEffects().stream()
