@@ -87,6 +87,9 @@ const GET_PLAYER_OVERVIEW_QUERY = gql(`
         name
         description
         type
+        baseStats {
+          level
+        }
       }
     }
   }
@@ -110,6 +113,7 @@ const GET_MY_CRITTERS_QUERY = gql(`
         description
         type
         baseStats {
+          level
           health
           attack
           defense

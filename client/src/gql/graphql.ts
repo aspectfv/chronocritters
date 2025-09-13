@@ -26,7 +26,10 @@ export type BaseStats = {
   __typename?: 'BaseStats';
   attack?: Maybe<Scalars['Int']['output']>;
   defense?: Maybe<Scalars['Int']['output']>;
+  exp?: Maybe<Scalars['Int']['output']>;
+  expToNextLevel?: Maybe<Scalars['Int']['output']>;
   health?: Maybe<Scalars['Int']['output']>;
+  level?: Maybe<Scalars['Int']['output']>;
 };
 
 export type Critter = {
@@ -107,6 +110,9 @@ export type Player = {
 
 export type PlayerStats = {
   __typename?: 'PlayerStats';
+  exp?: Maybe<Scalars['Int']['output']>;
+  expToNextLevel?: Maybe<Scalars['Int']['output']>;
+  level?: Maybe<Scalars['Int']['output']>;
   losses?: Maybe<Scalars['Int']['output']>;
   wins?: Maybe<Scalars['Int']['output']>;
 };
@@ -162,14 +168,14 @@ export type GetPlayerOverviewQueryVariables = Exact<{
 }>;
 
 
-export type GetPlayerOverviewQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', id?: string | null, username?: string | null, stats?: { __typename?: 'PlayerStats', wins?: number | null, losses?: number | null } | null, roster?: Array<{ __typename?: 'Critter', name: string, description: string, type?: CritterType | null } | null> | null } | null };
+export type GetPlayerOverviewQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', id?: string | null, username?: string | null, stats?: { __typename?: 'PlayerStats', wins?: number | null, losses?: number | null } | null, roster?: Array<{ __typename?: 'Critter', name: string, description: string, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null } | null } | null> | null } | null };
 
 export type GetMyCrittersQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', roster?: Array<{ __typename?: 'Critter', id: string, name: string, description: string, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', health?: number | null, attack?: number | null, defense?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, effects?: Array<
+export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', roster?: Array<{ __typename?: 'Critter', id: string, name: string, description: string, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null, health?: number | null, attack?: number | null, defense?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, effects?: Array<
           | { __typename?: 'DamageEffect', id: string, description: string, damage: number }
           | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
           | { __typename?: 'SkipTurnEffect', id: string, description: string, duration: number }
