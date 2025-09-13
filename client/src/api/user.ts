@@ -107,6 +107,7 @@ const GET_MY_CRITTERS_QUERY = gql(`
       roster {
         id
         name
+        description
         type
         baseStats {
           health

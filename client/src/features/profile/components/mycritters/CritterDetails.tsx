@@ -1,5 +1,5 @@
 import type { CritterData } from '@features/profile/types';
-import { getCritterImageUrl } from '@utils/utils';
+import { getCritterImageUrl, getCritterTypeStyle } from '@utils/utils';
 
 export const CritterDetails = ({ critter }: { critter: CritterData | null }) => {
   if (!critter) {
@@ -39,7 +39,10 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
           />
         </div>
         <h3 className="font-bold text-2xl text-gray-800">{critter.name}</h3>
-        <span className="bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full">{critter.type} Type</span>
+        <span className={`${getCritterTypeStyle(critter.type)} text-black text-xs font-semibold px-3 py-1 rounded-full`}>{critter.type}</span>
+        {critter.description && (
+          <p className="mt-2 text-gray-600 text-sm">{critter.description}</p>
+        )}
       </div>
 
       <div className="mb-8">
