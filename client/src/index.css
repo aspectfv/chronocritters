@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+body {
+  font-family: 'Exo 2', 'ui-sans-serif', 'system-ui', sans-serif;
+}
