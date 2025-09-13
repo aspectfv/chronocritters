@@ -19,9 +19,6 @@ function ResultsPage() {
   const { resetBattleState } = useBattleStore();
   const loaderData = useLoaderData() as GetPlayerResultsQuery;
 
-  console.log('Loader Data:', loaderData);
-  console.log('Location Data:', locationData);
-
   const state = locationData.state as LocationState;
   const battleResult = state?.result as Result;
   const xpGained = state?.battleRewards?.playersExpGained[user?.id || ''] || 0;
