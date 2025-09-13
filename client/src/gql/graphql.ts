@@ -26,8 +26,8 @@ export type BaseStats = {
   __typename?: 'BaseStats';
   attack?: Maybe<Scalars['Int']['output']>;
   defense?: Maybe<Scalars['Int']['output']>;
-  exp?: Maybe<Scalars['Int']['output']>;
   expToNextLevel?: Maybe<Scalars['Int']['output']>;
+  experience?: Maybe<Scalars['Int']['output']>;
   health?: Maybe<Scalars['Int']['output']>;
   level?: Maybe<Scalars['Int']['output']>;
 };
@@ -110,8 +110,8 @@ export type Player = {
 
 export type PlayerStats = {
   __typename?: 'PlayerStats';
-  exp?: Maybe<Scalars['Int']['output']>;
   expToNextLevel?: Maybe<Scalars['Int']['output']>;
+  experience?: Maybe<Scalars['Int']['output']>;
   level?: Maybe<Scalars['Int']['output']>;
   losses?: Maybe<Scalars['Int']['output']>;
   wins?: Maybe<Scalars['Int']['output']>;
@@ -175,7 +175,7 @@ export type GetMyCrittersQueryVariables = Exact<{
 }>;
 
 
-export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null, exp?: number | null, expToNextLevel?: number | null, health?: number | null, attack?: number | null, defense?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, effects?: Array<
+export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null, experience?: number | null, expToNextLevel?: number | null, health?: number | null, attack?: number | null, defense?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, effects?: Array<
           | { __typename?: 'DamageEffect', id: string, description: string, damage: number }
           | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
           | { __typename?: 'SkipTurnEffect', id: string, description: string, duration: number }
@@ -186,4 +186,4 @@ export type GetPlayerResultsQueryVariables = Exact<{
 }>;
 
 
-export type GetPlayerResultsQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', username?: string | null, stats?: { __typename?: 'PlayerStats', level?: number | null, exp?: number | null, expToNextLevel?: number | null } | null, roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, baseStats?: { __typename?: 'BaseStats', level?: number | null, exp?: number | null, expToNextLevel?: number | null } | null } | null> | null } | null };
+export type GetPlayerResultsQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', username?: string | null, stats?: { __typename?: 'PlayerStats', level?: number | null, experience?: number | null, expToNextLevel?: number | null } | null, roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, baseStats?: { __typename?: 'BaseStats', level?: number | null, experience?: number | null, expToNextLevel?: number | null } | null } | null> | null } | null };

@@ -3,11 +3,11 @@ import type { ProgressBarProps, ProgressSummaryProps } from '@features/results/t
 
 // Reusable progress bar component for player or critter
 const ProgressBar = ({ name, finalStats, xpGained }: ProgressBarProps) => {
-  const [currentXp, setCurrentXp] = useState((finalStats?.exp ?? 0) - xpGained);
+  const [currentXp, setCurrentXp] = useState((finalStats?.experience ?? 0) - xpGained);
   const [currentLevel, setCurrentLevel] = useState(finalStats?.level ?? 1);
   const [expToNextLevel, setExpToNextLevel] = useState(finalStats?.expToNextLevel ?? 0);
 
-  const finalStatsExp = finalStats?.exp ?? 0;
+  const finalStatsExp = finalStats?.experience ?? 0;
   const finalStatsLevel = finalStats?.level ?? 0;
   const finalStatsExpToNextLevel = finalStats?.expToNextLevel ?? 0;
 

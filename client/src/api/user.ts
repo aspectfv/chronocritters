@@ -115,7 +115,7 @@ const GET_MY_CRITTERS_QUERY = gql(`
         type
         baseStats {
           level
-          exp
+          experience
           expToNextLevel
           health
           attack
@@ -164,7 +164,7 @@ const GET_PLAYER_RESULTS_QUERY = gql(`
       username
       stats {
         level
-        exp
+        experience
         expToNextLevel
       }
       roster {
@@ -172,7 +172,7 @@ const GET_PLAYER_RESULTS_QUERY = gql(`
         name
         baseStats {
           level
-          exp
+          experience
           expToNextLevel          
         }        
       }

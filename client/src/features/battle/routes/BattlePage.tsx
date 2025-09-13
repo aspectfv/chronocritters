@@ -48,6 +48,8 @@ function BattlePage() {
 
   useEffect(() => {
     const { rewards } = useBattleStore.getState();
+
+    console.log("Rewards:", rewards);
     
     if (opponent.roster.length > 0 && opponent.roster.every(critter => critter.stats.currentHp <= 0)) {
       navigate(`/results/${battleId}`, { state: { result: 'victory', rewards } });

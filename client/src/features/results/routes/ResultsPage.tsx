@@ -17,6 +17,9 @@ function ResultsPage() {
   const { resetBattleState } = useBattleStore();
   const loaderData = useLoaderData() as GetPlayerResultsQuery;
 
+  console.log('Loader Data:', loaderData);
+  console.log('Location State:', state);
+
   const battleResult = state?.result as Result;
   const xpGained = state?.xpGained || 0;
   

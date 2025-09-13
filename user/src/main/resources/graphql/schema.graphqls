@@ -44,7 +44,7 @@ type Ability {
 
 type BaseStats {
     level: Int
-    exp: Int
+    experience: Int
     expToNextLevel: Int
     health: Int
     attack: Int
@@ -64,7 +64,7 @@ type PlayerStats {
     wins: Int
     losses: Int
     level: Int
-    exp: Int
+    experience: Int
     expToNextLevel: Int
 }
 
