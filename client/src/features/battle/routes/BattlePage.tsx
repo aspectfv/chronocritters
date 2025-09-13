@@ -21,7 +21,7 @@ function BattlePage() {
   const user = useAuthStore((state) => state.user);
 
   const isConnected = useLobbyStore((state) => state.connectionStatus === ConnectionStatus.CONNECTED);
-  const { player, opponent, actionLogHistory, timeRemaining, rewards } = useBattleStore();
+  const { player, opponent, actionLogHistory, timeRemaining } = useBattleStore();
 
   useEffect(() => {
     const { setBattleState } = useBattleStore.getState();
@@ -57,12 +57,14 @@ function BattlePage() {
   }, [isConnected, battleId, user?.id]);
 
   useEffect(() => {
+    const { rewards } = useBattleStore.getState();
+    
     if (opponent.roster.length > 0 && opponent.roster.every(critter => critter.stats.currentHp <= 0)) {
       navigate(`/results/${battleId}`, { state: { result: 'victory', rewards } });
     } else if (player.roster.length > 0 && player.roster.every(critter => critter.stats.currentHp <= 0)) {
       navigate(`/results/${battleId}`, { state: { result: 'defeat', rewards } });
     }
-  }, [player, opponent, navigate, battleId, rewards]);
+  }, [player, opponent, navigate, battleId]);
 
   const handleAbilityClick = useCallback(async (abilityId: string) => {
     const { player } = useBattleStore.getState();

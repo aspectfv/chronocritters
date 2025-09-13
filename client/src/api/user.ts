@@ -5,6 +5,7 @@ import { gql } from '@apollo/client';
 import type { 
   GetMyCrittersQuery, 
   GetPlayerOverviewQuery, 
+  GetPlayerResultsQuery, 
   GetPlayerStatsQuery, 
   LoginMutation, 
   RegisterMutation 
@@ -114,6 +115,8 @@ const GET_MY_CRITTERS_QUERY = gql(`
         type
         baseStats {
           level
+          exp
+          expToNextLevel
           health
           attack
           defense
@@ -149,6 +152,36 @@ const GET_MY_CRITTERS_QUERY = gql(`
 export const getMyCritters = async (userId: string) => {
   const response = await client.query<GetMyCrittersQuery>({
     query: GET_MY_CRITTERS_QUERY,
+    variables: { id: userId },
+    fetchPolicy: 'network-only'
+  });
+  return response.data;
+};
+
+const GET_PLAYER_RESULTS_QUERY = gql(`
+  query GetPlayerResults($id: ID!) {
+    getPlayer(id: $id) {
+      stats {
+        level
+        exp
+        expToNextLevel
+      }
+      roster {
+        id
+        name
+        baseStats {
+          level
+          exp
+          expToNextLevel          
+        }        
+      }
+    }
+  }
+`);
+
+export const getPlayerResults = async (userId: string) => {
+  const response = await client.query<GetPlayerResultsQuery>({
+    query: GET_PLAYER_RESULTS_QUERY,
     variables: { id: userId },
     fetchPolicy: 'network-only'
   });

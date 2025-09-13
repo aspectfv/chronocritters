@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useLoaderData, useLocation, useNavigate } from 'react-router-dom';
 import { useBattleStore } from '@store/battle/useBattleStore';
 
 import { ResultsHeader } from '@features/results/components/ResultsHeader';
@@ -9,23 +9,24 @@ import { BattleSummary } from '@features/results/components/BattleSummary';
 import { AchievementNotification } from '@features/results/components/AchievementNotification';
 import { ActionButtons } from '@features/results/components/ActionButtons';
 import type { Result } from '@features/results/types';
-import { useAuthStore } from '@store/auth/useAuthStore';
+import type { Critter, GetPlayerResultsQuery } from '@/gql/graphql';
 
 function ResultsPage() {
   const { state } = useLocation();
-  const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   const { resetBattleState } = useBattleStore();
-  const [playerStats] = useState({ level: 15, currentXp: 2750 });
+  const loaderData = useLoaderData() as GetPlayerResultsQuery;
 
   const battleResult = state?.result as Result;
-  const xpGained = state?.rewards.playersExp.get(user?.id) || 0;
+  const xpGained = state?.xpGained || 0;
+  
+  const finalPlayerStats = loaderData?.getPlayer?.stats;
+  const finalRoster = (loaderData?.getPlayer?.roster || []).filter((c): c is Critter => c !== null);
 
   useEffect(() => {
     if (!battleResult) {
       navigate('/menu');
     }
-    
     return () => {
       resetBattleState();
     };
@@ -40,12 +41,12 @@ function ResultsPage() {
       <div className="max-w-4xl mx-auto space-y-8">
         <ResultsHeader result={battleResult} opponentName="StormCaller" />
         
-        {battleResult === 'victory' && (
+        {battleResult === 'victory' && finalPlayerStats && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <ProgressSummary 
-                initialLevel={playerStats.level}
-                initialXp={playerStats.currentXp}
+               <ProgressSummary 
+                playerStats={finalPlayerStats}
+                critters={finalRoster}
                 xpGained={xpGained}
               />
               <RewardsSummary />

@@ -14,13 +14,7 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
     );
   }
 
-  // Mock data for presentation
-  const mockDetails = {
-    level: 18,
-    currentXp: 1250,
-    maxXp: 1500,
-  };
-  const xpPercentage = (mockDetails.currentXp / mockDetails.maxXp) * 100;
+  const xpPercentage = (critter.baseStats?.exp ?? 0 / (critter.baseStats?.expToNextLevel ?? 1)) * 100;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
@@ -47,8 +41,8 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
 
       <div className="mb-8">
         <div className="flex justify-between text-sm mb-1">
-          <span className="font-semibold text-gray-700">Level {mockDetails.level}</span>
-          <span className="text-gray-500">{mockDetails.currentXp} / {mockDetails.maxXp} XP</span>
+          <span className="font-semibold text-gray-700">Level {critter.baseStats?.level ?? 1}</span>
+          <span className="text-gray-500">{critter.baseStats?.exp ?? 0} / {critter.baseStats?.expToNextLevel ?? 0} XP</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div className="bg-green-600 h-2 rounded-full" style={{width: `${xpPercentage}%`}}></div>
