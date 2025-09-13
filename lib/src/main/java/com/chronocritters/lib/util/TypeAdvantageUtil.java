@@ -42,8 +42,8 @@ public final class TypeAdvantageUtil {
         TYPE_CHART.computeIfAbsent(defender, k -> new EnumMap<>(CritterType.class)).put(attacker, NOT_VERY_EFFECTIVE);
     }
     
-    private static void defineSymmetricalAdvantage(CritterType type1, CritterType type2) {
-        TYPE_CHART.computeIfAbsent(type1, k -> new EnumMap<>(CritterType.class)).put(type2, SUPER_EFFECTIVE);
-        TYPE_CHART.computeIfAbsent(type2, k -> new EnumMap<>(CritterType.class)).put(type1, SUPER_EFFECTIVE);
-    }
+    // private static void defineSymmetricalAdvantage(CritterType type1, CritterType type2) {
+    //     TYPE_CHART.computeIfAbsent(type1, k -> new EnumMap<>(CritterType.class)).put(type2, SUPER_EFFECTIVE);
+    //     TYPE_CHART.computeIfAbsent(type2, k -> new EnumMap<>(CritterType.class)).put(type1, SUPER_EFFECTIVE);
+    // }
 }
