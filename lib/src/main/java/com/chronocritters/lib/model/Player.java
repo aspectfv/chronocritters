@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 @Data
 @NoArgsConstructor
@@ -26,6 +27,12 @@ public class Player {
 
     @NotBlank(message = "Password cannot be blank")
     private String password;
+
+    @Default
+    private int level = 1;
+
+    @Default 
+    private long experience = 0;
 
     @NotNull(message = "PlayerStats cannot be null")
     private PlayerStats stats;

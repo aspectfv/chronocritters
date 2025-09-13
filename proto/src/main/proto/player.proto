@@ -40,9 +40,11 @@ message CritterProto {
   string id = 1;
   string name = 2;
   string description = 3;
-  CritterTypeProto type = 4;
-  BaseStatsProto base_stats = 5;
-  repeated AbilityProto abilities = 6;
+  int32 level = 4;
+  int64 experience = 5;
+  CritterTypeProto type = 6;
+  BaseStatsProto base_stats = 7;
+  repeated AbilityProto abilities = 8;
 }
 
 message BaseStatsProto {
