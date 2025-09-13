@@ -17,7 +17,7 @@ public final class ExperienceUtil {
     private static final long CRITTER_BASE_WIN_EXP_GAIN = PLAYER_BASE_WIN_EXP_GAIN * 2;
     private static final long CRITTER_MIN_EXP_GAIN = 20;
 
-    private static final long CRITTER_BASE_LOSS_EXP_GAIN = Math.round(CRITTER_BASE_WIN_EXP_GAIN * 0.25); // 25% of the win amount
+    private static final long CRITTER_BASE_LOSS_EXP_GAIN = Math.round(CRITTER_BASE_WIN_EXP_GAIN * 0.25);
     private static final long CRITTER_MIN_LOSS_EXP_GAIN = 5;
 
     private ExperienceUtil() {

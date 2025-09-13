@@ -20,8 +20,9 @@ function ResultsPage() {
   const battleResult = state?.result as Result;
   const xpGained = state?.xpGained || 0;
   
-  const finalPlayerStats = loaderData?.getPlayer?.stats;
-  const finalRoster = (loaderData?.getPlayer?.roster || []).filter((c): c is Critter => c !== null);
+  const finalPlayer = loaderData?.getPlayer ?? null;
+  const finalRoster = (loaderData?.getPlayer?.roster || [])
+    .filter((c): c is Critter => c !== null && typeof c.name === 'string');
 
   useEffect(() => {
     if (!battleResult) {
@@ -41,11 +42,11 @@ function ResultsPage() {
       <div className="max-w-4xl mx-auto space-y-8">
         <ResultsHeader result={battleResult} opponentName="StormCaller" />
         
-        {battleResult === 'victory' && finalPlayerStats && (
+        {battleResult === 'victory' && finalPlayer && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                <ProgressSummary 
-                playerStats={finalPlayerStats}
+                player={finalPlayer}
                 critters={finalRoster}
                 xpGained={xpGained}
               />

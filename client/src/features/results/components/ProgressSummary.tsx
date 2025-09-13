@@ -5,16 +5,16 @@ import type { ProgressBarProps, ProgressSummaryProps } from '@features/results/t
 const ProgressBar = ({ name, finalStats, xpGained }: ProgressBarProps) => {
   const [currentXp, setCurrentXp] = useState((finalStats?.exp ?? 0) - xpGained);
   const [currentLevel, setCurrentLevel] = useState(finalStats?.level ?? 1);
-  const [expToNextLevel, setExpToNextLevel] = useState(finalStats?.expToNextLevel ?? 100);
+  const [expToNextLevel, setExpToNextLevel] = useState(finalStats?.expToNextLevel ?? 0);
 
   const finalStatsExp = finalStats?.exp ?? 0;
-  const finalStatsLevel = finalStats?.level ?? 1;
-  const finalStatsExpToNextLevel = finalStats?.expToNextLevel ?? 100;
+  const finalStatsLevel = finalStats?.level ?? 0;
+  const finalStatsExpToNextLevel = finalStats?.expToNextLevel ?? 0;
 
   useEffect(() => {
     let xp = finalStatsExp - xpGained;
     let level = finalStats?.level ?? 1;
-    let expToNext = finalStats?.expToNextLevel ?? 100;
+    let expToNext = finalStats?.expToNextLevel ?? 0;
 
     while (xp < 0) {
       level--;
@@ -49,15 +49,15 @@ const ProgressBar = ({ name, finalStats, xpGained }: ProgressBarProps) => {
   );
 };
 
-export const ProgressSummary = ({ playerStats, critters, xpGained }: ProgressSummaryProps) => {
+export const ProgressSummary = ({ player, critters, xpGained }: ProgressSummaryProps) => {
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6 h-full">
       <h3 className="font-semibold text-green-800 mb-4 flex items-center gap-2">
         Your Progress
       </h3>
-      
-      <ProgressBar name="Trainer" finalStats={playerStats} xpGained={xpGained} />
-      
+
+      <ProgressBar name={player?.username ?? 'Trainer'} finalStats={player?.stats} xpGained={xpGained} />
+
       <hr className="my-4 border-gray-300"/>
 
       <h4 className="font-semibold text-gray-700 mb-2 text-sm">Critter Progression</h4>

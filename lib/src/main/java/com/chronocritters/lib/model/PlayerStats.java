@@ -18,7 +18,7 @@ public class PlayerStats {
     private int losses = 0;
 
     @Default
-    private int level = 0;
+    private int level = 1;
 
     @Default
     private long experience = 0;

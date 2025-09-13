@@ -161,6 +161,7 @@ export const getMyCritters = async (userId: string) => {
 const GET_PLAYER_RESULTS_QUERY = gql(`
   query GetPlayerResults($id: ID!) {
     getPlayer(id: $id) {
+      username
       stats {
         level
         exp

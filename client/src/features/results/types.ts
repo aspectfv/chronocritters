@@ -1,4 +1,4 @@
-import type { BaseStats, Critter, PlayerStats } from "@/gql/graphql";
+import type { BaseStats, Critter, Player, PlayerStats } from "@/gql/graphql";
 
 export type Result = 'victory' | 'defeat' | null;
 
@@ -8,7 +8,7 @@ export interface ResultsHeaderProps {
 }
 
 export interface ProgressSummaryProps {
-  playerStats: PlayerStats;
+  player: Player | null | undefined;
   critters: Critter[] | null | undefined;
   xpGained: number;
 }

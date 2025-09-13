@@ -16,6 +16,7 @@ import { OverviewTab } from '@features/profile/routes/OverviewTab';
 import { menuLoader } from '@features/menu/loaders';
 import { myCrittersLoader, overviewLoader } from '@features/profile/loaders';
 import { BattleHistoryDetails } from '@features/profile/routes/BattleHistoryDetails';
+import { resultsLoader } from '@features/results/loaders';
 
 const router = createBrowserRouter([
   {
@@ -78,6 +79,7 @@ const router = createBrowserRouter([
       {
         path: 'results/:battleId',
         element: <ProtectedRoute><ResultsPage /></ProtectedRoute>,
+        loader: resultsLoader
       },
     ],
   },
