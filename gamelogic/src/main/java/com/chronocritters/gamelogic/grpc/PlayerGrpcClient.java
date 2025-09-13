@@ -1,7 +1,11 @@
 package com.chronocritters.gamelogic.grpc;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
+import com.chronocritters.proto.player.PlayerProto.BattleRewardsRequest;
+import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
 import com.chronocritters.proto.player.PlayerProto.MatchHistoryRequest;
 import com.chronocritters.proto.player.PlayerProto.MatchHistoryResponse;
 import com.chronocritters.proto.player.PlayerProto.PlayerRequest;
@@ -31,5 +35,16 @@ public class PlayerGrpcClient {
             .build();
         
         return playerServiceStub.updateMatchHistory(request);
+    }
+
+    public BattleRewardsResponse grantBattleRewards(String winnerId, String loserId, List<String> winnerCrittersIds, List<String> loserCrittersIds) {
+        BattleRewardsRequest request = BattleRewardsRequest.newBuilder()
+            .setWinnerId(winnerId)
+            .setLoserId(loserId)
+            .addAllWinnerCritterIds(winnerCrittersIds)
+            .addAllLoserCritterIds(loserCrittersIds)
+            .build();
+        
+        return playerServiceStub.getBattleRewards(request);
     }
 }

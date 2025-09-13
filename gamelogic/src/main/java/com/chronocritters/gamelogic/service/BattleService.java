@@ -146,26 +146,32 @@ public class BattleService {
         if (playerOneHasLost || playerTwoHasLost) {
             battleState.setBattleOutcome(BattleOutcome.BATTLE_END);
             
-            String winnerId = playerOneHasLost ? battleState.getPlayerTwo().getId() : battleState.getPlayerOne().getId();
-            String loserId = playerOneHasLost ? battleState.getPlayerOne().getId() : battleState.getPlayerTwo().getId();
+            PlayerState winner = playerOneHasLost ? battleState.getPlayerTwo() : battleState.getPlayerOne();
+            PlayerState loser = playerOneHasLost ? battleState.getPlayerOne() : battleState.getPlayerTwo();
 
-            battleState.setWinnerId(winnerId);
+            battleState.setWinnerId(winner.getId());
 
             String endLog = String.format("%s has no more critters! %s wins the battle!", 
-                (playerOneHasLost ? battleState.getPlayerOne().getUsername() : battleState.getPlayerTwo().getUsername()),
-                (winnerId.equals(battleState.getPlayerOne().getId()) ? battleState.getPlayerOne().getUsername() : battleState.getPlayerTwo().getUsername())
+                loser.getUsername(),
+                winner.getUsername()
             );
             battleState.getActionLogHistory().add(endLog);
 
-            applyWinLoss(battleState, winnerId, loserId);
+            applyWinLoss(battleState, winner, loser);
         }
 
         lobbyWebClient.updateBattleState(battleState.getBattleId(), battleState).subscribe();
     }
 
-    private void applyWinLoss(BattleState battleState, String winnerId, String loserId) {
+    private void applyWinLoss(BattleState battleState, PlayerState winner, PlayerState loser) {
         battleState.setActivePlayerId(null);
-        playerGrpcClient.updateMatchHistory(winnerId, loserId);
+        playerGrpcClient.updateMatchHistory(winner.getId(), loser.getId());
+        playerGrpcClient.grantBattleRewards(
+            winner.getId(), 
+            loser.getId(), 
+            winner.getRoster().stream().map(CritterState::getId).toList(), 
+            loser.getRoster().stream().map(CritterState::getId).toList()
+        );
 
         cleanupScheduler.schedule(() -> {
             BattleState removed = activeBattles.remove(battleState.getBattleId());
