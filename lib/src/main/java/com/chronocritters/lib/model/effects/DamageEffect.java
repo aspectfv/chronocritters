@@ -1,6 +1,6 @@
 package com.chronocritters.lib.model.effects;
 
-import com.chronocritters.lib.interfaces.IInstantEffect;
+import com.chronocritters.lib.interfaces.effects.IInstantEffect;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.lib.model.battle.CritterState;

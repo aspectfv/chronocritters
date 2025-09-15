@@ -1,4 +1,4 @@
-package com.chronocritters.lib.interfaces;
+package com.chronocritters.lib.interfaces.effects;
 
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.CritterState;

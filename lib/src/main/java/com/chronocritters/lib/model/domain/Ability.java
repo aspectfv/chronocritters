@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.chronocritters.lib.interfaces.IInstantEffect;
-import com.chronocritters.lib.interfaces.IPersistentEffect;
+import com.chronocritters.lib.interfaces.effects.IInstantEffect;
+import com.chronocritters.lib.interfaces.effects.IPersistentEffect;
 import com.chronocritters.lib.model.battle.BattleState;
 
 import jakarta.validation.constraints.NotBlank;

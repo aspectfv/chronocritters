@@ -1,4 +1,4 @@
-package com.chronocritters.lib.interfaces;
+package com.chronocritters.lib.interfaces.handler;
 
 import com.chronocritters.lib.model.battle.BattleState;
 

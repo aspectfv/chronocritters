@@ -20,7 +20,7 @@ import com.chronocritters.gamelogic.handler.ExecuteAbilityHandler;
 import com.chronocritters.gamelogic.handler.FaintingHandler;
 import com.chronocritters.gamelogic.handler.TurnEffectsHandler;
 import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
-import com.chronocritters.lib.interfaces.ITurnActionHandler;
+import com.chronocritters.lib.interfaces.handler.ITurnActionHandler;
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.battle.BattleRewards;
 import com.chronocritters.lib.model.battle.BattleState;
