@@ -14,7 +14,7 @@ import { BattleHistoryTab } from '@features/profile/routes/BattleHistoryTab';
 import { MyCrittersTab } from '@features/profile/routes/MyCrittersTab';
 import { OverviewTab } from '@features/profile/routes/OverviewTab';
 import { menuLoader } from '@features/menu/loaders';
-import { myCrittersLoader, overviewLoader } from '@features/profile/loaders';
+import { battleHistoryEntryLoader, battleHistoryLoader, myCrittersLoader, overviewLoader } from '@features/profile/loaders';
 import { BattleHistoryDetails } from '@features/profile/routes/BattleHistoryDetails';
 import { resultsLoader } from '@features/results/loaders';
 import { battleLoader } from '@features/battle/loaders';
@@ -66,10 +66,12 @@ const router = createBrowserRouter([
           {
             path: 'history',
             element: <BattleHistoryTab />,
+            loader: battleHistoryLoader
           },
           {
             path: 'history/:battleId',
             element: <BattleHistoryDetails />,
+            loader: battleHistoryEntryLoader
           }
         ],
       },

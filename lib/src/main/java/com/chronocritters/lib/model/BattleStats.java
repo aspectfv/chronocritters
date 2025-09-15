@@ -19,7 +19,7 @@ public class BattleStats {
     @Default
     private int turnCount = 1;
     private long battleStartTime;
-    private int duration;
+    private long duration;
 
     @Default
     private Map<String, Integer> playersDamageDealt = new HashMap<>(); // player ids as string

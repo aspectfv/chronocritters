@@ -39,12 +39,21 @@ export interface BattleRewards {
   };
 }
 
+export interface TurnActionEntry {
+  playerId: string;
+  playerHasTurn: boolean;
+  turn: number;
+  turnActionLog: string;
+}
+
 export interface BattleStats {
   turnCount: number;
   battleStartTime: number;
+  duration: number;
   playersDamageDealt: {
     [playerId: string]: number;
   }
+  turnActionHistory: TurnActionEntry[];
 }
 
 

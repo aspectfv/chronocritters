@@ -1,6 +1,6 @@
 import { redirect } from 'react-router-dom';
 import { useAuthStore } from '@store/auth/useAuthStore';
-import { getPlayerOverview, getMyCritters } from '@api/user';
+import { getPlayerOverview, getMyCritters, getBattleHistory, getBattleHistoryEntry } from '@api/user';
 
 export async function overviewLoader() {
   const { user } = useAuthStore.getState();
@@ -39,5 +39,48 @@ export async function myCrittersLoader() {
   } catch (error) {
     console.error("Failed to load player critters:", error);
     return [];
+  }
+}
+
+export async function battleHistoryLoader() {
+  const { user } = useAuthStore.getState();
+
+  if (!user?.id) {
+    return redirect('/auth/login');
+  }
+
+  try {
+    const history = await getBattleHistory(user.id);
+    if (!history) {
+        throw new Error("Player battle history not found.");
+    }
+    return history;
+  } catch (error) {
+    console.error("Failed to load battle history:", error);
+    return [];
+  }
+}
+
+export async function battleHistoryEntryLoader({ params }: { params: { battleId?: string } }) {
+  const { user } = useAuthStore.getState();
+
+  if (!user?.id) {
+    return redirect('/auth/login');
+  }
+
+  const { battleId } = params;
+  if (!battleId) {
+    throw new Error("Battle ID is required");
+  }
+
+  try {
+    const history = await getBattleHistoryEntry(battleId);
+    if (!history) {
+        throw new Error("Battle history entry not found.");
+    }
+    return history;
+  } catch (error) {
+    console.error("Failed to load battle history entry:", error);
+    return null;
   }
 }

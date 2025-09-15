@@ -80,3 +80,15 @@ export const getButtonState = (connectionStatus: ConnectionStatus | null | undef
   }
   return buttonStateMap[connectionStatus ?? ConnectionStatus.DISCONNECTED] || { text: 'Connecting...', disabled: true };
 };
+
+export const formatDuration = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+};
+
+export const formatTimestamp = (timestamp: string | null | undefined): string => {
+  if (!timestamp) return 'Unknown date';
+  const date = new Date(timestamp);
+  return date.toLocaleString();
+};

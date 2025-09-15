@@ -80,10 +80,10 @@ type TurnActionEntry {
     turnActionLog: String
 }
 
-
 type BattleStats {
     turnCount: Int
     battleStartTime: String
+    duration: String
     playersDamageDealt: [DamageDealtEntry]
     turnActionHistory: [TurnActionEntry]
 }
@@ -104,7 +104,7 @@ type Player {
     password: String
     stats: PlayerStats
     roster: [Critter]
-
+    matchHistory: [MatchHistoryEntry]
 }
 
 type User {
@@ -119,6 +119,7 @@ type LoginResponse {
 
 type Query {
     getPlayer(id: ID!): Player
+    getMatchHistoryEntry(battleId: String!): MatchHistoryEntry
 }
 
 type Mutation {

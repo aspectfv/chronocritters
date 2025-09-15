@@ -2,7 +2,6 @@ package com.chronocritters.user.service;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
@@ -90,21 +89,26 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
             winningPlayer.getStats().setWins(winningPlayer.getStats().getWins() + 1);
             losingPlayer.getStats().setLosses(losingPlayer.getStats().getLosses() + 1);
 
-            List<String> allCritterIds = new java.util.ArrayList<>();
-            allCritterIds.addAll(request.getWinnerCritterIdsList());
-            allCritterIds.addAll(request.getLoserCritterIdsList());
-
-            MatchHistoryEntry matchHistoryEntry = MatchHistoryEntry.builder()
+            MatchHistoryEntry winnerHistoryEntry = MatchHistoryEntry.builder()
                     .battleId(battleId)
                     .winnerId(winnerId)
                     .loserId(loserId)
                     .opponentUsername(losingPlayer.getUsername())
                     .timestamp(Instant.now())
-                    .crittersUsed(allCritterIds)
+                    .crittersUsed(request.getWinnerCritterIdsList())
                     .build();
 
-            winningPlayer.getMatchHistory().add(matchHistoryEntry);
-            losingPlayer.getMatchHistory().add(matchHistoryEntry);
+            MatchHistoryEntry loserHistoryEntry = MatchHistoryEntry.builder()
+                    .battleId(battleId)
+                    .winnerId(winnerId)
+                    .loserId(loserId)
+                    .opponentUsername(winningPlayer.getUsername())
+                    .timestamp(Instant.now())
+                    .crittersUsed(request.getLoserCritterIdsList())
+                    .build();
+
+            winningPlayer.getMatchHistory().add(winnerHistoryEntry);
+            losingPlayer.getMatchHistory().add(loserHistoryEntry);
                     
             // Save both players
             playerService.save(winningPlayer);

@@ -3,6 +3,8 @@ import type { LoginCredentials, RegisterCredentials } from '@store/auth/types';
 import { gql } from '@apollo/client';
 
 import type { 
+  GetBattleHistoryEntryQuery,
+  GetBattleHistoryQuery,
   GetMyCrittersQuery, 
   GetPlayerOverviewQuery, 
   GetPlayerResultsQuery, 
@@ -187,6 +189,66 @@ export const getPlayerResults = async (userId: string) => {
   const response = await client.query<GetPlayerResultsQuery>({
     query: GET_PLAYER_RESULTS_QUERY,
     variables: { id: userId },
+    fetchPolicy: 'network-only'
+  });
+  return response.data;
+};
+
+const BATTLE_HISTORY_QUERY = gql(`
+  query GetBattleHistory($id: ID!) {
+    getPlayer(id: $id) {
+      matchHistory {
+        battleId
+        winnerId
+        loserId
+        opponentUsername
+        timestamp
+        crittersUsed
+      }
+    }
+  }
+`);
+
+export const getBattleHistory = async (userId: string) => {
+  const response = await client.query<GetBattleHistoryQuery>({
+    query: BATTLE_HISTORY_QUERY,
+    variables: { id: userId },
+    fetchPolicy: 'network-only'
+  });
+  return response.data;
+};
+
+const BATTLE_HISTORY_ENTRY_QUERY = gql(`
+  query GetBattleHistoryEntry($battleId: String!) {
+    getMatchHistoryEntry(battleId: $battleId) {
+      winnerId
+      loserId
+      opponentUsername
+      timestamp
+      crittersUsed
+      battleStats {
+        turnCount
+        battleStartTime
+        duration
+        playersDamageDealt {
+          playerId
+          damage
+        }
+        turnActionHistory {
+          playerId
+          playerHasTurn
+          turn
+          turnActionLog
+        }
+      }
+    }
+  }
+`);
+
+export const getBattleHistoryEntry = async (battleId: string) => {
+  const response = await client.query<GetBattleHistoryEntryQuery>({
+    query: BATTLE_HISTORY_ENTRY_QUERY,
+    variables: { battleId },
     fetchPolicy: 'network-only'
   });
   return response.data;

@@ -23,9 +23,9 @@ function ResultsPage() {
   const battleResult = state?.result as Result;
   const battleState = state?.battleState;
   const xpGained = battleState?.battleRewards?.playersExpGained?.[user?.id || ''] || 0;
-  const playerDamageDealt = battleState?.playersDamageDealt?.[user?.id || ''] || 0;
-  const turnCount = battleState?.turnCount || 0;
-  const battleStartTime = battleState?.battleStartTime || 0;
+  const playerDamageDealt = battleState?.battleStats?.playersDamageDealt?.[user?.id || ''] || 0;
+  const turnCount = battleState?.battleStats?.turnCount || 0;
+  const duration = battleState?.battleStats?.duration || 0;
 
   const finalPlayer = loaderData?.getPlayer ?? null;
   const finalRoster = (loaderData?.getPlayer?.roster || [])
@@ -59,7 +59,7 @@ function ResultsPage() {
               />
               <RewardsSummary expGained={xpGained} />
             </div>
-            <BattleSummary turnCount={turnCount} battleStartTime={battleStartTime} playerDamageDealt={playerDamageDealt} />
+            <BattleSummary turnCount={turnCount} playerDamageDealt={playerDamageDealt} duration={duration} />
             <AchievementNotification />
           </>
         )}

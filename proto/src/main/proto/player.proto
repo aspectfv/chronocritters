@@ -103,7 +103,7 @@ message TurnActionEntryProto {
 message BattleStatsProto {
   int32 turn_count = 1;
   int64 battleStartTime = 2;
-  int32 duration = 3;
+  int64 duration = 3;
   map<string, int32> players_damage_dealt = 4;
   repeated TurnActionEntryProto turn_action_history = 5;
 }

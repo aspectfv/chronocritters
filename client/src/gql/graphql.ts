@@ -35,6 +35,7 @@ export type BaseStats = {
 export type BattleStats = {
   __typename?: 'BattleStats';
   battleStartTime?: Maybe<Scalars['String']['output']>;
+  duration?: Maybe<Scalars['String']['output']>;
   playersDamageDealt?: Maybe<Array<Maybe<DamageDealtEntry>>>;
   turnActionHistory?: Maybe<Array<Maybe<TurnActionEntry>>>;
   turnCount?: Maybe<Scalars['Int']['output']>;
@@ -127,6 +128,7 @@ export type MutationRegisterArgs = {
 export type Player = {
   __typename?: 'Player';
   id?: Maybe<Scalars['ID']['output']>;
+  matchHistory?: Maybe<Array<Maybe<MatchHistoryEntry>>>;
   password?: Maybe<Scalars['String']['output']>;
   roster?: Maybe<Array<Maybe<Critter>>>;
   stats?: Maybe<PlayerStats>;
@@ -144,7 +146,13 @@ export type PlayerStats = {
 
 export type Query = {
   __typename?: 'Query';
+  getMatchHistoryEntry?: Maybe<MatchHistoryEntry>;
   getPlayer?: Maybe<Player>;
+};
+
+
+export type QueryGetMatchHistoryEntryArgs = {
+  battleId: Scalars['String']['input'];
 };
 
 
@@ -220,3 +228,17 @@ export type GetPlayerResultsQueryVariables = Exact<{
 
 
 export type GetPlayerResultsQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', username?: string | null, stats?: { __typename?: 'PlayerStats', level?: number | null, experience?: number | null, expToNextLevel?: number | null } | null, roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, baseStats?: { __typename?: 'BaseStats', level?: number | null, experience?: number | null, expToNextLevel?: number | null } | null } | null> | null } | null };
+
+export type GetBattleHistoryQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetBattleHistoryQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', matchHistory?: Array<{ __typename?: 'MatchHistoryEntry', battleId?: string | null, winnerId?: string | null, loserId?: string | null, opponentUsername?: string | null, timestamp?: string | null, crittersUsed?: Array<string | null> | null } | null> | null } | null };
+
+export type GetBattleHistoryEntryQueryVariables = Exact<{
+  battleId: Scalars['String']['input'];
+}>;
+
+
+export type GetBattleHistoryEntryQuery = { __typename?: 'Query', getMatchHistoryEntry?: { __typename?: 'MatchHistoryEntry', winnerId?: string | null, loserId?: string | null, opponentUsername?: string | null, timestamp?: string | null, crittersUsed?: Array<string | null> | null, battleStats?: { __typename?: 'BattleStats', turnCount?: number | null, battleStartTime?: string | null, duration?: string | null, playersDamageDealt?: Array<{ __typename?: 'DamageDealtEntry', playerId: string, damage: number } | null> | null, turnActionHistory?: Array<{ __typename?: 'TurnActionEntry', playerId?: string | null, playerHasTurn?: boolean | null, turn?: number | null, turnActionLog?: string | null } | null> | null } | null } | null };

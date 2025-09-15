@@ -170,6 +170,10 @@ public class BattleService {
             );
             battleState.getActionLogHistory().add(endLog);
 
+            battleState.getBattleStats().setDuration(
+                (System.currentTimeMillis() - battleState.getBattleStats().getBattleStartTime()) / 1000
+            );
+
             applyWinLoss(battleState, winner, loser);
         }
 
@@ -179,7 +183,7 @@ public class BattleService {
     private void applyWinLoss(BattleState battleState, PlayerState winner, PlayerState loser) {
         battleState.setActivePlayerId(null);
         playerGrpcClient.updateMatchHistory(
-        winner.getId(), loser.getId(), 
+            battleState.getBattleId(), winner.getId(), loser.getId(), 
             battleState.getBattleStats(), 
             winner.getRoster().stream().map(CritterState::getId).toList(), 
             loser.getRoster().stream().map(CritterState::getId).toList()

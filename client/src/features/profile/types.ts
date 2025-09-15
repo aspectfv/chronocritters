@@ -31,3 +31,9 @@ export interface BattleStatisticsProps {
 export interface CritterTeamOverviewProps {
   roster: PlayerOverviewData['roster'];
 }
+
+export interface BattleHistoryEntryLoaderParams {
+  params: {
+    battleId?: string;
+  };
+}

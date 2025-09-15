@@ -1,9 +1,8 @@
 import { redirect } from 'react-router-dom';
 import { getBattleState } from '@api/gamelogic';
-import type { BattleState } from '@store/battle/types';
 import type { BattleLoaderParams } from './types';
 
-export async function battleLoader({ params }: BattleLoaderParams): Promise<BattleState> {
+export async function battleLoader({ params }: BattleLoaderParams) {
   const { battleId } = params;
 
   if (!battleId) {
