@@ -14,7 +14,7 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
     );
   }
 
-  const xpPercentage = (critter.baseStats?.experience ?? 0 / (critter.baseStats?.expToNextLevel ?? 1)) * 100;
+  const xpPercentage = Math.min(100, ((critter.baseStats?.experience ?? 0) / (critter.baseStats?.expToNextLevel ?? 1)) * 100);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
