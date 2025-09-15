@@ -1,5 +1,3 @@
-// In: gamelogic/src/main/java/com/chronocritters/gamelogic/client/LobbyWebClient.java
-
 package com.chronocritters.gamelogic.client;
 
 import org.slf4j.Logger;
