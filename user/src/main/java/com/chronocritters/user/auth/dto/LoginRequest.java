@@ -1,4 +1,4 @@
-package com.chronocritters.user.dto;
+package com.chronocritters.user.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

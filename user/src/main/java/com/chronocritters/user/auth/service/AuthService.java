@@ -1,13 +1,13 @@
-package com.chronocritters.user.service;
+package com.chronocritters.user.auth.service;
 
 import org.springframework.stereotype.Service;
 
 import com.chronocritters.lib.model.domain.Player;
 import com.chronocritters.lib.util.JwtUtil;
 import com.chronocritters.lib.util.PasswordUtil;
-import com.chronocritters.user.dto.LoginResponse;
-import com.chronocritters.user.dto.User;
-import com.chronocritters.user.repository.PlayerRepository;
+import com.chronocritters.user.auth.dto.LoginResponse;
+import com.chronocritters.user.auth.dto.User;
+import com.chronocritters.user.player.repository.PlayerRepository;
 
 import lombok.RequiredArgsConstructor;
 

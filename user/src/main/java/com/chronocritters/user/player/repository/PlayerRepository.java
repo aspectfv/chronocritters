@@ -1,4 +1,4 @@
-package com.chronocritters.user.repository;
+package com.chronocritters.user.player.repository;
 
 import java.util.Optional;
 

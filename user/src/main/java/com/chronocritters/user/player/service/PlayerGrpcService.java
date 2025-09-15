@@ -1,4 +1,4 @@
-package com.chronocritters.user.service;
+package com.chronocritters.user.player.service;
 
 import java.time.Instant;
 import java.util.ArrayList;

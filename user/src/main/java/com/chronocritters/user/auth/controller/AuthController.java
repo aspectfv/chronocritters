@@ -1,12 +1,12 @@
-package com.chronocritters.user.controller;
+package com.chronocritters.user.auth.controller;
 
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 
-import com.chronocritters.user.dto.LoginResponse;
-import com.chronocritters.user.service.AuthService;
+import com.chronocritters.user.auth.dto.LoginResponse;
+import com.chronocritters.user.auth.service.AuthService;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

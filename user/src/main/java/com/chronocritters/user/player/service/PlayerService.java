@@ -1,4 +1,4 @@
-package com.chronocritters.user.service;
+package com.chronocritters.user.player.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.chronocritters.lib.model.domain.MatchHistoryEntry;
 import com.chronocritters.lib.model.domain.Player;
-import com.chronocritters.user.repository.PlayerRepository;
+import com.chronocritters.user.player.repository.PlayerRepository;
 
 import lombok.RequiredArgsConstructor;
 

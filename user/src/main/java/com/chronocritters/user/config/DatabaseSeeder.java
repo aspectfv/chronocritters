@@ -16,10 +16,10 @@ import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.effects.SkipTurnEffect;
 import com.chronocritters.lib.model.enums.CritterType;
 import com.chronocritters.lib.util.PasswordUtil;
-import com.chronocritters.user.repository.AbilityRepository;
-import com.chronocritters.user.repository.CritterRepository;
-import com.chronocritters.user.repository.EffectRepository;
-import com.chronocritters.user.repository.PlayerRepository;
+import com.chronocritters.user.player.repository.AbilityRepository;
+import com.chronocritters.user.player.repository.CritterRepository;
+import com.chronocritters.user.player.repository.EffectRepository;
+import com.chronocritters.user.player.repository.PlayerRepository;
 
 @Configuration
 public class DatabaseSeeder {

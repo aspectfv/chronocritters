@@ -1,4 +1,4 @@
-package com.chronocritters.user.controller;
+package com.chronocritters.user.player.contoller;
 
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -11,7 +11,7 @@ import com.chronocritters.lib.model.domain.MatchHistoryEntry;
 import com.chronocritters.lib.model.domain.Player;
 import com.chronocritters.lib.model.domain.PlayerStats;
 import com.chronocritters.lib.util.ExperienceUtil;
-import com.chronocritters.user.service.PlayerService;
+import com.chronocritters.user.player.service.PlayerService;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
