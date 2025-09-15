@@ -39,6 +39,14 @@ export interface BattleRewards {
   };
 }
 
+export interface BattleStats {
+  turnCount: number;
+  battleStartTime: number;
+  playersDamageDealt: {
+    [playerId: string]: number;
+  }
+}
+
 
 export interface BattleState {
   battleId: string;
@@ -46,11 +54,7 @@ export interface BattleState {
   playerOne: PlayerState;
   playerTwo: PlayerState;
   actionLogHistory: string[];
-  playersDamageDealt: {
-    [playerId: string]: number;
-  };
-  turnCount: number;
-  battleStartTime: number;
+  battleStats: BattleStats;
   battleOutcome: BattleOutcome;
   winnerId?: string;
   battleRewards?: BattleRewards;

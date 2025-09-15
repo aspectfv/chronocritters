@@ -1,5 +1,6 @@
 package com.chronocritters.lib.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 @Data
 @NoArgsConstructor
@@ -32,4 +34,7 @@ public class Player {
     
     @NotNull(message = "Roster cannot be null")
     private List<Critter> roster;
+
+    @Default
+    private List<MatchHistoryEntry> matchHistory = new ArrayList<>();
 }

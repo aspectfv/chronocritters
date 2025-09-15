@@ -1,10 +1,12 @@
 package com.chronocritters.user.service;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.Critter;
+import com.chronocritters.lib.model.MatchHistoryEntry;
 import com.chronocritters.lib.model.Player;
 import com.chronocritters.lib.util.ExperienceUtil;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsRequest;
@@ -60,24 +62,25 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
     @Override
     public void updateMatchHistory(MatchHistoryRequest request, StreamObserver<MatchHistoryResponse> responseObserver) {
         try {
-            String winningPlayerId = request.getWinningPlayerId();
-            String losingPlayerId = request.getLosingPlayerId();
+            String battleId = request.getBattleId();
+            String winnerId = request.getWinnerId();
+            String loserId = request.getLoserId();
 
-            Player winningPlayer = playerService.findById(winningPlayerId);
+            Player winningPlayer = playerService.findById(winnerId);
             if (winningPlayer == null) {
                 responseObserver.onNext(MatchHistoryResponse.newBuilder()
                         .setSuccess(false)
-                        .setMessage("Winning player not found with ID: " + winningPlayerId)
+                        .setMessage("Winning player not found with ID: " + winnerId)
                         .build());
                 responseObserver.onCompleted();
                 return;
             }
 
-            Player losingPlayer = playerService.findById(losingPlayerId);
+            Player losingPlayer = playerService.findById(loserId);
             if (losingPlayer == null) {
                 responseObserver.onNext(MatchHistoryResponse.newBuilder()
                         .setSuccess(false)
-                        .setMessage("Losing player not found with ID: " + losingPlayerId)
+                        .setMessage("Losing player not found with ID: " + loserId)
                         .build());
                 responseObserver.onCompleted();
                 return;
@@ -87,6 +90,18 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
             winningPlayer.getStats().setWins(winningPlayer.getStats().getWins() + 1);
             losingPlayer.getStats().setLosses(losingPlayer.getStats().getLosses() + 1);
 
+            MatchHistoryEntry matchHistoryEntry = MatchHistoryEntry.builder()
+                    .battleId(battleId)
+                    .winnerId(winnerId)
+                    .loserId(loserId)
+                    .opponentUsername(losingPlayer.getUsername())
+                    .timestamp(Instant.now())
+                    .crittersUsed(null)
+                    .build();
+
+            winningPlayer.getMatchHistory().add(matchHistoryEntry);
+            losingPlayer.getMatchHistory().add(matchHistoryEntry);
+                    
             // Save both players
             playerService.save(winningPlayer);
             playerService.save(losingPlayer);

@@ -5,9 +5,11 @@ import java.util.Optional;
 import com.chronocritters.lib.interfaces.IPersistentEffect;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.BattleStats;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.PlayerState;
+import com.chronocritters.lib.model.TurnActionEntry;
 
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -29,8 +31,9 @@ public class SkipTurnEffect extends Effect implements IPersistentEffect {
     public void onApply(BattleState battleState) {
         PlayerState player = battleState.getPlayer();
         PlayerState opponent = battleState.getOpponent();
+        CritterState caster = player.getActiveCritter();
         CritterState target = opponent.getActiveCritter();
-        Ability ability = player.getActiveCritter().getAbilityById(player.getLastSelectedAbilityId());
+        Ability ability = caster.getAbilityById(player.getLastSelectedAbilityId());
 
         Optional<SkipTurnEffect> existingEffect = target.getActiveStatusEffects().stream()
             .filter(e -> e.getId().equals(this.getId()))
@@ -42,6 +45,19 @@ public class SkipTurnEffect extends Effect implements IPersistentEffect {
         } else {
             target.getActiveStatusEffects().add(this.createInstance());
         }
+
+        BattleStats battleStats = battleState.getBattleStats();
+
+        String turnActionLog = String.format("%s used %s - skipping %s turns",
+            caster.getName(), ability.getName(), duration);
+
+        TurnActionEntry turnAction = TurnActionEntry.builder()
+                .playerId(player.getId())
+                .playerHasTurn(true)
+                .turn(battleStats.getTurnCount())
+                .turnActionLog(turnActionLog)
+                .build();
+        battleStats.getTurnActionHistory().add(turnAction);
 
         String actionLog = String.format("%s's %s is afflicted with %s for %d turns!",
             player.getUsername(), target.getName(), ability.getName(), this.duration);

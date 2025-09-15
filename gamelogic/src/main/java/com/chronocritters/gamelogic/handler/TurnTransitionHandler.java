@@ -1,6 +1,7 @@
 package com.chronocritters.gamelogic.handler;
 
 import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.BattleStats;
 import com.chronocritters.lib.model.PlayerState;
 import com.chronocritters.lib.model.effects.SkipTurnEffect;
 
@@ -15,8 +16,10 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
         PlayerState nextPlayer = battleState.getOpponent();
 
         if (currentPlayer == null || nextPlayer == null) return;
+        
+        BattleStats battleStats = battleState.getBattleStats();
 
-        battleState.setTurnCount(battleState.getTurnCount() + 1);
+        battleStats.setTurnCount(battleStats.getTurnCount() + 1);
 
         currentPlayer.setHasTurn(false);
         nextPlayer.setHasTurn(true);

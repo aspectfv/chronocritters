@@ -3,9 +3,11 @@ package com.chronocritters.lib.model.effects;
 import com.chronocritters.lib.interfaces.IInstantEffect;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.BattleStats;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.PlayerState;
+import com.chronocritters.lib.model.TurnActionEntry;
 import com.chronocritters.lib.util.TypeAdvantageUtil;
 
 import jakarta.validation.constraints.Min;
@@ -44,8 +46,21 @@ public class DamageEffect extends Effect implements IInstantEffect {
         int newHealth = Math.max(0, target.getStats().getCurrentHp() - finalDamage);
         target.getStats().setCurrentHp(newHealth);
 
-        battleState.getPlayersDamageDealt().put(player.getId(),
-            battleState.getPlayersDamageDealt().getOrDefault(player.getId(), 0) + finalDamage);
+        BattleStats battleStats = battleState.getBattleStats();
+
+        battleStats.getPlayersDamageDealt().put(player.getId(),
+            battleStats.getPlayersDamageDealt().getOrDefault(player.getId(), 0) + finalDamage);
+
+        String turnActionLog = String.format("%s used %s - %s damage",
+            caster.getName(), ability.getName(), finalDamage);
+
+        TurnActionEntry turnAction = TurnActionEntry.builder()
+                .playerId(player.getId())
+                .playerHasTurn(true)
+                .turn(battleStats.getTurnCount())
+                .turnActionLog(turnActionLog)
+                .build();
+        battleStats.getTurnActionHistory().add(turnAction);
 
         String actionLog = String.format("%s's %s used %s for %d damage! %s's %s now has %d health.",
             player.getUsername(), caster.getName(), ability.getName(), finalDamage,

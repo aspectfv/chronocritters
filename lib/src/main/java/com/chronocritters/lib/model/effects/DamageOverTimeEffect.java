@@ -5,9 +5,11 @@ import java.util.Optional;
 import com.chronocritters.lib.interfaces.IPersistentEffect;
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.BattleStats;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.PlayerState;
+import com.chronocritters.lib.model.TurnActionEntry;
 
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -48,6 +50,19 @@ public class DamageOverTimeEffect extends Effect implements IPersistentEffect {
             target.getActiveStatusEffects().add(this.createInstance());
         }
 
+        BattleStats battleStats = battleState.getBattleStats();
+
+        String turnActionLog = String.format("%s used %s - %s damage per turn",
+            caster.getName(), ability.getName(), damagePerTurn);
+
+        TurnActionEntry turnAction = TurnActionEntry.builder()
+                .playerId(player.getId())
+                .playerHasTurn(true)
+                .turn(battleStats.getTurnCount())
+                .turnActionLog(turnActionLog)
+                .build();
+        battleStats.getTurnActionHistory().add(turnAction);
+
         String actionLog = String.format("%s's %s is afflicted with %s from %s's %s for %d turns, taking %d damage per turn!",
             opponent.getUsername(), target.getName(), ability.getName(), player.getUsername(), caster.getName(),
             this.duration, this.damagePerTurn);
@@ -61,8 +76,10 @@ public class DamageOverTimeEffect extends Effect implements IPersistentEffect {
 
         if (this.duration >= 0) {
             target.getStats().setCurrentHp(Math.max(0, target.getStats().getCurrentHp() - this.damagePerTurn));
-            battleState.getPlayersDamageDealt().put(this.casterId, 
-                battleState.getPlayersDamageDealt().getOrDefault(this.casterId, 0) + this.damagePerTurn);
+            BattleStats battleStats = battleState.getBattleStats();
+            battleStats.getPlayersDamageDealt().put(this.casterId, 
+                battleStats.getPlayersDamageDealt().getOrDefault(this.casterId, 0) + this.damagePerTurn);
+                
             String actionLog = String.format("%s takes %d damage! %d Turns remaining.", target.getName(), this.damagePerTurn, this.duration);
             battleState.getActionLogHistory().add(actionLog);
             return false;

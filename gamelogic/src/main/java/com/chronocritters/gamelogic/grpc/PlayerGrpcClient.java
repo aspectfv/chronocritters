@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.chronocritters.lib.mapper.PlayerProtoMapper;
+import com.chronocritters.lib.model.BattleStats;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsRequest;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
 import com.chronocritters.proto.player.PlayerProto.MatchHistoryRequest;
@@ -28,10 +30,11 @@ public class PlayerGrpcClient {
         return playerServiceStub.getPlayer(request);
     }
 
-    public MatchHistoryResponse updateMatchHistory(String winnerId, String loserId) {
+    public MatchHistoryResponse updateMatchHistory(String winnerId, String loserId, BattleStats battleStats) {
         MatchHistoryRequest request = MatchHistoryRequest.newBuilder()
-            .setWinningPlayerId(winnerId)
-            .setLosingPlayerId(loserId)
+            .setWinnerId(winnerId)
+            .setLoserId(loserId)
+            .setBattleStats(PlayerProtoMapper.convertBattleStatsModelToProto(battleStats))
             .build();
         
         return playerServiceStub.updateMatchHistory(request);

@@ -1,11 +1,13 @@
 package com.chronocritters.lib.mapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.chronocritters.lib.model.Ability;
 import com.chronocritters.lib.model.BaseStats;
 import com.chronocritters.lib.model.BattleRewards;
+import com.chronocritters.lib.model.BattleStats;
 import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.CritterType;
@@ -13,12 +15,14 @@ import com.chronocritters.lib.model.CurrentStats;
 import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.Player;
 import com.chronocritters.lib.model.PlayerState;
+import com.chronocritters.lib.model.TurnActionEntry;
 import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.effects.SkipTurnEffect;
 import com.chronocritters.proto.player.PlayerProto.AbilityProto;
 import com.chronocritters.proto.player.PlayerProto.BaseStatsProto;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
+import com.chronocritters.proto.player.PlayerProto.BattleStatsProto;
 import com.chronocritters.proto.player.PlayerProto.CritterProto;
 import com.chronocritters.proto.player.PlayerProto.CritterTypeProto;
 import com.chronocritters.proto.player.PlayerProto.DamageEffectProto;
@@ -26,6 +30,7 @@ import com.chronocritters.proto.player.PlayerProto.DamageOverTimeEffectProto;
 import com.chronocritters.proto.player.PlayerProto.EffectProto;
 import com.chronocritters.proto.player.PlayerProto.PlayerResponse;
 import com.chronocritters.proto.player.PlayerProto.SkipTurnEffectProto;
+import com.chronocritters.proto.player.PlayerProto.TurnActionEntryProto;
 
 public final class PlayerProtoMapper {
 
@@ -72,6 +77,33 @@ public final class PlayerProtoMapper {
         return BattleRewards.builder()
             .playersExpGained(rewardsResponse.getPlayersExpGainedMap())
             .crittersExpGained(rewardsResponse.getCrittersExpGainedMap())
+            .build();
+    }
+
+    public static BattleStats convertToBattleStats(BattleStatsProto battleStatsProto) {
+        if (battleStatsProto == null) throw new IllegalArgumentException("BattleStatsProto cannot be null");
+
+        Map<String, Integer> playersDamageDealt = new java.util.HashMap<>(battleStatsProto.getPlayersDamageDealtMap());
+
+        List<TurnActionEntry> turnActionHistory = new java.util.ArrayList<>();
+        if (battleStatsProto.getTurnActionHistoryList() != null) {
+            for (TurnActionEntryProto proto : battleStatsProto.getTurnActionHistoryList()) {
+                TurnActionEntry entry = TurnActionEntry.builder()
+                    .playerId(proto.getPlayerId())
+                    .playerHasTurn(proto.getPlayerHasTurn())
+                    .turn(proto.getTurn())
+                    .turnActionLog(proto.getTurnActionLog())
+                    .build();
+                turnActionHistory.add(entry);
+            }
+        }
+
+        return BattleStats.builder()
+            .turnCount(battleStatsProto.getTurnCount())
+            .battleStartTime(battleStatsProto.getBattleStartTime())
+            .duration(battleStatsProto.getDuration())
+            .playersDamageDealt(playersDamageDealt)
+            .turnActionHistory(turnActionHistory)
             .build();
     }
 
@@ -240,6 +272,31 @@ public final class PlayerProtoMapper {
         critter.getAbilities().stream()
             .map(PlayerProtoMapper::convertAbilityModelToProto)
             .forEach(builder::addAbilities);
+
+        return builder.build();
+    }
+
+    public static BattleStatsProto convertBattleStatsModelToProto(BattleStats battleStats) {
+        if (battleStats == null) throw new IllegalArgumentException("BattleStats cannot be null");
+
+        BattleStatsProto.Builder builder = BattleStatsProto.newBuilder()
+            .setTurnCount(battleStats.getTurnCount())
+            .setBattleStartTime(battleStats.getBattleStartTime())
+            .setDuration(battleStats.getDuration())
+            .putAllPlayersDamageDealt(battleStats.getPlayersDamageDealt());
+
+        if (battleStats.getTurnActionHistory() != null) {
+            battleStats.getTurnActionHistory().forEach(entry -> {
+                builder.addTurnActionHistory(
+                    TurnActionEntryProto.newBuilder()
+                        .setPlayerId(entry.getPlayerId())
+                        .setPlayerHasTurn(entry.isPlayerHasTurn())
+                        .setTurn(entry.getTurn())
+                        .setTurnActionLog(entry.getTurnActionLog())
+                        .build()
+                );
+            });
+        }
 
         return builder.build();
     }

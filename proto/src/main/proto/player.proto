@@ -85,8 +85,25 @@ message SkipTurnEffectProto {
 }
 
 message MatchHistoryRequest {
-  string winning_player_id = 1;
-  string losing_player_id = 2;
+  string battle_id = 1;
+  string winner_id = 2;
+  string loser_id = 3;
+  BattleStatsProto battle_stats = 4;
+}
+
+message TurnActionEntryProto {
+  string player_id = 1;
+  bool player_has_turn = 2;
+  int32 turn = 3;
+  string turnActionLog = 4;
+}
+
+message BattleStatsProto {
+  int32 turn_count = 1;
+  int64 battleStartTime = 2;
+  int32 duration = 3;
+  map<string, int32> players_damage_dealt = 4;
+  repeated TurnActionEntryProto turn_action_history = 5;
 }
 
 message MatchHistoryResponse {

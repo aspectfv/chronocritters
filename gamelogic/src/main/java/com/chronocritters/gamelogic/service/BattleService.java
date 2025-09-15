@@ -25,6 +25,7 @@ import com.chronocritters.lib.mapper.PlayerProtoMapper;
 import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.BattleRewards;
 import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.BattleStats;
 import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.PlayerState;
 
@@ -66,15 +67,19 @@ public class BattleService {
         initialDamageDealt.put(playerOneId, 0);
         initialDamageDealt.put(playerTwoId, 0);
 
+        BattleStats battleStats = BattleStats.builder()
+                .battleStartTime(System.currentTimeMillis())
+                .playersDamageDealt(initialDamageDealt)
+                .build();
+
         BattleState battleState = BattleState.builder()
                 .battleId(battleId)
                 .activePlayerId(playerOneId)
                 .playerOne(playerOne)
                 .playerTwo(playerTwo)
                 .actionLogHistory(logHistory)
-                .playersDamageDealt(initialDamageDealt)
                 .timeRemaining(TURN_DURATION_SECONDS)
-                .battleStartTime(System.currentTimeMillis())
+                .battleStats(battleStats)
                 .build();
 
         activeBattles.put(battleId, battleState);
@@ -173,7 +178,7 @@ public class BattleService {
 
     private void applyWinLoss(BattleState battleState, PlayerState winner, PlayerState loser) {
         battleState.setActivePlayerId(null);
-        playerGrpcClient.updateMatchHistory(winner.getId(), loser.getId());
+        playerGrpcClient.updateMatchHistory(winner.getId(), loser.getId(), battleState.getBattleStats());
         
         BattleRewards rewards = PlayerProtoMapper.convertToBattleRewards(playerGrpcClient.getBattleRewards(
             winner.getId(), loser.getId(), 

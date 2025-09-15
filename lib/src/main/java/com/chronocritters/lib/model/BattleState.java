@@ -1,8 +1,6 @@
 package com.chronocritters.lib.model;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,13 +20,7 @@ public class BattleState {
     private List<String> actionLogHistory;
     private int timeRemaining;
 
-    // battle stats
-    @Default
-    private int turnCount = 1;
-    private long battleStartTime;
-
-    @Default
-    private Map<String, Integer> playersDamageDealt = new HashMap<>();
+    private BattleStats battleStats;
 
     @Default
     private BattleOutcome battleOutcome = BattleOutcome.CONTINUE;
