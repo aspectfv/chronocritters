@@ -6,7 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.chronocritters.lib.mapper.PlayerProtoMapper;
+import com.chronocritters.lib.mapper.BattleStatsMapper;
+import com.chronocritters.lib.mapper.CritterMapper;
 import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.lib.model.domain.Critter;
 import com.chronocritters.lib.model.domain.MatchHistoryEntry;
@@ -48,7 +49,7 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
             // Convert roster to proto format
             if (player.getRoster() != null) {
                 for (Critter critter : player.getRoster()) {
-                    CritterProto critterProto = PlayerProtoMapper.convertCritterModelToProto(critter);
+                    CritterProto critterProto = CritterMapper.toProto(critter);
                     responseBuilder.addRoster(critterProto);
                 }
             }
@@ -108,7 +109,7 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
                     .ifPresent(c -> loserCritterNames.add(c.getName()));
             }
 
-            BattleStats battleStats = PlayerProtoMapper.convertToBattleStats(request.getBattleStats());
+            BattleStats battleStats = BattleStatsMapper.toModel(request.getBattleStats());
 
             MatchHistoryEntry winnerHistoryEntry = MatchHistoryEntry.builder()
                     .battleId(battleId)

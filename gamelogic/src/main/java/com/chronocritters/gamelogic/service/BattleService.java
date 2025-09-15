@@ -21,7 +21,8 @@ import com.chronocritters.gamelogic.handler.FaintingHandler;
 import com.chronocritters.gamelogic.handler.TurnEffectsHandler;
 import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
 import com.chronocritters.lib.interfaces.handler.ITurnActionHandler;
-import com.chronocritters.lib.mapper.PlayerProtoMapper;
+import com.chronocritters.lib.mapper.BattleRewardsMapper;
+import com.chronocritters.lib.mapper.PlayerMapper;
 import com.chronocritters.lib.model.battle.BattleRewards;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.BattleStats;
@@ -53,8 +54,8 @@ public class BattleService {
     }
 
     public void createBattle(String battleId, String playerOneId, String playerTwoId) {
-        PlayerState playerOne = PlayerProtoMapper.convertToPlayerState(playerGrpcClient.getPlayer(playerOneId));
-        PlayerState playerTwo = PlayerProtoMapper.convertToPlayerState(playerGrpcClient.getPlayer(playerTwoId));
+        PlayerState playerOne = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerOneId));
+        PlayerState playerTwo = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerTwoId));
 
         playerOne.setHasTurn(true);
         playerTwo.setHasTurn(false);
@@ -189,7 +190,7 @@ public class BattleService {
             loser.getRoster().stream().map(CritterState::getId).toList()
         );
 
-        BattleRewards rewards = PlayerProtoMapper.convertToBattleRewards(playerGrpcClient.getBattleRewards(
+        BattleRewards rewards = BattleRewardsMapper.toModel(playerGrpcClient.getBattleRewards(
             winner.getId(), loser.getId(), 
             winner.getRoster().stream().map(CritterState::getId).toList(),
             loser.getRoster().stream().map(CritterState::getId).toList()

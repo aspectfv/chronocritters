@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.chronocritters.lib.mapper.PlayerProtoMapper;
+import com.chronocritters.lib.mapper.BattleStatsMapper;
 import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsRequest;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
@@ -35,7 +35,7 @@ public class PlayerGrpcClient {
             .setBattleId(battleId)
             .setWinnerId(winnerId)
             .setLoserId(loserId)
-            .setBattleStats(PlayerProtoMapper.convertBattleStatsModelToProto(battleStats))
+            .setBattleStats(BattleStatsMapper.toProto(battleStats))
             .addAllWinnerCritterIds(winnerCritterIds)
             .addAllLoserCritterIds(loserCrittersIds)
             .build();
