@@ -9,12 +9,14 @@ export function OverviewTab() {
   const roster = loaderData?.getPlayer?.roster || [];
   const wins = loaderData?.getPlayer?.stats?.wins ?? 0;
   const losses = loaderData?.getPlayer?.stats?.losses ?? 0;
+  const level = loaderData?.getPlayer?.stats?.level ?? 0;
+  const experience = loaderData?.getPlayer?.stats?.experience ?? 0;
 
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
-          <TrainerInfo username={username} />
+          <TrainerInfo username={username} level={level} experience={experience} />
         </div>
         <div className="lg:col-span-2">
           <BattleStatistics wins={wins} losses={losses} />

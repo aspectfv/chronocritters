@@ -168,7 +168,7 @@ export type GetPlayerOverviewQueryVariables = Exact<{
 }>;
 
 
-export type GetPlayerOverviewQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', id?: string | null, username?: string | null, stats?: { __typename?: 'PlayerStats', wins?: number | null, losses?: number | null } | null, roster?: Array<{ __typename?: 'Critter', name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null } | null } | null> | null } | null };
+export type GetPlayerOverviewQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', id?: string | null, username?: string | null, stats?: { __typename?: 'PlayerStats', wins?: number | null, losses?: number | null, level?: number | null, experience?: number | null, expToNextLevel?: number | null } | null, roster?: Array<{ __typename?: 'Critter', name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null } | null } | null> | null } | null };
 
 export type GetMyCrittersQueryVariables = Exact<{
   id: Scalars['ID']['input'];

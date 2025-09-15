@@ -7,7 +7,7 @@ const mockTrainerData = {
   experience: 2450,
 };
 
-export function TrainerInfo({ username }: TrainerInfoProps) {
+export function TrainerInfo({ username, experience, level }: TrainerInfoProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
       <div className="flex items-center gap-3 mb-6">
@@ -28,11 +28,11 @@ export function TrainerInfo({ username }: TrainerInfoProps) {
       <div className="mt-8 space-y-4">
         <div className="flex justify-between items-center text-md">
           <span className="text-gray-500">Level</span>
-          <span className="font-bold text-gray-800">{mockTrainerData.level}</span>
+          <span className="font-bold text-gray-800">{level}</span>
         </div>
         <div className="flex justify-between items-center text-md">
           <span className="text-gray-500">Experience</span>
-          <span className="font-bold text-gray-800">{mockTrainerData.experience} XP</span>
+          <span className="font-bold text-gray-800">{experience} XP</span>
         </div>
       </div>
     </div>

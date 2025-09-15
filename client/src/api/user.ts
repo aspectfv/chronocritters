@@ -83,6 +83,9 @@ const GET_PLAYER_OVERVIEW_QUERY = gql(`
       stats {
         wins
         losses
+        level
+        experience
+        expToNextLevel
       }
       roster {
         name

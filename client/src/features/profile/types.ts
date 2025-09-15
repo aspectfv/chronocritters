@@ -18,6 +18,8 @@ export interface CritterListProps {
 }
 
 export interface TrainerInfoProps {
+  experience: number;
+  level: number;
   username: string;
 }
 
