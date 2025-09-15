@@ -5,10 +5,10 @@ export const CritterList = ({ roster, selectedCritter, onCritterSelect }: Critte
   
   // Mock data for presentation
   const mockCritterLevels: { [key: string]: string } = {
-    Aqualing: "3",
+    Aqualing: "1",
     Cogling: "2",
-    "Sylvan Sentinel": "4",
-    Strikon: "1",
+    "Sylvan Sentinel": "3",
+    Strikon: "4",
   };
 
   return (
