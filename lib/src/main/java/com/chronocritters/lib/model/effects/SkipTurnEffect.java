@@ -3,13 +3,13 @@ package com.chronocritters.lib.model.effects;
 import java.util.Optional;
 
 import com.chronocritters.lib.interfaces.IPersistentEffect;
-import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.Effect;
-import com.chronocritters.lib.model.TurnActionEntry;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.battle.PlayerState;
+import com.chronocritters.lib.model.domain.Ability;
+import com.chronocritters.lib.model.domain.Effect;
+import com.chronocritters.lib.model.domain.TurnActionEntry;
 
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;

@@ -1,10 +1,10 @@
 package com.chronocritters.gamelogic.handler;
 
 import com.chronocritters.lib.interfaces.IPersistentEffect;
-import com.chronocritters.lib.model.Effect;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.battle.PlayerState;
+import com.chronocritters.lib.model.domain.Effect;
 
 import lombok.RequiredArgsConstructor;
 

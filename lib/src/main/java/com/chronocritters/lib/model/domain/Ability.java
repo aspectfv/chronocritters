@@ -1,4 +1,4 @@
-package com.chronocritters.lib.model;
+package com.chronocritters.lib.model.domain;
 
 import java.util.List;
 

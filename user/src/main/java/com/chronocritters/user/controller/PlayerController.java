@@ -6,10 +6,10 @@ import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 
-import com.chronocritters.lib.model.BaseStats;
-import com.chronocritters.lib.model.MatchHistoryEntry;
-import com.chronocritters.lib.model.Player;
-import com.chronocritters.lib.model.PlayerStats;
+import com.chronocritters.lib.model.domain.BaseStats;
+import com.chronocritters.lib.model.domain.MatchHistoryEntry;
+import com.chronocritters.lib.model.domain.Player;
+import com.chronocritters.lib.model.domain.PlayerStats;
 import com.chronocritters.lib.util.ExperienceUtil;
 import com.chronocritters.user.service.PlayerService;
 

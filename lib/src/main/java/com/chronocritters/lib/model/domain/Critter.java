@@ -1,8 +1,10 @@
-package com.chronocritters.lib.model;
+package com.chronocritters.lib.model.domain;
 
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.chronocritters.lib.model.enums.CritterType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

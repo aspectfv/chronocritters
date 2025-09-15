@@ -2,10 +2,10 @@
 
 package com.chronocritters.lib.util;
 
-import com.chronocritters.lib.model.CritterType;
-
 import java.util.EnumMap;
 import java.util.Map;
+
+import com.chronocritters.lib.model.enums.CritterType;
 
 public final class TypeAdvantageUtil {
     private static final Map<CritterType, Map<CritterType, Double>> TYPE_CHART = new EnumMap<>(CritterType.class);

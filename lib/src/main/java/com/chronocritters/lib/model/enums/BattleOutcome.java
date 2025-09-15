@@ -1,4 +1,4 @@
-package com.chronocritters.lib.model;
+package com.chronocritters.lib.model.enums;
 
 public enum BattleOutcome {
     CONTINUE,

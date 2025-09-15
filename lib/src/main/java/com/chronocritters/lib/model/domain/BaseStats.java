@@ -1,4 +1,4 @@
-package com.chronocritters.lib.model;
+package com.chronocritters.lib.model.domain;
 
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;

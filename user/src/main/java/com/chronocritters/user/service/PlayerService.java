@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.chronocritters.lib.model.MatchHistoryEntry;
-import com.chronocritters.lib.model.Player;
+import com.chronocritters.lib.model.domain.MatchHistoryEntry;
+import com.chronocritters.lib.model.domain.Player;
 import com.chronocritters.user.repository.PlayerRepository;
 
 import lombok.RequiredArgsConstructor;

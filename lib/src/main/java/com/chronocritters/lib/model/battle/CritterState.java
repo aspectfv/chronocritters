@@ -3,9 +3,9 @@ package com.chronocritters.lib.model.battle;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.CritterType;
-import com.chronocritters.lib.model.Effect;
+import com.chronocritters.lib.model.domain.Ability;
+import com.chronocritters.lib.model.domain.Effect;
+import com.chronocritters.lib.model.enums.CritterType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

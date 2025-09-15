@@ -22,12 +22,12 @@ import com.chronocritters.gamelogic.handler.TurnEffectsHandler;
 import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
 import com.chronocritters.lib.interfaces.ITurnActionHandler;
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
-import com.chronocritters.lib.model.BattleOutcome;
 import com.chronocritters.lib.model.battle.BattleRewards;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.battle.PlayerState;
+import com.chronocritters.lib.model.enums.BattleOutcome;
 
 import lombok.RequiredArgsConstructor;
 

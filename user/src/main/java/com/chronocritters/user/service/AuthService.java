@@ -2,7 +2,7 @@ package com.chronocritters.user.service;
 
 import org.springframework.stereotype.Service;
 
-import com.chronocritters.lib.model.Player;
+import com.chronocritters.lib.model.domain.Player;
 import com.chronocritters.lib.util.JwtUtil;
 import com.chronocritters.lib.util.PasswordUtil;
 import com.chronocritters.user.dto.LoginResponse;

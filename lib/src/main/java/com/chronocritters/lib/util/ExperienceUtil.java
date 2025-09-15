@@ -1,7 +1,7 @@
 package com.chronocritters.lib.util;
 
-import com.chronocritters.lib.model.Critter;
-import com.chronocritters.lib.model.Player;
+import com.chronocritters.lib.model.domain.Critter;
+import com.chronocritters.lib.model.domain.Player;
 
 public final class ExperienceUtil {
     private static final double EXP_GROWTH_FACTOR = 1.5;

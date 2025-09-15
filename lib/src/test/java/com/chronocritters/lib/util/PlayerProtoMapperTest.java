@@ -1,13 +1,13 @@
 package com.chronocritters.lib.util;
 
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
-import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.BaseStats;
-import com.chronocritters.lib.model.Critter;
-import com.chronocritters.lib.model.CritterType;
 import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.battle.PlayerState;
+import com.chronocritters.lib.model.domain.Ability;
+import com.chronocritters.lib.model.domain.BaseStats;
+import com.chronocritters.lib.model.domain.Critter;
 import com.chronocritters.lib.model.effects.DamageEffect;
+import com.chronocritters.lib.model.enums.CritterType;
 import com.chronocritters.proto.player.PlayerProto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

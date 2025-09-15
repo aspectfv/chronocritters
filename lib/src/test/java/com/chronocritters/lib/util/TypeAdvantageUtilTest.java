@@ -1,9 +1,10 @@
 package com.chronocritters.lib.util;
 
-import com.chronocritters.lib.model.CritterType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
+import com.chronocritters.lib.model.enums.CritterType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
