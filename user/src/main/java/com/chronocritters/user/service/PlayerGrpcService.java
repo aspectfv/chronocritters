@@ -2,6 +2,7 @@ package com.chronocritters.user.service;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
@@ -86,9 +87,12 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
                 return;
             }
 
-            // Update statistics
             winningPlayer.getStats().setWins(winningPlayer.getStats().getWins() + 1);
             losingPlayer.getStats().setLosses(losingPlayer.getStats().getLosses() + 1);
+
+            List<String> allCritterIds = new java.util.ArrayList<>();
+            allCritterIds.addAll(request.getWinnerCritterIdsList());
+            allCritterIds.addAll(request.getLoserCritterIdsList());
 
             MatchHistoryEntry matchHistoryEntry = MatchHistoryEntry.builder()
                     .battleId(battleId)
@@ -96,7 +100,7 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
                     .loserId(loserId)
                     .opponentUsername(losingPlayer.getUsername())
                     .timestamp(Instant.now())
-                    .crittersUsed(null)
+                    .crittersUsed(allCritterIds)
                     .build();
 
             winningPlayer.getMatchHistory().add(matchHistoryEntry);

@@ -30,11 +30,13 @@ public class PlayerGrpcClient {
         return playerServiceStub.getPlayer(request);
     }
 
-    public MatchHistoryResponse updateMatchHistory(String winnerId, String loserId, BattleStats battleStats) {
+    public MatchHistoryResponse updateMatchHistory(String winnerId, String loserId, BattleStats battleStats, List<String> winnerCritterIds, List<String> loserCrittersIds) {
         MatchHistoryRequest request = MatchHistoryRequest.newBuilder()
             .setWinnerId(winnerId)
             .setLoserId(loserId)
             .setBattleStats(PlayerProtoMapper.convertBattleStatsModelToProto(battleStats))
+            .addAllWinnerCritterIds(winnerCritterIds)
+            .addAllLoserCritterIds(loserCrittersIds)
             .build();
         
         return playerServiceStub.updateMatchHistory(request);

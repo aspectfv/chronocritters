@@ -89,6 +89,8 @@ message MatchHistoryRequest {
   string winner_id = 2;
   string loser_id = 3;
   BattleStatsProto battle_stats = 4;
+  repeated string winner_critter_ids = 5;
+  repeated string loser_critter_ids = 6;
 }
 
 message TurnActionEntryProto {

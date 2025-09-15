@@ -68,12 +68,43 @@ type PlayerStats {
     expToNextLevel: Int
 }
 
+type DamageDealtEntry {
+    playerId: ID!
+    damage: Int!
+}
+
+type TurnActionEntry {
+    playerId: ID,
+    playerHasTurn: Boolean,
+    turn: Int,
+    turnActionLog: String;
+}
+
+
+type BattleStats {
+    turnCount: Int;
+    battleStartTime: String;
+    playersDamageDealt: [DamageDealtEntry];
+    turnActionHistory: [TurnActionEntry];
+}
+
+type MatchHistoryEntry {
+    battleId: String;
+    winnerId: String;
+    loserId: String;
+    opponentUsername: String;
+    timestamp: Instant;
+    crittersUsed: [String];
+    battleStats: BattleStats;
+}
+
 type Player {
     id: ID
     username: String
     password: String
     stats: PlayerStats
     roster: [Critter]
+
 }
 
 type User {
