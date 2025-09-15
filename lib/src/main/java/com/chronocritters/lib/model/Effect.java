@@ -35,4 +35,6 @@ public abstract class Effect {
     
     @NotBlank(message = "Effect description cannot be blank")
     protected String description;
+
+    protected String casterId;
 }

@@ -46,6 +46,9 @@ export interface BattleState {
   playerOne: PlayerState;
   playerTwo: PlayerState;
   actionLogHistory: string[];
+  playersDamageDealt: {
+    [playerId: string]: number;
+  };
   turnCount: number;
   battleStartTime: number;
   battleOutcome: BattleOutcome;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export const BattleSummary = ({ turnCount, battleStartTime }: { turnCount: number, battleStartTime: number }) => {
+export const BattleSummary = ({ turnCount, battleStartTime, playerDamageDealt }: { turnCount: number, battleStartTime: number, playerDamageDealt: number }) => {
   const [duration, setDuration] = useState('0:00');
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export const BattleSummary = ({ turnCount, battleStartTime }: { turnCount: numbe
           <p className="text-sm text-gray-500">Turns Played</p>
         </div>
         <div>
-          <p className="text-3xl font-bold text-red-500">245</p>
+          <p className="text-3xl font-bold text-red-500">{playerDamageDealt}</p>
           <p className="text-sm text-gray-500">Damage Dealt</p>
         </div>
       </div>

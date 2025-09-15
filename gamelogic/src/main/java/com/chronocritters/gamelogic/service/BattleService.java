@@ -1,6 +1,7 @@
 package com.chronocritters.gamelogic.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,12 +62,17 @@ public class BattleService {
         List<String> logHistory = new ArrayList<>();
         logHistory.add(initialLog);
 
+        Map<String, Integer> initialDamageDealt = new HashMap<>();
+        initialDamageDealt.put(playerOneId, 0);
+        initialDamageDealt.put(playerTwoId, 0);
+
         BattleState battleState = BattleState.builder()
                 .battleId(battleId)
                 .activePlayerId(playerOneId)
                 .playerOne(playerOne)
                 .playerTwo(playerTwo)
                 .actionLogHistory(logHistory)
+                .playersDamageDealt(initialDamageDealt)
                 .timeRemaining(TURN_DURATION_SECONDS)
                 .battleStartTime(System.currentTimeMillis())
                 .build();

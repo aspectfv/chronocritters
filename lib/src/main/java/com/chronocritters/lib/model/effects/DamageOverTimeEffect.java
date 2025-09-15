@@ -44,6 +44,7 @@ public class DamageOverTimeEffect extends Effect implements IPersistentEffect {
         if (existingEffect.isPresent()) {
             existingEffect.get().setDuration(this.duration);
         } else {
+            this.casterId = caster.getId();
             target.getActiveStatusEffects().add(this.createInstance());
         }
 
@@ -60,6 +61,8 @@ public class DamageOverTimeEffect extends Effect implements IPersistentEffect {
 
         if (this.duration >= 0) {
             target.getStats().setCurrentHp(Math.max(0, target.getStats().getCurrentHp() - this.damagePerTurn));
+            battleState.getPlayersDamageDealt().put(this.casterId, 
+                battleState.getPlayersDamageDealt().getOrDefault(this.casterId, 0) + this.damagePerTurn);
             String actionLog = String.format("%s takes %d damage! %d Turns remaining.", target.getName(), this.damagePerTurn, this.duration);
             battleState.getActionLogHistory().add(actionLog);
             return false;
@@ -75,6 +78,7 @@ public class DamageOverTimeEffect extends Effect implements IPersistentEffect {
                 .id(this.id)
                 .damagePerTurn(this.damagePerTurn)
                 .duration(this.duration)
+                .casterId(this.casterId)
                 .build();
     }
 }

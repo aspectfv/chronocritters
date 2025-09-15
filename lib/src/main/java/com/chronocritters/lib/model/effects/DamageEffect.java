@@ -44,6 +44,9 @@ public class DamageEffect extends Effect implements IInstantEffect {
         int newHealth = Math.max(0, target.getStats().getCurrentHp() - finalDamage);
         target.getStats().setCurrentHp(newHealth);
 
+        battleState.getPlayersDamageDealt().put(player.getId(),
+            battleState.getPlayersDamageDealt().getOrDefault(player.getId(), 0) + finalDamage);
+
         String actionLog = String.format("%s's %s used %s for %d damage! %s's %s now has %d health.",
             player.getUsername(), caster.getName(), ability.getName(), finalDamage,
             opponent.getUsername(), target.getName(), newHealth);
