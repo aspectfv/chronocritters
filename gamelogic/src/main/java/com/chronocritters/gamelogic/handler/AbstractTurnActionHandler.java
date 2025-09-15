@@ -1,7 +1,7 @@
 package com.chronocritters.gamelogic.handler;
 
 import com.chronocritters.lib.interfaces.ITurnActionHandler;
-import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.battle.BattleState;
 
 public abstract class AbstractTurnActionHandler implements ITurnActionHandler {
     protected ITurnActionHandler next;

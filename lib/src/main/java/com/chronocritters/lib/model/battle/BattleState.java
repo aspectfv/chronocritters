@@ -1,6 +1,8 @@
-package com.chronocritters.lib.model;
+package com.chronocritters.lib.model.battle;
 
 import java.util.List;
+
+import com.chronocritters.lib.model.BattleOutcome;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

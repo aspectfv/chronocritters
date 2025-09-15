@@ -2,9 +2,9 @@ package com.chronocritters.gamelogic.handler;
 
 import com.chronocritters.gamelogic.event.CritterFaintedEvent;
 import com.chronocritters.lib.model.BattleOutcome;
-import com.chronocritters.lib.model.BattleState;
-import com.chronocritters.lib.model.CritterState;
-import com.chronocritters.lib.model.PlayerState;
+import com.chronocritters.lib.model.battle.BattleState;
+import com.chronocritters.lib.model.battle.CritterState;
+import com.chronocritters.lib.model.battle.PlayerState;
 
 import lombok.RequiredArgsConstructor;
 

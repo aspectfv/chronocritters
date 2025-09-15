@@ -1,4 +1,4 @@
-package com.chronocritters.lib.model;
+package com.chronocritters.lib.model.battle;
 
 import java.util.HashMap;
 import java.util.Map;

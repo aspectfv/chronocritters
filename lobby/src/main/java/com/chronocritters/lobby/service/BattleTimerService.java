@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lobby.client.GameLogicWebClient;
 
 import lombok.RequiredArgsConstructor;

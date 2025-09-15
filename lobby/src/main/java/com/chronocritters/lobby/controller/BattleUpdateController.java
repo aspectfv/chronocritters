@@ -2,7 +2,7 @@ package com.chronocritters.lobby.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lobby.service.BattleTimerService;
 
 import lombok.RequiredArgsConstructor;

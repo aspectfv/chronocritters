@@ -4,12 +4,12 @@ import java.util.Optional;
 
 import com.chronocritters.lib.interfaces.IPersistentEffect;
 import com.chronocritters.lib.model.Ability;
-import com.chronocritters.lib.model.BattleState;
-import com.chronocritters.lib.model.BattleStats;
-import com.chronocritters.lib.model.CritterState;
 import com.chronocritters.lib.model.Effect;
-import com.chronocritters.lib.model.PlayerState;
 import com.chronocritters.lib.model.TurnActionEntry;
+import com.chronocritters.lib.model.battle.BattleState;
+import com.chronocritters.lib.model.battle.BattleStats;
+import com.chronocritters.lib.model.battle.CritterState;
+import com.chronocritters.lib.model.battle.PlayerState;
 
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;

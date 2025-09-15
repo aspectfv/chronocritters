@@ -1,8 +1,9 @@
 package com.chronocritters.gamelogic.service;
 
 import com.chronocritters.gamelogic.event.CritterFaintedEvent;
-import com.chronocritters.lib.model.CritterState;
-import com.chronocritters.lib.model.PlayerState;
+import com.chronocritters.lib.model.battle.CritterState;
+import com.chronocritters.lib.model.battle.PlayerState;
+
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 

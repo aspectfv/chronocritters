@@ -1,7 +1,11 @@
-package com.chronocritters.lib.model;
+package com.chronocritters.lib.model.battle;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.chronocritters.lib.model.Ability;
+import com.chronocritters.lib.model.CritterType;
+import com.chronocritters.lib.model.Effect;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

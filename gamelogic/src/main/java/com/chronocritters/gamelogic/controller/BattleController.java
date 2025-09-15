@@ -13,7 +13,7 @@ import com.chronocritters.gamelogic.service.BattleService;
 import com.chronocritters.lib.dto.BattleRequest;
 import com.chronocritters.lib.dto.ExecuteAbilityRequest;
 import com.chronocritters.lib.dto.SwitchCritterRequest;
-import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.battle.BattleState;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

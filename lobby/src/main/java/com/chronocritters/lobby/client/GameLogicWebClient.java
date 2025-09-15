@@ -1,7 +1,8 @@
 package com.chronocritters.lobby.client;
 
 import com.chronocritters.lib.dto.BattleRequest;
-import com.chronocritters.lib.model.BattleState;
+import com.chronocritters.lib.model.battle.BattleState;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

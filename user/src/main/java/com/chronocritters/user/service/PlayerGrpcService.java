@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
-import com.chronocritters.lib.model.BattleStats;
 import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.MatchHistoryEntry;
 import com.chronocritters.lib.model.Player;
+import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.lib.util.ExperienceUtil;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsRequest;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;

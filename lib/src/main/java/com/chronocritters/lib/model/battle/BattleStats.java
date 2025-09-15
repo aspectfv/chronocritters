@@ -1,9 +1,11 @@
-package com.chronocritters.lib.model;
+package com.chronocritters.lib.model.battle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.chronocritters.lib.model.TurnActionEntry;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

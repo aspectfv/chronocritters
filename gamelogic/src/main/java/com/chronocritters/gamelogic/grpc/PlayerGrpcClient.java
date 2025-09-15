@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
-import com.chronocritters.lib.model.BattleStats;
+import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsRequest;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
 import com.chronocritters.proto.player.PlayerProto.MatchHistoryRequest;

@@ -1,8 +1,8 @@
 package com.chronocritters.gamelogic.handler;
 
-import com.chronocritters.lib.model.BattleState;
-import com.chronocritters.lib.model.BattleStats;
-import com.chronocritters.lib.model.PlayerState;
+import com.chronocritters.lib.model.battle.BattleState;
+import com.chronocritters.lib.model.battle.BattleStats;
+import com.chronocritters.lib.model.battle.PlayerState;
 import com.chronocritters.lib.model.effects.SkipTurnEffect;
 
 import lombok.RequiredArgsConstructor;
