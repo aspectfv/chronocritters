@@ -80,22 +80,19 @@ type TurnActionEntry {
     turnActionLog: String
 }
 
-type BattleStats {
-    turnCount: Int
-    battleStartTime: String
-    duration: String
-    playersDamageDealt: [DamageDealtEntry]
-    turnActionHistory: [TurnActionEntry]
-}
-
 type MatchHistoryEntry {
     battleId: String
     winnerId: String
     loserId: String
     opponentUsername: String
     timestamp: String
-    crittersUsed: [String]
-    battleStats: BattleStats
+    usedCrittersNames: [String]
+    opponentCrittersNames: [String]
+    turnCount: Int
+    duration: Int
+    damageDealt: Int
+    damageReceived: Int
+    turnActionHistory: [TurnActionEntry]
 }
 
 type Player {
@@ -119,7 +116,7 @@ type LoginResponse {
 
 type Query {
     getPlayer(id: ID!): Player
-    getMatchHistoryEntry(battleId: String!): MatchHistoryEntry
+    getMatchHistoryEntry(playerId: String!, battleId: String!): MatchHistoryEntry
 }
 
 type Mutation {

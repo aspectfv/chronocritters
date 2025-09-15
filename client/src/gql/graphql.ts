@@ -32,15 +32,6 @@ export type BaseStats = {
   level?: Maybe<Scalars['Int']['output']>;
 };
 
-export type BattleStats = {
-  __typename?: 'BattleStats';
-  battleStartTime?: Maybe<Scalars['String']['output']>;
-  duration?: Maybe<Scalars['String']['output']>;
-  playersDamageDealt?: Maybe<Array<Maybe<DamageDealtEntry>>>;
-  turnActionHistory?: Maybe<Array<Maybe<TurnActionEntry>>>;
-  turnCount?: Maybe<Scalars['Int']['output']>;
-};
-
 export type Critter = {
   __typename?: 'Critter';
   abilities?: Maybe<Array<Maybe<Ability>>>;
@@ -99,11 +90,16 @@ export type LoginResponse = {
 export type MatchHistoryEntry = {
   __typename?: 'MatchHistoryEntry';
   battleId?: Maybe<Scalars['String']['output']>;
-  battleStats?: Maybe<BattleStats>;
-  crittersUsed?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  damageDealt?: Maybe<Scalars['Int']['output']>;
+  damageReceived?: Maybe<Scalars['Int']['output']>;
+  duration?: Maybe<Scalars['Int']['output']>;
   loserId?: Maybe<Scalars['String']['output']>;
+  opponentCrittersNames?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   opponentUsername?: Maybe<Scalars['String']['output']>;
   timestamp?: Maybe<Scalars['String']['output']>;
+  turnActionHistory?: Maybe<Array<Maybe<TurnActionEntry>>>;
+  turnCount?: Maybe<Scalars['Int']['output']>;
+  usedCrittersNames?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   winnerId?: Maybe<Scalars['String']['output']>;
 };
 
@@ -153,6 +149,7 @@ export type Query = {
 
 export type QueryGetMatchHistoryEntryArgs = {
   battleId: Scalars['String']['input'];
+  playerId: Scalars['String']['input'];
 };
 
 
@@ -234,11 +231,12 @@ export type GetBattleHistoryQueryVariables = Exact<{
 }>;
 
 
-export type GetBattleHistoryQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', matchHistory?: Array<{ __typename?: 'MatchHistoryEntry', battleId?: string | null, winnerId?: string | null, loserId?: string | null, opponentUsername?: string | null, timestamp?: string | null, crittersUsed?: Array<string | null> | null } | null> | null } | null };
+export type GetBattleHistoryQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', matchHistory?: Array<{ __typename?: 'MatchHistoryEntry', battleId?: string | null, winnerId?: string | null, loserId?: string | null, opponentUsername?: string | null, timestamp?: string | null, usedCrittersNames?: Array<string | null> | null, opponentCrittersNames?: Array<string | null> | null, turnCount?: number | null, duration?: number | null, damageDealt?: number | null, damageReceived?: number | null, turnActionHistory?: Array<{ __typename?: 'TurnActionEntry', playerId?: string | null, playerHasTurn?: boolean | null, turn?: number | null, turnActionLog?: string | null } | null> | null } | null> | null } | null };
 
 export type GetBattleHistoryEntryQueryVariables = Exact<{
+  playerId: Scalars['String']['input'];
   battleId: Scalars['String']['input'];
 }>;
 
 
-export type GetBattleHistoryEntryQuery = { __typename?: 'Query', getMatchHistoryEntry?: { __typename?: 'MatchHistoryEntry', winnerId?: string | null, loserId?: string | null, opponentUsername?: string | null, timestamp?: string | null, crittersUsed?: Array<string | null> | null, battleStats?: { __typename?: 'BattleStats', turnCount?: number | null, battleStartTime?: string | null, duration?: string | null, playersDamageDealt?: Array<{ __typename?: 'DamageDealtEntry', playerId: string, damage: number } | null> | null, turnActionHistory?: Array<{ __typename?: 'TurnActionEntry', playerId?: string | null, playerHasTurn?: boolean | null, turn?: number | null, turnActionLog?: string | null } | null> | null } | null } | null };
+export type GetBattleHistoryEntryQuery = { __typename?: 'Query', getMatchHistoryEntry?: { __typename?: 'MatchHistoryEntry', battleId?: string | null, winnerId?: string | null, loserId?: string | null, opponentUsername?: string | null, timestamp?: string | null, usedCrittersNames?: Array<string | null> | null, opponentCrittersNames?: Array<string | null> | null, turnCount?: number | null, duration?: number | null, damageDealt?: number | null, damageReceived?: number | null, turnActionHistory?: Array<{ __typename?: 'TurnActionEntry', playerId?: string | null, playerHasTurn?: boolean | null, turn?: number | null, turnActionLog?: string | null } | null> | null } | null };

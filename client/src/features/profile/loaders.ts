@@ -74,7 +74,7 @@ export async function battleHistoryEntryLoader({ params }: { params: { battleId?
   }
 
   try {
-    const history = await getBattleHistoryEntry(battleId);
+    const history = await getBattleHistoryEntry(user.id, battleId);
     if (!history) {
         throw new Error("Battle history entry not found.");
     }

@@ -36,7 +36,7 @@ export function BattleHistoryTab() {
                     </span>
                     <div>
                       <p className="font-bold text-gray-800">vs {item.opponentUsername}</p>
-                      <p className="text-sm text-gray-500">Used: {item.crittersUsed?.join(', ') ?? 'None'}</p>
+                      <p className="text-sm text-gray-500">Used: {item.usedCrittersNames?.join(', ') ?? 'None'}</p>
                     </div>
                   </div>
                   <p className="text-sm text-gray-500">{formatTimestamp(item.timestamp)}</p>

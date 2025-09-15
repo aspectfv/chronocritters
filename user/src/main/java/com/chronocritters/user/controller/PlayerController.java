@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 
 import com.chronocritters.lib.model.BaseStats;
+import com.chronocritters.lib.model.MatchHistoryEntry;
 import com.chronocritters.lib.model.Player;
 import com.chronocritters.lib.model.PlayerStats;
 import com.chronocritters.lib.util.ExperienceUtil;
@@ -28,6 +29,18 @@ public class PlayerController {
 		String id
 	) {
 		return playerService.findById(id);
+	}
+	
+	@QueryMapping
+	public MatchHistoryEntry getMatchHistoryEntry(
+		@Argument
+		@NotBlank(message = "Player ID cannot be empty.")
+		String playerId,
+		@Argument 
+		@NotBlank(message = "Battle ID cannot be empty.")
+		String battleId
+	) {
+		return playerService.getMatchHistoryEntry(playerId, battleId);
 	}
 
 	@SchemaMapping(typeName = "PlayerStats", field = "expToNextLevel")

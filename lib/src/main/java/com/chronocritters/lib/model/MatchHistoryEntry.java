@@ -21,6 +21,11 @@ public class MatchHistoryEntry {
     private String loserId;
     private String opponentUsername; 
     private Instant timestamp;
-    private List<String> crittersUsed; 
-    private BattleStats battleStats;
+    private List<String> usedCrittersNames;
+    private List<String> opponentCrittersNames; 
+    private int turnCount;
+    private long duration;
+    private int damageDealt;
+    private int damageReceived;
+    private List<TurnActionEntry> turnActionHistory;
 }

@@ -1,10 +1,13 @@
 package com.chronocritters.user.service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.chronocritters.lib.mapper.PlayerProtoMapper;
+import com.chronocritters.lib.model.BattleStats;
 import com.chronocritters.lib.model.Critter;
 import com.chronocritters.lib.model.MatchHistoryEntry;
 import com.chronocritters.lib.model.Player;
@@ -89,13 +92,37 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
             winningPlayer.getStats().setWins(winningPlayer.getStats().getWins() + 1);
             losingPlayer.getStats().setLosses(losingPlayer.getStats().getLosses() + 1);
 
+            List<String> winnerCritterNames = new ArrayList<>();
+            for (String critterId : request.getWinnerCritterIdsList()) {
+                winningPlayer.getRoster().stream()
+                    .filter(c -> c.getId().equals(critterId))
+                    .findFirst()
+                    .ifPresent(c -> winnerCritterNames.add(c.getName()));
+            }
+
+            List<String> loserCritterNames = new ArrayList<>();
+            for (String critterId : request.getLoserCritterIdsList()) {
+                losingPlayer.getRoster().stream()
+                    .filter(c -> c.getId().equals(critterId))
+                    .findFirst()
+                    .ifPresent(c -> loserCritterNames.add(c.getName()));
+            }
+
+            BattleStats battleStats = PlayerProtoMapper.convertToBattleStats(request.getBattleStats());
+
             MatchHistoryEntry winnerHistoryEntry = MatchHistoryEntry.builder()
                     .battleId(battleId)
                     .winnerId(winnerId)
                     .loserId(loserId)
                     .opponentUsername(losingPlayer.getUsername())
                     .timestamp(Instant.now())
-                    .crittersUsed(request.getWinnerCritterIdsList())
+                    .usedCrittersNames(winnerCritterNames)
+                    .opponentCrittersNames(loserCritterNames)
+                    .turnCount(battleStats.getTurnCount())
+                    .duration(battleStats.getDuration())
+                    .damageDealt(battleStats.getPlayersDamageDealt().get(winnerId))
+                    .damageReceived(battleStats.getPlayersDamageDealt().get(loserId))
+                    .turnActionHistory(battleStats.getTurnActionHistory())
                     .build();
 
             MatchHistoryEntry loserHistoryEntry = MatchHistoryEntry.builder()
@@ -104,9 +131,16 @@ public class PlayerGrpcService extends PlayerServiceImplBase {
                     .loserId(loserId)
                     .opponentUsername(winningPlayer.getUsername())
                     .timestamp(Instant.now())
-                    .crittersUsed(request.getLoserCritterIdsList())
+                    .usedCrittersNames(loserCritterNames)
+                    .opponentCrittersNames(winnerCritterNames)
+                    .turnCount(battleStats.getTurnCount())
+                    .duration(battleStats.getDuration())
+                    .damageDealt(battleStats.getPlayersDamageDealt().get(loserId))
+                    .damageReceived(battleStats.getPlayersDamageDealt().get(winnerId))
+                    .turnActionHistory(battleStats.getTurnActionHistory())
                     .build();
 
+            
             winningPlayer.getMatchHistory().add(winnerHistoryEntry);
             losingPlayer.getMatchHistory().add(loserHistoryEntry);
                     

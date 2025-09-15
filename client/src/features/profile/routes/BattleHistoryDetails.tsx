@@ -1,6 +1,5 @@
 import type { GetBattleHistoryEntryQuery } from '@/gql/graphql';
-import { useAuthStore } from '@store/auth/useAuthStore';
-import { formatTimestamp } from '@utils/utils';
+import { formatDuration, formatTimestamp } from '@utils/utils';
 import { Link, useLoaderData } from 'react-router-dom';
 
 const ActionTag = ({ type }: { type: 'Attack' | 'Defend' }) => {
@@ -32,13 +31,9 @@ const ActionItem = ({ turn, actor, action }: { turn: number, actor: string, acti
 
 
 export function BattleHistoryDetails() {
-    const user = useAuthStore(state => state.user);
     const loaderData = useLoaderData() as GetBattleHistoryEntryQuery;
-    console.log(loaderData);
     const battle = loaderData?.getMatchHistoryEntry ?? {};
-    const playerDamageDealt = battle.battleStats?.playersDamageDealt?.find(d => d?.playerId === user?.id)?.damage ?? 0;
-    const opponentDamageDealt = battle.battleStats?.playersDamageDealt?.find(d => d?.playerId !== user?.id)?.damage ?? 0;
-    
+
     return (
         <div className="space-y-6">
             <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
@@ -62,34 +57,34 @@ export function BattleHistoryDetails() {
                             <p className="text-sm font-semibold text-gray-500">Duration</p>
                             <p className="font-medium text-gray-800 flex items-center gap-1">
                                 <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                {battle.battleStats?.duration}
+                                {formatDuration(battle.duration ?? 0)}
                             </p>
                         </div>
                         <div>
                             <p className="text-sm font-semibold text-gray-500">Total Turns</p>
-                            <p className="font-medium text-gray-800">{battle.battleStats?.turnCount}</p>
+                            <p className="font-medium text-gray-800">{battle.turnCount}</p>
                         </div>
                     </div>
                     <div className="space-y-3">
                          <h3 className="text-md font-bold text-green-800">Critters</h3>
                          <div className="bg-green-50 p-3 rounded-lg border border-green-200">
                              <p className="text-sm font-semibold">Your Critter</p>
-                             <p>{battle.crittersUsed?.join(', ') ?? 'None'}</p>
+                             <p>{battle.usedCrittersNames?.join(', ') ?? 'None'}</p>
                          </div>
                          <div className="bg-gray-100 p-3 rounded-lg border border-gray-200">
                              <p className="text-sm font-semibold">Opponent's Critter</p>
-                             <p>{battle.opponentUsername}</p>
+                             <p>{battle.opponentCrittersNames?.join(', ') ?? 'None'}</p>
                          </div>
                     </div>
                     <div className="space-y-3">
                         <h3 className="text-md font-bold text-green-800">Damage Summary</h3>
                         <div className="bg-green-100 p-4 rounded-lg border border-green-200">
                             <p className="text-sm font-semibold text-green-900">Damage Dealt</p>
-                            <p className="text-3xl font-bold text-green-700">{playerDamageDealt}</p>
+                            <p className="text-3xl font-bold text-green-700">{battle.damageDealt}</p>
                         </div>
                          <div className="bg-red-50 p-4 rounded-lg border border-red-200">
                             <p className="text-sm font-semibold text-red-900">Damage Received</p>
-                            <p className="text-3xl font-bold text-red-700">{opponentDamageDealt}</p>
+                            <p className="text-3xl font-bold text-red-700">{battle.damageReceived}</p>
                         </div>
                     </div>
                 </div>
@@ -98,7 +93,7 @@ export function BattleHistoryDetails() {
             <div className="bg-gray-50/50 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
                 <h3 className="text-xl font-bold text-green-800 mb-4">Turn-by-Turn Actions</h3>
                 <div className="space-y-3">
-                    {battle.battleStats?.turnActionHistory?.map((item, index) => {
+                    {battle.turnActionHistory?.map((item, index) => {
                         const actionType = item?.playerHasTurn ? 'Attack' : 'Defend';
                         return (
                             <ActionItem key={index} turn={item?.turn ?? 0} actor={item?.playerId ?? ''} action={{ type: actionType, description: item?.turnActionLog ?? '' }} />

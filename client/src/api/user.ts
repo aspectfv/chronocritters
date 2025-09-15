@@ -203,7 +203,18 @@ const BATTLE_HISTORY_QUERY = gql(`
         loserId
         opponentUsername
         timestamp
-        crittersUsed
+        usedCrittersNames
+        opponentCrittersNames
+        turnCount
+        duration
+        damageDealt
+        damageReceived
+        turnActionHistory {
+          playerId
+          playerHasTurn
+          turn
+          turnActionLog
+        }
       }
     }
   }
@@ -219,36 +230,33 @@ export const getBattleHistory = async (userId: string) => {
 };
 
 const BATTLE_HISTORY_ENTRY_QUERY = gql(`
-  query GetBattleHistoryEntry($battleId: String!) {
-    getMatchHistoryEntry(battleId: $battleId) {
+  query GetBattleHistoryEntry($playerId: String!, $battleId: String!) {
+    getMatchHistoryEntry(playerId: $playerId, battleId: $battleId) {
+      battleId
       winnerId
       loserId
       opponentUsername
       timestamp
-      crittersUsed
-      battleStats {
-        turnCount
-        battleStartTime
-        duration
-        playersDamageDealt {
-          playerId
-          damage
-        }
-        turnActionHistory {
-          playerId
-          playerHasTurn
-          turn
-          turnActionLog
-        }
+      usedCrittersNames
+      opponentCrittersNames
+      turnCount
+      duration
+      damageDealt
+      damageReceived
+      turnActionHistory {
+        playerId
+        playerHasTurn
+        turn
+        turnActionLog
       }
     }
   }
 `);
 
-export const getBattleHistoryEntry = async (battleId: string) => {
+export const getBattleHistoryEntry = async (playerId: string, battleId: string) => {
   const response = await client.query<GetBattleHistoryEntryQuery>({
     query: BATTLE_HISTORY_ENTRY_QUERY,
-    variables: { battleId },
+    variables: { playerId, battleId },
     fetchPolicy: 'network-only'
   });
   return response.data;
