@@ -68,6 +68,7 @@ public class BattleService {
                 .playerTwo(playerTwo)
                 .actionLogHistory(logHistory)
                 .timeRemaining(TURN_DURATION_SECONDS)
+                .battleStartTime(System.currentTimeMillis())
                 .build();
 
         activeBattles.put(battleId, battleState);

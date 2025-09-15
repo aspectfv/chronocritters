@@ -1,4 +1,5 @@
 import type { BaseStats, Critter, Player, PlayerStats } from "@/gql/graphql";
+import type { BattleState } from "@store/battle/types";
 
 export type Result = 'victory' | 'defeat' | null;
 
@@ -21,12 +22,5 @@ export interface ProgressBarProps {
 
 export interface LocationState {
   result: Result;
-  battleRewards?: {
-    playersExpGained: {
-      [playerId: string]: number
-    }
-    crittersExpGained: {
-      [critterId: string]: number
-    }
-  };
+  battleState: BattleState;
 }

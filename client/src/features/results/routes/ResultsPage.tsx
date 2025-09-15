@@ -19,9 +19,12 @@ function ResultsPage() {
   const { resetBattleState } = useBattleStore();
   const loaderData = useLoaderData() as GetPlayerResultsQuery;
 
-  const state = locationData.state as LocationState;
+  const state = locationData.state as LocationState | undefined;
   const battleResult = state?.result as Result;
-  const xpGained = state?.battleRewards?.playersExpGained[user?.id || ''] || 0;
+  const battleState = state?.battleState;
+  const xpGained = battleState?.battleRewards?.playersExpGained?.[user?.id || ''] || 0;
+  const turnCount = battleState?.turnCount || 0;
+  const battleStartTime = battleState?.battleStartTime || 0;
 
   const finalPlayer = loaderData?.getPlayer ?? null;
   const finalRoster = (loaderData?.getPlayer?.roster || [])
@@ -55,7 +58,7 @@ function ResultsPage() {
               />
               <RewardsSummary expGained={xpGained} />
             </div>
-            <BattleSummary />
+            <BattleSummary turnCount={turnCount} battleStartTime={battleStartTime} />
             <AchievementNotification />
           </>
         )}

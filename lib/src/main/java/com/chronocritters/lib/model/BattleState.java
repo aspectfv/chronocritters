@@ -21,6 +21,10 @@ public class BattleState {
     private int timeRemaining;
 
     @Default
+    private int turnCount = 1;
+    private long battleStartTime;
+
+    @Default
     private BattleOutcome battleOutcome = BattleOutcome.CONTINUE;
     
     private String winnerId;

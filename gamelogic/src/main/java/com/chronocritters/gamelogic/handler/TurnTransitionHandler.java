@@ -16,6 +16,8 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
 
         if (currentPlayer == null || nextPlayer == null) return;
 
+        battleState.setTurnCount(battleState.getTurnCount() + 1);
+
         currentPlayer.setHasTurn(false);
         nextPlayer.setHasTurn(true);
         battleState.setActivePlayerId(nextPlayer.getId());

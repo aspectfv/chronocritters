@@ -39,7 +39,9 @@ const initialState: BattleState = {
   playerOne: defaultEmptyBattlePlayer,
   playerTwo: defaultEmptyBattlePlayer,
   actionLogHistory: ['Waiting for battle to start...'],
-  outcome: BattleOutcome.CONTINUE,
+  turnCount: 0,
+  battleStartTime: 0,
+  battleOutcome: BattleOutcome.CONTINUE,
 
   player: defaultEmptyBattlePlayer,
   opponent: defaultEmptyBattlePlayer,

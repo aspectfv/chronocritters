@@ -31,9 +31,14 @@ export interface PlayerState {
 }
 
 export interface BattleRewards {
-  playersExp: Map<string, number>;
-  crittersExp: Map<string, number>;
+  playersExpGained: {
+    [playerId: string]: number;
+  };
+  crittersExpGained: {
+    [critterId: string]: number;
+  };
 }
+
 
 export interface BattleState {
   battleId: string;
@@ -41,6 +46,8 @@ export interface BattleState {
   playerOne: PlayerState;
   playerTwo: PlayerState;
   actionLogHistory: string[];
+  turnCount: number;
+  battleStartTime: number;
   battleOutcome: BattleOutcome;
   winnerId?: string;
   battleRewards?: BattleRewards;

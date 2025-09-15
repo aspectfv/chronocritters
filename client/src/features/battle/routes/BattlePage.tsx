@@ -46,12 +46,15 @@ function BattlePage() {
   }, [isConnected, battleId, user?.id]);
 
   useEffect(() => {
-    const { battleRewards } = useBattleStore.getState();
-    
+    const battleState = useBattleStore.getState();
+
+    // Remove functions before passing to navigate
+    const { setBattleState, addLogMessage, resetBattleState, ...serializableBattleState } = battleState;
+
     if (opponent.roster.length > 0 && opponent.roster.every(critter => critter.stats.currentHp <= 0)) {
-      navigate(`/results/${battleId}`, { state: { result: 'victory', battleRewards } });
+      navigate(`/results/${battleId}`, { state: { result: 'victory', battleState: serializableBattleState } });
     } else if (player.roster.length > 0 && player.roster.every(critter => critter.stats.currentHp <= 0)) {
-      navigate(`/results/${battleId}`, { state: { result: 'defeat', battleRewards } });
+      navigate(`/results/${battleId}`, { state: { result: 'defeat', battleState: serializableBattleState } });
     }
   }, [player, opponent, navigate, battleId]);
 
