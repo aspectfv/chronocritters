@@ -178,8 +178,13 @@ public class BattleService {
 
     private void applyWinLoss(BattleState battleState, PlayerState winner, PlayerState loser) {
         battleState.setActivePlayerId(null);
-        playerGrpcClient.updateMatchHistory(winner.getId(), loser.getId(), battleState.getBattleStats());
-        
+        playerGrpcClient.updateMatchHistory(
+        winner.getId(), loser.getId(), 
+            battleState.getBattleStats(), 
+            winner.getRoster().stream().map(CritterState::getId).toList(), 
+            loser.getRoster().stream().map(CritterState::getId).toList()
+        );
+
         BattleRewards rewards = PlayerProtoMapper.convertToBattleRewards(playerGrpcClient.getBattleRewards(
             winner.getId(), loser.getId(), 
             winner.getRoster().stream().map(CritterState::getId).toList(),

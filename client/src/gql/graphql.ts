@@ -32,6 +32,14 @@ export type BaseStats = {
   level?: Maybe<Scalars['Int']['output']>;
 };
 
+export type BattleStats = {
+  __typename?: 'BattleStats';
+  battleStartTime?: Maybe<Scalars['String']['output']>;
+  playersDamageDealt?: Maybe<Array<Maybe<DamageDealtEntry>>>;
+  turnActionHistory?: Maybe<Array<Maybe<TurnActionEntry>>>;
+  turnCount?: Maybe<Scalars['Int']['output']>;
+};
+
 export type Critter = {
   __typename?: 'Critter';
   abilities?: Maybe<Array<Maybe<Ability>>>;
@@ -52,6 +60,12 @@ export enum CritterType {
   Unknown = 'UNKNOWN',
   Water = 'WATER'
 }
+
+export type DamageDealtEntry = {
+  __typename?: 'DamageDealtEntry';
+  damage: Scalars['Int']['output'];
+  playerId: Scalars['ID']['output'];
+};
 
 export type DamageEffect = Effect & {
   __typename?: 'DamageEffect';
@@ -79,6 +93,17 @@ export type LoginResponse = {
   __typename?: 'LoginResponse';
   token: Scalars['String']['output'];
   user: User;
+};
+
+export type MatchHistoryEntry = {
+  __typename?: 'MatchHistoryEntry';
+  battleId?: Maybe<Scalars['String']['output']>;
+  battleStats?: Maybe<BattleStats>;
+  crittersUsed?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  loserId?: Maybe<Scalars['String']['output']>;
+  opponentUsername?: Maybe<Scalars['String']['output']>;
+  timestamp?: Maybe<Scalars['String']['output']>;
+  winnerId?: Maybe<Scalars['String']['output']>;
 };
 
 export type Mutation = {
@@ -132,6 +157,14 @@ export type SkipTurnEffect = Effect & {
   description: Scalars['String']['output'];
   duration: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+};
+
+export type TurnActionEntry = {
+  __typename?: 'TurnActionEntry';
+  playerHasTurn?: Maybe<Scalars['Boolean']['output']>;
+  playerId?: Maybe<Scalars['ID']['output']>;
+  turn?: Maybe<Scalars['Int']['output']>;
+  turnActionLog?: Maybe<Scalars['String']['output']>;
 };
 
 export type User = {

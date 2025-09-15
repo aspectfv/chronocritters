@@ -15,20 +15,15 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
 
     set({ connectionStatus: ConnectionStatus.CONNECTING });
 
-    const token = useAuthStore.getState().token;
-    if (!token) {
-      console.error('LobbyStore: No auth token found.');
-      set({ connectionStatus: ConnectionStatus.ERROR });
-      return;
-    }
-
     const client = new Client({
       webSocketFactory: () => {
         const url = import.meta.env.VITE_LOBBY_SERVICE_URL || 'http://localhost:8081/ws';
         return new SockJS(url);
       },
       connectHeaders: {
-        Authorization: `Bearer ${token}`,
+        get Authorization() {
+          return `Bearer ${useAuthStore.getState().token}`;
+        }
       },
       onConnect: () => {
         set({ stompClient: client, connectionStatus: ConnectionStatus.CONNECTED });

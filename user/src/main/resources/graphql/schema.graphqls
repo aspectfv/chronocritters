@@ -74,28 +74,28 @@ type DamageDealtEntry {
 }
 
 type TurnActionEntry {
-    playerId: ID,
-    playerHasTurn: Boolean,
-    turn: Int,
-    turnActionLog: String;
+    playerId: ID
+    playerHasTurn: Boolean
+    turn: Int
+    turnActionLog: String
 }
 
 
 type BattleStats {
-    turnCount: Int;
-    battleStartTime: String;
-    playersDamageDealt: [DamageDealtEntry];
-    turnActionHistory: [TurnActionEntry];
+    turnCount: Int
+    battleStartTime: String
+    playersDamageDealt: [DamageDealtEntry]
+    turnActionHistory: [TurnActionEntry]
 }
 
 type MatchHistoryEntry {
-    battleId: String;
-    winnerId: String;
-    loserId: String;
-    opponentUsername: String;
-    timestamp: Instant;
-    crittersUsed: [String];
-    battleStats: BattleStats;
+    battleId: String
+    winnerId: String
+    loserId: String
+    opponentUsername: String
+    timestamp: String
+    crittersUsed: [String]
+    battleStats: BattleStats
 }
 
 type Player {
