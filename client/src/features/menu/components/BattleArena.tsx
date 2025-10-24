@@ -48,19 +48,16 @@ export function BattleArena() {
         </svg>
         <span className="font-semibold">Battle Arena</span>
       </div>
-      
+
       <p className="text-gray-600 mb-6">
         Challenge other trainers in epic critter battles!
       </p>
-      
-      <button 
+
+      <button
         onClick={handleFindMatch}
         disabled={isButtonDisabled}
         className="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M8 7a2 2 0 100-4 2 2 0 000 4zM8 14a2 2 0 100-4 2 2 0 000 4zm4-7a2 2 0 100-4 2 2 0 000 4zm4 7a2 2 0 100-4 2 2 0 000 4z" />
-        </svg>
         {buttonText}
       </button>
 
