@@ -1,4 +1,4 @@
-# Deploying ChronoCritters to an Oracle Cloud Always Free VM
+# Deploying ChronoCritters
 
 The whole stack — three Spring Boot services, MongoDB, and the React client —
 runs as five containers on a single VM. Caddy fronts everything on one origin
@@ -6,7 +6,7 @@ and terminates TLS, so the browser only ever talks to one host and no backend
 port is exposed to the internet.
 
 ```
-                    ┌──────────── Oracle Cloud VM (ARM) ────────────┐
+                    ┌─────────────── host VM (ARM) ─────────────────┐
                     │                                               │
 browser ──80/443──► │  caddy ─┬─ /            → client static files │
                     │         ├─ /graphql*    → user:8080           │
@@ -22,9 +22,120 @@ browser ──80/443──► │  caddy ─┬─ /            → client stati
 
 Everything below the proxy lives on a private Docker network.
 
+The deployment is the same wherever it runs; only the account setup, firewall
+and instance sizing differ. Pick the section for your host — **AWS EC2** below,
+or Oracle Cloud, GCP and Azure further down.
+
 ---
 
-## 1. Create the Oracle Cloud account
+## AWS EC2
+
+A `t4g.small` (2 vCPU Graviton, 2 GB) runs the standard stack comfortably —
+the services measure ~680 MB under load and MongoDB adds a few hundred more —
+so none of the low-memory compromises further down apply.
+
+### 1. Confirm which plan the account is on
+
+Since July 2025 a new account picks a **Free plan** or a **Paid plan**. The Free
+plan starts with $100 in credits, rising to $200 once you complete five
+onboarding tasks (launch and terminate an EC2 instance, configure an RDS
+database, deploy a Lambda, test a Bedrock prompt, and set a budget). It runs for
+six months or until the credits are gone, then the account closes unless you
+upgrade. Crucially, a Free plan account **cannot incur charges** — services stop
+instead of billing you.
+
+If you chose the Paid plan, overages go to your card, so set a budget before
+anything else.
+
+### 2. Launch the instance
+
+EC2 → **Launch instance**:
+
+| Setting | Value |
+|---|---|
+| AMI | Ubuntu Server 24.04 LTS, **64-bit (Arm)** |
+| Instance type | `t4g.small` — 2 vCPU, 2 GB |
+| Key pair | Create one and download the `.pem` |
+| Storage | 30 GB gp3 |
+
+Under **Network settings → security group**, add inbound rules:
+
+| Type | Port | Source |
+|---|---|---|
+| SSH | 22 | My IP |
+| HTTP | 80 | `0.0.0.0/0` |
+| HTTPS | 443 | `0.0.0.0/0` |
+
+The security group is the only gate here — unlike Oracle there is no second
+host-level firewall to open.
+
+### 3. Give it a stable address
+
+EC2 → **Elastic IPs** → Allocate, then Associate with the instance. Without one
+the public IP changes every stop/start. It is free while attached to a running
+instance and billed only when left unattached.
+
+### 4. Deploy
+
+```bash
+chmod 400 chronocritters.pem
+ssh -i chronocritters.pem ubuntu@<ELASTIC_IP>
+
+# 2 GB is enough to run the stack but tight to build it; swap is cheap insurance
+sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker $USER && newgrp docker
+sudo apt-get install -y git
+
+git clone https://github.com/aspectfv/chronocritters
+cd chronocritters
+cp .env.example .env
+openssl rand -base64 48        # paste as JWT_SECRET in .env
+
+docker compose up -d --build
+```
+
+Graviton is ARM, so the images build natively on the instance exactly as they do
+on Oracle's Ampere shape. Open `http://<ELASTIC_IP>` to check it.
+
+### 5. Domain and HTTPS
+
+Point an `A` record at the Elastic IP, set `SITE_ADDRESS` in `.env` to that
+hostname, and run `docker compose up -d web`. Caddy handles the certificate.
+
+### 6. Set a budget
+
+Billing → **Budgets** → create a low threshold alert. This is also one of the
+five tasks that unlock the second $100 of credit.
+
+### What it costs
+
+Roughly **$15/month** — about $12.26 for the instance and $2.40 for the 30 GB
+volume — so around $88 across the six months, comfortably inside $200. AWS
+includes 100 GB/month of free egress. Stop the instance between demos to stretch
+credits further; the EBS volume still bills while it is stopped.
+
+### Getting more resume value out of it
+
+The EC2 path above is the cheap, reliable one. To make the deployment itself
+worth talking about, the next steps are Terraform for the VPC, security group,
+instance and Elastic IP, plus GitHub Actions using OIDC (no long-lived AWS keys)
+to build images into ECR and deploy on push.
+
+The fuller showcase — ECS Fargate with an ALB and Cloud Map service discovery for
+the gRPC hop — is the architecture interviewers recognise, but the ALB alone is
+about $18/month and three Fargate tasks another $27, which would burn $200 in
+roughly four months. It is worth doing if you scale the tasks to zero between
+demos and treat it as a portfolio artifact rather than a live service.
+
+---
+
+## Oracle Cloud Always Free
+
+### 1. Create the Oracle Cloud account
 
 Sign up at [cloud.oracle.com](https://cloud.oracle.com/). A card is required for
 identity verification but Always Free resources are not charged.
@@ -34,7 +145,7 @@ capacity is the scarce resource here, and popular regions (Frankfurt, London,
 Ashburn, Phoenix) are frequently exhausted. Pick the least busy region that is
 still geographically reasonable for you.
 
-## 2. Launch the VM
+### 2. Launch the VM
 
 In the console: **Compute → Instances → Create instance**.
 
@@ -57,7 +168,7 @@ still $0 within Always Free limits, but PAYG accounts get provisioning priority.
 
 Record the instance's **public IP address** when it finishes provisioning.
 
-## 3. Open the firewall — both layers
+### 3. Open the firewall — both layers
 
 Oracle blocks inbound traffic in two independent places, and missing the second
 one is the classic "my site is unreachable but the server is fine" trap.
@@ -81,7 +192,7 @@ sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT
 sudo netfilter-persistent save
 ```
 
-## 4. Install Docker
+### 4. Install Docker
 
 ```bash
 sudo apt-get update && sudo apt-get upgrade -y
@@ -94,7 +205,7 @@ docker compose version # confirm the plugin is present
 Everything is built natively for ARM on the VM itself, so there is no
 cross-compilation step and no image registry to set up.
 
-## 5. Deploy
+### 5. Deploy
 
 ```bash
 sudo apt-get install -y git
@@ -134,7 +245,7 @@ browser windows, queue both, and confirm a battle starts and both sides stay in
 sync — that exercises GraphQL, the WebSocket, the REST battle API, and the gRPC
 hop in one pass.
 
-## 6. Add a domain and HTTPS
+### 6. Add a domain and HTTPS
 
 Point an `A` record at the VM's public IP. Any registrar works; a free option is
 a subdomain from [DuckDNS](https://www.duckdns.org/) or similar.
