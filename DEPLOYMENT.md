@@ -90,7 +90,7 @@ curl -fsSL https://get.docker.com | sudo sh
 sudo usermod -aG docker $USER && newgrp docker
 sudo apt-get install -y git
 
-git clone https://github.com/aspectfv/chronocritters
+git clone https://github.com/Aspectzxcc/chronocritters.git
 cd chronocritters
 cp .env.example .env
 openssl rand -base64 48        # paste as JWT_SECRET in .env
@@ -209,7 +209,7 @@ cross-compilation step and no image registry to set up.
 
 ```bash
 sudo apt-get install -y git
-git clone https://github.com/aspectfv/chronocritters
+git clone https://github.com/Aspectzxcc/chronocritters.git
 cd chronocritters
 
 cp .env.example .env
