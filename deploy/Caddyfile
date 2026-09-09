@@ -1,0 +1,38 @@
+# Set SITE_ADDRESS to your domain to get automatic HTTPS; it defaults to
+# plain HTTP on port 80 so you can test with the VM's IP address first.
+{$SITE_ADDRESS::80} {
+	encode gzip
+
+	# These endpoints are only ever called service-to-service over the internal
+	# Docker network, so they should not be reachable from the internet.
+	@internal path_regexp ^/battle/[^/]+/(timeout|update)$
+	handle @internal {
+		respond 404
+	}
+	@createBattle {
+		method POST
+		path_regexp ^/battle/[^/]+$
+	}
+	handle @createBattle {
+		respond 404
+	}
+
+	handle /graphql* {
+		reverse_proxy user:8080
+	}
+
+	# SockJS/STOMP. Caddy upgrades WebSocket connections automatically.
+	handle /ws* {
+		reverse_proxy lobby:8081
+	}
+
+	handle /battle/* {
+		reverse_proxy gamelogic:8082
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

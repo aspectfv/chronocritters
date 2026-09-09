@@ -1,0 +1,11 @@
+.git
+**/target
+**/node_modules
+**/dist
+**/.env
+**/.settings
+**/.classpath
+**/.project
+**/.factorypath
+.vscode
+repomix-output.xml

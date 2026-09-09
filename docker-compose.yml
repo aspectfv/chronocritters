@@ -1,0 +1,70 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  user:
+    build:
+      context: .
+      args:
+        SERVICE: user
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/chronocritters}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  lobby:
+    build:
+      context: .
+      args:
+        SERVICE: lobby
+    restart: unless-stopped
+    environment:
+      GAMELOGIC_URL: http://gamelogic:8082
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+
+  gamelogic:
+    build:
+      context: .
+      args:
+        SERVICE: gamelogic
+    restart: unless-stopped
+    environment:
+      LOBBY_URL: http://lobby:8081
+      USER_GRPC_ADDRESS: static://user:9090
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+    depends_on:
+      - user
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - user
+      - lobby
+      - gamelogic
+
+volumes:
+  mongo-data:
+  caddy-data:
+  caddy-config:

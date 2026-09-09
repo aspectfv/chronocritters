@@ -22,6 +22,8 @@ This document provides a comprehensive overview of the project's architecture, c
   - [Lobby Service](#lobby-service)
   - [GameLogic Service](#gamelogic-service)
   - [Client](#client)
+- [Running with Docker](#running-with-docker)
+- [Deployment](#deployment)
 
 ---
 
@@ -233,3 +235,34 @@ You can now open two browser windows to `http://localhost:5173`, register two di
     *   User Service (Port `8080`)
     *   Lobby Service (Port `8081`)
     *   GameLogic Service (Port `8082`)
+
+---
+
+## Running with Docker
+
+Instead of the four-terminal workflow above, the entire stack — all three
+services, MongoDB, and the client — can be started with a single command. This
+mirrors exactly how the application runs in production.
+
+```bash
+cp .env.example .env
+# set JWT_SECRET in .env; generate one with: openssl rand -base64 48
+
+docker compose up -d --build
+```
+
+The app is then served at `http://localhost` on port 80. A Caddy reverse proxy
+serves the built client and routes `/graphql`, `/ws`, and `/battle/*` to the
+appropriate service, so everything shares a single origin and no backend port is
+exposed. Use `docker compose logs -f` to follow the services and
+`docker compose down` to stop them.
+
+Note that the client reads its API URLs from `VITE_*` environment variables and
+falls back to same-origin paths when they are unset — which is what the
+production image relies on. The `client/.env` file is only used by `npm run dev`.
+
+## Deployment
+
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for a step-by-step guide to deploying this
+stack to a free Oracle Cloud VM, including firewall configuration, HTTPS via a
+custom domain, backups, and the scaling constraints to be aware of.

@@ -1,0 +1,15 @@
+# Builds the React client and bakes it into Caddy, which also fronts the
+# three backend services so the whole app is served from a single origin.
+# Build context is the repository root.
+
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY client/package.json client/package-lock.json ./
+RUN npm ci
+COPY client/ ./
+# No VITE_* vars are set, so the client falls back to same-origin paths.
+RUN npm run build
+
+FROM caddy:2-alpine
+COPY deploy/Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /app/dist /srv
