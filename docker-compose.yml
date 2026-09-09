@@ -22,6 +22,9 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+        # Not required, so the bundled database can be scaled to zero when
+        # MONGODB_URI points at a managed instance instead.
+        required: false
 
   lobby:
     build:

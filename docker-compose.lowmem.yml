@@ -1,0 +1,30 @@
+# Overlay for 1 GB free-tier VMs (GCP e2-micro, Azure B1s).
+#
+# Three JVMs do not fit in 1 GB alongside MongoDB, so this profile assumes the
+# database lives elsewhere — set MONGODB_URI in .env to a MongoDB Atlas M0
+# cluster and start the stack with the bundled mongo scaled to zero:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.lowmem.yml \
+#     up -d --scale mongo=0
+#
+# SerialGC is used deliberately: the throughput collectors reserve noticeably
+# more native memory per JVM, which matters more here than collection speed.
+
+services:
+  user:
+    environment:
+      JAVA_OPTS: "-Xmx160m -XX:MaxMetaspaceSize=112m -XX:+UseSerialGC -Xss512k -XX:MaxDirectMemorySize=32m"
+    mem_limit: 320m
+
+  lobby:
+    environment:
+      JAVA_OPTS: "-Xmx128m -XX:MaxMetaspaceSize=96m -XX:+UseSerialGC -Xss512k -XX:MaxDirectMemorySize=32m"
+    mem_limit: 260m
+
+  gamelogic:
+    environment:
+      JAVA_OPTS: "-Xmx128m -XX:MaxMetaspaceSize=96m -XX:+UseSerialGC -Xss512k -XX:MaxDirectMemorySize=32m"
+    mem_limit: 260m
+
+  web:
+    mem_limit: 64m

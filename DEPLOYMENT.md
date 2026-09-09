@@ -154,6 +154,64 @@ URLs from whatever origin it was served from, so HTTPS and WSS just work.
 
 ---
 
+## Alternative: Google Cloud or Azure
+
+If an Oracle account cannot be created — their signup rejects a lot of cards and
+regions — the remaining free VMs are all **1 GB of RAM**, against Oracle's 12 GB.
+The stack still fits, but only with the database moved off the box and the JVM
+heaps constrained.
+
+| Option | RAM | Duration | Notes |
+|---|---|---|---|
+| GCP `e2-micro` | 1 GB | Always free | `us-west1`, `us-central1` or `us-east1` only; 1 GB/month egress |
+| Azure `B1s` | 1 GB | 12 months | Any region; 750 hours/month |
+
+The deployment is identical to the Oracle steps above except for three changes.
+
+**1. Put MongoDB on Atlas.** Create a free M0 cluster at
+[mongodb.com/atlas](https://www.mongodb.com/cloud/atlas/register), allow access
+from the VM's IP, and put the connection string in `.env`:
+
+```
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/chronocritters
+```
+
+**2. Build the images somewhere else.** Maven and `tsc` will exhaust 1 GB during
+the build. Either build locally and push to a registry such as GHCR, or add swap
+before building:
+
+```bash
+sudo fallocate -l 4G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+Keep the swap file afterwards regardless — it is what absorbs the JVMs' startup
+spikes.
+
+**3. Start with the low-memory overlay**, which shrinks the heaps and skips the
+bundled database:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.lowmem.yml \
+  up -d --scale mongo=0
+```
+
+Expect slower startup and slower first requests than on Oracle's 12 GB shape.
+Confirm nothing is being OOM-killed with `docker compose ps` and `free -h` after
+a few battles.
+
+Firewall rules differ slightly: GCP uses VPC firewall rules
+(`gcloud compute firewall-rules create allow-web --allow tcp:80,tcp:443`) and
+Azure uses a Network Security Group. Neither has Oracle's second iptables layer.
+
+**Worth knowing:** a Hetzner CX22 is roughly €4/month for 2 vCPU and 4 GB, which
+removes every constraint in this section — no Atlas requirement, no heap tuning,
+no swap dependency, and the plain `docker compose up -d --build` path from the
+Oracle instructions works unchanged.
+
+---
+
 ## Operating it
 
 ```bash
