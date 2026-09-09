@@ -5,6 +5,7 @@ import com.chronocritters.lib.model.battle.BattleState;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -23,9 +24,9 @@ public class GameLogicWebClient {
     private static final Logger logger = LoggerFactory.getLogger(GameLogicWebClient.class);
 
 
-    public GameLogicWebClient() {
+    public GameLogicWebClient(@Value("${services.gamelogic.url}") String gameLogicUrl) {
         this.webClient = WebClient.builder()
-                .baseUrl("http://localhost:8082")
+                .baseUrl(gameLogicUrl)
                 .defaultHeader("X-Service-Auth", "lobby-service")
                 .build();
 

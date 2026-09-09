@@ -17,7 +17,8 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
 
     const client = new Client({
       webSocketFactory: () => {
-        const url = import.meta.env.VITE_LOBBY_SERVICE_URL || 'http://localhost:8081/ws';
+        // SockJS requires an absolute URL, so fall back to this page's own origin.
+        const url = import.meta.env.VITE_LOBBY_SERVICE_URL ?? `${window.location.origin}/ws`;
         return new SockJS(url);
       },
       connectHeaders: {

@@ -2,6 +2,7 @@ package com.chronocritters.gamelogic.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
@@ -20,9 +21,9 @@ public class LobbyWebClient {
     private final Retry defaultRetrySpec;
     private static final Logger logger = LoggerFactory.getLogger(LobbyWebClient.class);
 
-    public LobbyWebClient() {
+    public LobbyWebClient(@Value("${services.lobby.url}") String lobbyUrl) {
         this.webClient = WebClient.builder()
-                .baseUrl("http://localhost:8081")
+                .baseUrl(lobbyUrl)
                 .defaultHeader("X-Service-Auth", "gamelogic-service")
                 .build();
 

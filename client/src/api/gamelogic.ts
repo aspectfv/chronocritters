@@ -3,7 +3,7 @@ import { applyAuthTokenInterceptor } from '@api/interceptors';
 import type { BattleState } from '@store/battle/types';
 
 const gamelogicClient = axios.create({
-  baseURL: import.meta.env.VITE_GAME_LOGIC_SERVICE_URL || 'http://localhost:8082',
+  baseURL: import.meta.env.VITE_GAME_LOGIC_SERVICE_URL ?? '',
 });
 
 applyAuthTokenInterceptor(gamelogicClient);
