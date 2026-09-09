@@ -115,6 +115,15 @@
                             </exclude>
                         </excludes>
                     </configuration>
+                    <!-- Not inherited from spring-boot-starter-parent here, so bind
+                         repackage explicitly to produce executable jars. -->
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
