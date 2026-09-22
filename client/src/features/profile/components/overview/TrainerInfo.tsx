@@ -1,12 +1,5 @@
 import type { TrainerInfoProps } from "@features/profile/types";
 
-// mock data for fields unimplemented in backend
-const mockTrainerData = {
-  title: "Gold Trainer",
-  level: 15,
-  experience: 2450,
-};
-
 export function TrainerInfo({ username, experience, level }: TrainerInfoProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
@@ -22,8 +15,7 @@ export function TrainerInfo({ username, experience, level }: TrainerInfoProps) {
             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
           </svg>
         </div>
-        <p className="text-2xl font-bold text-gray-800">{username ? username : 'Error!'}</p>
-        <span className="text-sm font-semibold text-white bg-green-600 px-3 py-1 rounded-full">{mockTrainerData.title}</span>
+        <p className="text-2xl font-bold text-gray-800">{username ? username : 'Unknown Trainer'}</p>
       </div>
       <div className="mt-8 space-y-4">
         <div className="flex justify-between items-center text-md">

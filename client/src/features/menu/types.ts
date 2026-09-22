@@ -8,16 +8,6 @@ export interface MenuHeaderProps {
   username?: string;
 }
 
-export interface NotificationItem {
-  id: string;
-  message: string;
-  type: 'welcome' | 'shop' | 'battle' | 'general';
-}
-
-export interface NotificationsProps {
-  notifications?: NotificationItem[];
-}
-
 export interface MatchResponse {
   playerOneId: string;
   playerTwoId: string;

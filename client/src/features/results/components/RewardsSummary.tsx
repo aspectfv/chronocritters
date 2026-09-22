@@ -12,17 +12,6 @@ export const RewardsSummary = ({ expGained }: { expGained: number }) => {
           <span className="font-medium text-gray-700 text-sm">Experience</span>
           <span className="font-bold text-green-600">+{expGained}</span>
         </div>
-        <div className="flex justify-between items-center bg-white p-3 rounded-lg">
-          <span className="font-medium text-gray-700 text-sm">Coins</span>
-          <span className="font-bold text-yellow-500">+75</span>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-gray-700 mt-4 mb-2">Items Received:</p>
-          <div className="space-y-2 text-sm text-gray-600">
-            <p>⭐ Potion</p>
-            <p>⭐ Fire Stone Fragment</p>
-          </div>
-        </div>
       </div>
     </div>
   );
