@@ -1,6 +1,7 @@
 package com.chronocritters.lobby.client;
 
 import com.chronocritters.lib.dto.BattleRequest;
+import com.chronocritters.lib.dto.ForfeitRequest;
 import com.chronocritters.lib.util.ServiceAuth;
 import com.chronocritters.lib.model.battle.BattleState;
 
@@ -71,6 +72,20 @@ public class GameLogicWebClient {
                 .retryWhen(defaultRetrySpec)
                 .onErrorResume(error -> {
                     logger.warn("Could not handle turn timeout for battleId '{}'. The battle may have ended. Reason: {}", battleId, error.getMessage());
+                    return Mono.empty();
+                });
+    }
+
+    public Mono<Void> forfeit(String battleId, String playerId) {
+        return webClient.post()
+                .uri("/battle/{battleId}/forfeit", battleId)
+                .bodyValue(new ForfeitRequest(playerId))
+                .retrieve()
+                .bodyToMono(Void.class)
+                .retryWhen(defaultRetrySpec)
+                .onErrorResume(error -> {
+                    logger.warn("Could not forfeit battle '{}' for player '{}'. The battle may have ended. Reason: {}",
+                            battleId, playerId, error.getMessage());
                     return Mono.empty();
                 });
     }

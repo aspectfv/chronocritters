@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lobby.client.GameLogicWebClient;
 import com.chronocritters.lobby.dto.Match;
+import com.chronocritters.lobby.service.BattleSessionService;
 import com.chronocritters.lobby.service.BattleTimerService;
 import com.chronocritters.lobby.service.MatchmakingService;
 import com.chronocritters.lobby.session.StompSession;
@@ -25,6 +26,7 @@ public class MatchmakingController {
     private static final Logger logger = LoggerFactory.getLogger(MatchmakingController.class);
 
     private final MatchmakingService matchmakingService;
+    private final BattleSessionService battleSessionService;
     private final BattleTimerService battleTimerService;
     private final GameLogicWebClient gameLogicWebClient;
     private final SimpMessagingTemplate messagingTemplate;
@@ -56,6 +58,7 @@ public class MatchmakingController {
             return;
         }
 
+        battleSessionService.register(foundMatch);
         battleTimerService.startOrResetTimer(battleState);
 
         messagingTemplate.convertAndSendToUser(foundMatch.playerOneId(), "/matchmaking/status", foundMatch);

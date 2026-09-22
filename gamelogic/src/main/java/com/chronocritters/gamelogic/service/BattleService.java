@@ -145,6 +145,10 @@ public class BattleService {
     public void handleTurnTimeout(String battleId) {
         BattleState currentBattle = requireBattle(battleId);
 
+        if (currentBattle.getBattleOutcome() != BattleOutcome.CONTINUE) {
+            return;
+        }
+
         String timeoutLog = String.format("%s ran out of time!", currentBattle.getPlayer().getUsername());
         currentBattle.getActionLogHistory().add(timeoutLog);
 
@@ -154,6 +158,30 @@ public class BattleService {
             .setNext(new TurnTransitionHandler());
 
         turnChain.handle(currentBattle);
+
+        finalizeTurn(currentBattle);
+    }
+
+    /**
+     * Ends the battle immediately in the opponent's favour. Used both when a
+     * player forfeits and when the lobby reports that they have disconnected.
+     */
+    public void forfeit(String battleId, String playerId) {
+        BattleState currentBattle = requireBattle(battleId);
+
+        PlayerState forfeitingPlayer = currentBattle.getPlayerById(playerId);
+        if (forfeitingPlayer == null) throw new IllegalArgumentException("Player is not part of this battle");
+
+        if (currentBattle.getBattleOutcome() != BattleOutcome.CONTINUE) {
+            return;
+        }
+
+        forfeitingPlayer.getRoster().forEach(critter -> {
+            critter.getStats().setCurrentHp(0);
+            critter.setFainted(true);
+        });
+
+        currentBattle.getActionLogHistory().add(String.format("%s forfeited the battle!", forfeitingPlayer.getUsername()));
 
         finalizeTurn(currentBattle);
     }

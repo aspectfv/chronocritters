@@ -14,6 +14,7 @@ import com.chronocritters.gamelogic.config.BattleAuthFilter;
 import com.chronocritters.gamelogic.service.BattleService;
 import com.chronocritters.lib.dto.BattleRequest;
 import com.chronocritters.lib.dto.ExecuteAbilityRequest;
+import com.chronocritters.lib.dto.ForfeitRequest;
 import com.chronocritters.lib.dto.SwitchCritterRequest;
 import com.chronocritters.lib.model.battle.BattleState;
 
@@ -58,6 +59,12 @@ public class BattleController {
     @PostMapping("/battle/{battleId}/timeout")
     public ResponseEntity<Void> handleTimeout(@PathVariable String battleId) {
         battleService.handleTurnTimeout(battleId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/battle/{battleId}/forfeit")
+    public ResponseEntity<Void> forfeit(@PathVariable String battleId, @Valid @RequestBody ForfeitRequest request) {
+        battleService.forfeit(battleId, request.playerId());
         return ResponseEntity.ok().build();
     }
 }
