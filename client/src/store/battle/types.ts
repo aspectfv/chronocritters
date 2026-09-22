@@ -96,6 +96,9 @@ export interface BattleData {
   turnDuration: number;
   lastTurnResult?: TurnResult | null;
 
+  /** The player who has lost their active critter and owes a free replacement. */
+  awaitingSwitchPlayerId?: string | null;
+
   // Set while a player is inside their reconnect window, cleared when they
   // return or when the window runs out and the battle ends.
   disconnectedPlayerId?: string | null;

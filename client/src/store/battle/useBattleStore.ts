@@ -64,6 +64,7 @@ const initialBattleData: BattleData = {
   battleOutcome: BattleOutcome.CONTINUE,
   turnDuration: 30,
   lastTurnResult: null,
+  awaitingSwitchPlayerId: null,
   disconnectedPlayerId: null,
   reconnectSecondsRemaining: 0,
 

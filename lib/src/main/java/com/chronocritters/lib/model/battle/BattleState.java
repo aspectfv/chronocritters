@@ -31,6 +31,12 @@ public class BattleState {
 
     private TurnResult lastTurnResult;
 
+    /**
+     * Set to the player who has lost their active critter and owes a
+     * replacement. They choose it themselves, and the choice is free.
+     */
+    private String awaitingSwitchPlayerId;
+
     private BattleStats battleStats;
 
     @Default

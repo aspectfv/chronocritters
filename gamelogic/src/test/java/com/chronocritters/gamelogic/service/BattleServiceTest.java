@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,9 +21,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.chronocritters.gamelogic.client.LobbyWebClient;
+import com.chronocritters.gamelogic.event.CritterFaintedEvent;
 import com.chronocritters.gamelogic.exception.BattleNotFoundException;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
 import com.chronocritters.lib.model.battle.BattleState;
@@ -56,6 +59,16 @@ class BattleServiceTest {
     @BeforeEach
     void setUp() {
         battleService = new BattleService(playerGrpcClient, lobbyWebClient, eventPublisher);
+
+        // Fainting is handled by a listener in the running service, so the
+        // publisher delegates to the real one rather than swallowing the event.
+        FaintingService faintingService = new FaintingService();
+        doAnswer(invocation -> {
+            if (invocation.getArgument(0) instanceof CritterFaintedEvent faintedEvent) {
+                faintingService.onCritterFainted(faintedEvent);
+            }
+            return null;
+        }).when(eventPublisher).publishEvent(any(ApplicationEvent.class));
 
         when(lobbyWebClient.updateBattleState(anyString(), any())).thenReturn(Mono.empty());
         when(playerGrpcClient.getBattleRewards(anyString(), anyString(), anyList(), anyList()))
@@ -162,6 +175,59 @@ class BattleServiceTest {
         battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, ABILITY_ID);
 
         assertThat(battleService.getBattleState(BATTLE_ID).getPlayerOne().getConsecutiveTimeouts()).isZero();
+    }
+
+    /** Player one's lead is knocked out, leaving them owing a replacement. */
+    private BattleState battleAwaitingReplacement() {
+        BattleState battleState = twoRoundBattle();
+        battleState.getPlayerOne().getActiveCritter().getStats().setCurrentHp(1);
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, ABILITY_ID);
+        battleService.executeAbility(BATTLE_ID, PLAYER_TWO_ID, ABILITY_ID);
+
+        return battleState;
+    }
+
+    @Test
+    @DisplayName("a knocked-out active critter waits for its owner to choose the replacement")
+    void waitsForTheOwnerToChooseAReplacement() {
+        BattleState battleState = battleAwaitingReplacement();
+
+        assertThat(battleState.getAwaitingSwitchPlayerId()).isEqualTo(PLAYER_ONE_ID);
+        assertThat(battleState.getPlayerOne().getActiveCritterIndex()).as("nobody is sent out for them").isZero();
+    }
+
+    @Test
+    @DisplayName("replacing a fainted critter is free and leaves the turn with its owner")
+    void replacingAFaintedCritterIsFree() {
+        battleAwaitingReplacement();
+
+        BattleState battleState = battleService.switchCritter(BATTLE_ID, PLAYER_ONE_ID, 1);
+
+        assertThat(battleState.getAwaitingSwitchPlayerId()).isNull();
+        assertThat(battleState.getPlayerOne().getActiveCritterIndex()).isEqualTo(1);
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_ONE_ID);
+    }
+
+    @Test
+    @DisplayName("refuses an ability until the replacement is sent out")
+    void refusesAnAbilityWhileAReplacementIsOwed() {
+        battleAwaitingReplacement();
+
+        assertThatThrownBy(() -> battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, ABILITY_ID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("replacement critter first");
+    }
+
+    @Test
+    @DisplayName("the clock running out on a replacement sends out the first living critter")
+    void timingOutOnAReplacementFallsBackToRosterOrder() {
+        BattleState battleState = battleAwaitingReplacement();
+
+        battleService.handleTurnTimeout(BATTLE_ID);
+
+        assertThat(battleState.getAwaitingSwitchPlayerId()).isNull();
+        assertThat(battleState.getPlayerOne().getActiveCritterIndex()).isEqualTo(1);
     }
 
     @Test

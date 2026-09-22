@@ -45,6 +45,12 @@ export interface TeamDisplayProps {
   onCritterClick: (targetCritterIndex: number) => void;
 }
 
+export interface ForcedSwitchPanelProps {
+  team: CritterState[];
+  onCritterClick: (targetCritterIndex: number) => void;
+  disabled: boolean;
+}
+
 export interface OpponentStatusBannerProps {
   opponentName: string;
   secondsRemaining: number;

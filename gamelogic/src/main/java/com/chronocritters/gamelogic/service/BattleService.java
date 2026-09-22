@@ -114,6 +114,11 @@ public class BattleService {
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
         BattleState currentBattle = requireActiveTurn(battleId, playerId);
+
+        if (playerId.equals(currentBattle.getAwaitingSwitchPlayerId())) {
+            throw new IllegalStateException("Send out a replacement critter first");
+        }
+
         currentBattle.setLastTurnResult(null);
         currentBattle.getPlayer().setConsecutiveTimeouts(0);
 
@@ -130,24 +135,29 @@ public class BattleService {
         return currentBattle;
     }
 
+    /**
+     * A switch normally costs the turn. Replacing a critter that just fainted is
+     * free, and is allowed whether or not the clock is on this player.
+     */
     public BattleState switchCritter(String battleId, String playerId, int targetCritterIndex) {
-        BattleState currentBattle = requireActiveTurn(battleId, playerId);
-        currentBattle.setLastTurnResult(null);
+        BattleState currentBattle = requireBattle(battleId);
+        boolean isReplacingAFaintedCritter = playerId.equals(currentBattle.getAwaitingSwitchPlayerId());
 
-        PlayerState player = currentBattle.getPlayer();
+        if (!isReplacingAFaintedCritter) {
+            requireActiveTurn(battleId, playerId);
+        }
+
+        PlayerState player = currentBattle.getPlayerById(playerId);
+        currentBattle.setLastTurnResult(null);
         player.setConsecutiveTimeouts(0);
 
-        if (targetCritterIndex < 0 || targetCritterIndex >= player.getRoster().size()) throw new IllegalArgumentException("Invalid critter index");
-        if (targetCritterIndex == player.getActiveCritterIndex()) throw new IllegalArgumentException("Cannot switch to the currently active critter");
-        
-        CritterState targetCritter = player.getCritterByIndex(targetCritterIndex);
-        if (targetCritter.getStats().getCurrentHp() <= 0) throw new IllegalArgumentException("Cannot switch to a fainted critter");
+        sendOut(currentBattle, player, targetCritterIndex);
 
-        String switchLog = String.format("%s switched from %s to %s", player.getUsername(),
-                player.getActiveCritter().getName(), targetCritter.getName());
-        currentBattle.getActionLogHistory().add(switchLog);
-        
-        player.setActiveCritterIndex(targetCritterIndex);
+        if (isReplacingAFaintedCritter) {
+            currentBattle.setAwaitingSwitchPlayerId(null);
+            finalizeTurn(currentBattle);
+            return currentBattle;
+        }
 
         ITurnActionHandler turnChain = new TurnEffectsHandler();
         turnChain
@@ -159,6 +169,19 @@ public class BattleService {
         finalizeTurn(currentBattle);
         return currentBattle;
     }
+
+    private void sendOut(BattleState battleState, PlayerState player, int targetCritterIndex) {
+        if (targetCritterIndex < 0 || targetCritterIndex >= player.getRoster().size()) throw new IllegalArgumentException("Invalid critter index");
+        if (targetCritterIndex == player.getActiveCritterIndex()) throw new IllegalArgumentException("Cannot switch to the currently active critter");
+
+        CritterState targetCritter = player.getCritterByIndex(targetCritterIndex);
+        if (targetCritter.getStats().getCurrentHp() <= 0) throw new IllegalArgumentException("Cannot switch to a fainted critter");
+
+        battleState.getActionLogHistory().add(String.format("%s switched from %s to %s", player.getUsername(),
+                player.getActiveCritter().getName(), targetCritter.getName()));
+
+        player.setActiveCritterIndex(targetCritterIndex);
+    }
     
     public void handleTurnTimeout(String battleId) {
         BattleState currentBattle = requireBattle(battleId);
@@ -168,6 +191,12 @@ public class BattleService {
         }
 
         currentBattle.setLastTurnResult(null);
+
+        String owedBy = currentBattle.getAwaitingSwitchPlayerId();
+        if (owedBy != null) {
+            sendOutFirstLivingCritter(currentBattle, currentBattle.getPlayerById(owedBy));
+            return;
+        }
 
         PlayerState idlePlayer = currentBattle.getPlayer();
         idlePlayer.setConsecutiveTimeouts(idlePlayer.getConsecutiveTimeouts() + 1);
@@ -213,6 +242,23 @@ public class BattleService {
         currentBattle.getActionLogHistory().add(String.format("%s forfeited the battle!", forfeitingPlayer.getUsername()));
 
         finalizeTurn(currentBattle);
+    }
+
+    /** The clock ran out on a replacement choice, so the roster order decides it. */
+    private void sendOutFirstLivingCritter(BattleState battleState, PlayerState player) {
+        int replacementIndex = FaintingService.firstLivingCritterIndex(player);
+        battleState.setAwaitingSwitchPlayerId(null);
+
+        if (replacementIndex < 0) {
+            finalizeTurn(battleState);
+            return;
+        }
+
+        battleState.getActionLogHistory().add(String.format("%s took too long, so %s is sent out.",
+                player.getUsername(), player.getCritterByIndex(replacementIndex).getName()));
+        player.setActiveCritterIndex(replacementIndex);
+
+        finalizeTurn(battleState);
     }
 
     private BattleState requireBattle(String battleId) {

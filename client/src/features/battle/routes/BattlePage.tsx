@@ -12,6 +12,8 @@ import { TeamDisplay } from '@features/battle/components/TeamDisplay';
 import { BattleLog } from '@features/battle/components/BattleLog';
 import { AbilitySelector } from '@features/battle/components/AbilitySelector';
 import { OpponentStatusBanner } from '@features/battle/components/OpponentStatusBanner';
+import { ForcedSwitchPanel } from '@features/battle/components/ForcedSwitchPanel';
+import { playBattleSound } from '@features/battle/sound';
 import { executeAbility, getBattleState, switchCritter } from '@api/gamelogic';
 import { ConnectionStatus } from '@store/lobby/types';
 import type { BattleOutcomeSummary } from '@features/results/types';
@@ -36,6 +38,7 @@ function BattlePage() {
     timeRemaining,
     turnDuration,
     lastTurnResult,
+    awaitingSwitchPlayerId,
     disconnectedPlayerId,
     reconnectSecondsRemaining,
     battleId: storeBattleId,
@@ -84,6 +87,20 @@ function BattlePage() {
     }
   }, [player, opponent, navigate, battleId]);
 
+  const hitTurn = lastTurnResult?.turn;
+  const hitWasSuperEffective = (lastTurnResult?.effectiveness ?? 1) > 1;
+
+  useEffect(() => {
+    if (hitTurn === undefined) return;
+    playBattleSound(hitWasSuperEffective ? 'superEffective' : 'hit');
+  }, [hitTurn, hitWasSuperEffective]);
+
+  useEffect(() => {
+    if (actionLogHistory.at(-1)?.includes('fainted!')) {
+      playBattleSound('faint');
+    }
+  }, [actionLogHistory]);
+
   const handleAbilityClick = useCallback(async (abilityId: string) => {
     const { player } = useBattleStore.getState();
 
@@ -93,6 +110,7 @@ function BattlePage() {
 
     setActionError(null);
     setIsActionPending(true);
+    playBattleSound('select');
 
     try {
       await executeAbility(battleId, abilityId);
@@ -103,12 +121,15 @@ function BattlePage() {
   }, [battleId, isActionPending]);
 
   const handleSwitchCritter = useCallback(async (targetCritterIndex: number) => {
-    if (!player.hasTurn || !battleId || isActionPending) {
+    const isReplacingAFaintedCritter = awaitingSwitchPlayerId === user?.id;
+
+    if ((!player.hasTurn && !isReplacingAFaintedCritter) || !battleId || isActionPending) {
       return;
     }
 
     setActionError(null);
     setIsActionPending(true);
+    playBattleSound('select');
 
     try {
       await switchCritter(battleId, targetCritterIndex);
@@ -116,7 +137,7 @@ function BattlePage() {
       setActionError(errorMessage(error, 'That critter could not be sent out. Please try again.'));
       setIsActionPending(false);
     }
-  }, [battleId, player.hasTurn, isActionPending]);
+  }, [battleId, player.hasTurn, isActionPending, awaitingSwitchPlayerId, user?.id]);
 
   const handleForfeit = useCallback(() => {
     if (!battleId || !window.confirm('Forfeit this battle? Your opponent will be awarded the win.')) {
@@ -125,7 +146,8 @@ function BattlePage() {
     publish(`/app/battle/${battleId}/forfeit`, {});
   }, [battleId, publish]);
 
-  const canAct = player.hasTurn && !isActionPending;
+  const mustReplaceFaintedCritter = awaitingSwitchPlayerId === user?.id;
+  const canAct = player.hasTurn && !isActionPending && !mustReplaceFaintedCritter;
   const isOpponentReconnecting = Boolean(disconnectedPlayerId) && disconnectedPlayerId !== user?.id;
 
   const playerHit = lastTurnResult?.targetCritterId === player.activeCritter.id ? lastTurnResult : undefined;
@@ -153,6 +175,10 @@ function BattlePage() {
         {/* On a phone the three columns stack, so they are reordered to put the
             opponent, your critter and your moves above the fold, with the log
             last. The desktop layout is unchanged. */}
+        {mustReplaceFaintedCritter && (
+          <ForcedSwitchPanel team={player.roster} onCritterClick={handleSwitchCritter} disabled={isActionPending} />
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-[2.5fr_3fr_2.5fr] gap-4 mt-4">
           <div className="order-2 lg:order-1 flex flex-col gap-4">
             <CritterDisplayCard

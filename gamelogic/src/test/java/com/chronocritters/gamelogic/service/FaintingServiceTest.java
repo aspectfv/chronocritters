@@ -41,20 +41,13 @@ class FaintingServiceTest {
     }
 
     @Test
-    @DisplayName("sends out the next living critter when the active one faints")
-    void sendsOutTheNextLivingCritter() {
+    @DisplayName("asks the owner for a replacement instead of picking one for them")
+    void asksTheOwnerForAReplacement() {
         faint(owner.getActiveCritter());
 
-        assertThat(owner.getActiveCritterIndex()).isEqualTo(1);
-        assertThat(owner.getActiveCritter().getName()).isEqualTo("bench");
-    }
-
-    @Test
-    @DisplayName("names the replacement in the log, not the critter that just fainted")
-    void logsTheReplacementCritter() {
-        faint(owner.getActiveCritter());
-
-        assertThat(lastLog(battleState)).contains("bench").doesNotContain("lead is sent out");
+        assertThat(battleState.getAwaitingSwitchPlayerId()).isEqualTo(PLAYER_ONE_ID);
+        assertThat(owner.getActiveCritterIndex()).as("nothing is sent out until they choose").isZero();
+        assertThat(lastLog(battleState)).contains("must send out another critter");
     }
 
     @Test
@@ -62,19 +55,28 @@ class FaintingServiceTest {
     void ignoresABenchedCritterFainting() {
         faint(owner.getCritterByIndex(1));
 
+        assertThat(battleState.getAwaitingSwitchPlayerId()).isNull();
         assertThat(owner.getActiveCritterIndex()).isZero();
         assertThat(owner.getActiveCritter().getName()).isEqualTo("lead");
     }
 
     @Test
-    @DisplayName("does not send anyone out when the whole roster is down")
-    void doesNotSwitchWhenNoCrittersRemain() {
+    @DisplayName("asks for nothing when the whole roster is down")
+    void doesNotAskWhenNoCrittersRemain() {
         owner.getCritterByIndex(1).getStats().setCurrentHp(0);
         owner.getCritterByIndex(1).setFainted(true);
 
         faint(owner.getActiveCritter());
 
-        assertThat(owner.getActiveCritterIndex()).isZero();
+        assertThat(battleState.getAwaitingSwitchPlayerId()).isNull();
         assertThat(lastLog(battleState)).isEqualTo("lead fainted!");
+    }
+
+    @Test
+    @DisplayName("falls back to roster order when a player lets the clock run out")
+    void fallsBackToRosterOrder() {
+        owner.getActiveCritter().getStats().setCurrentHp(0);
+
+        assertThat(FaintingService.firstLivingCritterIndex(owner)).isEqualTo(1);
     }
 }

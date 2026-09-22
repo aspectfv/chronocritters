@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { setBattleSoundMuted } from "@features/battle/sound";
 
 export function BattleMusicControl() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -6,6 +7,9 @@ export function BattleMusicControl() {
   const [volume, setVolume] = useState(0.5);
 
   useEffect(() => {
+    // One toggle covers the music and the battle effects.
+    setBattleSoundMuted(isMuted);
+
     if (audioRef.current) {
       audioRef.current.muted = isMuted;
       if (!isMuted) {
