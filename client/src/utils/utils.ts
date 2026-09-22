@@ -1,4 +1,3 @@
-import { MatchMakingStatus } from "@features/menu/types";
 import { ConnectionStatus } from "@store/lobby/types";
 import { CritterType, type EffectUnion } from "@/gql/graphql";
 
@@ -66,20 +65,6 @@ const connectionStatusStyleMap: Record<ConnectionStatus, { text: string; color: 
 export function getConnectionStatusStyle(status: ConnectionStatus | null | undefined): { text: string; color: string } {
   return connectionStatusStyleMap[status ?? ConnectionStatus.DISCONNECTED];
 }
-
-const buttonStateMap: Record<ConnectionStatus, { text: string; disabled: boolean }> = {
-  [ConnectionStatus.CONNECTING]: { text: 'Connecting to Lobby...', disabled: true },
-  [ConnectionStatus.ERROR]: { text: 'Lobby Offline', disabled: true },
-  [ConnectionStatus.DISCONNECTED]: { text: 'Lobby Offline', disabled: true },
-  [ConnectionStatus.CONNECTED]: { text: 'Find Match', disabled: false },
-};
-
-export const getButtonState = (connectionStatus: ConnectionStatus | null | undefined, matchmakingStatus: MatchMakingStatus | null | undefined) => {
-  if (connectionStatus === ConnectionStatus.CONNECTED && matchmakingStatus === MatchMakingStatus.SEARCHING) {
-    return { text: 'Searching for Opponent...', disabled: true };
-  }
-  return buttonStateMap[connectionStatus ?? ConnectionStatus.DISCONNECTED] || { text: 'Connecting...', disabled: true };
-};
 
 export const formatDuration = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
