@@ -19,9 +19,12 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
     private final PlayerRepository playerRepository;
     private final StarterRosterService starterRosterService;
+    private final AuthAttemptLimiter authAttemptLimiter;
 
     public LoginResponse register(String username, String password) {
         String trimmedUsername = username.trim();
+        authAttemptLimiter.recordAttempt(trimmedUsername);
+
         if (playerRepository.findByUsername(trimmedUsername).isPresent()) throw new IllegalArgumentException("Username already taken");
 
         Player player = Player.builder()
@@ -39,15 +42,20 @@ public class AuthService {
             throw new IllegalArgumentException("Username already taken");
         }
 
+        authAttemptLimiter.clear(trimmedUsername);
         return toLoginResponse(player);
     }
 
     public LoginResponse login(String username, String password) {
-        Player player = playerRepository.findByUsername(username.trim())
+        String trimmedUsername = username.trim();
+        authAttemptLimiter.recordAttempt(trimmedUsername);
+
+        Player player = playerRepository.findByUsername(trimmedUsername)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
         if (!PasswordUtil.checkPassword(password, player.getPassword())) throw new IllegalArgumentException("Invalid username or password");
 
+        authAttemptLimiter.clear(trimmedUsername);
         return toLoginResponse(player);
     }
 
