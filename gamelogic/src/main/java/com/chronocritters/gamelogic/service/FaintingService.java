@@ -31,7 +31,8 @@ public class FaintingService {
 
             if (nextCritterIndex != -1) {
                 faintedCritterOwner.setActiveCritterIndex(nextCritterIndex);
-                String switchLog = String.format("%s's %s is sent out!", faintedCritterOwner.getUsername(), faintedCritter.getName());
+                CritterState replacement = faintedCritterOwner.getActiveCritter();
+                String switchLog = String.format("%s's %s is sent out!", faintedCritterOwner.getUsername(), replacement.getName());
                 event.getBattleState().getActionLogHistory().add(switchLog);
             }
         }

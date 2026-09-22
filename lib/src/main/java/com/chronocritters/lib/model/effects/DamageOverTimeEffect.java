@@ -72,22 +72,23 @@ public class DamageOverTimeEffect extends Effect implements IPersistentEffect {
 
     @Override
     public boolean onTick(BattleState battleState, CritterState target) {
+        target.getStats().setCurrentHp(Math.max(0, target.getStats().getCurrentHp() - this.damagePerTurn));
+
+        BattleStats battleStats = battleState.getBattleStats();
+        battleStats.getPlayersDamageDealt().put(this.casterId,
+            battleStats.getPlayersDamageDealt().getOrDefault(this.casterId, 0) + this.damagePerTurn);
+
         this.duration--;
 
-        if (this.duration >= 0) {
-            target.getStats().setCurrentHp(Math.max(0, target.getStats().getCurrentHp() - this.damagePerTurn));
-            BattleStats battleStats = battleState.getBattleStats();
-            battleStats.getPlayersDamageDealt().put(this.casterId, 
-                battleStats.getPlayersDamageDealt().getOrDefault(this.casterId, 0) + this.damagePerTurn);
-                
-            String actionLog = String.format("%s takes %d damage! %d Turns remaining.", target.getName(), this.damagePerTurn, this.duration);
-            battleState.getActionLogHistory().add(actionLog);
-            return false;
-        } else {
-            String actionLog = String.format("%s is no longer affected by damage over time.", target.getName());
-            battleState.getActionLogHistory().add(actionLog);
+        String actionLog = String.format("%s takes %d damage! %d Turns remaining.", target.getName(), this.damagePerTurn, this.duration);
+        battleState.getActionLogHistory().add(actionLog);
+
+        if (this.duration <= 0) {
+            battleState.getActionLogHistory().add(String.format("%s is no longer affected by damage over time.", target.getName()));
             return true;
         }
+
+        return false;
     }
 
     private Effect createInstance() {

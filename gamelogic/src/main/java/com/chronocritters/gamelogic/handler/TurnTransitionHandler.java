@@ -6,33 +6,48 @@ import com.chronocritters.lib.model.battle.PlayerState;
 import com.chronocritters.lib.model.effects.SkipTurnEffect;
 
 import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 public class TurnTransitionHandler extends AbstractTurnActionHandler {
     private static final int TURN_DURATION_SECONDS = 30;
 
+    /**
+     * A stunned player loses their turn, but with both actives stunned there is
+     * nobody left to hand the turn to. Capping the skips lets the turn land and
+     * the clock run; TurnEffectsHandler ticks the stuns down so the standoff
+     * resolves on its own.
+     */
+    private static final int MAX_CONSECUTIVE_SKIPS = 2;
+
     @Override
     public void handle(BattleState battleState) {
+        for (int skips = 0; skips < MAX_CONSECUTIVE_SKIPS; skips++) {
+            if (!advanceTurn(battleState)) return;
+
+            if (!isStunned(battleState.getPlayer())) break;
+        }
+
+        battleState.setTimeRemaining(TURN_DURATION_SECONDS);
+    }
+
+    private boolean advanceTurn(BattleState battleState) {
         PlayerState currentPlayer = battleState.getPlayer();
         PlayerState nextPlayer = battleState.getOpponent();
 
-        if (currentPlayer == null || nextPlayer == null) return;
-        
-        BattleStats battleStats = battleState.getBattleStats();
+        if (currentPlayer == null || nextPlayer == null) return false;
 
+        BattleStats battleStats = battleState.getBattleStats();
         battleStats.setTurnCount(battleStats.getTurnCount() + 1);
 
         currentPlayer.setHasTurn(false);
         nextPlayer.setHasTurn(true);
         battleState.setActivePlayerId(nextPlayer.getId());
-        
-        boolean shouldSkipTurn = nextPlayer.getActiveCritter().getActiveStatusEffects().stream()
-                .anyMatch(effect -> effect instanceof SkipTurnEffect);
 
-        if (shouldSkipTurn) {
-            this.handle(battleState);
-            return;
-        }
+        return true;
+    }
 
-        battleState.setTimeRemaining(TURN_DURATION_SECONDS);
+    private boolean isStunned(PlayerState player) {
+        return player.getActiveCritter().getActiveStatusEffects().stream()
+                .anyMatch(SkipTurnEffect.class::isInstance);
     }
 }

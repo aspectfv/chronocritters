@@ -69,15 +69,14 @@ public class SkipTurnEffect extends Effect implements IPersistentEffect {
     public boolean onTick(BattleState battleState, CritterState target) {
         this.duration--;
 
-        if (this.duration >= 0) {
-            String actionLog = String.format("%s is stunned and unable to move! %d Turns remaining.", target.getName(), this.duration);
-            battleState.getActionLogHistory().add(actionLog);
-            return false;
-        } else {
-            String actionLog = String.format("The stun effect on %s wore off.", target.getName());
-            battleState.getActionLogHistory().add(actionLog);
+        if (this.duration <= 0) {
+            battleState.getActionLogHistory().add(String.format("The stun effect on %s wore off.", target.getName()));
             return true;
         }
+
+        battleState.getActionLogHistory().add(
+            String.format("%s is stunned and unable to move! %d Turns remaining.", target.getName(), this.duration));
+        return false;
     }
 
     private Effect createInstance() {
