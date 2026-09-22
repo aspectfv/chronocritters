@@ -1,50 +1,50 @@
 package com.chronocritters.lobby.service;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.springframework.stereotype.Service;
 
 import com.chronocritters.lobby.dto.Match;
 
-import lombok.RequiredArgsConstructor;
-
+/**
+ * First-come-first-served matchmaking queue.
+ *
+ * Joining and pairing happen under a single lock: splitting them let two
+ * concurrent joiners interleave and pair with themselves.
+ */
 @Service
-@RequiredArgsConstructor
 public class MatchmakingService {
-    private final ConcurrentLinkedQueue<String> playerQueue = new ConcurrentLinkedQueue<>();
+    private final Deque<String> playerQueue = new ArrayDeque<>();
 
-    public void enqueue(String playerId) {
-        if (playerId == null || playerId.trim().isEmpty()) {
+    /** Queues the player and returns a match as soon as an opponent is available. */
+    public synchronized Optional<Match> join(String playerId) {
+        if (playerId == null || playerId.isBlank()) {
             throw new IllegalArgumentException("Player ID cannot be null or empty");
         }
-        
-        if (playerQueue.contains(playerId)) {
-            throw new IllegalStateException("Player is already in the matchmaking queue");
-        }
-        
-        playerQueue.add(playerId);
-    }
 
-    public Optional<Match> tryMatch() {
+        if (!playerQueue.contains(playerId)) {
+            playerQueue.add(playerId);
+        }
+
         if (playerQueue.size() < 2) {
             return Optional.empty();
         }
-        
+
         String playerOneId = playerQueue.poll();
         String playerTwoId = playerQueue.poll();
-        
-        if (playerOneId == null || playerTwoId == null) {
-            throw new RuntimeException("Failed to retrieve players from queue");
-        }
-        
-        if (playerOneId.equals(playerTwoId)) {
-            throw new IllegalStateException("Cannot match a player with themselves");
-        }
-        
-        String battleId = UUID.randomUUID().toString();
 
-        return Optional.of(new Match(playerOneId, playerTwoId, battleId));
+        return Optional.of(new Match(playerOneId, playerTwoId, UUID.randomUUID().toString()));
+    }
+
+    /** Removes a player who cancelled their search or disconnected. */
+    public synchronized void leave(String playerId) {
+        playerQueue.remove(playerId);
+    }
+
+    public synchronized boolean isQueued(String playerId) {
+        return playerQueue.contains(playerId);
     }
 }

@@ -39,25 +39,7 @@ public class GameLogicWebClient {
                         retrySignal.failure().getMessage()));
     }
 
-    public Mono<BattleState> getBattleState(String battleId) {
-        return webClient.get()
-                .uri("/battle/{battleId}", battleId)
-                .retrieve()
-                .onStatus(status -> status.equals(HttpStatus.NOT_FOUND),
-                        response -> Mono.error(new IllegalArgumentException("Battle not found: " + battleId)))
-                .onStatus(status -> status.is4xxClientError() && status != HttpStatus.NOT_FOUND,
-                        response -> Mono.error(new IllegalArgumentException("Invalid request for battle: " + battleId)))
-                .onStatus(status -> status.is5xxServerError(),
-                        response -> Mono.error(new IllegalStateException("Server error while fetching battle state for: " + battleId)))
-                .bodyToMono(BattleState.class)
-                .retryWhen(defaultRetrySpec)
-                .onErrorResume(error -> {
-                    logger.warn("Could not retrieve battle state for battleId '{}'. Reason: {}", battleId, error.getMessage());
-                    return Mono.empty();
-                });
-    }
-
-    public Mono<Void> createBattle(String battleId, String playerOneId, String playerTwoId) {
+    public Mono<BattleState> createBattle(String battleId, String playerOneId, String playerTwoId) {
         BattleRequest battleRequest = new BattleRequest(playerOneId, playerTwoId);
 
         return webClient.post()
@@ -70,12 +52,9 @@ public class GameLogicWebClient {
                         response -> Mono.error(new IllegalArgumentException("Invalid battle creation request")))
                 .onStatus(status -> status.is5xxServerError(),
                         response -> Mono.error(new IllegalStateException("Server error while creating battle")))
-                .bodyToMono(Void.class)
+                .bodyToMono(BattleState.class)
                 .retryWhen(defaultRetrySpec)
-                .onErrorResume(error -> {
-                    logger.warn("Could not create battle for battleId '{}'. Reason: {}", battleId, error.getMessage());
-                    return Mono.empty();
-                });
+                .doOnError(error -> logger.warn("Could not create battle for battleId '{}'. Reason: {}", battleId, error.getMessage()));
     }
 
     public Mono<Void> handleTurnTimeout(String battleId) {

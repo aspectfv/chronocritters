@@ -36,13 +36,13 @@ public class BattleController {
     }
 
     @PostMapping("/battle/{battleId}")
-    public ResponseEntity<Void> createBattle(@PathVariable String battleId, @Valid @RequestBody BattleRequest battleRequest) {
-        battleService.createBattle(
+    public ResponseEntity<BattleState> createBattle(@PathVariable String battleId, @Valid @RequestBody BattleRequest battleRequest) {
+        BattleState battleState = battleService.createBattle(
                 battleId,
                 battleRequest.playerOneId(),
                 battleRequest.playerTwoId()
         );
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(battleState);
     }
 
     @PostMapping("/battle/{battleId}/ability")

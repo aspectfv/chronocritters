@@ -64,7 +64,7 @@ public class BattleService {
         return battleState;
     }
 
-    public void createBattle(String battleId, String playerOneId, String playerTwoId) {
+    public BattleState createBattle(String battleId, String playerOneId, String playerTwoId) {
         PlayerState playerOne = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerOneId));
         PlayerState playerTwo = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerTwoId));
 
@@ -95,6 +95,7 @@ public class BattleService {
                 .build();
 
         activeBattles.put(battleId, battleState);
+        return battleState;
     }
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
