@@ -3,6 +3,7 @@ package com.chronocritters.lib.model.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import jakarta.validation.constraints.NotBlank;
@@ -24,6 +25,7 @@ public class Player {
     
     @NotBlank(message = "Username cannot be blank")
     @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
+    @Indexed(unique = true)
     private String username;
 
     @NotBlank(message = "Password cannot be blank")
