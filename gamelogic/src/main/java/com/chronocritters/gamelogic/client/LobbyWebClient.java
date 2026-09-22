@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.chronocritters.lib.model.battle.BattleState;
+import com.chronocritters.lib.util.ServiceAuth;
 
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
@@ -21,10 +22,11 @@ public class LobbyWebClient {
     private final Retry defaultRetrySpec;
     private static final Logger logger = LoggerFactory.getLogger(LobbyWebClient.class);
 
-    public LobbyWebClient(@Value("${services.lobby.url}") String lobbyUrl) {
+    public LobbyWebClient(@Value("${services.lobby.url}") String lobbyUrl,
+                          @Value("${services.internal.token}") String internalToken) {
         this.webClient = WebClient.builder()
                 .baseUrl(lobbyUrl)
-                .defaultHeader("X-Service-Auth", "gamelogic-service")
+                .defaultHeader(ServiceAuth.HEADER, internalToken)
                 .build();
 
         this.defaultRetrySpec = Retry.backoff(3, Duration.ofMillis(500))

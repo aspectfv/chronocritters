@@ -19,6 +19,7 @@ services:
     environment:
       MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/chronocritters}
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      SERVICE_TOKEN: ${SERVICE_TOKEN:?set SERVICE_TOKEN in .env}
     depends_on:
       mongo:
         condition: service_healthy
@@ -35,6 +36,7 @@ services:
     environment:
       GAMELOGIC_URL: http://gamelogic:8082
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      SERVICE_TOKEN: ${SERVICE_TOKEN:?set SERVICE_TOKEN in .env}
 
   gamelogic:
     build:
@@ -46,6 +48,7 @@ services:
       LOBBY_URL: http://lobby:8081
       USER_GRPC_ADDRESS: static://user:9090
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      SERVICE_TOKEN: ${SERVICE_TOKEN:?set SERVICE_TOKEN in .env}
     depends_on:
       - user
 

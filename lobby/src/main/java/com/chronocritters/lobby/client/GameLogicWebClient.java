@@ -1,6 +1,7 @@
 package com.chronocritters.lobby.client;
 
 import com.chronocritters.lib.dto.BattleRequest;
+import com.chronocritters.lib.util.ServiceAuth;
 import com.chronocritters.lib.model.battle.BattleState;
 
 import org.slf4j.Logger;
@@ -24,10 +25,11 @@ public class GameLogicWebClient {
     private static final Logger logger = LoggerFactory.getLogger(GameLogicWebClient.class);
 
 
-    public GameLogicWebClient(@Value("${services.gamelogic.url}") String gameLogicUrl) {
+    public GameLogicWebClient(@Value("${services.gamelogic.url}") String gameLogicUrl,
+                              @Value("${services.internal.token}") String internalToken) {
         this.webClient = WebClient.builder()
                 .baseUrl(gameLogicUrl)
-                .defaultHeader("X-Service-Auth", "lobby-service")
+                .defaultHeader(ServiceAuth.HEADER, internalToken)
                 .build();
 
         this.defaultRetrySpec = Retry.backoff(3, Duration.ofMillis(500))
