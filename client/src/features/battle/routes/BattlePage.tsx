@@ -34,6 +34,8 @@ function BattlePage() {
     opponent,
     actionLogHistory,
     timeRemaining,
+    turnDuration,
+    lastTurnResult,
     disconnectedPlayerId,
     reconnectSecondsRemaining,
     battleId: storeBattleId,
@@ -126,11 +128,14 @@ function BattlePage() {
   const canAct = player.hasTurn && !isActionPending;
   const isOpponentReconnecting = Boolean(disconnectedPlayerId) && disconnectedPlayerId !== user?.id;
 
+  const playerHit = lastTurnResult?.targetCritterId === player.activeCritter.id ? lastTurnResult : undefined;
+  const opponentHit = lastTurnResult?.targetCritterId === opponent.activeCritter.id ? lastTurnResult : undefined;
+
   return (
-    <div className="min-h-screen bg-[#f0f7f3] p-4">
+    <div className="min-h-screen bg-[#f0f7f3] p-2 sm:p-4">
       <div className="max-w-screen-xl mx-auto relative">
         <BattleHeader isPlayerTurn={player.hasTurn} onForfeit={handleForfeit} />
-        <TimerBar timeRemaining={timeRemaining} />
+        <TimerBar timeRemaining={timeRemaining} turnDuration={turnDuration} />
 
         {isOpponentReconnecting && (
           <OpponentStatusBanner
@@ -145,23 +150,40 @@ function BattlePage() {
           </div>
         )}
 
+        {/* On a phone the three columns stack, so they are reordered to put the
+            opponent, your critter and your moves above the fold, with the log
+            last. The desktop layout is unchanged. */}
         <div className="grid grid-cols-1 lg:grid-cols-[2.5fr_3fr_2.5fr] gap-4 mt-4">
-          <div className="flex flex-col gap-4">
-            <CritterDisplayCard playerName={player.username} critter={player.activeCritter} />
+          <div className="order-2 lg:order-1 flex flex-col gap-4">
+            <CritterDisplayCard
+              playerName={player.username}
+              critter={player.activeCritter}
+              hitTurn={playerHit?.turn}
+              hitDamage={playerHit?.damage}
+              hitEffectiveness={playerHit?.effectiveness}
+            />
             <TeamDisplay title="Your Team" team={player.roster} activeCritterId={player.activeCritter.id} isPlayerTurn={canAct} onCritterClick={handleSwitchCritter} />
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="order-3 lg:order-2 flex flex-col-reverse lg:flex-col gap-4">
             <BattleLog log={actionLogHistory} />
             <AbilitySelector
               abilities={player.activeCritter.abilities}
               onAbilityClick={handleAbilityClick}
               isPlayerTurn={canAct}
+              isResolving={isActionPending}
             />
           </div>
 
-          <div className="flex flex-col gap-4">
-            <CritterDisplayCard playerName={opponent.username} critter={opponent.activeCritter} />
+          <div className="order-1 lg:order-3 flex flex-col gap-4">
+            <CritterDisplayCard
+              playerName={opponent.username}
+              critter={opponent.activeCritter}
+              mirrored
+              hitTurn={opponentHit?.turn}
+              hitDamage={opponentHit?.damage}
+              hitEffectiveness={opponentHit?.effectiveness}
+            />
             <TeamDisplay title="Opponent's Team" team={opponent.roster} activeCritterId={opponent.activeCritter.id} isPlayerTurn={false} onCritterClick={() => {}} />
           </div>
         </div>

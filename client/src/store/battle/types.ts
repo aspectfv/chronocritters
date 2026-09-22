@@ -1,4 +1,27 @@
-import type { Ability, CritterType } from "src/gql/graphql";
+import type { CritterType } from "src/gql/graphql";
+
+// The battle payload comes over REST from gamelogic, which discriminates effect
+// subtypes with `_type`. The GraphQL schema uses `__typename` for the same
+// objects, so the two shapes are kept apart rather than shared.
+export type BattleEffect =
+  | { _type: 'DamageEffect'; id: string; description: string; damage: number }
+  | { _type: 'DamageOverTimeEffect'; id: string; description: string; damagePerTurn: number; duration: number }
+  | { _type: 'SkipTurnEffect'; id: string; description: string; duration: number };
+
+export interface BattleAbility {
+  id: string;
+  name: string;
+  description: string;
+  effects: BattleEffect[];
+}
+
+export interface TurnResult {
+  turn: number;
+  casterCritterId: string;
+  targetCritterId: string;
+  damage: number;
+  effectiveness: number;
+}
 
 export enum BattleOutcome {
   CONTINUE = 'CONTINUE',
@@ -16,7 +39,9 @@ export interface CritterState {
   name: string;
   type: CritterType;
   stats: CurrentStats;
-  abilities: Ability[];
+  abilities: BattleAbility[];
+  activeStatusEffects: BattleEffect[];
+  fainted: boolean;
 }
 
 export interface PlayerState {
@@ -67,6 +92,9 @@ export interface BattleData {
   battleOutcome: BattleOutcome;
   winnerId?: string;
   battleRewards?: BattleRewards;
+
+  turnDuration: number;
+  lastTurnResult?: TurnResult | null;
 
   // Set while a player is inside their reconnect window, cleared when they
   // return or when the window runs out and the battle ends.

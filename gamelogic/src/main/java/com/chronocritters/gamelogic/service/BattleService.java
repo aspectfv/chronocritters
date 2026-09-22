@@ -45,7 +45,6 @@ public class BattleService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final int TURN_DURATION_SECONDS = 30;
     private static final int CLEANUP_DELAY_SECONDS = 60;
 
     public BattleState getBattleState(String battleId) {
@@ -89,7 +88,7 @@ public class BattleService {
                 .playerOne(playerOne)
                 .playerTwo(playerTwo)
                 .actionLogHistory(logHistory)
-                .timeRemaining(TURN_DURATION_SECONDS)
+                .timeRemaining(BattleState.TURN_DURATION_SECONDS)
                 .battleStats(battleStats)
                 .build();
 
@@ -99,6 +98,7 @@ public class BattleService {
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
         BattleState currentBattle = requireActiveTurn(battleId, playerId);
+        currentBattle.setLastTurnResult(null);
 
         ITurnActionHandler turnChain = new ExecuteAbilityHandler(abilityId);
         turnChain
@@ -115,6 +115,7 @@ public class BattleService {
 
     public BattleState switchCritter(String battleId, String playerId, int targetCritterIndex) {
         BattleState currentBattle = requireActiveTurn(battleId, playerId);
+        currentBattle.setLastTurnResult(null);
 
         PlayerState player = currentBattle.getPlayer();
 
@@ -147,6 +148,8 @@ public class BattleService {
         if (currentBattle.getBattleOutcome() != BattleOutcome.CONTINUE) {
             return;
         }
+
+        currentBattle.setLastTurnResult(null);
 
         String timeoutLog = String.format("%s ran out of time!", currentBattle.getPlayer().getUsername());
         currentBattle.getActionLogHistory().add(timeoutLog);

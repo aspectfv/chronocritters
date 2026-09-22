@@ -3,3 +3,47 @@
 body {
   font-family: 'Exo 2', 'ui-sans-serif', 'system-ui', sans-serif;
 }
+
+@keyframes critter-hit {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+
+@keyframes damage-float {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.85); }
+  15% { opacity: 1; transform: translate(-50%, -8px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -52px) scale(1); }
+}
+
+@keyframes log-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes turn-claim {
+  0% { opacity: 0; transform: scale(0.9); }
+  60% { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-critter-hit { animation: critter-hit 450ms ease-in-out; }
+.animate-damage-float { animation: damage-float 1100ms ease-out forwards; }
+.animate-log-enter { animation: log-enter 220ms ease-out; }
+.animate-turn-claim { animation: turn-claim 320ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-critter-hit,
+  .animate-log-enter,
+  .animate-turn-claim {
+    animation: none;
+  }
+
+  /* The floating number only exists as motion, so it is dropped rather than
+     left frozen over the card. */
+  .animate-damage-float {
+    display: none;
+  }
+}
