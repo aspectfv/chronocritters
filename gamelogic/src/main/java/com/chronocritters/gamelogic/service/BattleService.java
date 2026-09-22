@@ -53,6 +53,17 @@ public class BattleService {
         return activeBattles.get(battleId);
     }
 
+    /** Battle state is only readable by the two players taking part in it. */
+    public BattleState getBattleStateFor(String battleId, String playerId) {
+        BattleState battleState = requireBattle(battleId);
+
+        if (battleState.getPlayerById(playerId) == null) {
+            throw new IllegalStateException("Player is not part of this battle");
+        }
+
+        return battleState;
+    }
+
     public void createBattle(String battleId, String playerOneId, String playerTwoId) {
         PlayerState playerOne = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerOneId));
         PlayerState playerTwo = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerTwoId));
@@ -87,9 +98,7 @@ public class BattleService {
     }
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
-        BattleState currentBattle = getBattleState(battleId);
-        if (currentBattle == null) throw new IllegalArgumentException("Invalid battle ID");
-        if (!currentBattle.getActivePlayerId().equals(playerId)) throw new IllegalStateException("It's not the player's turn");
+        BattleState currentBattle = requireActiveTurn(battleId, playerId);
 
         ITurnActionHandler turnChain = new ExecuteAbilityHandler(abilityId);
         turnChain
@@ -105,9 +114,7 @@ public class BattleService {
     }
 
     public BattleState switchCritter(String battleId, String playerId, int targetCritterIndex) {
-        BattleState currentBattle = getBattleState(battleId);
-        if (currentBattle == null) throw new IllegalArgumentException("Invalid battle ID");
-        if (!currentBattle.getActivePlayerId().equals(playerId)) throw new IllegalStateException("It's not the player's turn");
+        BattleState currentBattle = requireActiveTurn(battleId, playerId);
 
         PlayerState player = currentBattle.getPlayer();
 
@@ -135,10 +142,7 @@ public class BattleService {
     }
     
     public void handleTurnTimeout(String battleId) {
-        BattleState currentBattle = getBattleState(battleId);
-        if (currentBattle == null) {
-            throw new IllegalArgumentException("Invalid battle ID");
-        }
+        BattleState currentBattle = requireBattle(battleId);
 
         String timeoutLog = String.format("%s ran out of time!", currentBattle.getPlayer().getUsername());
         currentBattle.getActionLogHistory().add(timeoutLog);
@@ -151,6 +155,18 @@ public class BattleService {
         turnChain.handle(currentBattle);
 
         finalizeTurn(currentBattle);
+    }
+
+    private BattleState requireBattle(String battleId) {
+        BattleState battleState = getBattleState(battleId);
+        if (battleState == null) throw new IllegalArgumentException("Invalid battle ID");
+        return battleState;
+    }
+
+    private BattleState requireActiveTurn(String battleId, String playerId) {
+        BattleState battleState = requireBattle(battleId);
+        if (!playerId.equals(battleState.getActivePlayerId())) throw new IllegalStateException("It's not the player's turn");
+        return battleState;
     }
 
     private void finalizeTurn(BattleState battleState) {

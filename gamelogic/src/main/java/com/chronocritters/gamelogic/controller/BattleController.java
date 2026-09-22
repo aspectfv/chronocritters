@@ -6,9 +6,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.chronocritters.gamelogic.config.BattleAuthFilter;
 import com.chronocritters.gamelogic.service.BattleService;
 import com.chronocritters.lib.dto.BattleRequest;
 import com.chronocritters.lib.dto.ExecuteAbilityRequest;
@@ -18,6 +20,10 @@ import com.chronocritters.lib.model.battle.BattleState;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * The player id on every player-driven action comes from the JWT via
+ * {@link BattleAuthFilter}, never from the request body.
+ */
 @RestController
 @RequiredArgsConstructor
 @Validated
@@ -25,8 +31,8 @@ public class BattleController {
     private final BattleService battleService;
 
     @GetMapping("/battle/{battleId}")
-    public BattleState getBattle(@PathVariable String battleId) {
-        return battleService.getBattleState(battleId);
+    public BattleState getBattle(@PathVariable String battleId, @RequestAttribute(BattleAuthFilter.PLAYER_ID_ATTRIBUTE) String playerId) {
+        return battleService.getBattleStateFor(battleId, playerId);
     }
 
     @PostMapping("/battle/{battleId}")
@@ -40,15 +46,14 @@ public class BattleController {
     }
 
     @PostMapping("/battle/{battleId}/ability")
-    public BattleState executeAbility(@PathVariable String battleId, @Valid @RequestBody ExecuteAbilityRequest request) {
-        return battleService.executeAbility(battleId, request.playerId(), request.abilityId());
+    public BattleState executeAbility(@PathVariable String battleId, @RequestAttribute(BattleAuthFilter.PLAYER_ID_ATTRIBUTE) String playerId, @Valid @RequestBody ExecuteAbilityRequest request) {
+        return battleService.executeAbility(battleId, playerId, request.abilityId());
     }
 
     @PostMapping("/battle/{battleId}/switch")
-    public BattleState switchCritter(@PathVariable String battleId, @Valid @RequestBody SwitchCritterRequest request) {
-        return battleService.switchCritter(battleId, request.playerId(), request.targetCritterIndex());
+    public BattleState switchCritter(@PathVariable String battleId, @RequestAttribute(BattleAuthFilter.PLAYER_ID_ATTRIBUTE) String playerId, @Valid @RequestBody SwitchCritterRequest request) {
+        return battleService.switchCritter(battleId, playerId, request.targetCritterIndex());
     }
-    
 
     @PostMapping("/battle/{battleId}/timeout")
     public ResponseEntity<Void> handleTimeout(@PathVariable String battleId) {

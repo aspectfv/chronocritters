@@ -10,6 +10,12 @@ public final class JwtUtil {
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(resolveSecret().getBytes());
     private static final long EXPIRATION_MS = 86400000; // 1 day
 
+    private static final String BEARER_PREFIX = "Bearer ";
+
+    private JwtUtil() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
     // Every service signing or verifying tokens must share the same JWT_SECRET value.
     private static String resolveSecret() {
         String secret = System.getenv("JWT_SECRET");
@@ -20,6 +26,11 @@ public final class JwtUtil {
             throw new IllegalStateException("JWT_SECRET must be at least 32 bytes long");
         }
         return secret;
+    }
+
+    /** Exposed so tests can sign tokens with the same key the running service uses. */
+    static SecretKey secretKey() {
+        return SECRET_KEY;
     }
 
     public static String generateToken(String userId, String username) {
@@ -38,5 +49,23 @@ public final class JwtUtil {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    /**
+     * Resolves the authenticated player id from an {@code Authorization} header.
+     * Throws when the header is missing, malformed, or carries an invalid token.
+     */
+    public static String playerIdFromAuthHeader(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
+            throw new IllegalArgumentException("Authorization header must start with 'Bearer '");
+        }
+
+        String playerId = validateToken(authorizationHeader.substring(BEARER_PREFIX.length())).getSubject();
+
+        if (playerId == null || playerId.isBlank()) {
+            throw new IllegalArgumentException("JWT token must contain a valid user ID");
+        }
+
+        return playerId;
     }
 }

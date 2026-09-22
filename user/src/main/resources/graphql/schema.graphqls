@@ -98,7 +98,6 @@ type MatchHistoryEntry {
 type Player {
     id: ID
     username: String
-    password: String
     stats: PlayerStats
     roster: [Critter]
     matchHistory: [MatchHistoryEntry]
