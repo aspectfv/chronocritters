@@ -1,6 +1,9 @@
 package com.chronocritters.lobby.config;
 
+import java.util.Optional;
+
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
@@ -28,7 +31,7 @@ public class SessionLifecycleListener {
 
     @EventListener
     public void onSessionConnected(SessionConnectedEvent event) {
-        StompSession.userId(SimpMessageHeaderAccessor.wrap(event.getMessage())).ifPresent(userId ->
+        connectedUserId(event).ifPresent(userId ->
             battleSessionService.battleIdOf(userId).ifPresent(battleId ->
                 reconnectGraceService.cancelGrace(userId, battleId)));
     }
@@ -41,5 +44,21 @@ public class SessionLifecycleListener {
             battleSessionService.battleIdOf(userId).ifPresent(battleId ->
                 reconnectGraceService.startGrace(userId, battleId));
         });
+    }
+
+    /**
+     * The event carries the outgoing CONNECTED frame, which has no session
+     * attributes of its own. The CONNECT it acknowledges is attached to it, and
+     * that is the message {@code AuthChannelInterceptor} put the player id on.
+     */
+    private Optional<String> connectedUserId(SessionConnectedEvent event) {
+        Object connectMessage = event.getMessage().getHeaders()
+                .get(SimpMessageHeaderAccessor.CONNECT_MESSAGE_HEADER);
+
+        if (!(connectMessage instanceof Message<?> message)) {
+            return Optional.empty();
+        }
+
+        return StompSession.userId(SimpMessageHeaderAccessor.wrap(message));
     }
 }
