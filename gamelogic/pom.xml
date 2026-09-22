@@ -72,6 +72,14 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Battle fixtures shared with the lib module's own tests. -->
+        <dependency>
+            <groupId>com.chronocritters</groupId>
+            <artifactId>lib</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>

@@ -79,7 +79,7 @@ class JwtUtilTest {
                 .claim("username", username)
                 .issuedAt(pastIssueDate)
                 .expiration(pastExpirationDate)
-                .signWith(Keys.hmacShaKeyFor("replace-this-with-a-very-long-random-secret-key-32-bytes-min".getBytes()))
+                .signWith(JwtUtil.secretKey())
                 .compact();
 
         // Then
@@ -96,6 +96,40 @@ class JwtUtilTest {
         // Then
         assertThatThrownBy(() -> JwtUtil.validateToken(malformedToken))
                 .isInstanceOf(MalformedJwtException.class);
+    }
+
+    @Test
+    @DisplayName("playerIdFromAuthHeader should return the subject of a valid Bearer token")
+    void playerIdFromAuthHeader_withValidToken_shouldReturnSubject() {
+        String header = "Bearer " + JwtUtil.generateToken(userId, username);
+
+        assertThat(JwtUtil.playerIdFromAuthHeader(header)).isEqualTo(userId);
+    }
+
+    @Test
+    @DisplayName("playerIdFromAuthHeader should reject a missing or non-Bearer header")
+    void playerIdFromAuthHeader_withoutBearerPrefix_shouldThrow() {
+        assertThatThrownBy(() -> JwtUtil.playerIdFromAuthHeader(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Bearer");
+
+        assertThatThrownBy(() -> JwtUtil.playerIdFromAuthHeader(JwtUtil.generateToken(userId, username)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Bearer");
+    }
+
+    @Test
+    @DisplayName("playerIdFromAuthHeader should reject a token signed with a different key")
+    void playerIdFromAuthHeader_withForgedToken_shouldThrow() {
+        SecretKey differentKey = Keys.hmacShaKeyFor("another-secret-key-that-is-definitely-long-enough".getBytes());
+        String forged = Jwts.builder()
+                .subject(userId)
+                .expiration(new Date(System.currentTimeMillis() + 60_000))
+                .signWith(differentKey)
+                .compact();
+
+        assertThatThrownBy(() -> JwtUtil.playerIdFromAuthHeader("Bearer " + forged))
+                .isInstanceOf(SignatureException.class);
     }
 
     @Test
