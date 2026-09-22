@@ -34,6 +34,7 @@ public class BattleAuthFilter implements WebFilter {
     public static final String PLAYER_ID_ATTRIBUTE = "playerId";
 
     private static final String BATTLE_PATH_PREFIX = "/battle/";
+    private static final String ACTIVE_BATTLES_PATH = "/battle/active";
     private static final Logger logger = LoggerFactory.getLogger(BattleAuthFilter.class);
 
     private final String internalToken;
@@ -74,9 +75,12 @@ public class BattleAuthFilter implements WebFilter {
         return chain.filter(exchange);
     }
 
-    /** {@code POST /battle/{id}}, {@code /timeout} and {@code /forfeit} are driven by the lobby, not by a player. */
+    /**
+     * {@code POST /battle/{id}}, {@code /timeout}, {@code /forfeit} and the
+     * {@code /battle/active} listing are driven by the lobby, not by a player.
+     */
     private boolean isServiceToServiceCall(ServerHttpRequest request, String path) {
-        if (path.endsWith("/timeout") || path.endsWith("/forfeit")) {
+        if (path.endsWith("/timeout") || path.endsWith("/forfeit") || ACTIVE_BATTLES_PATH.equals(path)) {
             return true;
         }
         boolean isBattleRoot = path.indexOf('/', BATTLE_PATH_PREFIX.length()) < 0;

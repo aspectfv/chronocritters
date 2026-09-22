@@ -1,5 +1,7 @@
 package com.chronocritters.gamelogic.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -30,6 +32,15 @@ import lombok.RequiredArgsConstructor;
 @Validated
 public class BattleController {
     private final BattleService battleService;
+
+    /**
+     * Only the lobby calls this, to put a clock back on every battle still in
+     * progress after it restarts. It is blocked at the reverse proxy.
+     */
+    @GetMapping("/battle/active")
+    public List<BattleState> getBattlesAwaitingATurn() {
+        return battleService.getBattlesAwaitingATurn();
+    }
 
     @GetMapping("/battle/{battleId}")
     public BattleState getBattle(@PathVariable String battleId, @RequestAttribute(BattleAuthFilter.PLAYER_ID_ATTRIBUTE) String playerId) {

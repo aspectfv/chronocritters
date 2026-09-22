@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.chronocritters.gamelogic.client.LobbyWebClient;
+import com.chronocritters.gamelogic.exception.BattleNotFoundException;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
 import com.chronocritters.gamelogic.handler.ExecuteAbilityHandler;
 import com.chronocritters.gamelogic.handler.FaintingHandler;
@@ -47,8 +48,23 @@ public class BattleService {
 
     private static final int CLEANUP_DELAY_SECONDS = 60;
 
+    /**
+     * Passing the turn on a timeout forever means two idle clients hold a battle
+     * and a timer thread indefinitely, so a player who misses this many turns in
+     * a row concedes.
+     */
+    private static final int MAX_CONSECUTIVE_TIMEOUTS = 3;
+
     public BattleState getBattleState(String battleId) {
         return activeBattles.get(battleId);
+    }
+
+    /** The battles still waiting on someone to move, so a restarted lobby can re-arm their timers. */
+    public List<BattleState> getBattlesAwaitingATurn() {
+        return activeBattles.values().stream()
+                .filter(battle -> battle.getBattleOutcome() == BattleOutcome.CONTINUE)
+                .filter(battle -> battle.getActivePlayerId() != null)
+                .toList();
     }
 
     /** Battle state is only readable by the two players taking part in it. */
@@ -99,6 +115,7 @@ public class BattleService {
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
         BattleState currentBattle = requireActiveTurn(battleId, playerId);
         currentBattle.setLastTurnResult(null);
+        currentBattle.getPlayer().setConsecutiveTimeouts(0);
 
         ITurnActionHandler turnChain = new ExecuteAbilityHandler(abilityId);
         turnChain
@@ -118,6 +135,7 @@ public class BattleService {
         currentBattle.setLastTurnResult(null);
 
         PlayerState player = currentBattle.getPlayer();
+        player.setConsecutiveTimeouts(0);
 
         if (targetCritterIndex < 0 || targetCritterIndex >= player.getRoster().size()) throw new IllegalArgumentException("Invalid critter index");
         if (targetCritterIndex == player.getActiveCritterIndex()) throw new IllegalArgumentException("Cannot switch to the currently active critter");
@@ -151,8 +169,17 @@ public class BattleService {
 
         currentBattle.setLastTurnResult(null);
 
-        String timeoutLog = String.format("%s ran out of time!", currentBattle.getPlayer().getUsername());
-        currentBattle.getActionLogHistory().add(timeoutLog);
+        PlayerState idlePlayer = currentBattle.getPlayer();
+        idlePlayer.setConsecutiveTimeouts(idlePlayer.getConsecutiveTimeouts() + 1);
+
+        currentBattle.getActionLogHistory().add(String.format("%s ran out of time!", idlePlayer.getUsername()));
+
+        if (idlePlayer.getConsecutiveTimeouts() >= MAX_CONSECUTIVE_TIMEOUTS) {
+            currentBattle.getActionLogHistory().add(
+                String.format("%s missed %d turns in a row and concedes.", idlePlayer.getUsername(), MAX_CONSECUTIVE_TIMEOUTS));
+            forfeit(battleId, idlePlayer.getId());
+            return;
+        }
 
         ITurnActionHandler turnChain = new TurnEffectsHandler();
         turnChain
@@ -190,7 +217,7 @@ public class BattleService {
 
     private BattleState requireBattle(String battleId) {
         BattleState battleState = getBattleState(battleId);
-        if (battleState == null) throw new IllegalArgumentException("Invalid battle ID");
+        if (battleState == null) throw new BattleNotFoundException(battleId);
         return battleState;
     }
 

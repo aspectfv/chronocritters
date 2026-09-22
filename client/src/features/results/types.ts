@@ -1,4 +1,4 @@
-import type { BaseStats, Critter, Player, PlayerStats } from "@/gql/graphql";
+import type { BaseStats, Critter, GetBattleHistoryEntryQuery, GetPlayerResultsQuery, Player, PlayerStats } from "@/gql/graphql";
 import type { BattleRewards, BattleStats, PlayerState } from "@store/battle/types";
 
 export type Result = 'victory' | 'defeat' | null;
@@ -31,4 +31,17 @@ export interface BattleOutcomeSummary {
 export interface LocationState {
   result: Result;
   battleState: BattleOutcomeSummary;
+}
+
+export type MatchHistoryOutcome = NonNullable<GetBattleHistoryEntryQuery['getMatchHistoryEntry']>;
+
+export interface ResultsLoaderData {
+  playerResults: GetPlayerResultsQuery;
+  matchHistoryEntry: MatchHistoryOutcome | null;
+}
+
+export interface ResultsLoaderParams {
+  params: {
+    battleId?: string;
+  };
 }

@@ -23,6 +23,7 @@ import org.mockito.quality.Strictness;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.chronocritters.gamelogic.client.LobbyWebClient;
+import com.chronocritters.gamelogic.exception.BattleNotFoundException;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.domain.BaseStats;
@@ -127,11 +128,52 @@ class BattleServiceTest {
     }
 
     @Test
-    @DisplayName("rejects an action against an unknown battle")
+    @DisplayName("reports an unknown battle as gone rather than as a bad request")
     void rejectsUnknownBattle() {
         assertThatThrownBy(() -> battleService.executeAbility("nope", PLAYER_ONE_ID, ABILITY_ID))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Invalid battle ID");
+                .isInstanceOf(BattleNotFoundException.class)
+                .hasMessageContaining("no longer active");
+    }
+
+    @Test
+    @DisplayName("a player who misses three turns in a row concedes")
+    void forfeitsAfterRepeatedTimeouts() {
+        twoRoundBattle();
+
+        // Player one idles through every turn that comes back round to them.
+        battleService.handleTurnTimeout(BATTLE_ID);
+        battleService.handleTurnTimeout(BATTLE_ID);
+        battleService.handleTurnTimeout(BATTLE_ID);
+        battleService.handleTurnTimeout(BATTLE_ID);
+        battleService.handleTurnTimeout(BATTLE_ID);
+
+        BattleState battleState = battleService.getBattleState(BATTLE_ID);
+        assertThat(battleState.getBattleOutcome()).isEqualTo(BattleOutcome.BATTLE_END);
+        assertThat(battleState.getWinnerId()).isEqualTo(PLAYER_TWO_ID);
+    }
+
+    @Test
+    @DisplayName("acting clears the missed-turn count, so an occasional timeout costs nothing")
+    void actingResetsTheTimeoutCount() {
+        twoRoundBattle();
+
+        battleService.handleTurnTimeout(BATTLE_ID);
+        battleService.handleTurnTimeout(BATTLE_ID);
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, ABILITY_ID);
+
+        assertThat(battleService.getBattleState(BATTLE_ID).getPlayerOne().getConsecutiveTimeouts()).isZero();
+    }
+
+    @Test
+    @DisplayName("lists only the battles still waiting on a move")
+    void listsBattlesAwaitingATurn() {
+        oneHitBattle();
+
+        assertThat(battleService.getBattlesAwaitingATurn()).extracting(BattleState::getBattleId).containsExactly(BATTLE_ID);
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, ABILITY_ID);
+
+        assertThat(battleService.getBattlesAwaitingATurn()).as("a finished battle needs no clock").isEmpty();
     }
 
     @Test
