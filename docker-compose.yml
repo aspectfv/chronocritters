@@ -20,6 +20,12 @@ services:
       MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/chronocritters}
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
       SERVICE_TOKEN: ${SERVICE_TOKEN:?set SERVICE_TOKEN in .env}
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
     depends_on:
       mongo:
         condition: service_healthy
@@ -37,6 +43,12 @@ services:
       GAMELOGIC_URL: http://gamelogic:8082
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
       SERVICE_TOKEN: ${SERVICE_TOKEN:?set SERVICE_TOKEN in .env}
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
 
   gamelogic:
     build:
@@ -49,8 +61,18 @@ services:
       USER_GRPC_ADDRESS: static://user:9090
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
       SERVICE_TOKEN: ${SERVICE_TOKEN:?set SERVICE_TOKEN in .env}
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8082/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
     depends_on:
-      - user
+      # The first thing a battle does is fetch both rosters over gRPC, so
+      # gamelogic waits for the user service to answer rather than for its
+      # container to exist.
+      user:
+        condition: service_healthy
 
   web:
     build:
@@ -66,9 +88,12 @@ services:
       - caddy-data:/data
       - caddy-config:/config
     depends_on:
-      - user
-      - lobby
-      - gamelogic
+      user:
+        condition: service_healthy
+      lobby:
+        condition: service_healthy
+      gamelogic:
+        condition: service_healthy
 
 volumes:
   mongo-data:

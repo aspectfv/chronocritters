@@ -34,6 +34,11 @@ export interface TeamDisplayProps {
   onCritterClick: (targetCritterIndex: number) => void;
 }
 
+export interface OpponentStatusBannerProps {
+  opponentName: string;
+  secondsRemaining: number;
+}
+
 export interface BattleLoaderParams {
   params: {
     battleId?: string;

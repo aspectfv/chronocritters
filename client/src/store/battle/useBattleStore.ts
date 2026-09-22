@@ -60,6 +60,8 @@ const initialBattleData: BattleData = {
     turnActionHistory: [],
   },
   battleOutcome: BattleOutcome.CONTINUE,
+  disconnectedPlayerId: null,
+  reconnectSecondsRemaining: 0,
 
   player: defaultEmptyBattlePlayer,
   opponent: defaultEmptyBattlePlayer,

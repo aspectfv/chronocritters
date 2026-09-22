@@ -11,7 +11,8 @@ import { CritterDisplayCard } from '@features/battle/components/CritterDisplayCa
 import { TeamDisplay } from '@features/battle/components/TeamDisplay';
 import { BattleLog } from '@features/battle/components/BattleLog';
 import { AbilitySelector } from '@features/battle/components/AbilitySelector';
-import { executeAbility, switchCritter } from '@api/gamelogic';
+import { OpponentStatusBanner } from '@features/battle/components/OpponentStatusBanner';
+import { executeAbility, getBattleState, switchCritter } from '@api/gamelogic';
 import { ConnectionStatus } from '@store/lobby/types';
 import type { BattleOutcomeSummary } from '@features/results/types';
 
@@ -28,7 +29,16 @@ function BattlePage() {
 
   const isConnected = useLobbyStore((state) => state.connectionStatus === ConnectionStatus.CONNECTED);
   const publish = useLobbyStore((state) => state.publish);
-  const { player, opponent, actionLogHistory, timeRemaining, battleId: storeBattleId, setBattleState } = useBattleStore();
+  const {
+    player,
+    opponent,
+    actionLogHistory,
+    timeRemaining,
+    disconnectedPlayerId,
+    reconnectSecondsRemaining,
+    battleId: storeBattleId,
+    setBattleState,
+  } = useBattleStore();
 
   const [actionError, setActionError] = useState<string | null>(null);
   const [isActionPending, setIsActionPending] = useState(false);
@@ -49,6 +59,12 @@ function BattlePage() {
       setBattleState(newBattleState, user.id);
       setIsActionPending(false);
     });
+
+    // A reconnect can land several turns after the drop, so the board is
+    // refetched rather than resumed from whatever the store still holds.
+    getBattleState(battleId)
+      .then((response) => setBattleState(response.data, user.id))
+      .catch(() => setActionError('Could not reload this battle. It may have already ended.'));
 
     return () => {
       subscription?.unsubscribe();
@@ -108,12 +124,20 @@ function BattlePage() {
   }, [battleId, publish]);
 
   const canAct = player.hasTurn && !isActionPending;
+  const isOpponentReconnecting = Boolean(disconnectedPlayerId) && disconnectedPlayerId !== user?.id;
 
   return (
     <div className="min-h-screen bg-[#f0f7f3] p-4">
       <div className="max-w-screen-xl mx-auto relative">
         <BattleHeader isPlayerTurn={player.hasTurn} onForfeit={handleForfeit} />
         <TimerBar timeRemaining={timeRemaining} />
+
+        {isOpponentReconnecting && (
+          <OpponentStatusBanner
+            opponentName={opponent.username}
+            secondsRemaining={reconnectSecondsRemaining ?? 0}
+          />
+        )}
 
         {actionError && (
           <div className="mt-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 text-center">

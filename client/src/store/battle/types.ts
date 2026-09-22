@@ -68,6 +68,11 @@ export interface BattleData {
   winnerId?: string;
   battleRewards?: BattleRewards;
 
+  // Set while a player is inside their reconnect window, cleared when they
+  // return or when the window runs out and the battle ends.
+  disconnectedPlayerId?: string | null;
+  reconnectSecondsRemaining?: number;
+
   // client specific props
   player: PlayerState;
   opponent: PlayerState;

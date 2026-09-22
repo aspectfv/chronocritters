@@ -23,7 +23,6 @@ import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
 import com.chronocritters.lib.interfaces.handler.ITurnActionHandler;
 import com.chronocritters.lib.mapper.BattleRewardsMapper;
 import com.chronocritters.lib.mapper.PlayerMapper;
-import com.chronocritters.lib.model.battle.BattleRewards;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.lib.model.battle.CritterState;
@@ -228,19 +227,25 @@ public class BattleService {
 
     private void applyWinLoss(BattleState battleState, PlayerState winner, PlayerState loser) {
         battleState.setActivePlayerId(null);
-        playerGrpcClient.updateMatchHistory(
-            battleState.getBattleId(), winner.getId(), loser.getId(), 
-            battleState.getBattleStats(), 
-            winner.getRoster().stream().map(CritterState::getId).toList(), 
-            loser.getRoster().stream().map(CritterState::getId).toList()
-        );
 
-        BattleRewards rewards = BattleRewardsMapper.toModel(playerGrpcClient.getBattleRewards(
-            winner.getId(), loser.getId(), 
-            winner.getRoster().stream().map(CritterState::getId).toList(),
-            loser.getRoster().stream().map(CritterState::getId).toList()
-        ));
-        battleState.setBattleRewards(rewards);
+        List<String> winnerRoster = winner.getRoster().stream().map(CritterState::getId).toList();
+        List<String> loserRoster = loser.getRoster().stream().map(CritterState::getId).toList();
+
+        // Rewards are best-effort. The battle is already decided, so a user
+        // service that is down must cost the players their experience, not leave
+        // both of them staring at a board that never reaches its end state.
+        try {
+            playerGrpcClient.updateMatchHistory(
+                battleState.getBattleId(), winner.getId(), loser.getId(),
+                battleState.getBattleStats(), winnerRoster, loserRoster
+            );
+
+            battleState.setBattleRewards(BattleRewardsMapper.toModel(
+                playerGrpcClient.getBattleRewards(winner.getId(), loser.getId(), winnerRoster, loserRoster)
+            ));
+        } catch (RuntimeException e) {
+            logger.error("Could not record the result of battle {}: {}", battleState.getBattleId(), e.getMessage(), e);
+        }
 
         cleanupScheduler.schedule(() -> {
             BattleState removed = activeBattles.remove(battleState.getBattleId());
