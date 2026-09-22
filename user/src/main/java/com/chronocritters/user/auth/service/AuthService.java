@@ -1,13 +1,16 @@
 package com.chronocritters.user.auth.service;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.chronocritters.lib.model.domain.Player;
+import com.chronocritters.lib.model.domain.PlayerStats;
 import com.chronocritters.lib.util.JwtUtil;
 import com.chronocritters.lib.util.PasswordUtil;
 import com.chronocritters.user.auth.dto.LoginResponse;
 import com.chronocritters.user.auth.dto.User;
 import com.chronocritters.user.player.repository.PlayerRepository;
+import com.chronocritters.user.player.service.StarterRosterService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,21 +18,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
     private final PlayerRepository playerRepository;
+    private final StarterRosterService starterRosterService;
 
     public LoginResponse register(String username, String password) {
-        if (playerRepository.findByUsername(username.trim()).isPresent()) throw new IllegalArgumentException("Username already taken");
+        String trimmedUsername = username.trim();
+        if (playerRepository.findByUsername(trimmedUsername).isPresent()) throw new IllegalArgumentException("Username already taken");
 
-        Player player = new Player();
-        player.setUsername(username.trim());
-        player.setPassword(PasswordUtil.hashPassword(password));
-        playerRepository.save(player);
-        
-        LoginResponse loginResponse = new LoginResponse(
-            new User(player.getId(), player.getUsername()),
-            JwtUtil.generateToken(player.getId(), player.getUsername())
-        );
+        Player player = Player.builder()
+                .username(trimmedUsername)
+                .password(PasswordUtil.hashPassword(password))
+                .stats(PlayerStats.builder().build())
+                .roster(starterRosterService.newRoster())
+                .build();
 
-        return loginResponse;
+        try {
+            playerRepository.save(player);
+        } catch (DuplicateKeyException e) {
+            // The unique index on username is the authority; the lookup above only
+            // saves a round trip in the common case.
+            throw new IllegalArgumentException("Username already taken");
+        }
+
+        return toLoginResponse(player);
     }
 
     public LoginResponse login(String username, String password) {
@@ -38,7 +48,13 @@ public class AuthService {
 
         if (!PasswordUtil.checkPassword(password, player.getPassword())) throw new IllegalArgumentException("Invalid username or password");
 
-        User user = new User(player.getId(), player.getUsername());
-        return new LoginResponse(user, JwtUtil.generateToken(player.getId(), player.getUsername()));
+        return toLoginResponse(player);
+    }
+
+    private LoginResponse toLoginResponse(Player player) {
+        return new LoginResponse(
+            new User(player.getId(), player.getUsername()),
+            JwtUtil.generateToken(player.getId(), player.getUsername())
+        );
     }
 }
