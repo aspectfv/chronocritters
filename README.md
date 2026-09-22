@@ -64,11 +64,18 @@ The project utilizes a diverse and modern technology stack:
 
 ## Features
 
-- **User Authentication**: Secure user registration and login system.
-- **Real-time Matchmaking**: Players are placed in a queue and automatically matched with an opponent.
-- **Turn-Based Battle System**: A dynamic battle arena with abilities, type advantages, and status effects.
-- **Live Battle Updates**: Real-time synchronization of battle state between players using WebSockets.
-- **Player Profiles**: View battle statistics, match history, and manage your collection of Critters.
+- **User Authentication**: Secure user registration and login system. Every new
+  trainer is given a starter team of three Critters so they can battle straight away.
+- **Real-time Matchmaking**: Players are placed in a queue and automatically matched
+  with an opponent, and can cancel a search at any time.
+- **Turn-Based Battle System**: A dynamic battle arena with abilities, type advantages,
+  status effects, and a per-turn timer.
+- **Live Battle Updates**: Real-time synchronization of battle state between players
+  using WebSockets.
+- **Forfeit and Disconnect Handling**: A player can concede, and closing the tab
+  mid-battle awards the win to their opponent instead of stalling the match.
+- **Player Profiles**: View battle statistics, match history, and manage your collection
+  of Critters.
 - **Data Persistence**: All user, critter, and match data is stored in a MongoDB database.
 
 ---
@@ -101,6 +108,16 @@ The project is a multi-module Maven project. You need to build it from the root 
 mvn clean install
 ```
 
+There is no Maven wrapper at the repository root, so this step needs a system
+Maven (3.8+). The per-service wrappers (`user/mvnw`, `lobby/mvnw`,
+`gamelogic/mvnw`) are used for running the individual services.
+
+To run the test suite:
+
+```bash
+mvn test
+```
+
 ### 3. Configure Frontend Environment
 Navigate to the `client` directory, create a `.env` file from the example, and install the necessary dependencies.
 
@@ -111,11 +128,24 @@ npm install
 ```
 The default values in the `.env` file are configured for local development and should work without changes if you follow the run instructions below.
 
+### 4. Configure Service Secrets
+
+The backend services read two shared secrets from the environment:
+
+| Variable | Purpose |
+| --- | --- |
+| `JWT_SECRET` | HMAC key used to sign and verify JWTs. Must be at least 32 bytes and identical across all three services. |
+| `SERVICE_TOKEN` | Shared token the services use to authenticate calls to each other. |
+
+Both fall back to development defaults when unset, which is fine locally but must
+never be relied on in a deployment — `docker compose` requires them explicitly.
+The VS Code launch configurations load them from a root `.env` file.
+
 ---
 
 ## Running the Application
 
-To run the full application, you need to start the database and each of the four microservices in separate terminal windows.
+To run the full application, you need to start the database and each of the three backend services in separate terminal windows.
 
 ### 1. Set Up and Run MongoDB
 
@@ -148,11 +178,11 @@ If you prefer not to install software locally, you can use a free-tier database 
 2.  **Create a Cluster**: Follow the on-screen instructions to create a free-tier cluster.
 3.  **Get Connection String**: Once your cluster is ready, go to the "Connect" section, choose "Connect your application," and copy the connection string. It will look something like this:
     `mongodb+srv://<username>:<password>@clustername.mongodb.net/?retryWrites=true&w=majority`
-4.  **Update Configuration**: Open the `application.properties` file in the user service:
-    `user/src/main/resources/application.properties`
-5.  Replace the existing `spring.data.mongodb.uri` with your new connection string. Remember to replace `<password>` with your actual database user password.
-    ```properties
-    spring.data.mongodb.uri=mongodb+srv://myuser:mypassword@mycluster.abcde.mongodb.net/chronocritters?retryWrites=true&w=majority
+4.  **Update Configuration**: Set the `MONGODB_URI` environment variable to your
+    connection string before starting the `user` service. Remember to replace
+    `<password>` with your actual database user password.
+    ```bash
+    export MONGODB_URI="mongodb+srv://myuser:mypassword@mycluster.abcde.mongodb.net/chronocritters?retryWrites=true&w=majority"
     ```
 
 ### 2. Run Backend Microservices
@@ -162,7 +192,7 @@ With your database running, open a separate terminal for each of the three backe
 **Terminal 1: User Service**
 ```bash
 # From the project's root directory
-./user/mvnw spring-boot:run
+./user/mvnw -f user/pom.xml spring-boot:run
 ```
 *   Listens on HTTP Port: `8080` (for GraphQL)
 *   Listens on gRPC Port: `9090`
@@ -170,18 +200,21 @@ With your database running, open a separate terminal for each of the three backe
 **Terminal 2: Lobby Service**
 ```bash
 # From the project's root directory
-./lobby/mvnw spring-boot:run
+./lobby/mvnw -f lobby/pom.xml spring-boot:run
 ```
 *   Listens on HTTP Port: `8081` (for WebSocket connections)
 
 **Terminal 3: GameLogic Service**
 ```bash
 # From the project's root directory
-./gamelogic/mvnw spring-boot:run
+./gamelogic/mvnw -f gamelogic/pom.xml spring-boot:run
 ```
 *   Listens on HTTP Port: `8082` (for battle actions)
 
-At this point, all backend services are running. The `user` service will seed the database with initial data on its first successful startup.
+At this point, all backend services are running. On every startup the `user`
+service upserts the reference data — the effects, abilities and Critters the game
+is built from — and creates two demo accounts if they do not already exist.
+Registered accounts and their match history are never touched.
 
 ### 3. Run the Frontend Client
 
@@ -195,7 +228,16 @@ npm run dev
 ```
 *   The Vite development server will typically start on `http://localhost:5173`.
 
-You can now open two browser windows to `http://localhost:5173`, register two different users, and start a battle
+You can now open two browser windows to `http://localhost:5173`, register two
+different users, and start a battle. Each new account is given a starter team of
+three Critters automatically.
+
+Two demo accounts are also seeded if you would rather not register:
+
+| Username | Password |
+| --- | --- |
+| `BlueOak` | `password1` |
+| `RedAsh` | `password2` |
 
 ---
 
@@ -246,7 +288,8 @@ mirrors exactly how the application runs in production.
 
 ```bash
 cp .env.example .env
-# set JWT_SECRET in .env; generate one with: openssl rand -base64 48
+# set JWT_SECRET and SERVICE_TOKEN in .env
+# generate each with: openssl rand -base64 48
 
 docker compose up -d --build
 ```
