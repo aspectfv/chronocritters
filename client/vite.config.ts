@@ -9,9 +9,7 @@ export default defineConfig({
     alias: {
       '@features': '/src/features',
       '@api': '/src/api',
-      '@assets': '/src/assets',
       '@routes': '/src/routes',
-      '@types': '/src/types',
       '@components': '/src/components',
       '@store': '/src/store',
       '@utils': '/src/utils',

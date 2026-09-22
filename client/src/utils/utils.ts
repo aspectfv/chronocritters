@@ -39,7 +39,7 @@ export const getCritterImageUrl = (critterName: string | null | undefined): stri
     );
 
   const formattedName = toTitleCase(critterName ?? 'Unknown').replace(/\s/g, '');
-  return `/src/assets/critters/${formattedName}.jpeg`;
+  return `/critters/${formattedName}.jpeg`;
 };
 
 const effectTypeStyles: Record<string, string> = {
