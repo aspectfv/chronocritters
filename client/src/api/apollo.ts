@@ -6,12 +6,12 @@ const httpLink = new HttpLink({
   uri: `${import.meta.env.VITE_USER_SERVICE_URL ?? ''}/graphql`,
 });
 
-const authLink = new SetContextLink((prevContext, _) => {
+const authLink = new SetContextLink((prevContext) => {
   const token = useAuthStore.getState().token;
 
   return {
     headers: {
-      ...prevContext,
+      ...prevContext.headers,
       authorization: token ? `Bearer ${token}` : '',
     },
   };

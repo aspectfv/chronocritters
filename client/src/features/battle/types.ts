@@ -1,8 +1,9 @@
 import type { CritterState } from "@store/battle/types";
-import type { Ability, CritterType } from "src/gql/graphql";
+import type { Ability } from "src/gql/graphql";
 
 export interface BattleHeaderProps {
   isPlayerTurn: boolean;
+  onForfeit: () => void;
 }
 
 export interface TimerBarProps {
@@ -14,7 +15,6 @@ export type AbilitySelectorProps = {
   abilities: Ability[];
   onAbilityClick: (abilityId: string) => void;
   isPlayerTurn: boolean;
-  critterType: CritterType;
 };
 
 export interface CritterDisplayCardProps {

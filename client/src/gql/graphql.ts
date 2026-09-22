@@ -125,7 +125,6 @@ export type Player = {
   __typename?: 'Player';
   id?: Maybe<Scalars['ID']['output']>;
   matchHistory?: Maybe<Array<Maybe<MatchHistoryEntry>>>;
-  password?: Maybe<Scalars['String']['output']>;
   roster?: Maybe<Array<Maybe<Critter>>>;
   stats?: Maybe<PlayerStats>;
   username?: Maybe<Scalars['String']['output']>;
@@ -206,7 +205,7 @@ export type GetPlayerOverviewQueryVariables = Exact<{
 }>;
 
 
-export type GetPlayerOverviewQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', id?: string | null, username?: string | null, stats?: { __typename?: 'PlayerStats', wins?: number | null, losses?: number | null, level?: number | null, experience?: number | null, expToNextLevel?: number | null } | null, roster?: Array<{ __typename?: 'Critter', name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null } | null } | null> | null } | null };
+export type GetPlayerOverviewQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', id?: string | null, username?: string | null, stats?: { __typename?: 'PlayerStats', wins?: number | null, losses?: number | null, level?: number | null, experience?: number | null, expToNextLevel?: number | null } | null, roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null } | null } | null> | null } | null };
 
 export type GetMyCrittersQueryVariables = Exact<{
   id: Scalars['ID']['input'];

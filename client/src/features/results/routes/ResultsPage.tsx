@@ -6,7 +6,6 @@ import { ResultsHeader } from '@features/results/components/ResultsHeader';
 import { ProgressSummary } from '@features/results/components/ProgressSummary';
 import { RewardsSummary } from '@features/results/components/RewardsSummary';
 import { BattleSummary } from '@features/results/components/BattleSummary';
-import { AchievementNotification } from '@features/results/components/AchievementNotification';
 import { ActionButtons } from '@features/results/components/ActionButtons';
 import type { LocationState, Result } from '@features/results/types';
 import type { Critter, GetPlayerResultsQuery } from '@/gql/graphql';
@@ -22,10 +21,12 @@ function ResultsPage() {
   const state = locationData.state as LocationState | undefined;
   const battleResult = state?.result as Result;
   const battleState = state?.battleState;
-  const xpGained = battleState?.battleRewards?.playersExpGained?.[user?.id || ''] || 0;
+  const expGained = battleState?.battleRewards?.playersExpGained?.[user?.id || ''] || 0;
   const playerDamageDealt = battleState?.battleStats?.playersDamageDealt?.[user?.id || ''] || 0;
   const turnCount = battleState?.battleStats?.turnCount || 0;
   const duration = battleState?.battleStats?.duration || 0;
+  const opponentName = battleState?.opponent?.username || 'your opponent';
+  const critterExpGained = battleState?.battleRewards?.crittersExpGained ?? {};
 
   const finalPlayer = loaderData?.getPlayer ?? null;
   const finalRoster = (loaderData?.getPlayer?.roster || [])
@@ -47,23 +48,22 @@ function ResultsPage() {
   return (
     <div className="min-h-screen bg-white p-4 sm:p-6 md:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
-        <ResultsHeader result={battleResult} opponentName="StormCaller" />
-        
-        {battleResult === 'victory' && finalPlayer && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-               <ProgressSummary 
-                player={finalPlayer}
-                critters={finalRoster}
-                expGained={xpGained}
-              />
-              <RewardsSummary expGained={xpGained} />
-            </div>
-            <BattleSummary turnCount={turnCount} playerDamageDealt={playerDamageDealt} duration={duration} />
-            <AchievementNotification />
-          </>
+        <ResultsHeader result={battleResult} opponentName={opponentName} />
+
+        {finalPlayer && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <ProgressSummary
+              player={finalPlayer}
+              critters={finalRoster}
+              expGained={expGained}
+              critterExpGained={critterExpGained}
+            />
+            <RewardsSummary expGained={expGained} />
+          </div>
         )}
-        
+
+        <BattleSummary turnCount={turnCount} playerDamageDealt={playerDamageDealt} duration={duration} />
+
         <ActionButtons />
       </div>
     </div>

@@ -57,7 +57,7 @@ export interface BattleStats {
 }
 
 
-export interface BattleState {
+export interface BattleData {
   battleId: string;
   activePlayerId: string;
   playerOne: PlayerState;
@@ -72,7 +72,9 @@ export interface BattleState {
   player: PlayerState;
   opponent: PlayerState;
   timeRemaining: number;
-  setBattleState: (newState: Partial<BattleState>, userId: string) => void;
-  addLogMessage: (message: string) => void;
+}
+
+export interface BattleState extends BattleData {
+  setBattleState: (newState: Partial<BattleData>, userId: string) => void;
   resetBattleState: () => void;
 }

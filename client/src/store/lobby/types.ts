@@ -12,6 +12,6 @@ export interface LobbyState {
   connectionStatus: ConnectionStatus;
   connect: () => void;
   disconnect: () => void;
-  subscribe: (topic: string, callback: (message: any) => void) => StompSubscription | undefined;
+  subscribe: <T>(topic: string, callback: (message: T) => void) => StompSubscription | undefined;
   publish: (destination: string, body: object) => void;
 }

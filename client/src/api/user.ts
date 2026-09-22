@@ -90,6 +90,7 @@ const GET_PLAYER_OVERVIEW_QUERY = gql(`
         expToNextLevel
       }
       roster {
+        id
         name
         description
         type

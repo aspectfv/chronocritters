@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import {
+  type BattleData,
   type BattleState,
   type PlayerState,
   type CritterState,
@@ -16,6 +17,16 @@ function getMappedPlayers(playerOne: PlayerState, playerTwo: PlayerState, userId
   return { player, opponent };
 }
 
+function withActiveCritter(playerState: PlayerState): PlayerState {
+  const activeCritter = playerState.roster?.[playerState.activeCritterIndex];
+
+  if (!activeCritter) {
+    return playerState;
+  }
+
+  return { ...playerState, activeCritter };
+}
+
 const defaultEmptyCritter: CritterState = {
   id: '',
   name: '',
@@ -30,10 +41,12 @@ const defaultEmptyBattlePlayer: PlayerState = {
   hasTurn: false,
   activeCritterIndex: 0,
   roster: [defaultEmptyCritter],
-  activeCritter: defaultEmptyCritter
+  activeCritter: defaultEmptyCritter,
 };
 
-const initialState: BattleState = {
+// Data only. Keeping the store's actions out of here is what lets
+// resetBattleState clear the board without also wiping the setters.
+const initialBattleData: BattleData = {
   battleId: '',
   activePlayerId: '',
   playerOne: defaultEmptyBattlePlayer,
@@ -51,53 +64,23 @@ const initialState: BattleState = {
   player: defaultEmptyBattlePlayer,
   opponent: defaultEmptyBattlePlayer,
   timeRemaining: 30,
-  setBattleState: () => {},
-  addLogMessage: () => {},
-  resetBattleState: () => {},
 };
 
 export const useBattleStore = create<BattleState>((set) => ({
-  ...initialState,
-  setBattleState: (newState, userId?) =>
+  ...initialBattleData,
+  setBattleState: (newState, userId) =>
     set((prev) => {
-      const updated: Partial<BattleState> = { ...newState };
+      const updated: Partial<BattleData> = { ...newState };
 
+      // Timer ticks arrive as a partial frame with no player data.
       if (updated.playerOne && updated.playerTwo) {
-        const { player, opponent } = getMappedPlayers(
-          updated.playerOne ?? prev.playerOne,
-          updated.playerTwo ?? prev.playerTwo,
-          userId ?? ""
-        );
+        const { player, opponent } = getMappedPlayers(updated.playerOne, updated.playerTwo, userId);
 
-        if (player.roster && typeof player.activeCritterIndex === 'number') {
-          const activeCritter = player.roster[player.activeCritterIndex];
-          if (activeCritter && activeCritter.abilities) {
-            player.activeCritter = {
-              ...activeCritter,
-              abilities: activeCritter.abilities?.map((ab) => ({
-                ...ab,
-              })),
-            };
-          }
-        }
-
-        if (opponent.roster && typeof opponent.activeCritterIndex === 'number') {
-          const activeCritter = opponent.roster[opponent.activeCritterIndex];
-          if (activeCritter && activeCritter.abilities) {
-            opponent.activeCritter = {
-              ...activeCritter,
-              abilities: activeCritter.abilities?.map((ab) => ({
-                ...ab,
-              })),
-            };
-          }
-        }
-
-        updated.player = player;
-        updated.opponent = opponent;
+        updated.player = withActiveCritter(player);
+        updated.opponent = withActiveCritter(opponent);
       }
 
       return { ...prev, ...updated };
     }),
-  resetBattleState: () => set(initialState),
+  resetBattleState: () => set(initialBattleData),
 }));

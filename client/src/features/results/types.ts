@@ -1,5 +1,5 @@
 import type { BaseStats, Critter, Player, PlayerStats } from "@/gql/graphql";
-import type { BattleState } from "@store/battle/types";
+import type { BattleRewards, BattleStats, PlayerState } from "@store/battle/types";
 
 export type Result = 'victory' | 'defeat' | null;
 
@@ -12,6 +12,7 @@ export interface ProgressSummaryProps {
   player: Player | null | undefined;
   critters: Critter[] | null | undefined;
   expGained: number;
+  critterExpGained: Record<string, number>;
 }
 
 export interface ProgressBarProps {
@@ -20,7 +21,14 @@ export interface ProgressBarProps {
   expGained: number;
 }
 
+/** The slice of the finished battle the results screen renders. */
+export interface BattleOutcomeSummary {
+  battleStats: BattleStats;
+  battleRewards?: BattleRewards;
+  opponent: PlayerState;
+}
+
 export interface LocationState {
   result: Result;
-  battleState: BattleState;
+  battleState: BattleOutcomeSummary;
 }
