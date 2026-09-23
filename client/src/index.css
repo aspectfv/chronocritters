@@ -6,10 +6,57 @@
    the browser hunt for families by those literal names and fail. */
 @theme {
   --font-sans: 'Exo 2', ui-sans-serif, system-ui, sans-serif;
+
+  /* Surfaces and ink. The app previously used 13 distinct greys and a
+     hard-coded #f0f7f3 in four files. */
+  --color-canvas: oklch(0.972 0.014 155);
+  --color-surface: oklch(1 0 0);
+  --color-surface-sunk: oklch(0.968 0.003 250);
+  --color-line: oklch(0.922 0.004 250);
+  --color-line-strong: oklch(0.868 0.007 250);
+  --color-ink: oklch(0.279 0.021 258);
+  --color-ink-muted: oklch(0.551 0.019 258);
+  --color-ink-faint: oklch(0.707 0.016 258);
+
+  /* One accent, replacing four different primary greens and three focus
+     rings. -strong is the hover step, -ring the focus indicator. */
+  --color-accent: oklch(0.527 0.134 153);
+  --color-accent-strong: oklch(0.448 0.119 153);
+  --color-accent-soft: oklch(0.962 0.031 155);
+  --color-accent-ink: oklch(0.393 0.098 153);
+  --color-accent-ring: oklch(0.527 0.134 153);
+
+  --color-danger: oklch(0.577 0.216 27);
+  --color-danger-soft: oklch(0.958 0.032 18);
+  --color-danger-ink: oklch(0.444 0.177 27);
+
+  --color-warn: oklch(0.769 0.163 70);
+  --color-warn-soft: oklch(0.973 0.056 90);
+  --color-warn-ink: oklch(0.473 0.114 62);
+
+  /* The seven critter types, saturated enough to carry information. Each is
+     paired with a glyph in utils.ts so nothing depends on hue alone. */
+  --color-type-fire: oklch(0.606 0.207 28);
+  --color-type-water: oklch(0.546 0.176 253);
+  --color-type-grass: oklch(0.567 0.158 145);
+  --color-type-electric: oklch(0.746 0.167 78);
+  --color-type-metal: oklch(0.551 0.035 250);
+  --color-type-toxic: oklch(0.526 0.204 305);
+  --color-type-kinetic: oklch(0.551 0.201 328);
+  --color-type-unknown: oklch(0.551 0.019 258);
+
+  --radius-card: 0.75rem;
+  --radius-control: 0.5rem;
+
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-raised: 0 4px 12px -2px rgb(0 0 0 / 0.1);
+  --shadow-overlay: 0 20px 40px -12px rgb(0 0 0 / 0.3);
 }
 
 body {
   font-family: var(--font-sans);
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
 }
 
 @keyframes critter-hit {

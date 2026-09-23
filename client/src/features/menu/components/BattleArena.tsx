@@ -3,6 +3,9 @@ import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MatchMakingStatus, type MatchResponse } from '@features/menu/types';
+import { Swords } from 'lucide-react';
+import { Surface } from '@components/ui/Surface';
+import { Button } from '@components/ui/Button';
 import { ConnectionStatus } from '@store/lobby/types';
 
 export function BattleArena() {
@@ -55,50 +58,47 @@ export function BattleArena() {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-      <div className="flex items-center gap-2 text-gray-700 mb-4">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v11.494m-5.747-5.747h11.494" />
-        </svg>
+    <Surface className="flex h-full flex-col">
+      <div className="mb-4 flex items-center gap-2 text-ink">
+        <Swords className="h-5 w-5" aria-hidden="true" />
         <span className="font-semibold">Battle Arena</span>
       </div>
 
-      <p className="text-gray-600 mb-6">
+      <p className="mb-6 text-ink-muted">
         Challenge other trainers in epic critter battles!
       </p>
 
+      <div className="mt-auto">
       {isSearching ? (
         <div className="space-y-3">
-          <div className="w-full bg-gray-100 text-gray-700 font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2">
-            <span className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></span>
+          <div
+            className="flex w-full items-center justify-center gap-2 rounded-control bg-surface-sunk px-4 py-3 font-semibold text-ink-muted"
+            role="status"
+            aria-live="polite"
+          >
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" aria-hidden="true"></span>
             Searching for an opponent...
           </div>
-          <button
-            onClick={handleCancelSearch}
-            className="w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-lg border border-gray-300 transition-colors"
-          >
+          <Button variant="secondary" block onClick={handleCancelSearch}>
             Cancel Search
-          </button>
+          </Button>
         </div>
       ) : (
-        <button
-          onClick={handleFindMatch}
-          disabled={!isConnected}
-          className="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-600 disabled:opacity-60 disabled:cursor-not-allowed"
-        >
+        <Button block onClick={handleFindMatch} disabled={!isConnected}>
           {isConnected ? 'Find Match' : 'Connecting to Lobby...'}
-        </button>
+        </Button>
       )}
+      </div>
 
       {error && (
-        <p className="text-center text-red-600 text-xs mt-2">{error}</p>
+        <p className="mt-2 text-center text-sm text-danger-ink" role="alert">{error}</p>
       )}
 
       {connectionStatus === ConnectionStatus.ERROR && (
-        <p className="text-center text-red-600 text-xs mt-2">
+        <p className="mt-2 text-center text-sm text-danger-ink" role="alert">
           Could not connect to the matchmaking service. Please try again later.
         </p>
       )}
-    </div>
+    </Surface>
   );
 }
