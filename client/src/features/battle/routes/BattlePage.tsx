@@ -6,11 +6,11 @@ import { useBattleStore } from '@store/battle/useBattleStore';
 import type { BattleData } from '@store/battle/types';
 
 import { BattleHeader } from '@features/battle/components/BattleHeader';
-import { TimerBar } from '@features/battle/components/TimerBar';
-import { CritterDisplayCard } from '@features/battle/components/CritterDisplayCard';
-import { TeamDisplay } from '@features/battle/components/TeamDisplay';
-import { BattleLog } from '@features/battle/components/BattleLog';
-import { AbilitySelector } from '@features/battle/components/AbilitySelector';
+import { ChronoDial } from '@features/battle/components/ChronoDial';
+import { CritterCell } from '@features/battle/components/CritterCell';
+import { TeamTrack } from '@features/battle/components/TeamTrack';
+import { BattleTextBox } from '@features/battle/components/BattleTextBox';
+import { MoveGrid } from '@features/battle/components/MoveGrid';
 import { OpponentStatusBanner } from '@features/battle/components/OpponentStatusBanner';
 import { ForcedSwitchPanel } from '@features/battle/components/ForcedSwitchPanel';
 import { playBattleSound } from '@features/battle/sound';
@@ -154,66 +154,86 @@ function BattlePage() {
   const opponentHit = lastTurnResult?.targetCritterId === opponent.activeCritter.id ? lastTurnResult : undefined;
 
   return (
-    <main className="min-h-screen bg-[#f0f7f3] p-2 sm:p-4">
-      <div className="max-w-screen-xl mx-auto relative">
+    <main className="min-h-screen bg-arena text-arena-ink">
+      {/* Battlefield: a lit stage, not a document. */}
+      <div
+        className="pointer-events-none fixed inset-0"
+        aria-hidden="true"
+        style={{
+          background:
+            'radial-gradient(120% 80% at 70% 12%, color-mix(in oklab, var(--color-arena-glass) 60%, transparent) 0%, transparent 55%),' +
+            'radial-gradient(90% 60% at 20% 95%, color-mix(in oklab, var(--color-brass) 12%, transparent) 0%, transparent 60%),' +
+            'linear-gradient(180deg, var(--color-arena) 0%, var(--color-arena-deep) 100%)',
+        }}
+      />
+
+      <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col gap-3 p-3 sm:p-5">
         <BattleHeader isPlayerTurn={player.hasTurn} onForfeit={handleForfeit} />
-        <TimerBar timeRemaining={timeRemaining} turnDuration={turnDuration} />
 
         {isOpponentReconnecting && (
-          <OpponentStatusBanner
-            opponentName={opponent.username}
-            secondsRemaining={reconnectSecondsRemaining ?? 0}
-          />
+          <OpponentStatusBanner opponentName={opponent.username} secondsRemaining={reconnectSecondsRemaining ?? 0} />
         )}
 
         {actionError && (
-          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 text-center">
+          <div role="alert" className="rounded-lg border border-danger/40 bg-danger/15 px-4 py-2 text-center text-sm text-arena-ink">
             {actionError}
           </div>
         )}
 
-        {/* On a phone the three columns stack, so they are reordered to put the
-            opponent, your critter and your moves above the fold, with the log
-            last. The desktop layout is unchanged. */}
-        {mustReplaceFaintedCritter && (
-          <ForcedSwitchPanel team={player.roster} onCritterClick={handleSwitchCritter} disabled={isActionPending} />
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-[2.5fr_3fr_2.5fr] gap-4 mt-4">
-          <div className="order-2 lg:order-1 flex flex-col gap-4">
-            <CritterDisplayCard
-              playerName={player.username}
-              critter={player.activeCritter}
-              hitTurn={playerHit?.turn}
-              hitDamage={playerHit?.damage}
-              hitEffectiveness={playerHit?.effectiveness}
-            />
-            <TeamDisplay title="Your Team" team={player.roster} activeCritterId={player.activeCritter.id} isPlayerTurn={canAct} onCritterClick={handleSwitchCritter} />
-          </div>
-
-          <div className="order-3 lg:order-2 flex flex-col-reverse lg:flex-col gap-4">
-            <BattleLog log={actionLogHistory} />
-            <AbilitySelector
-              abilities={player.activeCritter.abilities}
-              onAbilityClick={handleAbilityClick}
-              isPlayerTurn={canAct}
-              isResolving={isActionPending}
-            />
-          </div>
-
-          <div className="order-1 lg:order-3 flex flex-col gap-4">
-            <CritterDisplayCard
+        {/* The diagonal, laid out absolutely inside a fixed stage so the two
+            cells stay opposed and the dead space between them is the dial's. */}
+        <div className="relative min-h-[340px] flex-1 sm:min-h-[400px]">
+          <div className="absolute right-0 top-0 flex flex-col items-end gap-2">
+            <TeamTrack team={opponent.roster} activeCritterId={opponent.activeCritter.id} align="right" />
+            <CritterCell
               playerName={opponent.username}
               critter={opponent.activeCritter}
-              mirrored
+              side="opponent"
               hitTurn={opponentHit?.turn}
               hitDamage={opponentHit?.damage}
               hitEffectiveness={opponentHit?.effectiveness}
             />
-            <TeamDisplay title="Opponent's Team" team={opponent.roster} activeCritterId={opponent.activeCritter.id} isPlayerTurn={false} onCritterClick={() => {}} />
+          </div>
+
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <ChronoDial timeRemaining={timeRemaining} turnDuration={turnDuration} />
+          </div>
+
+          <div className="absolute bottom-0 left-0 flex flex-col items-start gap-2">
+            <CritterCell
+              playerName={player.username}
+              critter={player.activeCritter}
+              side="player"
+              showNumericHp
+              hitTurn={playerHit?.turn}
+              hitDamage={playerHit?.damage}
+              hitEffectiveness={playerHit?.effectiveness}
+            />
+            <TeamTrack
+              team={player.roster}
+              activeCritterId={player.activeCritter.id}
+              align="left"
+              canSwitch={canAct}
+              onCritterClick={handleSwitchCritter}
+            />
           </div>
         </div>
+
+        <div className="mt-auto flex flex-col gap-2">
+          <BattleTextBox log={actionLogHistory} />
+          <MoveGrid
+            abilities={player.activeCritter.abilities}
+            casterType={player.activeCritter.type}
+            onAbilityClick={handleAbilityClick}
+            isPlayerTurn={canAct}
+            isResolving={isActionPending}
+          />
+        </div>
       </div>
+
+      {mustReplaceFaintedCritter && (
+        <ForcedSwitchPanel team={player.roster} onCritterClick={handleSwitchCritter} disabled={isActionPending} />
+      )}
     </main>
   );
 }

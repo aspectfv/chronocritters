@@ -14,15 +14,32 @@ export const critterTypeIcons: Record<CritterType, string> = {
 };
 
 export const critterTypeStyles: Record<CritterType, string> = {
-  [CritterType.Fire]: 'bg-red-100 text-red-800',
-  [CritterType.Water]: 'bg-blue-100 text-blue-800',
-  [CritterType.Grass]: 'bg-green-100 text-green-800',
-  [CritterType.Electric]: 'bg-yellow-100 text-yellow-800',
-  [CritterType.Metal]: 'bg-gray-100 text-gray-800',
-  [CritterType.Toxic]: 'bg-purple-100 text-purple-800',
-  [CritterType.Kinetic]: 'bg-indigo-100 text-indigo-800',
-  [CritterType.Unknown]: 'bg-gray-100 text-gray-800',
+  [CritterType.Fire]: 'bg-type-fire/15 text-type-fire border-type-fire/35',
+  [CritterType.Water]: 'bg-type-water/15 text-type-water border-type-water/35',
+  [CritterType.Grass]: 'bg-type-grass/15 text-type-grass border-type-grass/35',
+  [CritterType.Electric]: 'bg-type-electric/20 text-type-electric border-type-electric/40',
+  [CritterType.Metal]: 'bg-type-metal/15 text-type-metal border-type-metal/35',
+  [CritterType.Toxic]: 'bg-type-toxic/15 text-type-toxic border-type-toxic/35',
+  [CritterType.Kinetic]: 'bg-type-kinetic/15 text-type-kinetic border-type-kinetic/35',
+  [CritterType.Unknown]: 'bg-type-unknown/15 text-type-unknown border-type-unknown/35',
 };
+
+/** Solid fills, for the move grid and cell rims where the type must read at a glance. */
+const critterTypeFills: Record<CritterType, string> = {
+  [CritterType.Fire]: 'bg-type-fire',
+  [CritterType.Water]: 'bg-type-water',
+  [CritterType.Grass]: 'bg-type-grass',
+  [CritterType.Electric]: 'bg-type-electric',
+  [CritterType.Metal]: 'bg-type-metal',
+  [CritterType.Toxic]: 'bg-type-toxic',
+  [CritterType.Kinetic]: 'bg-type-kinetic',
+  [CritterType.Unknown]: 'bg-type-unknown',
+};
+
+export function getCritterTypeFill(type: CritterType | null | undefined): string {
+  return critterTypeFills[type ?? CritterType.Unknown];
+}
+
 
 export function getCritterTypeIcon(type: CritterType | null | undefined): string {
   return critterTypeIcons[type ?? CritterType.Unknown];

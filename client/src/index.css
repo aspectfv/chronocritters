@@ -45,6 +45,18 @@
   --color-type-kinetic: oklch(0.551 0.201 328);
   --color-type-unknown: oklch(0.551 0.019 258);
 
+  /* The arena is a lit stage rather than a document. Brass and glass over a
+     deep patina, so the critter art's own baked-in gradient reads as the glow
+     inside a containment cell instead of a background that cannot be removed. */
+  --color-arena: oklch(0.243 0.032 235);
+  --color-arena-deep: oklch(0.187 0.028 240);
+  --color-arena-glass: oklch(0.318 0.037 232);
+  --color-brass: oklch(0.762 0.121 79);
+  --color-brass-dim: oklch(0.585 0.096 75);
+  --color-brass-ink: oklch(0.894 0.068 85);
+  --color-arena-ink: oklch(0.936 0.011 230);
+  --color-arena-ink-muted: oklch(0.714 0.025 233);
+
   --radius-card: 0.75rem;
   --radius-control: 0.5rem;
 

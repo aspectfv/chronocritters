@@ -1,4 +1,5 @@
 import type { BattleAbility, BattleEffect, CritterState } from "@store/battle/types";
+import type { CritterType } from "@/gql/graphql";
 
 export interface BattleHeaderProps {
   isPlayerTurn: boolean;
@@ -60,4 +61,36 @@ export interface BattleLoaderParams {
   params: {
     battleId?: string;
   };
+}
+
+export interface CritterCellProps {
+  playerName: string;
+  critter: CritterState;
+  side: 'player' | 'opponent';
+  showNumericHp?: boolean;
+  /** Changes whenever a fresh hit lands here, which replays the animation. */
+  hitTurn?: number;
+  hitDamage?: number;
+  hitEffectiveness?: number;
+}
+
+export interface ChronoDialProps {
+  timeRemaining: number;
+  turnDuration: number;
+}
+
+export interface MoveGridProps {
+  abilities: BattleAbility[];
+  casterType: CritterType;
+  onAbilityClick: (abilityId: string) => void;
+  isPlayerTurn: boolean;
+  isResolving: boolean;
+}
+
+export interface TeamTrackProps {
+  team: CritterState[];
+  activeCritterId: string;
+  align: 'left' | 'right';
+  canSwitch?: boolean;
+  onCritterClick?: (targetCritterIndex: number) => void;
 }

@@ -1,53 +1,53 @@
 import { Link } from 'react-router-dom';
+import { ArrowLeft, Flag } from 'lucide-react';
 import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import type { BattleHeaderProps } from '@features/battle/types';
 import { getConnectionStatusStyle } from '@utils/utils';
 import { BattleMusicControl } from '@features/battle/components/BattleMusicControl';
 
+/** A slim brass rail. The old centred 36px title ate a third of a phone screen. */
 export function BattleHeader({ isPlayerTurn, onForfeit }: BattleHeaderProps) {
   const connectionStatus = useLobbyStore((state) => state.connectionStatus);
+  const connection = getConnectionStatusStyle(connectionStatus);
 
   return (
-    <div className="relative text-center mb-6">
-      <div className="absolute left-0 top-1/2 -translate-y-1/2">
-        <Link to="/menu" className="bg-white text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back to Menu
-        </Link>
+    <div className="flex items-center gap-2 rounded-lg border border-brass/25 bg-arena-deep/60 px-2 py-1.5 backdrop-blur-sm">
+      <Link
+        to="/menu"
+        className="flex items-center gap-1.5 rounded-control px-2 py-1.5 text-sm font-semibold text-arena-ink-muted transition-colors hover:bg-arena-glass hover:text-arena-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        <span className="hidden sm:inline">Menu</span>
+      </Link>
+
+      <span className="flex items-center gap-1.5 text-xs text-arena-ink-muted" title={connection.text}>
+        <span className={`h-2 w-2 rounded-full transition-colors ${connection.color}`} aria-hidden="true" />
+        <span className="hidden md:inline">{connection.text}</span>
+      </span>
+
+      {/* Turn state is the one thing that must be unmissable, so it owns the centre. */}
+      <div className="flex flex-1 justify-center">
+        {isPlayerTurn ? (
+          <span key="yours" className="animate-turn-claim rounded-full bg-brass px-4 py-1 text-sm font-black uppercase tracking-wider text-arena-deep shadow-raised">
+            Your Turn
+          </span>
+        ) : (
+          <span key="theirs" className="animate-turn-claim rounded-full border border-brass/25 px-4 py-1 text-sm font-semibold text-arena-ink-muted">
+            Opponent&rsquo;s turn
+          </span>
+        )}
       </div>
 
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-3">
-        <BattleMusicControl />
-        <button
-          onClick={onForfeit}
-          className="bg-white text-red-600 font-semibold py-2 px-4 rounded-lg shadow-sm border border-red-200 hover:bg-red-50 transition-colors"
-        >
-          Forfeit
-        </button>
-      </div>
+      <BattleMusicControl />
 
-      <div>
-        <div className="flex items-center justify-center gap-2 text-sm text-green-700 mb-2">
-          <span className={`w-2.5 h-2.5 rounded-full ${getConnectionStatusStyle(connectionStatus).color}`}></span>
-          {getConnectionStatusStyle(connectionStatus).text}
-        </div>
-        <h1 className="text-4xl font-bold text-green-800">Battle Arena</h1>
-        <div className="h-10 mt-4 flex items-center justify-center">
-          {/* Keyed so React remounts the pill and the claim animation replays
-              every time control changes hands. */}
-          {isPlayerTurn ? (
-            <div key="yours" className="animate-turn-claim inline-block bg-green-700 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md">
-              Your Turn
-            </div>
-          ) : (
-            <div key="theirs" className="animate-turn-claim inline-block bg-gray-200 text-gray-600 text-sm font-semibold px-4 py-2 rounded-full">
-              Waiting for opponent...
-            </div>
-          )}
-        </div>
-      </div>
+      <button
+        type="button"
+        onClick={onForfeit}
+        className="flex items-center gap-1.5 rounded-control px-2 py-1.5 text-sm font-semibold text-danger transition-colors hover:bg-danger/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
+      >
+        <Flag className="h-4 w-4" aria-hidden="true" />
+        <span className="hidden sm:inline">Forfeit</span>
+      </button>
     </div>
   );
 }
