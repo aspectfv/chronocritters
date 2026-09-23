@@ -7,8 +7,8 @@ import { ProgressSummary } from '@features/results/components/ProgressSummary';
 import { RewardsSummary } from '@features/results/components/RewardsSummary';
 import { BattleSummary } from '@features/results/components/BattleSummary';
 import { ActionButtons } from '@features/results/components/ActionButtons';
-import type { LocationState, Result } from '@features/results/types';
-import type { Critter, GetPlayerResultsQuery } from '@/gql/graphql';
+import type { LocationState, Result, ResultsLoaderData } from '@features/results/types';
+import type { Critter } from '@/gql/graphql';
 import { useAuthStore } from '@store/auth/useAuthStore';
 
 function ResultsPage() {
@@ -16,20 +16,25 @@ function ResultsPage() {
   const user = useAuthStore((store) => store.user);
   const navigate = useNavigate();
   const { resetBattleState } = useBattleStore();
-  const loaderData = useLoaderData() as GetPlayerResultsQuery;
+  const { playerResults, matchHistoryEntry } = useLoaderData() as ResultsLoaderData;
 
   const state = locationData.state as LocationState | undefined;
-  const battleResult = state?.result as Result;
   const battleState = state?.battleState;
+
+  // Arriving straight from the battle carries the richer payload in router
+  // state; a reload has only the recorded match to go on.
+  const recordedResult: Result = matchHistoryEntry ? (matchHistoryEntry.winnerId === user?.id ? 'victory' : 'defeat') : null;
+  const battleResult: Result = state?.result ?? recordedResult;
+
   const expGained = battleState?.battleRewards?.playersExpGained?.[user?.id || ''] || 0;
-  const playerDamageDealt = battleState?.battleStats?.playersDamageDealt?.[user?.id || ''] || 0;
-  const turnCount = battleState?.battleStats?.turnCount || 0;
-  const duration = battleState?.battleStats?.duration || 0;
-  const opponentName = battleState?.opponent?.username || 'your opponent';
+  const playerDamageDealt = battleState?.battleStats?.playersDamageDealt?.[user?.id || ''] ?? matchHistoryEntry?.damageDealt ?? 0;
+  const turnCount = battleState?.battleStats?.turnCount ?? matchHistoryEntry?.turnCount ?? 0;
+  const duration = battleState?.battleStats?.duration ?? matchHistoryEntry?.duration ?? 0;
+  const opponentName = battleState?.opponent?.username ?? matchHistoryEntry?.opponentUsername ?? 'your opponent';
   const critterExpGained = battleState?.battleRewards?.crittersExpGained ?? {};
 
-  const finalPlayer = loaderData?.getPlayer ?? null;
-  const finalRoster = (loaderData?.getPlayer?.roster || [])
+  const finalPlayer = playerResults?.getPlayer ?? null;
+  const finalRoster = (playerResults?.getPlayer?.roster || [])
     .filter((c): c is Critter => c !== null && typeof c.name === 'string');
 
   useEffect(() => {

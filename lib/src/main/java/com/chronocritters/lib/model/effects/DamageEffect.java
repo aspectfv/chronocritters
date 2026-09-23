@@ -5,6 +5,7 @@ import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.battle.PlayerState;
+import com.chronocritters.lib.model.battle.TurnResult;
 import com.chronocritters.lib.model.domain.Ability;
 import com.chronocritters.lib.model.domain.Effect;
 import com.chronocritters.lib.model.domain.TurnActionEntry;
@@ -73,5 +74,13 @@ public class DamageEffect extends Effect implements IInstantEffect {
         }
 
         battleState.getActionLogHistory().add(actionLog);
+
+        battleState.setLastTurnResult(TurnResult.builder()
+                .turn(battleStats.getTurnCount())
+                .casterCritterId(caster.getId())
+                .targetCritterId(target.getId())
+                .damage(finalDamage)
+                .effectiveness(typeMultiplier)
+                .build());
     }
 }

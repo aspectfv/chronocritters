@@ -5,7 +5,7 @@
 
 	# These endpoints are only ever called service-to-service over the internal
 	# Docker network, so they should not be reachable from the internet.
-	@internal path_regexp ^/battle/[^/]+/(timeout|update|forfeit)$
+	@internal path_regexp ^/battle/([^/]+/(timeout|update|forfeit)|active)$
 	handle @internal {
 		respond 404
 	}

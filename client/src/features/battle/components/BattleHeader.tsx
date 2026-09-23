@@ -35,12 +35,14 @@ export function BattleHeader({ isPlayerTurn, onForfeit }: BattleHeaderProps) {
         </div>
         <h1 className="text-4xl font-bold text-green-800">Battle Arena</h1>
         <div className="h-10 mt-4 flex items-center justify-center">
+          {/* Keyed so React remounts the pill and the claim animation replays
+              every time control changes hands. */}
           {isPlayerTurn ? (
-            <div className="inline-block bg-green-700 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md">
+            <div key="yours" className="animate-turn-claim inline-block bg-green-700 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md">
               Your Turn
             </div>
           ) : (
-            <div className="inline-block bg-gray-200 text-gray-600 text-sm font-semibold px-4 py-2 rounded-full">
+            <div key="theirs" className="animate-turn-claim inline-block bg-gray-200 text-gray-600 text-sm font-semibold px-4 py-2 rounded-full">
               Waiting for opponent...
             </div>
           )}

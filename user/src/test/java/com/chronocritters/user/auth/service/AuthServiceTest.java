@@ -45,7 +45,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(playerRepository, starterRosterService);
+        authService = new AuthService(playerRepository, starterRosterService, new AuthAttemptLimiter());
     }
 
     private List<Critter> starterRoster() {

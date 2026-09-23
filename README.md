@@ -69,11 +69,14 @@ The project utilizes a diverse and modern technology stack:
 - **Real-time Matchmaking**: Players are placed in a queue and automatically matched
   with an opponent, and can cancel a search at any time.
 - **Turn-Based Battle System**: A dynamic battle arena with abilities, type advantages,
-  status effects, and a per-turn timer.
+  status effects, and a per-turn timer. Losing a critter lets you choose its
+  replacement, and the choice costs no turn.
 - **Live Battle Updates**: Real-time synchronization of battle state between players
-  using WebSockets.
-- **Forfeit and Disconnect Handling**: A player can concede, and closing the tab
-  mid-battle awards the win to their opponent instead of stalling the match.
+  using WebSockets, with animated damage, visible status effects and readable
+  type-effectiveness feedback.
+- **Forfeit and Disconnect Handling**: A player can concede. Dropping out starts a
+  countdown that reconnecting cancels, so a refresh does not lose the battle. Missing
+  three turns in a row concedes, so an abandoned match cannot stall forever.
 - **Player Profiles**: View battle statistics, match history, and manage your collection
   of Critters.
 - **Data Persistence**: All user, critter, and match data is stored in a MongoDB database.

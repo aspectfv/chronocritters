@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
@@ -56,6 +57,19 @@ public class GameLogicWebClient {
                 .bodyToMono(BattleState.class)
                 .retryWhen(defaultRetrySpec)
                 .doOnError(error -> logger.warn("Could not create battle for battleId '{}'. Reason: {}", battleId, error.getMessage()));
+    }
+
+    /** The battles gamelogic is still waiting on, so a restarted lobby can re-arm their clocks. */
+    public Flux<BattleState> activeBattles() {
+        return webClient.get()
+                .uri("/battle/active")
+                .retrieve()
+                .bodyToFlux(BattleState.class)
+                .retryWhen(defaultRetrySpec)
+                .onErrorResume(error -> {
+                    logger.warn("Could not list the battles in progress. Their turn timers stay unset. Reason: {}", error.getMessage());
+                    return Flux.empty();
+                });
     }
 
     public Mono<Void> handleTurnTimeout(String battleId) {

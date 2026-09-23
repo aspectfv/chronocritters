@@ -15,12 +15,27 @@ import lombok.Builder.Default;
 @AllArgsConstructor
 @Builder
 public class BattleState {
+    /** How long a player is given to act, in seconds. */
+    public static final int TURN_DURATION_SECONDS = 30;
+
     private String battleId;
     private String activePlayerId;
     private PlayerState playerOne;
     private PlayerState playerTwo;
     private List<String> actionLogHistory;
     private int timeRemaining;
+
+    /** Sent so the client's timer bar does not have to hardcode the same number. */
+    @Default
+    private int turnDuration = TURN_DURATION_SECONDS;
+
+    private TurnResult lastTurnResult;
+
+    /**
+     * Set to the player who has lost their active critter and owes a
+     * replacement. They choose it themselves, and the choice is free.
+     */
+    private String awaitingSwitchPlayerId;
 
     private BattleStats battleStats;
 

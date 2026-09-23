@@ -19,6 +19,9 @@ public class PlayerState {
     private List<CritterState> roster;
     private String lastSelectedAbilityId;
 
+    /** Reset whenever this player acts; see BattleService for the forfeit threshold. */
+    private int consecutiveTimeouts;
+
     public CritterState getActiveCritter() {
         return getCritterByIndex(activeCritterIndex);
     }

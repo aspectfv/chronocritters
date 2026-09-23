@@ -1,40 +1,45 @@
 package com.chronocritters.gamelogic.service;
 
 import com.chronocritters.gamelogic.event.CritterFaintedEvent;
+import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.battle.PlayerState;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.util.stream.IntStream;
-
+/**
+ * Losing your active critter used to send out whichever replacement happened to
+ * sit first in the roster, which threw away the one decision the type chart
+ * makes interesting. The owner is asked instead, and the choice costs no turn.
+ */
 @Service
 public class FaintingService {
 
     @EventListener
     public void onCritterFainted(CritterFaintedEvent event) {
-        PlayerState faintedCritterOwner = event.getOwner();
+        BattleState battleState = event.getBattleState();
+        PlayerState owner = event.getOwner();
         CritterState faintedCritter = event.getFaintedCritter();
 
-        String faintLog = String.format("%s fainted!", faintedCritter.getName());
-        event.getBattleState().getActionLogHistory().add(faintLog);
+        battleState.getActionLogHistory().add(String.format("%s fainted!", faintedCritter.getName()));
 
-        boolean isActiveCritterFainted = faintedCritter.getId().equals(faintedCritterOwner.getActiveCritter().getId());
-        boolean hasOtherCritters = faintedCritterOwner.getRoster().stream().anyMatch(c -> c.getStats().getCurrentHp() > 0);
+        boolean isActiveCritterFainted = faintedCritter.getId().equals(owner.getActiveCritter().getId());
+        boolean hasOtherCritters = owner.getRoster().stream().anyMatch(critter -> critter.getStats().getCurrentHp() > 0);
 
         if (isActiveCritterFainted && hasOtherCritters) {
-            int nextCritterIndex = IntStream.range(0, faintedCritterOwner.getRoster().size())
-                .filter(i -> faintedCritterOwner.getCritterByIndex(i).getStats().getCurrentHp() > 0)
-                .findFirst()
-                .orElse(-1);
+            battleState.setAwaitingSwitchPlayerId(owner.getId());
+            battleState.getActionLogHistory().add(String.format("%s must send out another critter!", owner.getUsername()));
+        }
+    }
 
-            if (nextCritterIndex != -1) {
-                faintedCritterOwner.setActiveCritterIndex(nextCritterIndex);
-                CritterState replacement = faintedCritterOwner.getActiveCritter();
-                String switchLog = String.format("%s's %s is sent out!", faintedCritterOwner.getUsername(), replacement.getName());
-                event.getBattleState().getActionLogHistory().add(switchLog);
+    /** Used when a player lets the clock run out on their replacement choice. */
+    public static int firstLivingCritterIndex(PlayerState player) {
+        for (int index = 0; index < player.getRoster().size(); index++) {
+            if (player.getCritterByIndex(index).getStats().getCurrentHp() > 0) {
+                return index;
             }
         }
+        return -1;
     }
 }

@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class TurnTransitionHandler extends AbstractTurnActionHandler {
-    private static final int TURN_DURATION_SECONDS = 30;
 
     /**
      * A stunned player loses their turn, but with both actives stunned there is
@@ -27,7 +26,7 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
             if (!isStunned(battleState.getPlayer())) break;
         }
 
-        battleState.setTimeRemaining(TURN_DURATION_SECONDS);
+        battleState.setTimeRemaining(battleState.getTurnDuration());
     }
 
     private boolean advanceTurn(BattleState battleState) {

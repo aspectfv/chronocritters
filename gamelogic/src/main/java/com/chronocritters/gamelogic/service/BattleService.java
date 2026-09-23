@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.chronocritters.gamelogic.client.LobbyWebClient;
+import com.chronocritters.gamelogic.exception.BattleNotFoundException;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
 import com.chronocritters.gamelogic.handler.ExecuteAbilityHandler;
 import com.chronocritters.gamelogic.handler.FaintingHandler;
@@ -23,7 +24,6 @@ import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
 import com.chronocritters.lib.interfaces.handler.ITurnActionHandler;
 import com.chronocritters.lib.mapper.BattleRewardsMapper;
 import com.chronocritters.lib.mapper.PlayerMapper;
-import com.chronocritters.lib.model.battle.BattleRewards;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.lib.model.battle.CritterState;
@@ -46,11 +46,25 @@ public class BattleService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final int TURN_DURATION_SECONDS = 30;
     private static final int CLEANUP_DELAY_SECONDS = 60;
+
+    /**
+     * Passing the turn on a timeout forever means two idle clients hold a battle
+     * and a timer thread indefinitely, so a player who misses this many turns in
+     * a row concedes.
+     */
+    private static final int MAX_CONSECUTIVE_TIMEOUTS = 3;
 
     public BattleState getBattleState(String battleId) {
         return activeBattles.get(battleId);
+    }
+
+    /** The battles still waiting on someone to move, so a restarted lobby can re-arm their timers. */
+    public List<BattleState> getBattlesAwaitingATurn() {
+        return activeBattles.values().stream()
+                .filter(battle -> battle.getBattleOutcome() == BattleOutcome.CONTINUE)
+                .filter(battle -> battle.getActivePlayerId() != null)
+                .toList();
     }
 
     /** Battle state is only readable by the two players taking part in it. */
@@ -90,7 +104,7 @@ public class BattleService {
                 .playerOne(playerOne)
                 .playerTwo(playerTwo)
                 .actionLogHistory(logHistory)
-                .timeRemaining(TURN_DURATION_SECONDS)
+                .timeRemaining(BattleState.TURN_DURATION_SECONDS)
                 .battleStats(battleStats)
                 .build();
 
@@ -100,6 +114,13 @@ public class BattleService {
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
         BattleState currentBattle = requireActiveTurn(battleId, playerId);
+
+        if (playerId.equals(currentBattle.getAwaitingSwitchPlayerId())) {
+            throw new IllegalStateException("Send out a replacement critter first");
+        }
+
+        currentBattle.setLastTurnResult(null);
+        currentBattle.getPlayer().setConsecutiveTimeouts(0);
 
         ITurnActionHandler turnChain = new ExecuteAbilityHandler(abilityId);
         turnChain
@@ -114,22 +135,29 @@ public class BattleService {
         return currentBattle;
     }
 
+    /**
+     * A switch normally costs the turn. Replacing a critter that just fainted is
+     * free, and is allowed whether or not the clock is on this player.
+     */
     public BattleState switchCritter(String battleId, String playerId, int targetCritterIndex) {
-        BattleState currentBattle = requireActiveTurn(battleId, playerId);
+        BattleState currentBattle = requireBattle(battleId);
+        boolean isReplacingAFaintedCritter = playerId.equals(currentBattle.getAwaitingSwitchPlayerId());
 
-        PlayerState player = currentBattle.getPlayer();
+        if (!isReplacingAFaintedCritter) {
+            requireActiveTurn(battleId, playerId);
+        }
 
-        if (targetCritterIndex < 0 || targetCritterIndex >= player.getRoster().size()) throw new IllegalArgumentException("Invalid critter index");
-        if (targetCritterIndex == player.getActiveCritterIndex()) throw new IllegalArgumentException("Cannot switch to the currently active critter");
-        
-        CritterState targetCritter = player.getCritterByIndex(targetCritterIndex);
-        if (targetCritter.getStats().getCurrentHp() <= 0) throw new IllegalArgumentException("Cannot switch to a fainted critter");
+        PlayerState player = currentBattle.getPlayerById(playerId);
+        currentBattle.setLastTurnResult(null);
+        player.setConsecutiveTimeouts(0);
 
-        String switchLog = String.format("%s switched from %s to %s", player.getUsername(),
-                player.getActiveCritter().getName(), targetCritter.getName());
-        currentBattle.getActionLogHistory().add(switchLog);
-        
-        player.setActiveCritterIndex(targetCritterIndex);
+        sendOut(currentBattle, player, targetCritterIndex);
+
+        if (isReplacingAFaintedCritter) {
+            currentBattle.setAwaitingSwitchPlayerId(null);
+            finalizeTurn(currentBattle);
+            return currentBattle;
+        }
 
         ITurnActionHandler turnChain = new TurnEffectsHandler();
         turnChain
@@ -141,6 +169,19 @@ public class BattleService {
         finalizeTurn(currentBattle);
         return currentBattle;
     }
+
+    private void sendOut(BattleState battleState, PlayerState player, int targetCritterIndex) {
+        if (targetCritterIndex < 0 || targetCritterIndex >= player.getRoster().size()) throw new IllegalArgumentException("Invalid critter index");
+        if (targetCritterIndex == player.getActiveCritterIndex()) throw new IllegalArgumentException("Cannot switch to the currently active critter");
+
+        CritterState targetCritter = player.getCritterByIndex(targetCritterIndex);
+        if (targetCritter.getStats().getCurrentHp() <= 0) throw new IllegalArgumentException("Cannot switch to a fainted critter");
+
+        battleState.getActionLogHistory().add(String.format("%s switched from %s to %s", player.getUsername(),
+                player.getActiveCritter().getName(), targetCritter.getName()));
+
+        player.setActiveCritterIndex(targetCritterIndex);
+    }
     
     public void handleTurnTimeout(String battleId) {
         BattleState currentBattle = requireBattle(battleId);
@@ -149,8 +190,25 @@ public class BattleService {
             return;
         }
 
-        String timeoutLog = String.format("%s ran out of time!", currentBattle.getPlayer().getUsername());
-        currentBattle.getActionLogHistory().add(timeoutLog);
+        currentBattle.setLastTurnResult(null);
+
+        String owedBy = currentBattle.getAwaitingSwitchPlayerId();
+        if (owedBy != null) {
+            sendOutFirstLivingCritter(currentBattle, currentBattle.getPlayerById(owedBy));
+            return;
+        }
+
+        PlayerState idlePlayer = currentBattle.getPlayer();
+        idlePlayer.setConsecutiveTimeouts(idlePlayer.getConsecutiveTimeouts() + 1);
+
+        currentBattle.getActionLogHistory().add(String.format("%s ran out of time!", idlePlayer.getUsername()));
+
+        if (idlePlayer.getConsecutiveTimeouts() >= MAX_CONSECUTIVE_TIMEOUTS) {
+            currentBattle.getActionLogHistory().add(
+                String.format("%s missed %d turns in a row and concedes.", idlePlayer.getUsername(), MAX_CONSECUTIVE_TIMEOUTS));
+            forfeit(battleId, idlePlayer.getId());
+            return;
+        }
 
         ITurnActionHandler turnChain = new TurnEffectsHandler();
         turnChain
@@ -186,9 +244,26 @@ public class BattleService {
         finalizeTurn(currentBattle);
     }
 
+    /** The clock ran out on a replacement choice, so the roster order decides it. */
+    private void sendOutFirstLivingCritter(BattleState battleState, PlayerState player) {
+        int replacementIndex = FaintingService.firstLivingCritterIndex(player);
+        battleState.setAwaitingSwitchPlayerId(null);
+
+        if (replacementIndex < 0) {
+            finalizeTurn(battleState);
+            return;
+        }
+
+        battleState.getActionLogHistory().add(String.format("%s took too long, so %s is sent out.",
+                player.getUsername(), player.getCritterByIndex(replacementIndex).getName()));
+        player.setActiveCritterIndex(replacementIndex);
+
+        finalizeTurn(battleState);
+    }
+
     private BattleState requireBattle(String battleId) {
         BattleState battleState = getBattleState(battleId);
-        if (battleState == null) throw new IllegalArgumentException("Invalid battle ID");
+        if (battleState == null) throw new BattleNotFoundException(battleId);
         return battleState;
     }
 
@@ -228,19 +303,25 @@ public class BattleService {
 
     private void applyWinLoss(BattleState battleState, PlayerState winner, PlayerState loser) {
         battleState.setActivePlayerId(null);
-        playerGrpcClient.updateMatchHistory(
-            battleState.getBattleId(), winner.getId(), loser.getId(), 
-            battleState.getBattleStats(), 
-            winner.getRoster().stream().map(CritterState::getId).toList(), 
-            loser.getRoster().stream().map(CritterState::getId).toList()
-        );
 
-        BattleRewards rewards = BattleRewardsMapper.toModel(playerGrpcClient.getBattleRewards(
-            winner.getId(), loser.getId(), 
-            winner.getRoster().stream().map(CritterState::getId).toList(),
-            loser.getRoster().stream().map(CritterState::getId).toList()
-        ));
-        battleState.setBattleRewards(rewards);
+        List<String> winnerRoster = winner.getRoster().stream().map(CritterState::getId).toList();
+        List<String> loserRoster = loser.getRoster().stream().map(CritterState::getId).toList();
+
+        // Rewards are best-effort. The battle is already decided, so a user
+        // service that is down must cost the players their experience, not leave
+        // both of them staring at a board that never reaches its end state.
+        try {
+            playerGrpcClient.updateMatchHistory(
+                battleState.getBattleId(), winner.getId(), loser.getId(),
+                battleState.getBattleStats(), winnerRoster, loserRoster
+            );
+
+            battleState.setBattleRewards(BattleRewardsMapper.toModel(
+                playerGrpcClient.getBattleRewards(winner.getId(), loser.getId(), winnerRoster, loserRoster)
+            ));
+        } catch (RuntimeException e) {
+            logger.error("Could not record the result of battle {}: {}", battleState.getBattleId(), e.getMessage(), e);
+        }
 
         cleanupScheduler.schedule(() -> {
             BattleState removed = activeBattles.remove(battleState.getBattleId());

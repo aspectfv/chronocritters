@@ -33,6 +33,8 @@ const defaultEmptyCritter: CritterState = {
   type: CritterType.Unknown,
   stats: { maxHp: 100, currentHp: 100, currentAtk: 0, currentDef: 0 },
   abilities: [],
+  activeStatusEffects: [],
+  fainted: false,
 };
 
 const defaultEmptyBattlePlayer: PlayerState = {
@@ -60,6 +62,11 @@ const initialBattleData: BattleData = {
     turnActionHistory: [],
   },
   battleOutcome: BattleOutcome.CONTINUE,
+  turnDuration: 30,
+  lastTurnResult: null,
+  awaitingSwitchPlayerId: null,
+  disconnectedPlayerId: null,
+  reconnectSecondsRemaining: 0,
 
   player: defaultEmptyBattlePlayer,
   opponent: defaultEmptyBattlePlayer,

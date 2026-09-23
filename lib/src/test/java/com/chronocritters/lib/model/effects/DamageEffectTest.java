@@ -83,6 +83,21 @@ class DamageEffectTest {
     }
 
     @Test
+    @DisplayName("publishes the hit as numbers so the client can animate it")
+    void publishesTheHitAsNumbers() {
+        BattleState battleState = battleWith(CritterType.WATER, 2, CritterType.FIRE, 20, 2, 4);
+
+        effectOf(battleState).apply(battleState);
+
+        assertThat(battleState.getLastTurnResult()).satisfies(result -> {
+            assertThat(result.getCasterCritterId()).isEqualTo("attacker");
+            assertThat(result.getTargetCritterId()).isEqualTo("defender");
+            assertThat(result.getDamage()).isEqualTo(6);
+            assertThat(result.getEffectiveness()).isEqualTo(1.5);
+        });
+    }
+
+    @Test
     @DisplayName("never drives health below zero")
     void clampsHealthAtZero() {
         BattleState battleState = battleWith(CritterType.FIRE, 6, CritterType.FIRE, 3, 2, 10);
