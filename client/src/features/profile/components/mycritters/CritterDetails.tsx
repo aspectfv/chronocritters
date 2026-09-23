@@ -4,12 +4,12 @@ import { getCritterImageUrl, getCritterTypeStyle, getEffectStyle } from '@utils/
 export const CritterDetails = ({ critter }: { critter: CritterData | null }) => {
   if (!critter) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full flex flex-col items-center justify-center text-center">
-        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
+      <div className="bg-surface rounded-xl shadow-sm border border-line p-6 h-full flex flex-col items-center justify-center text-center">
+        <div className="w-24 h-24 bg-surface-sunk rounded-full flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-ink-faint" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
         </div>
-        <h3 className="font-semibold text-gray-800 text-xl">Select a Critter</h3>
-        <p className="text-gray-500">Select a critter from the list to view its details.</p>
+        <h3 className="font-semibold text-ink text-xl">Select a Critter</h3>
+        <p className="text-ink-muted">Select a critter from the list to view its details.</p>
       </div>
     );
   }
@@ -17,8 +17,8 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
   const xpPercentage = Math.min(100, ((critter.baseStats?.experience ?? 0) / (critter.baseStats?.expToNextLevel ?? 1)) * 100);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
-      <h3 className="font-semibold text-lg text-gray-800 mb-6">{critter.name} Details</h3>
+    <div className="bg-surface rounded-xl shadow-sm border border-line p-6 h-full">
+      <h3 className="font-semibold text-lg text-ink mb-6">{critter.name} Details</h3>
       
       <div className="text-center mb-6">
         <div className="mx-auto flex items-center justify-center mb-4 w-28 h-28">
@@ -32,43 +32,43 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
             }}
           />
         </div>
-        <h3 className="font-bold text-2xl text-gray-800">{critter.name}</h3>
+        <h3 className="font-bold text-2xl text-ink">{critter.name}</h3>
         <span className={`${getCritterTypeStyle(critter.type)} text-xs font-semibold px-3 py-1 rounded-full`}>{critter.type}</span>
         {critter.description && (
-          <p className="mt-2 text-gray-600 text-sm">{critter.description}</p>
+          <p className="mt-2 text-ink-muted text-sm">{critter.description}</p>
         )}
       </div>
 
       <div className="mb-8">
         <div className="flex justify-between text-sm mb-1">
-          <span className="font-semibold text-gray-700">Level {critter.baseStats?.level ?? 1}</span>
-          <span className="text-gray-500">{critter.baseStats?.experience ?? 0} / {critter.baseStats?.expToNextLevel ?? 0} XP</span>
+          <span className="font-semibold text-ink">Level {critter.baseStats?.level ?? 1}</span>
+          <span className="text-ink-muted">{critter.baseStats?.experience ?? 0} / {critter.baseStats?.expToNextLevel ?? 0} XP</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div className="bg-green-600 h-2 rounded-full" style={{width: `${xpPercentage}%`}}></div>
-        </div>
-      </div>
-
-      <h4 className="font-semibold text-gray-800 mb-4">Base Stats</h4>
-      <div className="grid grid-cols-3 gap-3 mb-8">
-        <div className="bg-blue-50/60 p-3 rounded-lg flex items-center gap-2 font-medium text-gray-700">
-          <span className="text-red-500">♡</span> HP: {critter.baseStats?.health ?? 0}
-        </div>
-        <div className="bg-blue-50/60 p-3 rounded-lg flex items-center gap-2 font-medium text-gray-700">
-          <span className="text-orange-500">⚔</span> ATK: {critter.baseStats?.attack ?? 0}
-        </div>
-        <div className="bg-blue-50/60 p-3 rounded-lg flex items-center gap-2 font-medium text-gray-700">
-          <span className="text-blue-500">🛡</span> DEF: {critter.baseStats?.defense ?? 0}
+        <div className="w-full bg-line rounded-full h-2">
+          <div className="bg-accent h-2 rounded-full" style={{width: `${xpPercentage}%`}}></div>
         </div>
       </div>
 
-      <h4 className="font-semibold text-gray-800 mb-4">Abilities</h4>
+      <h4 className="font-semibold text-ink mb-4">Base Stats</h4>
+      <div className="mb-8 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+        <div className="bg-surface-sunk p-3 rounded-lg flex items-center gap-2 font-medium text-ink">
+          <span className="text-danger">♡</span> HP: {critter.baseStats?.health ?? 0}
+        </div>
+        <div className="bg-surface-sunk p-3 rounded-lg flex items-center gap-2 font-medium text-ink">
+          <span className="text-warn">⚔</span> ATK: {critter.baseStats?.attack ?? 0}
+        </div>
+        <div className="bg-surface-sunk p-3 rounded-lg flex items-center gap-2 font-medium text-ink">
+          <span className="text-type-water">🛡</span> DEF: {critter.baseStats?.defense ?? 0}
+        </div>
+      </div>
+
+      <h4 className="font-semibold text-ink mb-4">Abilities</h4>
       <div className="space-y-3">
         {critter.abilities?.map(ability => (
-          <div key={ability?.id} className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-            <p className="font-semibold text-gray-700">{ability?.name}</p>
+          <div key={ability?.id} className="p-3 rounded-lg bg-surface-sunk border border-line">
+            <p className="font-semibold text-ink">{ability?.name}</p>
             {ability?.description && (
-              <p className="text-sm text-gray-600 mt-1">{ability.description}</p>
+              <p className="text-sm text-ink-muted mt-1">{ability.description}</p>
             )}
             <div className="flex flex-wrap gap-2 mt-2">
               {ability?.effects?.map((effect, index) => (

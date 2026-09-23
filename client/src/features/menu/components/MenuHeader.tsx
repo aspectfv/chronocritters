@@ -9,10 +9,10 @@ export function MenuHeader() {
 
   return (
     <div className="text-center mb-8">
-      <h1 className="text-4xl font-bold text-green-800 mb-4">Chrono Critters</h1>
-      <div className="flex items-center justify-center gap-4 text-gray-700">
+      <h1 className="text-4xl font-bold text-accent-ink mb-4">Chrono Critters</h1>
+      <div className="flex items-center justify-center gap-4 text-ink">
         <div className="flex items-center gap-2">
-          <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <svg className="h-5 w-5 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
           <span className="text-sm font-medium">{displayName}</span>

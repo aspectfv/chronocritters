@@ -17,11 +17,11 @@ function MenuPage() {
   const notice = notices[searchParams.get('notice') ?? ''];
 
   return (
-    <main className="min-h-screen bg-[#f0f7f3]">
+    <main className="min-h-screen bg-canvas">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <MenuHeader />
         {notice && (
-          <div role="status" className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div role="status" className="mb-6 rounded-lg border border-warn/35 bg-warn-soft px-4 py-3 text-sm text-warn-ink">
             {notice}
           </div>
         )}

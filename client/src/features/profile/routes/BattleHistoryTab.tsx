@@ -9,11 +9,11 @@ export function BattleHistoryTab() {
   const battleHistory = loaderData?.getPlayer?.matchHistory || [];
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 className="font-semibold text-green-800 mb-4">Recent Battle History</h3>
+    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+      <h3 className="font-semibold text-accent-ink mb-4">Recent Battle History</h3>
       <div className="space-y-3">
         {battleHistory.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+          <div className="flex flex-col items-center justify-center py-12 text-ink-faint">
             <svg className="w-14 h-14 mb-4" viewBox="0 0 64 64" fill="none" aria-hidden="true">
               <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="4" fill="none" />
               <path d="M20 44c0-6 8-10 12-10s12 4 12 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
@@ -28,18 +28,18 @@ export function BattleHistoryTab() {
           battleHistory.map((item, index) => {
             const result = (item?.winnerId ?? '') === (user?.id ?? '') ? 'Victory' : 'Defeat';
             return item ? (
-              <Link to={`/profile/history/${item.battleId}`} key={index} className="block p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors">
+              <Link to={`/profile/history/${item.battleId}`} key={index} className="block p-4 rounded-lg border border-line bg-surface-sunk hover:bg-surface-sunk transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${result === 'Victory' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${result === 'Victory' ? 'bg-accent-soft text-accent-ink' : 'bg-danger-soft text-danger-ink'}`}>
                       {result}
                     </span>
                     <div>
-                      <p className="font-bold text-gray-800">vs {item.opponentUsername}</p>
-                      <p className="text-sm text-gray-500">Used: {item.usedCrittersNames?.join(', ') ?? 'None'}</p>
+                      <p className="font-bold text-ink">vs {item.opponentUsername}</p>
+                      <p className="text-sm text-ink-muted">Used: {item.usedCrittersNames?.join(', ') ?? 'None'}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-500">{formatTimestamp(item.timestamp)}</p>
+                  <p className="text-sm text-ink-muted">{formatTimestamp(item.timestamp)}</p>
                 </div>
               </Link>
             ) : null

@@ -1,18 +1,18 @@
-export const RewardsSummary = ({ expGained }: { expGained: number }) => {
-  return (
-    <div className="bg-green-50 border border-green-200 rounded-lg p-6 h-full">
-      <h3 className="font-semibold text-green-800 mb-4 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        Battle Rewards
-      </h3>
-      <div className="space-y-3">
-        <div className="flex justify-between items-center bg-white p-3 rounded-lg">
-          <span className="font-medium text-gray-700 text-sm">Experience</span>
-          <span className="font-bold text-green-600">+{expGained}</span>
-        </div>
-      </div>
+import { Sparkles } from 'lucide-react';
+import { Surface } from '@components/ui/Surface';
+import { CountUp } from '@components/ui/CountUp';
+
+export const RewardsSummary = ({ expGained }: { expGained: number }) => (
+  <Surface tone="accent" className="flex h-full flex-col">
+    <h2 className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-accent-ink">
+      <Sparkles className="h-4 w-4" aria-hidden="true" />
+      Rewards
+    </h2>
+    <div className="flex flex-1 flex-col items-center justify-center rounded-control bg-surface px-4 py-6 text-center">
+      <p className="text-4xl font-black tabular-nums text-accent-ink">
+        +<CountUp to={expGained} delayMs={300} />
+      </p>
+      <p className="mt-1 text-sm text-ink-muted">Experience earned</p>
     </div>
-  );
-};
+  </Surface>
+);

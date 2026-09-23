@@ -1,7 +1,7 @@
 import { useAuthStore } from '@store/auth/useAuthStore';
 import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MatchMakingStatus, type MatchResponse } from '@features/menu/types';
 import { Swords } from 'lucide-react';
 import { Surface } from '@components/ui/Surface';
@@ -12,6 +12,7 @@ export function BattleArena() {
   const [matchmakingStatus, setMatchmakingStatus] = useState<MatchMakingStatus>(MatchMakingStatus.IDLE);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { connectionStatus, publish, subscribe } = useLobbyStore();
   const user = useAuthStore((state) => state.user);
 
@@ -43,6 +44,15 @@ export function BattleArena() {
       setMatchmakingStatus(MatchMakingStatus.IDLE);
     }
   }, [isConnected]);
+
+  // Arriving from the results screen's "Battle again" queues straight away.
+  useEffect(() => {
+    if (searchParams.get('queue') !== '1' || !isConnected || isSearching) return;
+    setSearchParams({}, { replace: true });
+    setError(null);
+    setMatchmakingStatus(MatchMakingStatus.SEARCHING);
+    publish('/app/matchmaking/join', {});
+  }, [searchParams, isConnected, isSearching, setSearchParams, publish]);
 
   const handleFindMatch = () => {
     if (!isConnected) return;

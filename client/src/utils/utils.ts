@@ -60,12 +60,12 @@ export const getCritterImageUrl = (critterName: string | null | undefined): stri
 };
 
 const effectTypeStyles: Record<string, string> = {
-  DamageEffect: 'bg-red-100 text-red-800 border-red-300',
+  DamageEffect: 'bg-danger-soft text-danger-ink border-danger/35',
   DamageOverTimeEffect: 'bg-purple-100 text-purple-800 border-purple-300',
   SkipTurnEffect: 'bg-blue-100 text-blue-800 border-blue-300',
-  BuffEffect: 'bg-green-100 text-green-800 border-green-300',
+  BuffEffect: 'bg-accent-soft text-accent-ink border-accent/40',
   DebuffEffect: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  UnknownEffect: 'bg-gray-100 text-gray-800 border-gray-300',
+  UnknownEffect: 'bg-surface-sunk text-ink border-line-strong',
 };
 
 export const getEffectStyle = (effect: EffectUnion | null | undefined): string => {
@@ -97,7 +97,7 @@ export const formatTimestamp = (timestamp: string | null | undefined): string =>
 };
 
 const battleEffectMeta: Record<BattleEffect['_type'], { label: string; icon: string; style: string }> = {
-  DamageEffect: { label: 'Struck', icon: '💥', style: 'bg-red-100 text-red-800 border-red-300' },
+  DamageEffect: { label: 'Struck', icon: '💥', style: 'bg-danger-soft text-danger-ink border-danger/35' },
   DamageOverTimeEffect: { label: 'Poisoned', icon: '☠️', style: 'bg-purple-100 text-purple-800 border-purple-300' },
   SkipTurnEffect: { label: 'Stunned', icon: '💫', style: 'bg-blue-100 text-blue-800 border-blue-300' },
 };
@@ -133,11 +133,11 @@ export function getEffectivenessLabel(effectiveness: number): string | null {
 export type BattleLogTone = 'damage' | 'faint' | 'switch' | 'status' | 'system';
 
 const battleLogToneStyles: Record<BattleLogTone, string> = {
-  damage: 'bg-red-50 border-l-4 border-red-300 text-gray-800',
-  faint: 'bg-gray-800 text-gray-100',
-  switch: 'bg-emerald-50 border-l-4 border-emerald-300 text-gray-800',
-  status: 'bg-purple-50 border-l-4 border-purple-300 text-gray-800',
-  system: 'bg-cyan-50/60 text-gray-800',
+  damage: 'bg-danger-soft border-l-4 border-danger/35 text-ink',
+  faint: 'bg-ink text-surface',
+  switch: 'bg-accent-soft border-l-4 border-accent/40 text-ink',
+  status: 'bg-purple-50 border-l-4 border-purple-300 text-ink',
+  system: 'bg-surface-sunk text-ink',
 };
 
 /**

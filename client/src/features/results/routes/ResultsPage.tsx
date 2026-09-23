@@ -51,12 +51,12 @@ function ResultsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white p-4 sm:p-6 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <main className="min-h-screen bg-canvas p-4 sm:p-6 md:p-8">
+      <div className="mx-auto max-w-3xl space-y-6">
         <ResultsHeader result={battleResult} opponentName={opponentName} />
 
         {finalPlayer && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[3fr_2fr]">
             <ProgressSummary
               player={finalPlayer}
               critters={finalRoster}

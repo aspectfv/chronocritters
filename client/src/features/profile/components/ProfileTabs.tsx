@@ -7,11 +7,11 @@ export function ProfileTabs() {
     { name: 'Battle History', path: '/profile/history' },
   ];
 
-  const activeClass = 'bg-green-600 text-white shadow-md';
-  const inactiveClass = 'text-gray-600 hover:bg-green-50';
+  const activeClass = 'bg-accent text-white shadow-md';
+  const inactiveClass = 'text-ink-muted hover:bg-accent-soft';
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2 flex justify-center space-x-2">
+    <div className="bg-surface rounded-lg shadow-sm border border-line flex gap-1 overflow-x-auto p-1.5 sm:justify-center sm:gap-2 sm:p-2">
       {tabs.map((tab) => (
         <NavLink
           key={tab.name}
@@ -19,7 +19,7 @@ export function ProfileTabs() {
           // end prop important for root tab to prevent it from matching all nested routes
           end={tab.path === '/profile'}
           className={({ isActive }) =>
-            `px-6 py-2 rounded-md font-semibold text-sm transition-colors ${
+            `shrink-0 whitespace-nowrap rounded-md px-4 py-2 sm:px-6 font-semibold text-sm transition-colors ${
               isActive ? activeClass : inactiveClass
             }`
           }

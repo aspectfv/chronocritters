@@ -3,10 +3,10 @@ import { getCritterTypeIcon } from '@utils/utils';
 
 export const CritterList = ({ roster, selectedCritter, onCritterSelect }: CritterListProps) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
-      <h3 className="font-semibold text-lg text-gray-800 mb-4">My Critters ({roster.length})</h3>
+    <div className="bg-surface rounded-xl shadow-sm border border-line p-6 h-full">
+      <h3 className="font-semibold text-lg text-ink mb-4">My Critters ({roster.length})</h3>
       {roster.length === 0 ? (
-        <p className="text-sm text-gray-500">You have no critters yet.</p>
+        <p className="text-sm text-ink-muted">You have no critters yet.</p>
       ) : (
         <div className="space-y-3">
           {roster.map((critter) => (
@@ -15,18 +15,18 @@ export const CritterList = ({ roster, selectedCritter, onCritterSelect }: Critte
               type="button"
               aria-pressed={selectedCritter?.id === critter.id}
               onClick={() => onCritterSelect(critter)}
-              className={`w-full p-4 rounded-lg border-2 text-left transition-colors flex items-center gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ${
+              className={`w-full p-4 rounded-lg border-2 text-left transition-colors flex items-center gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-ring focus-visible:ring-offset-2 ${
                 selectedCritter?.id === critter.id
-                  ? 'bg-green-50/50 border-green-500'
-                  : 'bg-white border-gray-200 hover:border-green-300'
+                  ? 'bg-accent-soft border-accent'
+                  : 'bg-surface border-line hover:border-accent/40'
               }`}
             >
               <span className="text-3xl" aria-hidden="true">{getCritterTypeIcon(critter.type)}</span>
               <div className="flex-grow min-w-0">
-                <p className="font-bold text-gray-800 truncate">{critter.name}</p>
-                <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                <p className="font-bold text-ink truncate">{critter.name}</p>
+                <div className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
                   <span>{critter.type}</span>
-                  <span className="bg-gray-200 px-2 py-0.5 rounded-full text-xs font-semibold">Level {critter.baseStats?.level ?? 1}</span>
+                  <span className="bg-line px-2 py-0.5 rounded-full text-xs font-semibold">Level {critter.baseStats?.level ?? 1}</span>
                 </div>
               </div>
               {selectedCritter?.id === critter.id && (
