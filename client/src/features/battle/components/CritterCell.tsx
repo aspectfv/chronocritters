@@ -44,7 +44,7 @@ export function CritterCell({
     <div className={`flex flex-col gap-3 ${isPlayer ? 'items-start' : 'items-end'}`}>
       {/* Plaque. Only your own cell shows the numeric HP, which is the genre
           convention and the better information design besides. */}
-      <div className={`w-full max-w-xs rounded-lg border border-brass/40 bg-arena-deep/80 px-3 py-2 backdrop-blur-sm ${isPlayer ? 'order-2' : 'order-1'}`}>
+      <div className={`w-full max-w-xs rounded-lg border border-brass/35 bg-arena-deep px-3 py-2 shadow-card ${isPlayer ? 'order-2' : 'order-1'}`}>
         <div className="flex items-baseline justify-between gap-2">
           <span className="truncate font-bold text-arena-ink">{critter.name}</span>
           <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white ${getCritterTypeFill(critter.type)}`}>
@@ -88,18 +88,18 @@ export function CritterCell({
               }}
             />
             {/* Glass: a highlight across the top and a vignette at the base. */}
-            <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-black/40" aria-hidden="true" />
-            <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/20" aria-hidden="true" />
+            <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/20 via-transparent to-black/15" aria-hidden="true" />
+            <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-black/10" aria-hidden="true" />
           </div>
         </div>
 
         {isHit && hitDamage > 0 && (
           <div className="pointer-events-none absolute left-1/2 top-4 z-10 animate-damage-float text-center">
-            <span className={`block font-extrabold drop-shadow-lg ${hitEffectiveness > 1 ? 'text-5xl text-danger' : 'text-4xl text-white'}`}>
+            <span className={`block font-extrabold drop-shadow-lg ${hitEffectiveness > 1 ? 'text-5xl text-danger' : 'text-4xl text-arena-ink'}`}>
               -{hitDamage}
             </span>
             {effectivenessLabel && (
-              <span className="mt-1 block rounded-full bg-brass px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-arena-deep">
+              <span className="mt-1 block rounded-full bg-brass px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
                 {effectivenessLabel}
               </span>
             )}

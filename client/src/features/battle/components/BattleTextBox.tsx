@@ -23,7 +23,7 @@ export function BattleTextBox({ log }: BattleLogProps) {
   }, [log]);
 
   return (
-    <div className="rounded-xl border-2 border-brass/40 bg-arena-deep/85 p-3 backdrop-blur-sm">
+    <div className="rounded-xl border-2 border-brass/40 bg-arena-deep p-3 shadow-card">
       <p
         key={log.length}
         className="animate-log-enter min-h-[2.5rem] text-[15px] font-semibold leading-snug text-arena-ink"

@@ -8,7 +8,7 @@ import type { BattleData } from '@store/battle/types';
 import { BattleHeader } from '@features/battle/components/BattleHeader';
 import { ChronoDial } from '@features/battle/components/ChronoDial';
 import { CritterCell } from '@features/battle/components/CritterCell';
-import { TeamTrack } from '@features/battle/components/TeamTrack';
+import { TeamRail } from '@features/battle/components/TeamRail';
 import { BattleTextBox } from '@features/battle/components/BattleTextBox';
 import { MoveGrid } from '@features/battle/components/MoveGrid';
 import { OpponentStatusBanner } from '@features/battle/components/OpponentStatusBanner';
@@ -184,7 +184,12 @@ function BattlePage() {
             cells stay opposed and the dead space between them is the dial's. */}
         <div className="relative min-h-[340px] flex-1 sm:min-h-[400px]">
           <div className="absolute right-0 top-0 flex flex-col items-end gap-2">
-            <TeamTrack team={opponent.roster} activeCritterId={opponent.activeCritter.id} align="right" />
+            <TeamRail
+              title="Opponent's bench"
+              team={opponent.roster}
+              activeCritterId={opponent.activeCritter.id}
+              align="right"
+            />
             <CritterCell
               playerName={opponent.username}
               critter={opponent.activeCritter}
@@ -209,7 +214,8 @@ function BattlePage() {
               hitDamage={playerHit?.damage}
               hitEffectiveness={playerHit?.effectiveness}
             />
-            <TeamTrack
+            <TeamRail
+              title="Your bench"
               team={player.roster}
               activeCritterId={player.activeCritter.id}
               align="left"

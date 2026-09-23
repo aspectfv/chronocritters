@@ -42,7 +42,7 @@ export function ChronoDial({ timeRemaining, turnDuration }: ChronoDialProps) {
       <span className={`relative text-xl font-black tabular-nums ${isCritical ? 'animate-pulse text-danger' : isLow ? 'text-warn' : 'text-brass-ink'}`}>
         {timeRemaining}
       </span>
-      <span className="absolute inset-0 rounded-full ring-1 ring-inset ring-white/10" aria-hidden="true" />
+      <span className="absolute inset-0 rounded-full ring-1 ring-inset ring-black/5" aria-hidden="true" />
     </div>
   );
 }

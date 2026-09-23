@@ -18,7 +18,7 @@ function MoveButton({ ability, casterType, onClick, disabled }: {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="group relative overflow-hidden rounded-lg border border-brass/35 bg-arena-glass/60 p-3 text-left transition-all hover:border-brass hover:bg-arena-glass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2 focus-visible:ring-offset-arena disabled:opacity-40 disabled:hover:border-brass/35"
+      className="group relative overflow-hidden rounded-lg border border-brass/35 bg-arena-deep p-3 text-left transition-all hover:border-brass hover:bg-arena-glass/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2 focus-visible:ring-offset-arena disabled:opacity-40 disabled:hover:border-brass/35"
     >
       {/* Type stripe: the move grid's job is to be readable at a glance. */}
       <span className={`absolute inset-y-0 left-0 w-1 ${getCritterTypeFill(casterType)}`} aria-hidden="true" />
@@ -32,7 +32,7 @@ function MoveButton({ ability, casterType, onClick, disabled }: {
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {power !== null && (
-            <span className="rounded bg-arena-deep px-1.5 py-0.5 text-sm font-black tabular-nums text-brass-ink">{power}</span>
+            <span className="rounded bg-arena-glass px-1.5 py-0.5 text-sm font-black tabular-nums text-brass-ink">{power}</span>
           )}
           {meta && <span className="text-sm" aria-hidden="true">{meta.icon}</span>}
         </div>
@@ -47,7 +47,7 @@ export function MoveGrid({ abilities, casterType, onAbilityClick, isPlayerTurn, 
     : isPlayerTurn ? 'Choose a move' : 'Waiting for your opponent';
 
   return (
-    <div className="rounded-xl border border-brass/30 bg-arena-deep/70 p-3 backdrop-blur-sm">
+    <div className="rounded-xl border border-brass/30 bg-arena-deep p-3 shadow-card">
       <div className="mb-2 flex items-center justify-between px-1">
         <span className="text-[11px] font-bold uppercase tracking-widest text-brass-dim">{heading}</span>
         <span className="flex items-center gap-1 text-[11px] text-arena-ink-muted">

@@ -14,12 +14,12 @@ export function ForcedSwitchPanel({ open, team, onCritterClick, disabled }: Forc
   return (
     <div
       aria-hidden={!open}
-      className={`fixed inset-0 z-30 flex items-end justify-center bg-arena-deep/80 p-4 backdrop-blur-sm transition-opacity duration-200 sm:items-center ${
+      className={`fixed inset-0 z-30 flex items-end justify-center bg-arena-ink/40 p-4 backdrop-blur-sm transition-opacity duration-200 sm:items-center ${
         open ? 'opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >
       <div
-        className={`w-full max-w-lg rounded-xl border-2 border-brass/50 bg-arena p-6 shadow-overlay transition-all duration-300 ${
+        className={`w-full max-w-lg rounded-xl border-2 border-brass/40 bg-arena-deep p-6 shadow-overlay transition-all duration-300 ${
           open ? 'translate-y-0 scale-100' : 'translate-y-4 scale-95'
         }`}
       >
@@ -38,7 +38,7 @@ export function ForcedSwitchPanel({ open, team, onCritterClick, disabled }: Forc
                 type="button"
                 disabled={disabled || !open}
                 onClick={() => onCritterClick(index)}
-                className="flex items-center gap-3 rounded-lg border-2 border-brass/30 bg-arena-glass/50 p-3 text-left transition-all hover:border-brass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass disabled:opacity-50"
+                className="flex items-center gap-3 rounded-lg border-2 border-brass/25 bg-arena p-3 text-left transition-all hover:border-brass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass disabled:opacity-50"
               >
                 <img
                   src={getCritterImageUrl(critter.name)}
@@ -57,7 +57,7 @@ export function ForcedSwitchPanel({ open, team, onCritterClick, disabled }: Forc
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-arena-ink-muted">{critter.stats.currentHp}/{critter.stats.maxHp} HP</p>
-                  <div className="mt-1 h-1.5 w-full rounded-full bg-arena-deep">
+                  <div className="mt-1 h-1.5 w-full rounded-full bg-arena-glass">
                     <div className={`h-1.5 rounded-full ${getHealthTone(healthPercentage)}`} style={{ width: `${healthPercentage}%` }}></div>
                   </div>
                 </div>

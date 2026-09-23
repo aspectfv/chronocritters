@@ -88,7 +88,8 @@ export interface MoveGridProps {
   isResolving: boolean;
 }
 
-export interface TeamTrackProps {
+export interface TeamRailProps {
+  title: string;
   team: CritterState[];
   activeCritterId: string;
   align: 'left' | 'right';
