@@ -154,7 +154,7 @@ function BattlePage() {
   const opponentHit = lastTurnResult?.targetCritterId === opponent.activeCritter.id ? lastTurnResult : undefined;
 
   return (
-    <div className="min-h-screen bg-[#f0f7f3] p-2 sm:p-4">
+    <main className="min-h-screen bg-[#f0f7f3] p-2 sm:p-4">
       <div className="max-w-screen-xl mx-auto relative">
         <BattleHeader isPlayerTurn={player.hasTurn} onForfeit={handleForfeit} />
         <TimerBar timeRemaining={timeRemaining} turnDuration={turnDuration} />
@@ -214,7 +214,7 @@ function BattlePage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

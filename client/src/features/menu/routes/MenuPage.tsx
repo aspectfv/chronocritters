@@ -17,7 +17,7 @@ function MenuPage() {
   const notice = notices[searchParams.get('notice') ?? ''];
 
   return (
-    <div className="min-h-screen bg-[#f0f7f3]">
+    <main className="min-h-screen bg-[#f0f7f3]">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <MenuHeader />
         {notice && (
@@ -31,7 +31,7 @@ function MenuPage() {
         </div>
         <LogoutButton />
       </div>
-    </div>
+    </main>
   );
 }
 

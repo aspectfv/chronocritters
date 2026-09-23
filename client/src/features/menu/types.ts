@@ -4,10 +4,6 @@ export enum MatchMakingStatus {
   FOUND = 'found',
 }
 
-export interface MenuHeaderProps {
-  username?: string;
-}
-
 export interface MatchResponse {
   playerOneId: string;
   playerTwoId: string;

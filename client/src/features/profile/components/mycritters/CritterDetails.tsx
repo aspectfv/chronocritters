@@ -6,7 +6,7 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full flex flex-col items-center justify-center text-center">
         <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
         </div>
         <h3 className="font-semibold text-gray-800 text-xl">Select a Critter</h3>
         <p className="text-gray-500">Select a critter from the list to view its details.</p>
@@ -21,7 +21,7 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
       <h3 className="font-semibold text-lg text-gray-800 mb-6">{critter.name} Details</h3>
       
       <div className="text-center mb-6">
-        <div className={`mx-auto flex items-center justify-center mb-4 w-28 h-28`}>
+        <div className="mx-auto flex items-center justify-center mb-4 w-28 h-28">
           <img
             src={getCritterImageUrl(critter.name ?? 'Unknown')}
             alt={critter.name ?? 'Unknown Critter'}
@@ -33,7 +33,7 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
           />
         </div>
         <h3 className="font-bold text-2xl text-gray-800">{critter.name}</h3>
-        <span className={`${getCritterTypeStyle(critter.type)} text-black text-xs font-semibold px-3 py-1 rounded-full`}>{critter.type}</span>
+        <span className={`${getCritterTypeStyle(critter.type)} text-xs font-semibold px-3 py-1 rounded-full`}>{critter.type}</span>
         {critter.description && (
           <p className="mt-2 text-gray-600 text-sm">{critter.description}</p>
         )}

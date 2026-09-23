@@ -14,12 +14,12 @@ export function BattleHistoryTab() {
       <div className="space-y-3">
         {battleHistory.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-            <svg className="w-14 h-14 mb-4" viewBox="0 0 64 64" fill="none">
-              <circle cx="32" cy="32" r="30" stroke="#A3A3A3" strokeWidth="4" fill="#F3F4F6" />
-              <path d="M20 44c0-6 8-10 12-10s12 4 12 10" stroke="#A3A3A3" strokeWidth="3" strokeLinecap="round" />
-              <circle cx="24" cy="28" r="3" fill="#A3A3A3" />
-              <circle cx="40" cy="28" r="3" fill="#A3A3A3" />
-              <path d="M28 36c1.5 2 6.5 2 8 0" stroke="#A3A3A3" strokeWidth="2" strokeLinecap="round" />
+            <svg className="w-14 h-14 mb-4" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path d="M20 44c0-6 8-10 12-10s12 4 12 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              <circle cx="24" cy="28" r="3" fill="currentColor" />
+              <circle cx="40" cy="28" r="3" fill="currentColor" />
+              <path d="M28 36c1.5 2 6.5 2 8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
             <span className="text-lg font-semibold">No battles found</span>
             <span className="text-sm mt-2">Start a match to see your battle history here!</span>

@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import { Suspense } from 'react';
 import { loginAction, registerAction } from '@features/auth/actions';
 import { loginLoader } from '@features/auth/loaders';
 import AuthPage from '@features/auth/routes/AuthPage';
@@ -10,6 +9,7 @@ import ProfilePage from '@features/profile/routes/ProfilePage';
 import BattlePage from '@features/battle/routes/BattlePage';
 import ResultsPage from '@features/results/routes/ResultsPage';
 import { ProtectedRoute } from '@components/auth/ProtectedRoute';
+import { RouteError } from '@components/RouteError';
 import { BattleHistoryTab } from '@features/profile/routes/BattleHistoryTab';
 import { MyCrittersTab } from '@features/profile/routes/MyCrittersTab';
 import { OverviewTab } from '@features/profile/routes/OverviewTab';
@@ -22,6 +22,7 @@ import { battleLoader } from '@features/battle/loaders';
 const router = createBrowserRouter([
   {
     path: '/',
+    errorElement: <RouteError />,
     children: [
       {
         index: true,
@@ -89,8 +90,4 @@ const router = createBrowserRouter([
   },
 ]);
 
-export const AppRouter = () => (
-  <Suspense fallback={<div>Loading...</div>}>
-    <RouterProvider router={router} />
-  </Suspense>
-);
+export const AppRouter = () => <RouterProvider router={router} />;

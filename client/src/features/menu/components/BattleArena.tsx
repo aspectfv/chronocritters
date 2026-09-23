@@ -57,7 +57,7 @@ export function BattleArena() {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
       <div className="flex items-center gap-2 text-gray-700 mb-4">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v11.494m-5.747-5.747h11.494" />
         </svg>
         <span className="font-semibold">Battle Arena</span>
@@ -84,7 +84,7 @@ export function BattleArena() {
         <button
           onClick={handleFindMatch}
           disabled={!isConnected}
-          className="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-600 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isConnected ? 'Find Match' : 'Connecting to Lobby...'}
         </button>

@@ -49,7 +49,7 @@ export function BattleHistoryDetails() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div className="space-y-4">
-                        <div className={`text-white text-lg font-bold text-center py-2 px-4 rounded-lg ${isVictory ? 'bg-green-500' : 'bg-red-500'}`}>
+                        <div className={`text-lg font-bold text-center py-2 px-4 rounded-lg ${isVictory ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                             {isVictory ? 'Victory' : 'Defeat'}
                         </div>
                         <div>
@@ -59,7 +59,7 @@ export function BattleHistoryDetails() {
                         <div>
                             <p className="text-sm font-semibold text-gray-500">Duration</p>
                             <p className="font-medium text-gray-800 flex items-center gap-1">
-                                <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 {formatDuration(battle.duration ?? 0)}
                             </p>
                         </div>
@@ -69,7 +69,7 @@ export function BattleHistoryDetails() {
                         </div>
                     </div>
                     <div className="space-y-3">
-                         <h3 className="text-md font-bold text-green-800">Critters</h3>
+                         <h3 className="text-base font-bold text-green-800">Critters</h3>
                          <div className="bg-green-50 p-3 rounded-lg border border-green-200">
                              <p className="text-sm font-semibold">Your Critters</p>
                              <p>{battle.usedCrittersNames?.join(', ') ?? 'None'}</p>
@@ -80,7 +80,7 @@ export function BattleHistoryDetails() {
                          </div>
                     </div>
                     <div className="space-y-3">
-                        <h3 className="text-md font-bold text-green-800">Damage Summary</h3>
+                        <h3 className="text-base font-bold text-green-800">Damage Summary</h3>
                         <div className="bg-green-100 p-4 rounded-lg border border-green-200">
                             <p className="text-sm font-semibold text-green-900">Damage Dealt</p>
                             <p className="text-3xl font-bold text-green-700">{battle.damageDealt}</p>

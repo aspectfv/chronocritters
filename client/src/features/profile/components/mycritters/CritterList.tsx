@@ -10,24 +10,29 @@ export const CritterList = ({ roster, selectedCritter, onCritterSelect }: Critte
       ) : (
         <div className="space-y-3">
           {roster.map((critter) => (
-            <div
+            <button
               key={critter.id}
+              type="button"
+              aria-pressed={selectedCritter?.id === critter.id}
               onClick={() => onCritterSelect(critter)}
-              className={`p-4 rounded-lg border-2 cursor-pointer transition-colors flex items-center gap-4 ${
+              className={`w-full p-4 rounded-lg border-2 text-left transition-colors flex items-center gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ${
                 selectedCritter?.id === critter.id
                   ? 'bg-green-50/50 border-green-500'
                   : 'bg-white border-gray-200 hover:border-green-300'
               }`}
             >
-              <span className="text-3xl">{getCritterTypeIcon(critter.type)}</span>
-              <div className="flex-grow">
-                <p className="font-bold text-gray-800">{critter.name}</p>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span className="text-3xl" aria-hidden="true">{getCritterTypeIcon(critter.type)}</span>
+              <div className="flex-grow min-w-0">
+                <p className="font-bold text-gray-800 truncate">{critter.name}</p>
+                <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
                   <span>{critter.type}</span>
                   <span className="bg-gray-200 px-2 py-0.5 rounded-full text-xs font-semibold">Level {critter.baseStats?.level ?? 1}</span>
                 </div>
               </div>
-            </div>
+              {selectedCritter?.id === critter.id && (
+                <span className="sr-only">Selected</span>
+              )}
+            </button>
           ))}
         </div>
       )}

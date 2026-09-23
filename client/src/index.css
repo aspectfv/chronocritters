@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
+/* Declared as a theme token rather than only on body, so Tailwind's font-sans
+   utility resolves to the same face the page actually uses. The fallbacks are
+   unquoted: ui-sans-serif and system-ui are CSS keywords, and quoting them made
+   the browser hunt for families by those literal names and fail. */
+@theme {
+  --font-sans: 'Exo 2', ui-sans-serif, system-ui, sans-serif;
+}
+
 body {
-  font-family: 'Exo 2', 'ui-sans-serif', 'system-ui', sans-serif;
+  font-family: var(--font-sans);
 }
 
 @keyframes critter-hit {
@@ -34,11 +42,17 @@ body {
 .animate-log-enter { animation: log-enter 220ms ease-out; }
 .animate-turn-claim { animation: turn-claim 320ms ease-out; }
 
+/* Covers every animation and transition, including Tailwind's own utilities and
+   animate-spin. Naming only the custom keyframes left the matchmaking spinner
+   and every transition-* running. */
 @media (prefers-reduced-motion: reduce) {
-  .animate-critter-hit,
-  .animate-log-enter,
-  .animate-turn-claim {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 
   /* The floating number only exists as motion, so it is dropped rather than
