@@ -231,9 +231,12 @@ function BattlePage() {
         </div>
       </div>
 
-      {mustReplaceFaintedCritter && (
-        <ForcedSwitchPanel team={player.roster} onCritterClick={handleSwitchCritter} disabled={isActionPending} />
-      )}
+      <ForcedSwitchPanel
+        open={mustReplaceFaintedCritter}
+        team={player.roster}
+        onCritterClick={handleSwitchCritter}
+        disabled={isActionPending}
+      />
     </main>
   );
 }

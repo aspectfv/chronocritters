@@ -1,5 +1,6 @@
 import type { CritterData } from '@features/profile/types';
-import { getCritterImageUrl, getCritterTypeStyle, getEffectStyle } from '@utils/utils';
+import { getCritterTypeStyle, getEffectStyle } from '@utils/utils';
+import { CritterPortrait } from '@components/ui/CritterPortrait';
 
 export const CritterDetails = ({ critter }: { critter: CritterData | null }) => {
   if (!critter) {
@@ -21,17 +22,7 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
       <h3 className="font-semibold text-lg text-ink mb-6">{critter.name} Details</h3>
       
       <div className="text-center mb-6">
-        <div className="mx-auto flex items-center justify-center mb-4 w-28 h-28">
-          <img
-            src={getCritterImageUrl(critter.name ?? 'Unknown')}
-            alt={critter.name ?? 'Unknown Critter'}
-            className="w-28 h-28 object-cover rounded-full"
-            onError={e => {
-              const target = e.target as HTMLImageElement;
-              target.src = getCritterImageUrl('Unknown');
-            }}
-          />
-        </div>
+        <CritterPortrait name={critter.name} size="lg" className="mb-4" />
         <h3 className="font-bold text-2xl text-ink">{critter.name}</h3>
         <span className={`${getCritterTypeStyle(critter.type)} text-xs font-semibold px-3 py-1 rounded-full`}>{critter.type}</span>
         {critter.description && (

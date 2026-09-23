@@ -1,14 +1,28 @@
 import type { ForcedSwitchPanelProps } from '@features/battle/types';
 import { getCritterImageUrl, getCritterTypeStyle, getHealthTone } from '@utils/utils';
 
-export function ForcedSwitchPanel({ team, onCritterClick, disabled }: ForcedSwitchPanelProps) {
+/**
+ * Stays mounted and hidden rather than unmounting, which is what lets the exit
+ * animate in plain CSS. An animation library was tried here and cost 43kB
+ * gzipped for this one transition, which it did not earn.
+ */
+export function ForcedSwitchPanel({ open, team, onCritterClick, disabled }: ForcedSwitchPanelProps) {
   const available = team
     .map((critter, index) => ({ critter, index }))
     .filter(({ critter }) => critter.stats.currentHp > 0);
 
   return (
-    <div className="fixed inset-0 z-30 flex items-end justify-center bg-arena-deep/80 backdrop-blur-sm p-4 sm:items-center">
-      <div className="w-full max-w-lg rounded-xl border-2 border-brass/50 bg-arena p-6 shadow-overlay">
+    <div
+      aria-hidden={!open}
+      className={`fixed inset-0 z-30 flex items-end justify-center bg-arena-deep/80 p-4 backdrop-blur-sm transition-opacity duration-200 sm:items-center ${
+        open ? 'opacity-100' : 'pointer-events-none opacity-0'
+      }`}
+    >
+      <div
+        className={`w-full max-w-lg rounded-xl border-2 border-brass/50 bg-arena p-6 shadow-overlay transition-all duration-300 ${
+          open ? 'translate-y-0 scale-100' : 'translate-y-4 scale-95'
+        }`}
+      >
         <h2 className="text-center text-xl font-bold text-arena-ink">Your critter fainted</h2>
         <p className="mt-1 text-center text-sm text-arena-ink-muted">
           Choose who goes out next. This one is free — you still get your turn.
@@ -22,7 +36,7 @@ export function ForcedSwitchPanel({ team, onCritterClick, disabled }: ForcedSwit
               <button
                 key={critter.id}
                 type="button"
-                disabled={disabled}
+                disabled={disabled || !open}
                 onClick={() => onCritterClick(index)}
                 className="flex items-center gap-3 rounded-lg border-2 border-brass/30 bg-arena-glass/50 p-3 text-left transition-all hover:border-brass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass disabled:opacity-50"
               >

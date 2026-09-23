@@ -1,5 +1,5 @@
 import type { CritterListProps } from '@features/profile/types';
-import { getCritterTypeIcon } from '@utils/utils';
+import { CritterPortrait } from '@components/ui/CritterPortrait';
 
 export const CritterList = ({ roster, selectedCritter, onCritterSelect }: CritterListProps) => {
   return (
@@ -21,7 +21,7 @@ export const CritterList = ({ roster, selectedCritter, onCritterSelect }: Critte
                   : 'bg-surface border-line hover:border-accent/40'
               }`}
             >
-              <span className="text-3xl" aria-hidden="true">{getCritterTypeIcon(critter.type)}</span>
+              <CritterPortrait name={critter.name} size="sm" />
               <div className="flex-grow min-w-0">
                 <p className="font-bold text-ink truncate">{critter.name}</p>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">

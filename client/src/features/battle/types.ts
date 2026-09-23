@@ -47,6 +47,7 @@ export interface TeamDisplayProps {
 }
 
 export interface ForcedSwitchPanelProps {
+  open: boolean;
   team: CritterState[];
   onCritterClick: (targetCritterIndex: number) => void;
   disabled: boolean;
