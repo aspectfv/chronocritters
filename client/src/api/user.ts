@@ -9,7 +9,6 @@ import type {
   GetMyCrittersQuery, 
   GetPlayerOverviewQuery, 
   GetPlayerResultsQuery, 
-  GetPlayerStatsQuery, 
   LoginMutation, 
   RegisterMutation 
 } from '@/gql/graphql';
@@ -56,26 +55,6 @@ export const register = (credentials: RegisterCredentials) => {
       password: credentials.password,
     },
   });
-};
-
-const GET_PLAYER_STATS_QUERY = gql(`
-  query GetPlayerStats($id: ID!) {
-    getPlayer(id: $id) {
-      stats {
-        wins
-        losses
-      }
-    }
-  }
-`);
-
-export const getPlayerStats = async (userId: string) => {
-  const response = await client.query<GetPlayerStatsQuery>({
-    query: GET_PLAYER_STATS_QUERY,
-    variables: { id: userId },
-    fetchPolicy: 'network-only'
-  });
-  return response.data;
 };
 
 const GET_PLAYER_OVERVIEW_QUERY = gql(`

@@ -1,14 +1,18 @@
-import { useAuthStore } from '@store/auth/useAuthStore';
-import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MatchMakingStatus, type MatchResponse } from '@features/menu/types';
 import { Swords } from 'lucide-react';
-import { Surface } from '@components/ui/Surface';
-import { Button } from '@components/ui/Button';
+import { useAuthStore } from '@store/auth/useAuthStore';
+import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import { ConnectionStatus } from '@store/lobby/types';
+import { MatchMakingStatus, type MatchResponse } from '@features/menu/types';
 
-export function BattleArena() {
+/**
+ * The one thing the menu exists for, sized accordingly.
+ *
+ * It was a button inside a card the same size as the two cards beside it, so
+ * nothing on the page said what to do first.
+ */
+export function FindMatch() {
   const [matchmakingStatus, setMatchmakingStatus] = useState<MatchMakingStatus>(MatchMakingStatus.IDLE);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -68,47 +72,48 @@ export function BattleArena() {
   };
 
   return (
-    <Surface className="flex h-full flex-col">
-      <div className="mb-4 flex items-center gap-2 text-ink">
-        <Swords className="h-5 w-5" aria-hidden="true" />
-        <span className="font-semibold">Battle Arena</span>
-      </div>
-
-      <p className="mb-6 text-ink-muted">
-        Challenge other trainers in epic critter battles!
-      </p>
-
-      <div className="mt-auto">
+    <div className="flex flex-col gap-2">
       {isSearching ? (
-        <div className="space-y-3">
+        <>
           <div
-            className="flex w-full items-center justify-center gap-2 rounded-control bg-surface-sunk px-4 py-3 font-semibold text-ink-muted"
+            className="panel flex items-center justify-center gap-3 rounded-lg bg-arena-deep px-4 py-4 text-lg font-black text-arena-ink"
             role="status"
             aria-live="polite"
           >
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" aria-hidden="true"></span>
-            Searching for an opponent...
+            <span className="h-5 w-5 animate-spin rounded-full border-[3px] border-outline border-t-transparent" aria-hidden="true" />
+            Looking for an opponent
           </div>
-          <Button variant="secondary" block onClick={handleCancelSearch}>
-            Cancel Search
-          </Button>
-        </div>
+          <button
+            type="button"
+            onClick={handleCancelSearch}
+            className="key rounded-lg bg-arena-deep px-4 py-2.5 text-sm font-black text-arena-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60"
+          >
+            Stop looking
+          </button>
+        </>
       ) : (
-        <Button block onClick={handleFindMatch} disabled={!isConnected}>
-          {isConnected ? 'Find Match' : 'Connecting to Lobby...'}
-        </Button>
+        <button
+          type="button"
+          onClick={handleFindMatch}
+          disabled={!isConnected}
+          className="key flex items-center justify-center gap-3 rounded-lg bg-brass px-4 py-5 text-xl font-black tracking-tight text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60"
+        >
+          <Swords className="h-6 w-6" aria-hidden="true" />
+          {isConnected ? 'Find a match' : 'Connecting to the lobby'}
+        </button>
       )}
-      </div>
 
       {error && (
-        <p className="mt-2 text-center text-sm text-danger-ink" role="alert">{error}</p>
+        <p className="rounded-sm border-2 border-outline bg-ruby px-3 py-2 text-center text-sm font-bold text-white" role="alert">
+          {error}
+        </p>
       )}
 
       {connectionStatus === ConnectionStatus.ERROR && (
-        <p className="mt-2 text-center text-sm text-danger-ink" role="alert">
-          Could not connect to the matchmaking service. Please try again later.
+        <p className="rounded-sm border-2 border-outline bg-ruby px-3 py-2 text-center text-sm font-bold text-white" role="alert">
+          Matchmaking is unreachable. Check your connection and try again.
         </p>
       )}
-    </Surface>
+    </div>
   );
 }

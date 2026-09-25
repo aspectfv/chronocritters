@@ -1,37 +1,37 @@
-import { MenuHeader } from '@features/menu/components/MenuHeader';
-import { BattleArena } from '@features/menu/components/BattleArena';
-import { TrainerProfile } from '@features/menu/components/TrainerProfile';
-import { CritterCatalog } from '@features/menu/components/CritterCatalog';
-import { LogoutButton } from '@features/menu/components/LogoutButton';
 import { useLoaderData, useSearchParams } from 'react-router-dom';
-import type { GetPlayerStatsQuery } from 'src/gql/graphql';
+import type { GetPlayerOverviewQuery } from '@/gql/graphql';
+import { TrainerCard } from '@features/menu/components/TrainerCard';
+import { FindMatch } from '@features/menu/components/FindMatch';
+import { MenuLinks } from '@features/menu/components/MenuLinks';
+import { LogoutButton } from '@features/menu/components/LogoutButton';
 
 const notices: Record<string, string> = {
   'battle-ended': 'That battle is no longer running, so you have been returned to the menu.',
 };
 
 function MenuPage() {
-  const loaderData = useLoaderData() as GetPlayerStatsQuery;
+  const loaderData = useLoaderData() as GetPlayerOverviewQuery;
   const [searchParams] = useSearchParams();
-  const wins = loaderData?.getPlayer?.stats?.wins ?? 0;
-  const losses = loaderData?.getPlayer?.stats?.losses ?? 0;
+  const player = loaderData?.getPlayer;
   const notice = notices[searchParams.get('notice') ?? ''];
 
   return (
-    <main className="min-h-screen bg-canvas">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <MenuHeader />
+    <main className="min-h-screen bg-arena text-arena-ink">
+      <div className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-3 p-3 sm:p-5">
         {notice && (
-          <div role="status" className="mb-6 rounded-lg border border-warn/35 bg-warn-soft px-4 py-3 text-sm text-warn-ink">
+          <div role="status" className="rounded-sm border-2 border-outline bg-warn px-4 py-2.5 text-center text-sm font-bold text-white">
             {notice}
           </div>
         )}
-        <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
-          <BattleArena />
-          <TrainerProfile wins={wins} losses={losses} />
-          <CritterCatalog />
+
+        {player && <TrainerCard player={player} />}
+
+        <FindMatch />
+        <MenuLinks />
+
+        <div className="pt-2">
+          <LogoutButton />
         </div>
-        <LogoutButton />
       </div>
     </main>
   );
