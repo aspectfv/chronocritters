@@ -16,12 +16,12 @@ export function ChronoDial({ timeRemaining, turnDuration }: ChronoDialProps) {
 
   return (
     <div
-      className={`relative grid h-20 w-20 place-items-center rounded-full border-2 bg-arena-deep shadow-raised ${isCritical ? 'border-ruby/50' : 'border-brass/50'}`}
+      className={`relative grid h-20 w-20 place-items-center rounded-full border-2 bg-arena-glass shadow-raised ${isCritical ? 'border-ruby/50' : 'border-brass/50'}`}
       role="timer"
       aria-label={`${timeRemaining} seconds left this turn`}
     >
       <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r={radius} fill="none" stroke="var(--color-arena-glass)" strokeWidth="4" />
+        <circle cx="32" cy="32" r={radius} fill="none" stroke="color-mix(in oklab, var(--color-brass) 24%, transparent)" strokeWidth="4" />
         <circle
           cx="32" cy="32" r={radius} fill="none" stroke={stroke} strokeWidth="4" strokeLinecap="round"
           strokeDasharray={circumference}

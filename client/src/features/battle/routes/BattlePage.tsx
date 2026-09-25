@@ -170,14 +170,8 @@ function BattlePage() {
 
         {/* The diagonal, laid out absolutely inside a fixed stage so the two
             cells stay opposed and the dead space between them is the dial's. */}
-        <div className="relative min-h-[340px] flex-1 sm:min-h-[400px]">
-          {/* Critters stand on a movement plate: engine-turned ground, a chapter
-              ring struck round its edge, and the turn clock at dead centre. */}
-          <div className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[min(115%,115vh)] -translate-x-1/2 -translate-y-1/2" aria-hidden="true">
-            <div className="arena-dial absolute inset-0 rounded-full" />
-            <div className="arena-chapter-ring absolute inset-0" />
-          </div>
-          <div className="absolute right-0 top-0 flex flex-col items-end gap-2">
+        <div className="arena-plate relative min-h-[340px] flex-1 overflow-hidden rounded-2xl p-3 sm:min-h-[400px] sm:p-5">
+          <div className="absolute right-3 top-3 flex flex-col items-end gap-2 sm:right-5 sm:top-5">
             <TeamRail
               title="Opponent's bench"
               team={opponent.roster}
@@ -194,11 +188,22 @@ function BattlePage() {
             />
           </div>
 
+          {/* The horizon line, and the clock's own dial struck around it. Both
+              sit on the plate's centre by construction, so nothing has to be
+              lined up by eye. */}
+          <div className="arena-floor pointer-events-none absolute inset-0" aria-hidden="true" />
+          <div className="arena-horizon pointer-events-none absolute left-0 top-1/2 h-px w-full" aria-hidden="true" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[19rem] w-[19rem] -translate-x-1/2 -translate-y-1/2" aria-hidden="true">
+            <div className="chrono-guilloche absolute inset-0" />
+          </div>
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2" aria-hidden="true">
+            <div className="chrono-chapter absolute inset-0" />
+          </div>
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <ChronoDial timeRemaining={timeRemaining} turnDuration={turnDuration} />
           </div>
 
-          <div className="absolute bottom-0 left-0 flex flex-col items-start gap-2">
+          <div className="absolute bottom-3 left-3 flex flex-col items-start gap-2 sm:bottom-5 sm:left-5">
             <CritterCell
               playerName={player.username}
               critter={player.activeCritter}

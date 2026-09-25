@@ -9,11 +9,11 @@
 
   /* Surfaces and ink. The app previously used 13 distinct greys and a
      hard-coded #f0f7f3 in four files. */
-  --color-canvas: oklch(0.955 0.021 88);
-  --color-surface: oklch(0.992 0.006 90);
-  --color-surface-sunk: oklch(0.941 0.017 88);
-  --color-line: oklch(0.888 0.021 86);
-  --color-line-strong: oklch(0.808 0.031 84);
+  --color-canvas: oklch(0.872 0.024 92);
+  --color-surface: oklch(0.988 0.008 90);
+  --color-surface-sunk: oklch(0.936 0.018 90);
+  --color-line: oklch(0.836 0.026 88);
+  --color-line-strong: oklch(0.752 0.036 84);
   --color-ink: oklch(0.309 0.046 264);
   --color-ink-muted: oklch(0.494 0.034 264);
   --color-ink-faint: oklch(0.646 0.026 264);
@@ -48,9 +48,15 @@
   /* Taken from watchmaking rather than from "brass" in general: an enamel dial
      face, engine-turned ground, aged case fittings, heat-blued steel hands, and
      ruby for the jewel bearings, which is the only place red appears. */
-  --color-arena: oklch(0.955 0.021 88);
-  --color-arena-deep: oklch(0.982 0.012 90);
-  --color-arena-glass: oklch(0.906 0.028 88);
+  --color-arena: oklch(0.849 0.026 92);
+  --color-arena-deep: oklch(0.976 0.013 90);
+  /* Three levels, so nothing disappears into what it sits on: the room, the
+     plate the critters stand on, and the plaques that sit on the plate. */
+  --color-plate: oklch(0.928 0.022 90);
+  --color-sky: oklch(0.899 0.046 242);
+  --color-haze: oklch(0.961 0.016 200);
+  --color-floor: oklch(0.858 0.053 78);
+  --color-arena-glass: oklch(0.902 0.028 88);
   --color-brass: oklch(0.598 0.108 71);
   --color-brass-dim: oklch(0.503 0.091 68);
   --color-brass-ink: oklch(0.392 0.071 64);
@@ -125,41 +131,103 @@ body {
   }
 }
 
-/* Engine-turned guilloche: fine radial spokes over concentric rings, the
-   pattern struck into a watch dial. Drawn in CSS so it costs no image and
-   scales with the arena. Kept at very low contrast; it is a ground, not a
-   decoration competing with the critters. */
-.arena-dial {
+/* The battlefield is a movement plate: an enamel panel with engine-turning
+   struck into it and the turn clock at dead centre. The pattern is masked well
+   inside the plate's own edges, so it never reaches the panels around it. An
+   earlier pass let a full-bleed circle radiate across the whole page, which
+   read as noise over every other element rather than as a ground. */
+.arena-plate {
+  /* A horizon, not a flat fill: pale blued air above, warm sand underfoot, and
+     the seam between them sitting behind the clock. One flat cream panel was
+     the thing that read as bland. */
+  background-image:
+    linear-gradient(
+      to bottom,
+      var(--color-sky) 0%,
+      color-mix(in oklab, var(--color-sky) 55%, var(--color-haze)) 34%,
+      var(--color-haze) 48%,
+      color-mix(in oklab, var(--color-floor) 70%, var(--color-haze)) 56%,
+      var(--color-floor) 100%
+    );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--color-brass) 34%, transparent),
+    inset 0 2px 0 color-mix(in oklab, white 70%, transparent),
+    inset 0 -50px 70px -60px color-mix(in oklab, var(--color-brass-ink) 85%, transparent),
+    0 14px 28px -18px color-mix(in oklab, var(--color-brass-ink) 70%, transparent);
+}
+
+/* Floor. Lines running back to the clock, so the lower half reads as ground
+   receding rather than as more panel. Masked to below the horizon and faded
+   with distance, which is what keeps it from becoming a web over the page.
+   Drawn as its own element rather than a pseudo-element: generated content
+   paints above the absolutely positioned children, and the fan was showing
+   through the plaques. */
+.arena-floor {
   background-image:
     repeating-conic-gradient(
       from 0deg at 50% 50%,
-      color-mix(in oklab, var(--color-brass) 4%, transparent) 0deg 0.5deg,
-      transparent 0.5deg 2.5deg
+      color-mix(in oklab, var(--color-brass-ink) 13%, transparent) 0deg 0.35deg,
+      transparent 0.35deg 4deg
+    );
+  mask-image: linear-gradient(to bottom, transparent 0 50%, #000 62%, color-mix(in srgb, #000 55%, transparent) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0 50%, #000 62%, color-mix(in srgb, #000 55%, transparent) 100%);
+}
+
+/* The horizon itself, struck as a hairline so the two halves meet at an edge
+   rather than blurring into each other. */
+.arena-horizon {
+  background-image: linear-gradient(
+    to right,
+    transparent 0%,
+    color-mix(in oklab, var(--color-brass) 45%, transparent) 18%,
+    color-mix(in oklab, var(--color-brass) 70%, transparent) 50%,
+    color-mix(in oklab, var(--color-brass) 45%, transparent) 82%,
+    transparent 100%
+  );
+}
+
+/* Engine-turning, held to a disc around the clock. Letting it run the full
+   width of the plate turned it into a web over every other element. */
+.chrono-guilloche {
+  background-image:
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      color-mix(in oklab, var(--color-brass) 22%, transparent) 0deg 0.6deg,
+      transparent 0.6deg 5deg
     ),
     repeating-radial-gradient(
       circle at 50% 50%,
-      color-mix(in oklab, var(--color-brass) 3.5%, transparent) 0 1px,
+      color-mix(in oklab, var(--color-brass) 16%, transparent) 0 1px,
       transparent 1px 16px
     ),
-    radial-gradient(
-      circle at 50% 50%,
-      var(--color-arena-deep) 0%,
-      color-mix(in oklab, var(--color-arena-deep) 55%, transparent) 26%,
-      transparent 64%
-    );
+    radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--color-haze) 85%, transparent) 0 38%, transparent 62%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 0 30%, color-mix(in srgb, #000 24%, transparent) 62%, transparent 86%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0 30%, color-mix(in srgb, #000 24%, transparent) 62%, transparent 86%);
 }
 
-/* The chapter ring: minute ticks struck round the dial's edge, as a real dial
-   is laid out. Sits on the same centre as the guilloche by construction. */
-.arena-chapter-ring {
+/* The pad a critter stands on, which is what makes it stand on the floor
+   rather than float over it. */
+.critter-pad {
+  background-image: radial-gradient(
+    ellipse 50% 50% at 50% 50%,
+    color-mix(in oklab, var(--color-brass-ink) 30%, transparent) 0%,
+    color-mix(in oklab, var(--color-brass-ink) 13%, transparent) 55%,
+    transparent 78%
+  );
+}
+
+/* The chapter ring: minute ticks struck round the clock, as a real dial is laid
+   out. Sized relative to the clock rather than the plate, so it stays a legible
+   ring instead of a rim of moire at the far edge of the page. */
+.chrono-chapter {
   background-image:
     repeating-conic-gradient(
       from 0deg at 50% 50%,
-      color-mix(in oklab, var(--color-brass) 38%, transparent) 0deg 0.3deg,
-      transparent 0.3deg 6deg
+      color-mix(in oklab, var(--color-brass) 62%, transparent) 0deg 0.45deg,
+      transparent 0.45deg 6deg
     );
-  mask-image: radial-gradient(circle at 50% 50%, transparent 0 47.4%, #000 47.4% 49%, transparent 49%);
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 0 47.4%, #000 47.4% 49%, transparent 49%);
+  mask-image: radial-gradient(circle at 50% 50%, transparent 0 43%, #000 43% 46.5%, transparent 46.5%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 0 43%, #000 43% 46.5%, transparent 46.5%);
 }
 
 /* Engraved rather than raised: recessed wells get an inner shadow, the way a

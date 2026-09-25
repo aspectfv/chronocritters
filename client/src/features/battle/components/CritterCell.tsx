@@ -77,7 +77,14 @@ export function CritterCell({
       <div
         className={`relative order-1 shrink-0 rounded-full p-1 ${isPlayer ? 'order-1' : 'order-2'} ${isHit ? 'animate-critter-hit' : ''}`}
       >
-        <div className="rounded-full bg-gradient-to-b from-brass via-brass-dim to-brass/60 p-[3px] shadow-raised">
+        {/* The pad it stands on, which is what puts it on the plate rather
+            than floating over it. */}
+        <span
+          className="critter-pad pointer-events-none absolute -bottom-3 left-1/2 h-10 w-[115%] -translate-x-1/2 rounded-[50%]"
+          aria-hidden="true"
+        />
+
+        <div className="relative rounded-full bg-gradient-to-b from-brass via-brass-dim to-brass/60 p-[3px] shadow-raised">
           <div className="relative overflow-hidden rounded-full bg-arena-deep">
             <img
               src={getCritterImageUrl(critter.name)}
