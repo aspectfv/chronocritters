@@ -18,24 +18,26 @@ function MoveButton({ ability, casterType, onClick, disabled }: {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="group relative overflow-hidden rounded-lg border border-brass/35 bg-arena-deep p-3 text-left transition-all hover:border-brass hover:bg-arena-glass/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2 focus-visible:ring-offset-arena disabled:opacity-40 disabled:hover:border-brass/35"
+      className={`key group relative rounded-md p-3 text-left text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60 ${getCritterTypeFill(casterType)}`}
     >
-      {/* Type stripe: the move grid's job is to be readable at a glance. */}
-      <span className={`absolute inset-y-0 left-0 w-1 ${getCritterTypeFill(casterType)}`} aria-hidden="true" />
-
-      <div className="flex items-start justify-between gap-2 pl-2">
+      <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="truncate font-bold text-arena-ink">{ability.name}</p>
-          <p className="mt-0.5 line-clamp-2 text-xs text-arena-ink-muted">
+          <p className="truncate text-[15px] font-black tracking-tight drop-shadow-[0_1px_0_rgba(0,0,0,0.35)]">
+            {ability.name}
+          </p>
+          <p className="mt-0.5 line-clamp-2 text-xs font-medium text-white/85">
             {effect?.description ?? 'No effect description.'}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
+
+        <span className="flex shrink-0 flex-col items-center gap-1">
           {power !== null && (
-            <span className="numeral engraved rounded bg-arena-glass px-2 py-0.5 text-base text-brass-ink">{power}</span>
+            <span className="numeral rounded border-2 border-outline bg-outline/85 px-2 py-0.5 text-base leading-tight text-white">
+              {power}
+            </span>
           )}
           {meta && <span className="text-sm" aria-hidden="true">{meta.icon}</span>}
-        </div>
+        </span>
       </div>
     </button>
   );
@@ -47,15 +49,15 @@ export function MoveGrid({ abilities, casterType, onAbilityClick, isPlayerTurn, 
     : isPlayerTurn ? 'Choose a move' : 'Waiting for your opponent';
 
   return (
-    <div className="rounded-xl border border-brass/30 bg-arena-deep p-3 shadow-card">
-      <div className="mb-2 flex items-center justify-between px-1">
-        <span className="text-sm font-medium text-arena-ink-muted">{heading}</span>
-        <span className="flex items-center gap-1 text-[11px] text-arena-ink-muted">
+    <div className="panel rounded-lg bg-arena-deep p-3">
+      <div className="mb-2.5 flex items-center justify-between px-0.5">
+        <span className="text-sm font-bold text-arena-ink">{heading}</span>
+        <span className={`flex items-center gap-1 rounded-full border-2 border-outline px-2 py-0.5 text-[11px] font-black text-white ${getCritterTypeFill(casterType)}`}>
           <span aria-hidden="true">{getCritterTypeIcon(casterType)}</span>
           {casterType}
         </span>
       </div>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         {abilities.map((ability) => (
           <MoveButton
             key={ability.id}

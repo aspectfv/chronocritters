@@ -56,6 +56,11 @@
   --color-sky: oklch(0.899 0.046 242);
   --color-haze: oklch(0.961 0.016 200);
   --color-floor: oklch(0.858 0.053 78);
+
+  /* One dark line draws every edge in the arena. Five brass borders at five
+     opacities was the whole border vocabulary before, which is why the panels
+     read as a form kit rather than as game furniture. */
+  --color-outline: oklch(0.268 0.044 264);
   --color-arena-glass: oklch(0.902 0.028 88);
   --color-brass: oklch(0.598 0.108 71);
   --color-brass-dim: oklch(0.503 0.091 68);
@@ -149,11 +154,12 @@ body {
       color-mix(in oklab, var(--color-floor) 70%, var(--color-haze)) 56%,
       var(--color-floor) 100%
     );
+  border: 3px solid var(--color-outline);
   box-shadow:
-    inset 0 0 0 1px color-mix(in oklab, var(--color-brass) 34%, transparent),
-    inset 0 2px 0 color-mix(in oklab, white 70%, transparent),
-    inset 0 -50px 70px -60px color-mix(in oklab, var(--color-brass-ink) 85%, transparent),
-    0 14px 28px -18px color-mix(in oklab, var(--color-brass-ink) 70%, transparent);
+    inset 0 2px 0 color-mix(in oklab, white 55%, transparent),
+    inset 0 -60px 80px -70px color-mix(in oklab, var(--color-outline) 75%, transparent),
+    0 4px 0 0 var(--color-outline),
+    0 7px 0 0 color-mix(in oklab, var(--color-outline) 30%, transparent);
 }
 
 /* Floor. Lines running back to the clock, so the lower half reads as ground
@@ -250,11 +256,115 @@ body {
   letter-spacing: -0.02em;
 }
 
-/* An engraved plate is chamfered, not rounded. Plaques take clipped corners so
-   they read as a different material from the buttons around them. */
-.plaque {
-  clip-path: polygon(
-    0 7px, 7px 0, calc(100% - 7px) 0, 100% 7px,
-    100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px)
+/* Game furniture, not form controls. Edges are a hard dark outline with a
+   light top bevel and a solid unblurred drop, the way a moulded plastic panel
+   catches light. Nothing here uses a blurred shadow: blur is what made the
+   previous surfaces read as cards on a website. */
+.panel {
+  border: 2px solid var(--color-outline);
+  box-shadow:
+    inset 0 2px 0 color-mix(in oklab, white 80%, transparent),
+    inset 0 -3px 0 color-mix(in oklab, var(--color-outline) 10%, transparent),
+    0 3px 0 0 var(--color-outline),
+    0 5px 0 0 color-mix(in oklab, var(--color-outline) 28%, transparent);
+}
+
+/* Recessed: HP tracks and the log's history well. The bevel runs the other
+   way, so a well never reads as a raised panel. */
+.well {
+  border: 2px solid var(--color-outline);
+  background-color: color-mix(in oklab, var(--color-outline) 16%, white);
+  box-shadow: inset 0 2px 0 color-mix(in oklab, var(--color-outline) 40%, transparent);
+}
+
+/* A key you press. It sits on its own edge and drops onto it when held, which
+   is the whole of the tactile feedback a turn-based game gets. */
+.key {
+  border: 2px solid var(--color-outline);
+  box-shadow:
+    inset 0 2px 0 color-mix(in oklab, white 42%, transparent),
+    inset 0 -4px 0 color-mix(in oklab, black 16%, transparent),
+    0 4px 0 0 var(--color-outline);
+  transition: transform 90ms ease-out, box-shadow 90ms ease-out, filter 120ms ease-out;
+}
+
+.key:hover:not(:disabled) {
+  filter: brightness(1.07);
+}
+
+.key:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 2px 0 color-mix(in oklab, white 30%, transparent),
+    inset 0 -2px 0 color-mix(in oklab, black 18%, transparent),
+    0 0 0 0 var(--color-outline);
+}
+
+.key:disabled {
+  filter: grayscale(0.55);
+  opacity: 0.62;
+  box-shadow:
+    inset 0 -2px 0 color-mix(in oklab, black 12%, transparent),
+    0 2px 0 0 color-mix(in oklab, var(--color-outline) 55%, transparent);
+}
+
+/* Health reads as a meter, not a progress bar: glossed fill over a dark well,
+   struck through with ticks so a glance gives a quantity and not just a
+   length. */
+.hp-fill {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, white 48%, transparent) 0 42%,
+    transparent 42%,
+    color-mix(in oklab, black 16%, transparent) 100%
   );
 }
+
+.hp-ticks {
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in oklab, var(--color-outline) 34%, transparent) 0 1px,
+    transparent 1px 10px
+  );
+}
+
+/* A chamfered name plate. The corner cut is drawn as an outline layer under an
+   inset fill layer, because a clip-path crops a border away and leaves the cut
+   edges bare. */
+.plaque {
+  position: relative;
+  background-color: var(--color-outline);
+  clip-path: polygon(
+    0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px,
+    100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px)
+  );
+  filter: drop-shadow(0 3px 0 color-mix(in oklab, var(--color-outline) 45%, transparent));
+}
+
+.plaque::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background-color: var(--color-arena-deep);
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, white 70%, transparent) 0 40%,
+    transparent 100%
+  );
+  clip-path: polygon(
+    0 9px, 9px 0, calc(100% - 9px) 0, 100% 9px,
+    100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px)
+  );
+}
+
+.plaque > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes advance-blink {
+  0%, 55% { opacity: 1; transform: translateY(0); }
+  56%, 100% { opacity: 0.15; transform: translateY(2px); }
+}
+
+.animate-advance { animation: advance-blink 900ms steps(1, end) infinite; }

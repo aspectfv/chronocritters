@@ -19,7 +19,7 @@ export function ForcedSwitchPanel({ open, team, onCritterClick, disabled }: Forc
       }`}
     >
       <div
-        className={`w-full max-w-lg rounded-xl border-2 border-brass/40 bg-arena-deep p-6 shadow-overlay transition-all duration-300 ${
+        className={`panel w-full max-w-lg rounded-lg bg-arena-deep p-6 transition-all duration-300 ${
           open ? 'translate-y-0 scale-100' : 'translate-y-4 scale-95'
         }`}
       >
@@ -38,12 +38,12 @@ export function ForcedSwitchPanel({ open, team, onCritterClick, disabled }: Forc
                 type="button"
                 disabled={disabled || !open}
                 onClick={() => onCritterClick(index)}
-                className="flex items-center gap-3 rounded-lg border-2 border-brass/25 bg-arena p-3 text-left transition-all hover:border-brass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass disabled:opacity-50"
+                className="key flex items-center gap-3 rounded-md bg-arena-deep p-3 text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60"
               >
                 <img
                   src={getCritterImageUrl(critter.name)}
                   alt={critter.name}
-                  className="h-14 w-14 shrink-0 rounded-md object-cover"
+                  className="h-14 w-14 shrink-0 rounded-md border-2 border-outline object-cover"
                   onError={e => {
                     const target = e.target as HTMLImageElement;
                     target.src = getCritterImageUrl('Unknown');
@@ -52,13 +52,13 @@ export function ForcedSwitchPanel({ open, team, onCritterClick, disabled }: Forc
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <span className="truncate font-bold text-arena-ink">{critter.name}</span>
-                    <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-semibold ${getCritterTypeStyle(critter.type)}`}>
+                    <span className={`shrink-0 rounded-full border-2 px-2 py-0.5 text-xs font-bold ${getCritterTypeStyle(critter.type)}`}>
                       {critter.type}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-arena-ink-muted">{critter.stats.currentHp}/{critter.stats.maxHp} HP</p>
-                  <div className="mt-1 h-1.5 w-full rounded-full bg-arena-glass">
-                    <div className={`h-1.5 rounded-full ${getHealthTone(healthPercentage)}`} style={{ width: `${healthPercentage}%` }}></div>
+                  <div className="well mt-1 h-3 w-full overflow-hidden rounded-sm">
+                    <div className={`hp-fill h-full ${getHealthTone(healthPercentage)}`} style={{ width: `${healthPercentage}%` }}></div>
                   </div>
                 </div>
               </button>

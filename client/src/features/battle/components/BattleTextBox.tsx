@@ -23,17 +23,24 @@ export function BattleTextBox({ log }: BattleLogProps) {
   }, [log]);
 
   return (
-    <div className="rounded-xl border-2 border-brass/40 bg-arena-deep p-3 shadow-card">
+    <div className="panel relative rounded-lg bg-arena-deep px-4 pb-3 pt-3.5">
       <p
         key={log.length}
-        className="animate-log-enter min-h-[2.5rem] text-[15px] font-semibold leading-snug text-arena-ink"
+        className="animate-log-enter min-h-[2.5rem] pr-6 text-[17px] font-bold leading-snug text-arena-ink"
         aria-live="polite"
       >
         {latest ?? 'Waiting for the battle to start...'}
       </p>
 
+      {/* The advance marker the genre puts at the corner of its text box. It
+          says the line is settled and the box is waiting. */}
+      <span
+        className="animate-advance absolute bottom-3 right-3 h-0 w-0 border-l-[7px] border-r-[7px] border-t-[9px] border-l-transparent border-r-transparent border-t-outline"
+        aria-hidden="true"
+      />
+
       {log.length > 1 && (
-        <div ref={scroller} className="mt-2 max-h-20 space-y-1 overflow-y-auto border-t border-brass/20 pt-2 pr-1">
+        <div ref={scroller} className="well mt-2.5 max-h-20 space-y-1 overflow-y-auto rounded-sm bg-arena px-2 py-1.5">
           {log.slice(0, -1).map((message, index) => (
             <p key={index} className={`text-xs ${tones[classifyBattleLog(message)]}`}>{message}</p>
           ))}

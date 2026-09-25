@@ -11,7 +11,7 @@ export function BattleHeader({ isPlayerTurn, onForfeit }: BattleHeaderProps) {
   const connection = getConnectionStatusStyle(connectionStatus);
 
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-brass/25 bg-arena-deep px-2 py-1.5 shadow-card">
+    <div className="panel flex items-center gap-2 rounded-lg bg-arena-deep px-2 py-1.5">
       <Link
         to="/menu"
         className="flex items-center gap-1.5 rounded-control px-2 py-1.5 text-sm font-semibold text-arena-ink-muted transition-colors hover:bg-arena-glass hover:text-arena-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
@@ -28,11 +28,11 @@ export function BattleHeader({ isPlayerTurn, onForfeit }: BattleHeaderProps) {
       {/* Turn state is the one thing that must be unmissable, so it owns the centre. */}
       <div className="flex flex-1 justify-center">
         {isPlayerTurn ? (
-          <span key="yours" className="animate-turn-claim rounded-full bg-brass px-4 py-1 text-sm font-bold text-white shadow-raised">
+          <span key="yours" className="animate-turn-claim rounded-full border-2 border-outline bg-brass px-4 py-1 text-sm font-black text-white shadow-[0_3px_0_0_var(--color-outline)]">
             Your Turn
           </span>
         ) : (
-          <span key="theirs" className="animate-turn-claim rounded-full border border-brass/25 px-4 py-1 text-sm font-semibold text-arena-ink-muted">
+          <span key="theirs" className="animate-turn-claim well rounded-full bg-arena px-4 py-1 text-sm font-bold text-arena-ink-muted">
             Opponent&rsquo;s turn
           </span>
         )}

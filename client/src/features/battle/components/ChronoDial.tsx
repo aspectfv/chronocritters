@@ -16,7 +16,7 @@ export function ChronoDial({ timeRemaining, turnDuration }: ChronoDialProps) {
 
   return (
     <div
-      className={`relative grid h-20 w-20 place-items-center rounded-full border-2 bg-arena-glass shadow-raised ${isCritical ? 'border-ruby/50' : 'border-brass/50'}`}
+      className={`relative grid h-20 w-20 place-items-center rounded-full border-[3px] border-outline bg-arena-glass shadow-[0_4px_0_0_var(--color-outline)] ${isCritical ? 'ring-4 ring-ruby/40' : ''}`}
       role="timer"
       aria-label={`${timeRemaining} seconds left this turn`}
     >
@@ -40,10 +40,10 @@ export function ChronoDial({ timeRemaining, turnDuration }: ChronoDialProps) {
         <span className={`absolute left-1/2 top-[7%] h-[13%] w-[3px] -translate-x-1/2 rounded-full ${isCritical ? 'bg-ruby' : isLow ? 'bg-warn' : 'bg-brass-ink'}`} />
       </div>
 
-      <span className={`numeral relative z-10 text-2xl ${isCritical ? 'animate-pulse text-ruby' : isLow ? 'text-warn' : 'text-brass-ink'}`}>
+      <span className={`numeral relative z-10 text-[28px] ${isCritical ? 'animate-pulse text-ruby' : isLow ? 'text-warn' : 'text-brass-ink'}`}>
         {timeRemaining}
       </span>
-      <span className="absolute inset-0 rounded-full ring-1 ring-inset ring-black/5" aria-hidden="true" />
+      <span className="absolute inset-0 rounded-full bg-gradient-to-b from-white/45 to-transparent to-45%" aria-hidden="true" />
     </div>
   );
 }

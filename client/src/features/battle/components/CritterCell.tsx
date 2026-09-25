@@ -44,24 +44,25 @@ export function CritterCell({
     <div className={`flex flex-col gap-3 ${isPlayer ? 'items-start' : 'items-end'}`}>
       {/* Plaque. Only your own cell shows the numeric HP, which is the genre
           convention and the better information design besides. */}
-      <div className={`w-full max-w-xs plaque border-2 border-brass/40 bg-arena-deep px-3 py-2 shadow-card ${isPlayer ? 'order-2' : 'order-1'}`}>
+      <div className={`plaque w-full max-w-xs px-3.5 py-2.5 ${isPlayer ? 'order-2' : 'order-1'}`}>
         <div className="flex items-baseline justify-between gap-2">
           <span className="truncate font-bold text-arena-ink">{critter.name}</span>
-          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold text-white ${getCritterTypeFill(critter.type)}`}>
+          <span className={`shrink-0 rounded-full border-2 border-outline px-2 py-0.5 text-[11px] font-black text-white ${getCritterTypeFill(critter.type)}`}>
             <span aria-hidden="true">{getCritterTypeIcon(critter.type)}</span> {critter.type}
           </span>
         </div>
 
-        <div className="mt-1.5 flex items-center gap-2">
-          <span className="text-xs font-medium text-arena-ink-muted">HP</span>
-          <div className="h-2 flex-1 overflow-hidden rounded-full bg-arena-glass">
+        <div className="mt-2 flex items-center gap-2">
+          <span className="numeral shrink-0 text-[11px] text-brass-ink">HP</span>
+          <div className="well relative h-3.5 flex-1 overflow-hidden rounded-sm">
             <div
-              className={`h-full rounded-full transition-[width,background-color] duration-500 ease-out ${getHealthTone(health)}`}
+              className={`hp-fill h-full transition-[width,background-color] duration-500 ease-out ${getHealthTone(health)}`}
               style={{ width: `${health}%` }}
             />
+            <span className="hp-ticks pointer-events-none absolute inset-0" aria-hidden="true" />
           </div>
           {showNumericHp && (
-            <span className="numeral shrink-0 text-xs text-arena-ink">
+            <span className="numeral shrink-0 text-sm text-arena-ink">
               {critter.stats.currentHp}/{critter.stats.maxHp}
             </span>
           )}
@@ -84,8 +85,8 @@ export function CritterCell({
           aria-hidden="true"
         />
 
-        <div className="relative rounded-full bg-gradient-to-b from-brass via-brass-dim to-brass/60 p-[3px] shadow-raised">
-          <div className="relative overflow-hidden rounded-full bg-arena-deep">
+        <div className="relative rounded-full border-[3px] border-outline bg-gradient-to-b from-brass via-brass-dim to-brass-ink p-[5px] shadow-[0_6px_0_0_var(--color-outline)]">
+          <div className="relative overflow-hidden rounded-full border-2 border-outline bg-arena-deep">
             <img
               src={getCritterImageUrl(critter.name)}
               alt={critter.name}
@@ -106,7 +107,7 @@ export function CritterCell({
               -{hitDamage}
             </span>
             {effectivenessLabel && (
-              <span className="mt-1 block rounded-full bg-brass px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
+              <span className="mt-1 block rounded-full border-2 border-outline bg-brass px-2 py-0.5 text-[10px] font-black tracking-wide text-white">
                 {effectivenessLabel}
               </span>
             )}
