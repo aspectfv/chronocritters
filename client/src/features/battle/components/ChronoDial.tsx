@@ -30,16 +30,17 @@ export function ChronoDial({ timeRemaining, turnDuration }: ChronoDialProps) {
         />
       </svg>
 
-      {/* Sweep hand, pinned at the centre. */}
+      {/* A marker riding the ring rather than a centre-pinned hand, which at
+          34% of the dial's height reached the middle and sat on the digits. */}
       <div
         className="absolute h-full w-full"
         style={{ transform: `rotate(${handAngle}deg)`, transition: 'transform 1s linear' }}
         aria-hidden="true"
       >
-        <span className="absolute left-1/2 top-[16%] h-[34%] w-[2px] -translate-x-1/2 rounded-full bg-brass-ink/80" />
+        <span className={`absolute left-1/2 top-[7%] h-[13%] w-[3px] -translate-x-1/2 rounded-full ${isCritical ? 'bg-danger' : isLow ? 'bg-warn' : 'bg-brass-ink'}`} />
       </div>
 
-      <span className={`relative text-xl font-black tabular-nums ${isCritical ? 'animate-pulse text-danger' : isLow ? 'text-warn' : 'text-brass-ink'}`}>
+      <span className={`relative z-10 text-xl font-black tabular-nums ${isCritical ? 'animate-pulse text-danger' : isLow ? 'text-warn' : 'text-brass-ink'}`}>
         {timeRemaining}
       </span>
       <span className="absolute inset-0 rounded-full ring-1 ring-inset ring-black/5" aria-hidden="true" />
