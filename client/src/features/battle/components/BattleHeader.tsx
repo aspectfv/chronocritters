@@ -61,7 +61,7 @@ export function BattleHeader({ isPlayerTurn, onForfeit }: BattleHeaderProps) {
       <button
         type="button"
         onClick={onForfeit}
-        className="flex items-center gap-1.5 rounded-control px-2 py-1.5 text-sm font-semibold text-danger transition-colors hover:bg-danger/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
+        className="flex items-center gap-1.5 rounded-control px-2 py-1.5 text-sm font-semibold text-ruby transition-colors hover:bg-ruby/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ruby"
       >
         <Flag className="h-4 w-4" aria-hidden="true" />
         <span className="hidden sm:inline">Forfeit</span>

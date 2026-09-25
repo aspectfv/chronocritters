@@ -28,7 +28,7 @@ function getImpactStyle(effectiveness: number) {
   if (effectiveness < 1) {
     return {
       flash: 'bg-blued/35',
-      figure: 'text-4xl text-surface',
+      figure: 'text-4xl text-arena-deep',
       banner: 'bg-blued text-white',
     };
   }

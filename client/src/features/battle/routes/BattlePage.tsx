@@ -163,7 +163,7 @@ function BattlePage() {
         )}
 
         {actionError && (
-          <div role="alert" className="rounded-lg border border-danger/40 bg-danger/15 px-4 py-2 text-center text-sm text-arena-ink">
+          <div role="alert" className="rounded-sm border-2 border-outline bg-ruby px-4 py-2 text-center text-sm font-bold text-white">
             {actionError}
           </div>
         )}

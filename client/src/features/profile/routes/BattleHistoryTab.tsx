@@ -7,45 +7,51 @@ export function BattleHistoryTab() {
   const user = useAuthStore((store) => store.user);
   const loaderData = useLoaderData() as GetBattleHistoryQuery;
   const battleHistory = loaderData?.getPlayer?.matchHistory || [];
-  
+
   return (
-    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
-      <h3 className="font-semibold text-accent-ink mb-4">Recent Battle History</h3>
-      <div className="space-y-3">
-        {battleHistory.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-ink-faint">
-            <svg className="w-14 h-14 mb-4" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path d="M20 44c0-6 8-10 12-10s12 4 12 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-              <circle cx="24" cy="28" r="3" fill="currentColor" />
-              <circle cx="40" cy="28" r="3" fill="currentColor" />
-              <path d="M28 36c1.5 2 6.5 2 8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            <span className="text-lg font-semibold">No battles found</span>
-            <span className="text-sm mt-2">Start a match to see your battle history here!</span>
-          </div>
-        ) : (
-          battleHistory.map((item, index) => {
-            const result = (item?.winnerId ?? '') === (user?.id ?? '') ? 'Victory' : 'Defeat';
-            return item ? (
-              <Link to={`/profile/history/${item.battleId}`} key={index} className="block p-4 rounded-lg border border-line bg-surface-sunk hover:bg-surface-sunk transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${result === 'Victory' ? 'bg-accent-soft text-accent-ink' : 'bg-danger-soft text-danger-ink'}`}>
-                      {result}
-                    </span>
-                    <div>
-                      <p className="font-bold text-ink">vs {item.opponentUsername}</p>
-                      <p className="text-sm text-ink-muted">Used: {item.usedCrittersNames?.join(', ') ?? 'None'}</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-ink-muted">{formatTimestamp(item.timestamp)}</p>
-                </div>
+    <div className="panel rounded-lg bg-arena-deep p-4">
+      <h2 className="mb-3 text-sm font-bold text-arena-ink">Your battles</h2>
+
+      {battleHistory.length === 0 ? (
+        <div className="well rounded-sm px-4 py-10 text-center">
+          <p className="display text-lg text-arena-ink">No battles yet</p>
+          <p className="mt-1 text-sm text-arena-ink-muted">Win or lose, every match you play is recorded here.</p>
+          <Link
+            to="/menu?queue=1"
+            className="key mt-4 inline-flex rounded-lg bg-brass px-5 py-2.5 text-sm font-black text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60"
+          >
+            Find a match
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2.5">
+          {battleHistory.map((item, index) => {
+            if (!item) return null;
+            const isVictory = (item.winnerId ?? '') === (user?.id ?? '');
+
+            return (
+              <Link
+                key={index}
+                to={`/profile/history/${item.battleId}`}
+                className="key flex flex-wrap items-center gap-3 rounded-lg bg-arena-deep p-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60"
+              >
+                <span className={`shrink-0 rounded-full border-2 border-outline px-2.5 py-0.5 text-[11px] font-black text-white ${isVictory ? 'bg-vital' : 'bg-ruby'}`}>
+                  {isVictory ? 'Won' : 'Lost'}
+                </span>
+
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-bold text-arena-ink">vs {item.opponentUsername}</span>
+                  <span className="block truncate text-xs text-arena-ink-muted">
+                    {item.usedCrittersNames?.length ? item.usedCrittersNames.join(', ') : 'No critters recorded'}
+                  </span>
+                </span>
+
+                <span className="shrink-0 text-xs text-arena-ink-muted">{formatTimestamp(item.timestamp)}</span>
               </Link>
-            ) : null
-          })
-        )}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

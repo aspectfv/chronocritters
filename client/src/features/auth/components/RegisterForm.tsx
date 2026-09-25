@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Form, useActionData, useNavigation, Link } from 'react-router-dom';
+import { KeyRound, User } from 'lucide-react';
 import type { RegisterCredentials, AuthError } from '@store/auth/types';
+import { AuthField } from '@components/auth/AuthField';
 
 function RegisterForm() {
   const [formData, setFormData] = useState<RegisterCredentials>({
@@ -8,7 +10,7 @@ function RegisterForm() {
     password: '',
     confirmPassword: ''
   });
-  
+
   const actionData = useActionData() as AuthError | undefined;
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
@@ -22,108 +24,70 @@ function RegisterForm() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-accent-ink text-center mb-8">
-        Join Chrono-Critters
-      </h1>
-      
+      <h1 className="display mb-1 text-xl text-arena-ink">Create an account</h1>
+      <p className="mb-4 text-sm text-arena-ink-muted">
+        You start with the whole roster: one of each type, and none of them beats the other two.
+      </p>
+
       {actionData?.message && (
-        <div className="mb-4 p-3 bg-danger-soft border border-danger/50 text-danger-ink rounded">
+        <p role="alert" className="mb-4 rounded-sm border-2 border-outline bg-ruby px-3 py-2 text-sm font-bold text-white">
           {actionData.message}
-        </div>
+        </p>
       )}
-      
-      <Form method="post" action="/auth/register" className="space-y-6">
-        <div>
-          <label htmlFor="reg-username" className="block text-sm font-medium text-accent-ink mb-2">
-            Username
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-            <input
-              id="reg-username"
-              name="username"
-              type="text"
-              value={formData.username}
-              onChange={handleInputChange('username')}
-              placeholder="Choose a username"
-              className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-surface text-ink placeholder-ink-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ring focus:border-accent ${
-                actionData?.field === 'username' ? 'border-danger/50' : 'border-line'
-              }`}
-              required
-            />
-          </div>
-        </div>
 
-        <div>
-          <label htmlFor="reg-password" className="block text-sm font-medium text-accent-ink mb-2">
-            Password
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <input
-              id="reg-password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleInputChange('password')}
-              placeholder="Create a password"
-              className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-surface text-ink placeholder-ink-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ring focus:border-accent ${
-                actionData?.field === 'password' ? 'border-danger/50' : 'border-line'
-              }`}
-              required
-            />
-          </div>
-        </div>
+      <Form method="post" action="/auth/register" className="space-y-4">
+        <AuthField
+          id="reg-username"
+          name="username"
+          type="text"
+          label="Username"
+          placeholder="Pick a trainer name"
+          autoComplete="username"
+          value={formData.username}
+          onChange={handleInputChange('username')}
+          invalid={actionData?.field === 'username'}
+          icon={<User className="h-4 w-4" />}
+        />
 
-        <div>
-          <label htmlFor="confirm-password" className="block text-sm font-medium text-accent-ink mb-2">
-            Confirm Password
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <input
-              id="confirm-password"
-              name="confirmPassword"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={handleInputChange('confirmPassword')}
-              placeholder="Confirm your password"
-              className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-surface text-ink placeholder-ink-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ring focus:border-accent ${
-                actionData?.field === 'confirmPassword' ? 'border-danger/50' : 'border-line'
-              }`}
-              required
-            />
-          </div>
-        </div>
+        <AuthField
+          id="reg-password"
+          name="password"
+          type="password"
+          label="Password"
+          placeholder="Pick a password"
+          autoComplete="new-password"
+          value={formData.password}
+          onChange={handleInputChange('password')}
+          invalid={actionData?.field === 'password'}
+          icon={<KeyRound className="h-4 w-4" />}
+        />
+
+        <AuthField
+          id="confirm-password"
+          name="confirmPassword"
+          type="password"
+          label="Confirm password"
+          placeholder="Type it again"
+          autoComplete="new-password"
+          value={formData.confirmPassword}
+          onChange={handleInputChange('confirmPassword')}
+          invalid={actionData?.field === 'confirmPassword'}
+          icon={<KeyRound className="h-4 w-4" />}
+        />
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-accent hover:bg-accent disabled:bg-accent-strong disabled:opacity-60 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus-visible:ring-accent-ring focus:ring-offset-2"
+          className="key w-full rounded-lg bg-brass px-4 py-3.5 text-lg font-black text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60"
         >
-          {isSubmitting ? 'Creating Account...' : 'Register'}
+          {isSubmitting ? 'Creating your account' : 'Create account'}
         </button>
       </Form>
 
-      <p className="mt-6 text-center text-sm text-ink-muted">
-        Already have an account?{' '}
-        <Link 
-          to="/auth/login"
-          className="text-accent hover:text-accent-ink font-medium"
-        >
-          Login here
+      <p className="mt-5 text-center text-sm text-arena-ink-muted">
+        Already have one?{' '}
+        <Link to="/auth/login" className="font-bold text-blued underline underline-offset-2 hover:text-arena-ink">
+          Sign in
         </Link>
       </p>
     </>

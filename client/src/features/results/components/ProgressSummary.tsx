@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { TrendingUp } from 'lucide-react';
-import { Surface } from '@components/ui/Surface';
 import type { ProgressBarProps, ProgressSummaryProps } from '@features/results/types';
 
 const FILL_MS = 1000;
@@ -40,31 +39,31 @@ const ProgressBar = ({ name, finalStats, expGained, delayMs = 0 }: ProgressBarPr
   return (
     <div>
       <div className="mb-1 flex items-baseline justify-between gap-2 text-sm">
-        <span className="min-w-0 truncate font-semibold text-ink">{name}</span>
-        <span className="shrink-0 text-xs text-ink-muted">Lv {finalLevel}</span>
+        <span className="min-w-0 truncate font-bold text-arena-ink">{name}</span>
+        <span className="numeral shrink-0 text-xs text-brass-ink">Lv {finalLevel}</span>
       </div>
       <div
-        className="h-2.5 w-full overflow-hidden rounded-full bg-surface-sunk"
+        className="well h-3.5 w-full overflow-hidden rounded-sm"
         role="progressbar"
         aria-label={`${name} experience`}
         aria-valuenow={Math.round(shownExp)}
         aria-valuemin={0}
         aria-valuemax={expToNextLevel}
       >
-        <div className="h-full rounded-full bg-accent" style={{ width: `${percentage}%` }} />
+        <div className="hp-fill h-full bg-brass" style={{ width: `${percentage}%` }} />
       </div>
       <div className="mt-1 flex items-baseline justify-between text-xs">
-        <span className="tabular-nums text-ink-faint">{Math.floor(shownExp)}/{expToNextLevel} XP</span>
-        {expGained > 0 && <span className="font-semibold text-accent-ink">+{expGained}</span>}
+        <span className="numeral text-arena-ink-muted">{Math.floor(shownExp)}/{expToNextLevel}</span>
+        {expGained > 0 && <span className="numeral text-vital">+{expGained}</span>}
       </div>
     </div>
   );
 };
 
 export const ProgressSummary = ({ player, critters, expGained, critterExpGained }: ProgressSummaryProps) => (
-  <Surface className="flex h-full flex-col">
-    <h2 className="mb-4 flex items-center gap-2 text-sm font-medium text-ink-muted">
-      <TrendingUp className="h-4 w-4" aria-hidden="true" />
+  <div className="panel flex h-full flex-col rounded-lg bg-arena-deep p-4">
+    <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-arena-ink">
+      <TrendingUp className="h-4 w-4 text-brass-ink" aria-hidden="true" />
       Progress
     </h2>
 
@@ -72,8 +71,8 @@ export const ProgressSummary = ({ player, critters, expGained, critterExpGained 
 
     {critters && critters.length > 0 && (
       <>
-        <hr className="my-4 border-line" />
-        <p className="mb-3 text-xs text-ink-faint">Critters</p>
+        <hr className="my-3.5 border-t-2 border-outline/25" />
+        <p className="mb-2.5 text-xs font-bold text-arena-ink-muted">Your critters</p>
         <div className="space-y-3">
           {critters.map((critter, index) => (
             <ProgressBar
@@ -87,5 +86,5 @@ export const ProgressSummary = ({ player, critters, expGained, critterExpGained 
         </div>
       </>
     )}
-  </Surface>
+  </div>
 );

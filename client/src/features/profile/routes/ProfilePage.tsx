@@ -4,13 +4,11 @@ import { ProfileTabs } from '../components/ProfileTabs';
 
 function ProfilePage() {
   return (
-    <main className="min-h-screen bg-canvas p-4 sm:p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <main className="min-h-screen bg-arena text-arena-ink">
+      <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-3 p-3 sm:p-5">
         <ProfileHeader />
         <ProfileTabs />
-        <div className="mt-6">
-          <Outlet />
-        </div>
+        <Outlet />
       </div>
     </main>
   );

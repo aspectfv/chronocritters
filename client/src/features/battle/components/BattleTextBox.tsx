@@ -3,7 +3,7 @@ import type { BattleLogProps } from '@features/battle/types';
 import { classifyBattleLog } from '@utils/utils';
 
 const tones: Record<string, string> = {
-  damage: 'text-danger',
+  damage: 'text-ruby',
   faint: 'text-brass-ink',
   switch: 'text-type-grass',
   status: 'text-type-toxic',

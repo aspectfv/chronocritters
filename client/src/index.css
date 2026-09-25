@@ -7,32 +7,12 @@
 @theme {
   --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
 
-  /* Surfaces and ink. The app previously used 13 distinct greys and a
-     hard-coded #f0f7f3 in four files. */
-  --color-canvas: oklch(0.872 0.024 92);
-  --color-surface: oklch(0.988 0.008 90);
-  --color-surface-sunk: oklch(0.936 0.018 90);
-  --color-line: oklch(0.836 0.026 88);
-  --color-line-strong: oklch(0.752 0.036 84);
+  /* Ink, shared by every page. Surfaces are named for the arena below,
+     because the whole interface now stands on it. */
   --color-ink: oklch(0.309 0.046 264);
   --color-ink-muted: oklch(0.494 0.034 264);
-  --color-ink-faint: oklch(0.646 0.026 264);
-
-  /* One accent, replacing four different primary greens and three focus
-     rings. -strong is the hover step, -ring the focus indicator. */
-  --color-accent: oklch(0.377 0.077 267);
-  --color-accent-strong: oklch(0.301 0.068 267);
-  --color-accent-soft: oklch(0.945 0.021 264);
-  --color-accent-ink: oklch(0.338 0.072 267);
-  --color-accent-ring: oklch(0.377 0.077 267);
-
-  --color-danger: oklch(0.438 0.148 19);
-  --color-danger-soft: oklch(0.951 0.026 22);
-  --color-danger-ink: oklch(0.402 0.135 20);
 
   --color-warn: oklch(0.716 0.142 67);
-  --color-warn-soft: oklch(0.962 0.046 85);
-  --color-warn-ink: oklch(0.462 0.105 62);
 
   /* The seven critter types, saturated enough to carry information. Each is
      paired with a glyph in utils.ts so nothing depends on hue alone. */
@@ -71,18 +51,16 @@
   --color-ruby: oklch(0.438 0.148 19);
   --color-vital: oklch(0.594 0.132 152);
 
-  --radius-card: 0.75rem;
   --radius-control: 0.5rem;
-  --radius-plaque: 0.25rem;
 
-  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-raised: 0 4px 12px -2px rgb(0 0 0 / 0.1);
+  /* The only blurred shadow left, and only because an overlay has to read as
+     lifted off the page rather than struck into it. */
   --shadow-overlay: 0 20px 40px -12px rgb(0 0 0 / 0.3);
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-canvas);
+  background-color: var(--color-arena);
   color: var(--color-ink);
 }
 
