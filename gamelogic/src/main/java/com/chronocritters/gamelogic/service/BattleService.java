@@ -115,8 +115,11 @@ public class BattleService {
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
         BattleState currentBattle = requireActiveTurn(battleId, playerId);
 
-        if (playerId.equals(currentBattle.getAwaitingSwitchPlayerId())) {
-            throw new IllegalStateException("Send out a replacement critter first");
+        String owedBy = currentBattle.getAwaitingSwitchPlayerId();
+        if (owedBy != null) {
+            throw new IllegalStateException(playerId.equals(owedBy)
+                    ? "Send out a replacement critter first"
+                    : "Waiting for a replacement critter");
         }
 
         currentBattle.setLastTurnResult(null);

@@ -12,6 +12,35 @@ import {
 const HIT_ANIMATION_MS = 1100;
 
 /**
+ * How hard the hit reads. A type match-up is the one thing a player has to take
+ * from a turn at a glance, so it drives the flash on the critter, the size of
+ * the figure and the colour of the banner rather than a word in the log.
+ */
+function getImpactStyle(effectiveness: number) {
+  if (effectiveness > 1) {
+    return {
+      flash: 'bg-ruby/55',
+      figure: 'text-7xl text-ruby',
+      banner: 'bg-ruby text-white',
+    };
+  }
+
+  if (effectiveness < 1) {
+    return {
+      flash: 'bg-blued/35',
+      figure: 'text-4xl text-surface',
+      banner: 'bg-blued text-white',
+    };
+  }
+
+  return {
+    flash: 'bg-white/55',
+    figure: 'text-5xl text-white',
+    banner: 'bg-brass text-white',
+  };
+}
+
+/**
  * A critter suspended in a brass-rimmed glass cell.
  *
  * The art is 1024x1024 with a saturated gradient baked in and no alpha, so it
@@ -38,6 +67,7 @@ export function CritterCell({
 
   const health = Math.max(0, (critter.stats.currentHp / critter.stats.maxHp) * 100);
   const effectivenessLabel = getEffectivenessLabel(hitEffectiveness);
+  const impact = getImpactStyle(hitEffectiveness);
   const isPlayer = side === 'player';
 
   return (
@@ -98,20 +128,33 @@ export function CritterCell({
             {/* Glass: a highlight across the top and a vignette at the base. */}
             <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/20 via-transparent to-black/15" aria-hidden="true" />
             <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-black/10" aria-hidden="true" />
+
+            {/* The hit itself, on the critter rather than only in the number
+                thrown above it. Its colour is the type match-up. */}
+            {isHit && (
+              <div
+                key={hitTurn}
+                className={`animate-impact-flash pointer-events-none absolute inset-0 rounded-full ${impact.flash}`}
+                aria-hidden="true"
+              />
+            )}
           </div>
         </div>
 
         {isHit && hitDamage > 0 && (
-          <div className="pointer-events-none absolute left-1/2 top-4 z-10 animate-damage-float text-center">
-            <span className={`block font-extrabold drop-shadow-lg ${hitEffectiveness > 1 ? 'numeral text-6xl text-ruby' : 'numeral text-5xl text-arena-ink'}`}>
-              -{hitDamage}
-            </span>
-            {effectivenessLabel && (
-              <span className="mt-1 block rounded-full border-2 border-outline bg-brass px-2 py-0.5 text-[10px] font-black tracking-wide text-white">
-                {effectivenessLabel}
-              </span>
-            )}
-          </div>
+          <span
+            className={`numeral struck pointer-events-none absolute left-1/2 top-[30%] z-20 animate-damage-float leading-none ${impact.figure}`}
+          >
+            -{hitDamage}
+          </span>
+        )}
+
+        {isHit && effectivenessLabel && (
+          <span
+            className={`pointer-events-none absolute left-1/2 top-[58%] z-20 animate-impact-banner whitespace-nowrap rounded-sm border-2 border-outline px-3 py-1 text-xs font-black shadow-[0_3px_0_0_var(--color-outline)] ${impact.banner}`}
+          >
+            {effectivenessLabel}
+          </span>
         )}
       </div>
     </div>

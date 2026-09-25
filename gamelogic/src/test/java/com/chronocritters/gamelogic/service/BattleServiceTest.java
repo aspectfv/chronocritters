@@ -220,6 +220,17 @@ class BattleServiceTest {
     }
 
     @Test
+    @DisplayName("refuses an ability from the opponent while a replacement is owed")
+    void refusesTheOpponentsAbilityWhileAReplacementIsOwed() {
+        BattleState battleState = battleAwaitingReplacement();
+        battleState.setActivePlayerId(PLAYER_TWO_ID);
+
+        assertThatThrownBy(() -> battleService.executeAbility(BATTLE_ID, PLAYER_TWO_ID, ABILITY_ID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Waiting for a replacement critter");
+    }
+
+    @Test
     @DisplayName("the clock running out on a replacement sends out the first living critter")
     void timingOutOnAReplacementFallsBackToRosterOrder() {
         BattleState battleState = battleAwaitingReplacement();

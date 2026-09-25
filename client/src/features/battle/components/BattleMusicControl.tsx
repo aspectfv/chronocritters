@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Volume2, VolumeX } from "lucide-react";
 import { setBattleSoundMuted } from "@features/battle/sound";
 
 export function BattleMusicControl() {
@@ -35,6 +36,8 @@ export function BattleMusicControl() {
     };
   }, []);
 
+  const level = isMuted ? 0 : Math.round(volume * 100);
+
   return (
     <>
       <audio
@@ -47,23 +50,19 @@ export function BattleMusicControl() {
       />
       <div className="flex items-center gap-2">
         <button
+          type="button"
           onClick={() => setIsMuted((prev) => !prev)}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-arena-ink-muted transition-colors hover:bg-arena-glass hover:text-arena-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
-          aria-label={isMuted ? "Unmute Music" : "Mute Music"}
+          className={`key flex h-8 w-8 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60 ${
+            isMuted ? 'bg-arena text-arena-ink-muted' : 'bg-brass text-white'
+          }`}
+          aria-label={isMuted ? "Turn sound on" : "Turn sound off"}
+          aria-pressed={!isMuted}
         >
-          {isMuted ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9l6 6M15 9l-6 6" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5v14l-7-7h4a1 1 0 001-1V8a1 1 0 00-1-1H4l7-7" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5v14l-7-7h4a1 1 0 001-1V8a1 1 0 00-1-1H4l7-7" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10a3 3 0 010 4" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8a7 7 0 010 8" />
-            </svg>
-          )}
+          {isMuted
+            ? <VolumeX className="h-4 w-4" aria-hidden="true" />
+            : <Volume2 className="h-4 w-4" aria-hidden="true" />}
         </button>
+
         <input
           type="range"
           min={0}
@@ -71,10 +70,13 @@ export function BattleMusicControl() {
           step={0.01}
           value={isMuted ? 0 : volume}
           onChange={e => setVolume(Number(e.target.value))}
-          className="hidden h-2 w-16 accent-brass lg:block"
+          style={{ '--fill': `${level}%` } as React.CSSProperties}
+          className="slider hidden w-20 lg:block"
           disabled={isMuted}
+          aria-label="Volume"
         />
-        <span className="hidden w-7 text-center text-xs text-arena-ink-muted lg:block">{!isMuted ? Math.round(volume * 100) : 0}</span>
+
+        <span className="numeral hidden w-8 text-center text-xs text-arena-ink lg:block">{level}</span>
       </div>
     </>
   );
