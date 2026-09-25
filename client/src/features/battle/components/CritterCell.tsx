@@ -41,7 +41,7 @@ export function CritterCell({
   const isPlayer = side === 'player';
 
   return (
-    <div className={`flex flex-col gap-3 ${isPlayer ? 'items-start' : 'items-end'}`}>
+    <div className={`flex flex-col gap-2 ${isPlayer ? 'items-start' : 'items-end'}`}>
       {/* Plaque. Only your own cell shows the numeric HP, which is the genre
           convention and the better information design besides. */}
       <div className={`plaque w-full max-w-xs px-3.5 py-2.5 ${isPlayer ? 'order-2' : 'order-1'}`}>
@@ -90,7 +90,7 @@ export function CritterCell({
             <img
               src={getCritterImageUrl(critter.name)}
               alt={critter.name}
-              className={`block object-cover transition-all duration-500 ${isPlayer ? 'h-40 w-40 sm:h-52 sm:w-52' : 'h-32 w-32 sm:h-40 sm:w-40'} ${critter.fainted ? 'grayscale opacity-40' : ''}`}
+              className={`block aspect-square object-cover transition-all duration-500 ${isPlayer ? 'h-[clamp(6rem,19vh,13rem)]' : 'h-[clamp(5rem,15vh,10rem)]'} ${critter.fainted ? 'grayscale opacity-40' : ''}`}
               onError={(e) => {
                 (e.target as HTMLImageElement).src = getCritterImageUrl('Unknown');
               }}

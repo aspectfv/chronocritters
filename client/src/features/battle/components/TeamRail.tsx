@@ -56,7 +56,7 @@ export function TeamRail({ title, team, activeCritterId, align, canSwitch = fals
             </>
           );
 
-          const shell = 'flex items-center gap-2 rounded-md px-2 py-1.5 w-[9.5rem] text-left';
+          const shell = 'flex items-center gap-2 rounded-md px-2 py-1.5 w-[8.5rem] text-left';
 
           return selectable ? (
             <button

@@ -168,10 +168,12 @@ function BattlePage() {
           </div>
         )}
 
-        {/* The diagonal, laid out absolutely inside a fixed stage so the two
-            cells stay opposed and the dead space between them is the dial's. */}
-        <div className="arena-plate relative min-h-[340px] flex-1 overflow-hidden rounded-2xl p-3 sm:min-h-[400px] sm:p-5">
-          <div className="absolute right-3 top-3 flex flex-col items-end gap-2 sm:right-5 sm:top-5">
+        {/* The two sides are laid out in flow rather than pinned to the plate's
+            corners, so a tall stack makes the plate taller instead of running
+            off the top of it. The clock and the ground stay absolute: they are
+            keyed to the plate's centre, not to either side. */}
+        <div className="arena-plate relative flex min-h-[22rem] flex-1 gap-3 overflow-hidden rounded-2xl p-3 sm:min-h-[25rem] sm:p-5">
+          <div className="order-3 flex min-w-0 flex-1 flex-col items-end justify-start gap-2">
             <TeamRail
               title="Opponent's bench"
               team={opponent.roster}
@@ -188,6 +190,9 @@ function BattlePage() {
             />
           </div>
 
+          {/* Room reserved down the middle so neither side runs into the clock. */}
+          <div className="order-2 w-20 shrink-0 sm:w-32" aria-hidden="true" />
+
           {/* The horizon line, and the clock's own dial struck around it. Both
               sit on the plate's centre by construction, so nothing has to be
               lined up by eye. */}
@@ -203,7 +208,7 @@ function BattlePage() {
             <ChronoDial timeRemaining={timeRemaining} turnDuration={turnDuration} />
           </div>
 
-          <div className="absolute bottom-3 left-3 flex flex-col items-start gap-2 sm:bottom-5 sm:left-5">
+          <div className="order-1 flex min-w-0 flex-1 flex-col items-start justify-end gap-2">
             <CritterCell
               playerName={player.username}
               critter={player.activeCritter}
