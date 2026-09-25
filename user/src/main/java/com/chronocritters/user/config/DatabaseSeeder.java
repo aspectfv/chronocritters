@@ -26,8 +26,9 @@ import com.chronocritters.user.player.repository.PlayerRepository;
  *
  * Reference documents all carry explicit ids, so re-saving them on each startup
  * is an upsert rather than a duplicate. Player documents are never overwritten,
- * with one exception: the two demo accounts have their rosters reset, because a
- * fixture that still holds a retired critter demonstrates nothing.
+ * with one exception: the two demo accounts have their roster and password
+ * reset, because a fixture that still holds a retired critter demonstrates
+ * nothing.
  *
  * <h2>The roster</h2>
  *
@@ -72,6 +73,9 @@ public class DatabaseSeeder {
 
     private static final List<String> RETIRED_EFFECT_IDS =
             List.of("eff-damage", "eff-damageovertime", "eff-skipturn");
+
+    /** Shared by both demo accounts. They exist to be signed into, not guarded. */
+    private static final String DEMO_PASSWORD = "password";
 
     @Bean
     public CommandLineRunner seedDatabase(AbilityRepository abilityRepository, CritterRepository critterRepository, PlayerRepository playerRepository, EffectRepository effectRepository) {
@@ -216,25 +220,26 @@ public class DatabaseSeeder {
             // room for the first real decision, which is who switches.
             List<Critter> demoRoster = List.of(sylvanSentinel, searfiend, aqualing);
 
-            playerRepository.save(playerRepository.findById("p1")
-                .map(existing -> { existing.setRoster(demoRoster); return existing; })
-                .orElseGet(() -> Player.builder()
-                    .id("p1")
-                    .username("BlueOak")
-                    .password(PasswordUtil.hashPassword("password1"))
-                    .stats(PlayerStats.builder().build())
-                    .roster(demoRoster)
-                    .build()));
-
-            playerRepository.save(playerRepository.findById("p2")
-                .map(existing -> { existing.setRoster(demoRoster); return existing; })
-                .orElseGet(() -> Player.builder()
-                    .id("p2")
-                    .username("RedAsh")
-                    .password(PasswordUtil.hashPassword("password2"))
-                    .stats(PlayerStats.builder().build())
-                    .roster(demoRoster)
-                    .build()));
+            seedDemoAccount(playerRepository, "p1", "BlueOak", demoRoster);
+            seedDemoAccount(playerRepository, "p2", "RedAsh", demoRoster);
         };
+    }
+
+    /**
+     * The roster and the password are reset on every startup, so the fixture
+     * always matches what is seeded beside it. Stats and match history are left
+     * alone: they are the only part of a demo account worth accumulating.
+     */
+    private void seedDemoAccount(PlayerRepository playerRepository, String id, String username, List<Critter> roster) {
+        Player player = playerRepository.findById(id).orElseGet(() -> Player.builder()
+                .id(id)
+                .username(username)
+                .stats(PlayerStats.builder().build())
+                .build());
+
+        player.setRoster(roster);
+        player.setPassword(PasswordUtil.hashPassword(DEMO_PASSWORD));
+
+        playerRepository.save(player);
     }
 }
