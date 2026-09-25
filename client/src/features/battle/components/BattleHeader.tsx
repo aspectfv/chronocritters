@@ -28,7 +28,7 @@ export function BattleHeader({ isPlayerTurn, onForfeit }: BattleHeaderProps) {
       {/* Turn state is the one thing that must be unmissable, so it owns the centre. */}
       <div className="flex flex-1 justify-center">
         {isPlayerTurn ? (
-          <span key="yours" className="animate-turn-claim rounded-full bg-brass px-4 py-1 text-sm font-black uppercase tracking-wider text-white shadow-raised">
+          <span key="yours" className="animate-turn-claim rounded-full bg-brass px-4 py-1 text-sm font-bold text-white shadow-raised">
             Your Turn
           </span>
         ) : (

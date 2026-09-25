@@ -5,34 +5,34 @@
    unquoted: ui-sans-serif and system-ui are CSS keywords, and quoting them made
    the browser hunt for families by those literal names and fail. */
 @theme {
-  --font-sans: 'Exo 2', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
 
   /* Surfaces and ink. The app previously used 13 distinct greys and a
      hard-coded #f0f7f3 in four files. */
-  --color-canvas: oklch(0.972 0.014 155);
-  --color-surface: oklch(1 0 0);
-  --color-surface-sunk: oklch(0.968 0.003 250);
-  --color-line: oklch(0.922 0.004 250);
-  --color-line-strong: oklch(0.868 0.007 250);
-  --color-ink: oklch(0.279 0.021 258);
-  --color-ink-muted: oklch(0.551 0.019 258);
-  --color-ink-faint: oklch(0.707 0.016 258);
+  --color-canvas: oklch(0.955 0.021 88);
+  --color-surface: oklch(0.992 0.006 90);
+  --color-surface-sunk: oklch(0.941 0.017 88);
+  --color-line: oklch(0.888 0.021 86);
+  --color-line-strong: oklch(0.808 0.031 84);
+  --color-ink: oklch(0.309 0.046 264);
+  --color-ink-muted: oklch(0.494 0.034 264);
+  --color-ink-faint: oklch(0.646 0.026 264);
 
   /* One accent, replacing four different primary greens and three focus
      rings. -strong is the hover step, -ring the focus indicator. */
-  --color-accent: oklch(0.527 0.134 153);
-  --color-accent-strong: oklch(0.448 0.119 153);
-  --color-accent-soft: oklch(0.962 0.031 155);
-  --color-accent-ink: oklch(0.393 0.098 153);
-  --color-accent-ring: oklch(0.527 0.134 153);
+  --color-accent: oklch(0.377 0.077 267);
+  --color-accent-strong: oklch(0.301 0.068 267);
+  --color-accent-soft: oklch(0.945 0.021 264);
+  --color-accent-ink: oklch(0.338 0.072 267);
+  --color-accent-ring: oklch(0.377 0.077 267);
 
-  --color-danger: oklch(0.577 0.216 27);
-  --color-danger-soft: oklch(0.958 0.032 18);
-  --color-danger-ink: oklch(0.444 0.177 27);
+  --color-danger: oklch(0.438 0.148 19);
+  --color-danger-soft: oklch(0.951 0.026 22);
+  --color-danger-ink: oklch(0.402 0.135 20);
 
-  --color-warn: oklch(0.769 0.163 70);
-  --color-warn-soft: oklch(0.973 0.056 90);
-  --color-warn-ink: oklch(0.473 0.114 62);
+  --color-warn: oklch(0.716 0.142 67);
+  --color-warn-soft: oklch(0.962 0.046 85);
+  --color-warn-ink: oklch(0.462 0.105 62);
 
   /* The seven critter types, saturated enough to carry information. Each is
      paired with a glyph in utils.ts so nothing depends on hue alone. */
@@ -45,21 +45,24 @@
   --color-type-kinetic: oklch(0.551 0.201 328);
   --color-type-unknown: oklch(0.551 0.019 258);
 
-  /* The arena is a lit stage rather than a document, but a bright one: this is
-     a Pokemon-style creature battler, not a night fight. Brass over a warm sky
-     battlefield, so the critter art's baked-in gradient reads as the glow
-     inside a containment cell rather than a background that cannot be removed. */
-  --color-arena: oklch(0.955 0.021 210);
-  --color-arena-deep: oklch(0.995 0.004 210);
-  --color-arena-glass: oklch(0.928 0.021 214);
-  --color-brass: oklch(0.646 0.116 74);
-  --color-brass-dim: oklch(0.548 0.098 70);
-  --color-brass-ink: oklch(0.407 0.073 64);
-  --color-arena-ink: oklch(0.283 0.028 245);
-  --color-arena-ink-muted: oklch(0.497 0.026 246);
+  /* Taken from watchmaking rather than from "brass" in general: an enamel dial
+     face, engine-turned ground, aged case fittings, heat-blued steel hands, and
+     ruby for the jewel bearings, which is the only place red appears. */
+  --color-arena: oklch(0.955 0.021 88);
+  --color-arena-deep: oklch(0.982 0.012 90);
+  --color-arena-glass: oklch(0.906 0.028 88);
+  --color-brass: oklch(0.598 0.108 71);
+  --color-brass-dim: oklch(0.503 0.091 68);
+  --color-brass-ink: oklch(0.392 0.071 64);
+  --color-arena-ink: oklch(0.309 0.046 264);
+  --color-arena-ink-muted: oklch(0.494 0.034 264);
+  --color-blued: oklch(0.377 0.077 267);
+  --color-ruby: oklch(0.438 0.148 19);
+  --color-vital: oklch(0.594 0.132 152);
 
   --radius-card: 0.75rem;
   --radius-control: 0.5rem;
+  --radius-plaque: 0.25rem;
 
   --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-raised: 0 4px 12px -2px rgb(0 0 0 / 0.1);
@@ -120,4 +123,70 @@ body {
   .animate-damage-float {
     display: none;
   }
+}
+
+/* Engine-turned guilloche: fine radial spokes over concentric rings, the
+   pattern struck into a watch dial. Drawn in CSS so it costs no image and
+   scales with the arena. Kept at very low contrast; it is a ground, not a
+   decoration competing with the critters. */
+.arena-dial {
+  background-image:
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      color-mix(in oklab, var(--color-brass) 4%, transparent) 0deg 0.5deg,
+      transparent 0.5deg 2.5deg
+    ),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      color-mix(in oklab, var(--color-brass) 3.5%, transparent) 0 1px,
+      transparent 1px 16px
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      var(--color-arena-deep) 0%,
+      color-mix(in oklab, var(--color-arena-deep) 55%, transparent) 26%,
+      transparent 64%
+    );
+}
+
+/* The chapter ring: minute ticks struck round the dial's edge, as a real dial
+   is laid out. Sits on the same centre as the guilloche by construction. */
+.arena-chapter-ring {
+  background-image:
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      color-mix(in oklab, var(--color-brass) 38%, transparent) 0deg 0.3deg,
+      transparent 0.3deg 6deg
+    );
+  mask-image: radial-gradient(circle at 50% 50%, transparent 0 47.4%, #000 47.4% 49%, transparent 49%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 0 47.4%, #000 47.4% 49%, transparent 49%);
+}
+
+/* Engraved rather than raised: recessed wells get an inner shadow, the way a
+   milled pocket in a movement plate reads. */
+.engraved {
+  box-shadow: inset 0 1px 2px color-mix(in oklab, var(--color-brass-ink) 22%, transparent);
+}
+
+/* Archivo carries a width axis, so one family covers both roles. Numerals are
+   pushed wide and heavy: in a battler the figures are the drama, and HP, damage
+   and the clock should read as struck rather than typed. */
+.numeral {
+  font-variation-settings: 'wdth' 118, 'wght' 800;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: -0.015em;
+}
+
+.display {
+  font-variation-settings: 'wdth' 112, 'wght' 800;
+  letter-spacing: -0.02em;
+}
+
+/* An engraved plate is chamfered, not rounded. Plaques take clipped corners so
+   they read as a different material from the buttons around them. */
+.plaque {
+  clip-path: polygon(
+    0 7px, 7px 0, calc(100% - 7px) 0, 100% 7px,
+    100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px)
+  );
 }

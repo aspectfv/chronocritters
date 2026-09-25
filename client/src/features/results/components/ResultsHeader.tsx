@@ -33,7 +33,7 @@ export function ResultsHeader({ result, opponentName }: ResultsHeaderProps) {
           aria-hidden="true"
           strokeWidth={1.5}
         />
-        <h1 className={`mt-3 text-5xl font-black tracking-tight ${isVictory ? 'text-accent-ink' : 'text-ink'}`}>
+        <h1 className={`display mt-3 text-6xl ${isVictory ? 'text-accent-ink' : 'text-ink'}`}>
           {isVictory ? 'Victory' : 'Defeat'}
         </h1>
         <p className="mt-2 break-words text-ink-muted">

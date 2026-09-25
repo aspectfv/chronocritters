@@ -32,7 +32,7 @@ function MoveButton({ ability, casterType, onClick, disabled }: {
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {power !== null && (
-            <span className="rounded bg-arena-glass px-1.5 py-0.5 text-sm font-black tabular-nums text-brass-ink">{power}</span>
+            <span className="numeral engraved rounded bg-arena-glass px-2 py-0.5 text-base text-brass-ink">{power}</span>
           )}
           {meta && <span className="text-sm" aria-hidden="true">{meta.icon}</span>}
         </div>
@@ -49,7 +49,7 @@ export function MoveGrid({ abilities, casterType, onAbilityClick, isPlayerTurn, 
   return (
     <div className="rounded-xl border border-brass/30 bg-arena-deep p-3 shadow-card">
       <div className="mb-2 flex items-center justify-between px-1">
-        <span className="text-[11px] font-bold uppercase tracking-widest text-brass-dim">{heading}</span>
+        <span className="text-sm font-medium text-arena-ink-muted">{heading}</span>
         <span className="flex items-center gap-1 text-[11px] text-arena-ink-muted">
           <span aria-hidden="true">{getCritterTypeIcon(casterType)}</span>
           {casterType}

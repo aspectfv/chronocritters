@@ -119,9 +119,9 @@ export function getAbilityPower(effect: BattleEffect | undefined): number | null
 }
 
 export function getHealthTone(healthPercentage: number): string {
-  if (healthPercentage > 50) return 'bg-green-500';
-  if (healthPercentage > 20) return 'bg-amber-400';
-  return 'bg-red-500';
+  if (healthPercentage > 50) return 'bg-vital';
+  if (healthPercentage > 20) return 'bg-warn';
+  return 'bg-ruby';
 }
 
 export function getEffectivenessLabel(effectiveness: number): string | null {

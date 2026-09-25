@@ -20,15 +20,13 @@ export const BattleSummary = ({ turnCount, playerDamageDealt, duration }: {
 
   return (
     <Surface>
-      <h2 className="mb-4 text-center text-[11px] font-bold uppercase tracking-widest text-ink-muted">
-        Battle summary
-      </h2>
+      <h2 className="mb-4 text-center text-sm font-medium text-ink-muted">Battle summary</h2>
       {/* Was three items across with no wrap or gutter, which collided below 400px. */}
       <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {stats.map(({ key, icon: Icon, label }) => (
           <div key={key} className="rounded-control bg-surface-sunk px-3 py-4 text-center">
             <Icon className="mx-auto mb-1 h-4 w-4 text-ink-faint" aria-hidden="true" />
-            <dd className="text-3xl font-bold tabular-nums text-ink">{values[key]}</dd>
+            <dd className="numeral text-4xl text-ink">{values[key]}</dd>
             <dt className="mt-0.5 text-sm text-ink-muted">{label}</dt>
           </div>
         ))}

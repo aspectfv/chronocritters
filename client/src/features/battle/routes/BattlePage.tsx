@@ -155,18 +155,6 @@ function BattlePage() {
 
   return (
     <main className="min-h-screen bg-arena text-arena-ink">
-      {/* Battlefield: a lit stage, not a document. */}
-      <div
-        className="pointer-events-none fixed inset-0"
-        aria-hidden="true"
-        style={{
-          background:
-            'radial-gradient(120% 80% at 70% 12%, color-mix(in oklab, var(--color-arena-glass) 60%, transparent) 0%, transparent 55%),' +
-            'radial-gradient(90% 60% at 20% 95%, color-mix(in oklab, var(--color-brass) 12%, transparent) 0%, transparent 60%),' +
-            'linear-gradient(180deg, var(--color-arena) 0%, var(--color-arena-deep) 100%)',
-        }}
-      />
-
       <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col gap-3 p-3 sm:p-5">
         <BattleHeader isPlayerTurn={player.hasTurn} onForfeit={handleForfeit} />
 
@@ -183,6 +171,12 @@ function BattlePage() {
         {/* The diagonal, laid out absolutely inside a fixed stage so the two
             cells stay opposed and the dead space between them is the dial's. */}
         <div className="relative min-h-[340px] flex-1 sm:min-h-[400px]">
+          {/* Critters stand on a movement plate: engine-turned ground, a chapter
+              ring struck round its edge, and the turn clock at dead centre. */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[min(115%,115vh)] -translate-x-1/2 -translate-y-1/2" aria-hidden="true">
+            <div className="arena-dial absolute inset-0 rounded-full" />
+            <div className="arena-chapter-ring absolute inset-0" />
+          </div>
           <div className="absolute right-0 top-0 flex flex-col items-end gap-2">
             <TeamRail
               title="Opponent's bench"

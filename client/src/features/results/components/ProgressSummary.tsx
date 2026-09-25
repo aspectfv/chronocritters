@@ -63,7 +63,7 @@ const ProgressBar = ({ name, finalStats, expGained, delayMs = 0 }: ProgressBarPr
 
 export const ProgressSummary = ({ player, critters, expGained, critterExpGained }: ProgressSummaryProps) => (
   <Surface className="flex h-full flex-col">
-    <h2 className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-ink-muted">
+    <h2 className="mb-4 flex items-center gap-2 text-sm font-medium text-ink-muted">
       <TrendingUp className="h-4 w-4" aria-hidden="true" />
       Progress
     </h2>
@@ -73,7 +73,7 @@ export const ProgressSummary = ({ player, critters, expGained, critterExpGained 
     {critters && critters.length > 0 && (
       <>
         <hr className="my-4 border-line" />
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ink-faint">Critters</p>
+        <p className="mb-3 text-xs text-ink-faint">Critters</p>
         <div className="space-y-3">
           {critters.map((critter, index) => (
             <ProgressBar

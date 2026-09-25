@@ -16,7 +16,7 @@ export function TeamRail({ title, team, activeCritterId, align, canSwitch = fals
 
   return (
     <div className={`w-full ${align === 'right' ? 'text-right' : 'text-left'}`}>
-      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-brass-dim">{title}</p>
+      <p className="mb-1 text-xs text-arena-ink-muted">{title}</p>
       <div className={`flex flex-wrap gap-1.5 ${align === 'right' ? 'justify-end' : 'justify-start'}`}>
         {bench.map(({ critter, index }) => {
           const health = Math.max(0, (critter.stats.currentHp / critter.stats.maxHp) * 100);

@@ -44,16 +44,16 @@ export function CritterCell({
     <div className={`flex flex-col gap-3 ${isPlayer ? 'items-start' : 'items-end'}`}>
       {/* Plaque. Only your own cell shows the numeric HP, which is the genre
           convention and the better information design besides. */}
-      <div className={`w-full max-w-xs rounded-lg border border-brass/35 bg-arena-deep px-3 py-2 shadow-card ${isPlayer ? 'order-2' : 'order-1'}`}>
+      <div className={`w-full max-w-xs plaque border-2 border-brass/40 bg-arena-deep px-3 py-2 shadow-card ${isPlayer ? 'order-2' : 'order-1'}`}>
         <div className="flex items-baseline justify-between gap-2">
           <span className="truncate font-bold text-arena-ink">{critter.name}</span>
-          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white ${getCritterTypeFill(critter.type)}`}>
+          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold text-white ${getCritterTypeFill(critter.type)}`}>
             <span aria-hidden="true">{getCritterTypeIcon(critter.type)}</span> {critter.type}
           </span>
         </div>
 
         <div className="mt-1.5 flex items-center gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-brass-dim">HP</span>
+          <span className="text-xs font-medium text-arena-ink-muted">HP</span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-arena-glass">
             <div
               className={`h-full rounded-full transition-[width,background-color] duration-500 ease-out ${getHealthTone(health)}`}
@@ -61,7 +61,7 @@ export function CritterCell({
             />
           </div>
           {showNumericHp && (
-            <span className="shrink-0 text-xs font-semibold tabular-nums text-arena-ink-muted">
+            <span className="numeral shrink-0 text-xs text-arena-ink">
               {critter.stats.currentHp}/{critter.stats.maxHp}
             </span>
           )}
@@ -95,7 +95,7 @@ export function CritterCell({
 
         {isHit && hitDamage > 0 && (
           <div className="pointer-events-none absolute left-1/2 top-4 z-10 animate-damage-float text-center">
-            <span className={`block font-extrabold drop-shadow-lg ${hitEffectiveness > 1 ? 'text-5xl text-danger' : 'text-4xl text-arena-ink'}`}>
+            <span className={`block font-extrabold drop-shadow-lg ${hitEffectiveness > 1 ? 'numeral text-6xl text-ruby' : 'numeral text-5xl text-arena-ink'}`}>
               -{hitDamage}
             </span>
             {effectivenessLabel && (
