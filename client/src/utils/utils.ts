@@ -96,19 +96,33 @@ export const formatTimestamp = (timestamp: string | null | undefined): string =>
   return date.toLocaleString();
 };
 
+/**
+ * The same three effects arrive under two discriminants: the battle socket
+ * sends `_type`, GraphQL sends `__typename`. The values are identical, so the
+ * helpers below read whichever one is there rather than the catalogue carrying
+ * a second copy of every table.
+ */
+export type AnyEffect = BattleEffect | EffectUnion;
+
+function effectKind(effect: AnyEffect): BattleEffect['_type'] | null {
+  const kind = '_type' in effect ? effect._type : effect.__typename;
+  return kind ?? null;
+}
+
 const battleEffectMeta: Record<BattleEffect['_type'], { label: string; icon: string; style: string }> = {
   DamageEffect: { label: 'Struck', icon: '💥', style: 'bg-danger-soft text-danger-ink border-danger/35' },
   DamageOverTimeEffect: { label: 'Wounded', icon: '☠️', style: 'bg-purple-100 text-purple-800 border-purple-300' },
   SkipTurnEffect: { label: 'Stunned', icon: '💫', style: 'bg-blue-100 text-blue-800 border-blue-300' },
 };
 
-export function getBattleEffectMeta(effect: BattleEffect) {
-  return battleEffectMeta[effect._type];
+export function getBattleEffectMeta(effect: AnyEffect) {
+  const kind = effectKind(effect);
+  return kind ? battleEffectMeta[kind] : battleEffectMeta.DamageEffect;
 }
 
 /** Persistent effects carry a countdown; an instant hit does not. */
-export function getBattleEffectDuration(effect: BattleEffect): number | null {
-  return effect._type === 'DamageEffect' ? null : effect.duration;
+export function getBattleEffectDuration(effect: AnyEffect): number | null {
+  return effectKind(effect) === 'DamageEffect' ? null : 'duration' in effect ? effect.duration : null;
 }
 
 /**
@@ -116,16 +130,20 @@ export function getBattleEffectDuration(effect: BattleEffect): number | null {
  * the one beside it. An ability can carry more than one, and the second is
  * usually the reason to pick it.
  */
-export function describeBattleEffect(effect: BattleEffect): string {
-  if (effect._type === 'DamageEffect') return `${effect.damage} damage`;
-  if (effect._type === 'DamageOverTimeEffect') return `${effect.damagePerTurn} a turn for ${effect.duration}`;
+export function describeBattleEffect(effect: AnyEffect): string {
+  const kind = effectKind(effect);
+  if (kind === 'DamageEffect' && 'damage' in effect) return `${effect.damage} damage`;
+  if (kind === 'DamageOverTimeEffect' && 'damagePerTurn' in effect) {
+    return `${effect.damagePerTurn} a turn for ${effect.duration}`;
+  }
   return 'costs a turn';
 }
 
-export function getAbilityPower(effect: BattleEffect | undefined): number | null {
+export function getAbilityPower(effect: AnyEffect | undefined): number | null {
   if (!effect) return null;
-  if (effect._type === 'DamageEffect') return effect.damage;
-  if (effect._type === 'DamageOverTimeEffect') return effect.damagePerTurn;
+  const kind = effectKind(effect);
+  if (kind === 'DamageEffect' && 'damage' in effect) return effect.damage;
+  if (kind === 'DamageOverTimeEffect' && 'damagePerTurn' in effect) return effect.damagePerTurn;
   return null;
 }
 

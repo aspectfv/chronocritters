@@ -13,6 +13,7 @@ const MenuPage = lazy(() => import('@features/menu/routes/MenuPage'));
 const ProfilePage = lazy(() => import('@features/profile/routes/ProfilePage'));
 const BattlePage = lazy(() => import('@features/battle/routes/BattlePage'));
 const ResultsPage = lazy(() => import('@features/results/routes/ResultsPage'));
+const CatalogPage = lazy(() => import('@features/catalog/routes/CatalogPage'));
 const BattleHistoryTab = lazy(() => import('@features/profile/routes/BattleHistoryTab').then((m) => ({ default: m.BattleHistoryTab })));
 const MyCrittersTab = lazy(() => import('@features/profile/routes/MyCrittersTab').then((m) => ({ default: m.MyCrittersTab })));
 const OverviewTab = lazy(() => import('@features/profile/routes/OverviewTab').then((m) => ({ default: m.OverviewTab })));
@@ -21,6 +22,7 @@ import { menuLoader } from '@features/menu/loaders';
 import { battleHistoryEntryLoader, battleHistoryLoader, myCrittersLoader, overviewLoader } from '@features/profile/loaders';
 import { resultsLoader } from '@features/results/loaders';
 import { battleLoader } from '@features/battle/loaders';
+import { catalogLoader } from '@features/catalog/loaders';
 
 const router = createBrowserRouter([
   {
@@ -78,6 +80,11 @@ const router = createBrowserRouter([
             loader: battleHistoryEntryLoader
           }
         ],
+      },
+      {
+        path: 'catalog',
+        element: <ProtectedRoute><CatalogPage /></ProtectedRoute>,
+        loader: catalogLoader
       },
       {
         path: 'battle/:battleId',

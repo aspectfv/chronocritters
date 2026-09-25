@@ -1,6 +1,7 @@
 import { MenuHeader } from '@features/menu/components/MenuHeader';
 import { BattleArena } from '@features/menu/components/BattleArena';
 import { TrainerProfile } from '@features/menu/components/TrainerProfile';
+import { CritterCatalog } from '@features/menu/components/CritterCatalog';
 import { LogoutButton } from '@features/menu/components/LogoutButton';
 import { useLoaderData, useSearchParams } from 'react-router-dom';
 import type { GetPlayerStatsQuery } from 'src/gql/graphql';
@@ -25,9 +26,10 @@ function MenuPage() {
             {notice}
           </div>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
           <BattleArena />
           <TrainerProfile wins={wins} losses={losses} />
+          <CritterCatalog />
         </div>
         <LogoutButton />
       </div>

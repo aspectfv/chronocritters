@@ -1,6 +1,9 @@
 package com.chronocritters.user.config;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import com.chronocritters.lib.model.domain.Ability;
 import com.chronocritters.lib.model.domain.BaseStats;
 import com.chronocritters.lib.model.domain.Critter;
+import com.chronocritters.lib.model.domain.Effect;
 import com.chronocritters.lib.model.domain.Player;
 import com.chronocritters.lib.model.domain.PlayerStats;
 import com.chronocritters.lib.model.effects.DamageEffect;
@@ -59,31 +63,12 @@ import com.chronocritters.user.player.repository.PlayerRepository;
 @Configuration
 public class DatabaseSeeder {
 
-    /**
-     * Reference documents from the previous roster. They are removed rather than
-     * left behind because anything still listing them offers a critter that no
-     * longer has a place in the type triangle.
-     */
-    private static final List<String> RETIRED_CRITTER_IDS =
-            List.of("electric-volthound", "metal-cogling", "toxic-miasmite", "kinetic-strikon");
-
-    private static final List<String> RETIRED_ABILITY_IDS = List.of(
-            "atk-staticsnap", "atk-geargrind", "eff-noxiousfumes",
-            "atk-corrosivebite", "eff-concussionwave", "atk-impactpunch");
-
-    private static final List<String> RETIRED_EFFECT_IDS =
-            List.of("eff-damage", "eff-damageovertime", "eff-skipturn");
-
     /** Shared by both demo accounts. They exist to be signed into, not guarded. */
     private static final String DEMO_PASSWORD = "password";
 
     @Bean
     public CommandLineRunner seedDatabase(AbilityRepository abilityRepository, CritterRepository critterRepository, PlayerRepository playerRepository, EffectRepository effectRepository) {
         return args -> {
-            critterRepository.deleteAllById(RETIRED_CRITTER_IDS);
-            abilityRepository.deleteAllById(RETIRED_ABILITY_IDS);
-            effectRepository.deleteAllById(RETIRED_EFFECT_IDS);
-
             // Effects. Each carries its numbers in its id, so an ability's
             // strength is readable where the ability is declared.
 
@@ -209,6 +194,16 @@ public class DatabaseSeeder {
 
             critterRepository.saveAll(List.of(searfiend, sylvanSentinel, aqualing));
 
+            // Whatever is no longer declared above is dropped, so the reference
+            // collections hold the seed and nothing else. Listing retired ids by
+            // hand missed documents written under an id scheme this seeder no
+            // longer uses, which is how a retired critter stayed in the game.
+            pruneTo(effectRepository::deleteByIdNotIn, strike1, strike3, strike4, burn, bind, stun);
+            pruneTo(abilityRepository::deleteByIdNotIn,
+                    cinderLash, ashenBrand, rootJab, brambleSnare, riptideLash, undertow);
+            critterRepository.deleteByIdNotIn(
+                    List.of(searfiend.getId(), sylvanSentinel.getId(), aqualing.getId()));
+
             // Demo accounts. Both hold the whole triangle, so a battle can reach
             // every matchup and neither side is ahead on the draw.
             //
@@ -223,6 +218,16 @@ public class DatabaseSeeder {
             seedDemoAccount(playerRepository, "p1", "BlueOak", demoRoster);
             seedDemoAccount(playerRepository, "p2", "RedAsh", demoRoster);
         };
+    }
+
+    /** Keeps only the documents just written, identified by their own ids. */
+    private void pruneTo(Consumer<Collection<String>> deleteByIdNotIn, Effect... kept) {
+        deleteByIdNotIn.accept(Arrays.stream(kept).map(Effect::getId).toList());
+    }
+
+    /** Keeps only the abilities just written, identified by their own ids. */
+    private void pruneTo(Consumer<Collection<String>> deleteByIdNotIn, Ability... kept) {
+        deleteByIdNotIn.accept(Arrays.stream(kept).map(Ability::getId).toList());
     }
 
     /**
