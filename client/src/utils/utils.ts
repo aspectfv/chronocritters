@@ -98,7 +98,7 @@ export const formatTimestamp = (timestamp: string | null | undefined): string =>
 
 const battleEffectMeta: Record<BattleEffect['_type'], { label: string; icon: string; style: string }> = {
   DamageEffect: { label: 'Struck', icon: '💥', style: 'bg-danger-soft text-danger-ink border-danger/35' },
-  DamageOverTimeEffect: { label: 'Poisoned', icon: '☠️', style: 'bg-purple-100 text-purple-800 border-purple-300' },
+  DamageOverTimeEffect: { label: 'Wounded', icon: '☠️', style: 'bg-purple-100 text-purple-800 border-purple-300' },
   SkipTurnEffect: { label: 'Stunned', icon: '💫', style: 'bg-blue-100 text-blue-800 border-blue-300' },
 };
 
@@ -109,6 +109,17 @@ export function getBattleEffectMeta(effect: BattleEffect) {
 /** Persistent effects carry a countdown; an instant hit does not. */
 export function getBattleEffectDuration(effect: BattleEffect): number | null {
   return effect._type === 'DamageEffect' ? null : effect.duration;
+}
+
+/**
+ * What an effect does, in the fewest words that still let a move be compared to
+ * the one beside it. An ability can carry more than one, and the second is
+ * usually the reason to pick it.
+ */
+export function describeBattleEffect(effect: BattleEffect): string {
+  if (effect._type === 'DamageEffect') return `${effect.damage} damage`;
+  if (effect._type === 'DamageOverTimeEffect') return `${effect.damagePerTurn} a turn for ${effect.duration}`;
+  return 'costs a turn';
 }
 
 export function getAbilityPower(effect: BattleEffect | undefined): number | null {

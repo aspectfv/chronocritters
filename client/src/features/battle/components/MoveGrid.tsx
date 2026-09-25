@@ -1,6 +1,6 @@
 import type { BattleAbility } from '@store/battle/types';
 import type { MoveGridProps } from '@features/battle/types';
-import { getAbilityPower, getBattleEffectMeta, getCritterTypeFill, getCritterTypeIcon } from '@utils/utils';
+import { describeBattleEffect, getBattleEffectMeta, getCritterTypeFill, getCritterTypeIcon } from '@utils/utils';
 import type { CritterType } from '@/gql/graphql';
 
 function MoveButton({ ability, casterType, onClick, disabled }: {
@@ -9,35 +9,30 @@ function MoveButton({ ability, casterType, onClick, disabled }: {
   onClick: () => void;
   disabled: boolean;
 }) {
-  const effect = ability.effects[0];
-  const power = getAbilityPower(effect);
-  const meta = effect ? getBattleEffectMeta(effect) : null;
-
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      title={ability.description}
       className={`key group relative rounded-md p-3 text-left text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60 ${getCritterTypeFill(casterType)}`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="truncate text-[15px] font-black tracking-tight drop-shadow-[0_1px_0_rgba(0,0,0,0.35)]">
-            {ability.name}
-          </p>
-          <p className="mt-0.5 line-clamp-2 text-xs font-medium text-white/85">
-            {effect?.description ?? 'No effect description.'}
-          </p>
-        </div>
+      <p className="truncate text-[15px] font-black tracking-tight drop-shadow-[0_1px_0_rgba(0,0,0,0.35)]">
+        {ability.name}
+      </p>
 
-        <span className="flex shrink-0 flex-col items-center gap-1">
-          {power !== null && (
-            <span className="numeral rounded border-2 border-outline bg-outline/85 px-2 py-0.5 text-base leading-tight text-white">
-              {power}
-            </span>
-          )}
-          {meta && <span className="text-sm" aria-hidden="true">{meta.icon}</span>}
-        </span>
+      {/* Every effect, not just the first. A move that hits and then burns is
+          picked for the burn, and reading only effects[0] hid it. */}
+      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+        {ability.effects.map((effect) => (
+          <span
+            key={effect.id}
+            className="numeral inline-flex items-center gap-1 rounded border-2 border-outline bg-outline/80 px-1.5 py-0.5 text-[11px] leading-tight text-white"
+          >
+            <span aria-hidden="true">{getBattleEffectMeta(effect).icon}</span>
+            {describeBattleEffect(effect)}
+          </span>
+        ))}
       </div>
     </button>
   );

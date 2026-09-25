@@ -25,193 +25,216 @@ import com.chronocritters.user.player.repository.PlayerRepository;
  * Seeds the reference data every critter and ability is built from.
  *
  * Reference documents all carry explicit ids, so re-saving them on each startup
- * is an upsert rather than a duplicate. Player documents are never overwritten:
- * the two demo accounts are only created when they are missing, so registered
- * accounts and their match history survive a restart.
+ * is an upsert rather than a duplicate. Player documents are never overwritten,
+ * with one exception: the two demo accounts have their rosters reset, because a
+ * fixture that still holds a retired critter demonstrates nothing.
+ *
+ * <h2>The roster</h2>
+ *
+ * Three critters on a closed type triangle: fire burns grass, grass drinks
+ * water, water quenches fire. Every pairing therefore resolves at 1.5x or 0.5x
+ * and there is no neutral matchup to hide in, which is what makes the choice of
+ * who to send out the decision the battle turns on.
+ *
+ * Damage is {@code round(base * min(3, atk/def) * type)}, so a type multiplier
+ * and a stat ratio compound. Defence is kept in a narrow 5-6 band for that
+ * reason: spreading it further turned a resisted hit into a rounding error. As
+ * seeded, a favourable attack takes three hits to knock a critter out and a
+ * resisted one takes five to eight, which is the gap each critter's second
+ * ability exists to close.
+ *
+ * Status damage ignores the type chart entirely, so the second ability is the
+ * answer to a bad matchup rather than a strictly better opening move:
+ *
+ * <ul>
+ *   <li>Searfiend trades its biggest hit for a burn it can land on anyone.</li>
+ *   <li>Sylvan Sentinel spends a turn on a four-turn bind, which is worth more
+ *       than four of its own weak jabs and is how the wall wins a race it is
+ *       losing.</li>
+ *   <li>Aqualing takes the opponent's turn away, which is worth most when the
+ *       opponent hits harder than it does.</li>
+ * </ul>
  */
 @Configuration
 public class DatabaseSeeder {
 
+    /**
+     * Reference documents from the previous roster. They are removed rather than
+     * left behind because anything still listing them offers a critter that no
+     * longer has a place in the type triangle.
+     */
+    private static final List<String> RETIRED_CRITTER_IDS =
+            List.of("electric-volthound", "metal-cogling", "toxic-miasmite", "kinetic-strikon");
+
+    private static final List<String> RETIRED_ABILITY_IDS = List.of(
+            "atk-staticsnap", "atk-geargrind", "eff-noxiousfumes",
+            "atk-corrosivebite", "eff-concussionwave", "atk-impactpunch");
+
+    private static final List<String> RETIRED_EFFECT_IDS =
+            List.of("eff-damage", "eff-damageovertime", "eff-skipturn");
+
     @Bean
     public CommandLineRunner seedDatabase(AbilityRepository abilityRepository, CritterRepository critterRepository, PlayerRepository playerRepository, EffectRepository effectRepository) {
         return args -> {
-            // Effects
+            critterRepository.deleteAllById(RETIRED_CRITTER_IDS);
+            abilityRepository.deleteAllById(RETIRED_ABILITY_IDS);
+            effectRepository.deleteAllById(RETIRED_EFFECT_IDS);
 
-            DamageEffect dmg = DamageEffect.builder()
-                .id("eff-damage")
-                .description("Deals 1 damage to the target.")
+            // Effects. Each carries its numbers in its id, so an ability's
+            // strength is readable where the ability is declared.
+
+            DamageEffect strike1 = DamageEffect.builder()
+                .id("eff-strike-1")
+                .description("Deals 1 damage.")
                 .damage(1)
                 .build();
 
-            DamageOverTimeEffect dot = DamageOverTimeEffect.builder()
-                .id("eff-damageovertime")
-                .description("Deals 1 damage per turn for 3 turns.")
-                .damagePerTurn(1)
-                .duration(3)
+            DamageEffect strike3 = DamageEffect.builder()
+                .id("eff-strike-3")
+                .description("Deals 3 damage.")
+                .damage(3)
                 .build();
 
-            SkipTurnEffect skipTurn = SkipTurnEffect.builder()
-                .id("eff-skipturn")
-                .description("Causes the target to skip their next 2 turns.")
+            DamageEffect strike4 = DamageEffect.builder()
+                .id("eff-strike-4")
+                .description("Deals 4 damage.")
+                .damage(4)
+                .build();
+
+            DamageOverTimeEffect burn = DamageOverTimeEffect.builder()
+                .id("eff-burn")
+                .description("Burns for 2 damage a turn over 2 turns.")
+                .damagePerTurn(2)
                 .duration(2)
                 .build();
 
-            effectRepository.saveAll(List.of(dmg, dot, skipTurn));
+            DamageOverTimeEffect bind = DamageOverTimeEffect.builder()
+                .id("eff-bind")
+                .description("Binds for 2 damage a turn over 4 turns.")
+                .damagePerTurn(2)
+                .duration(4)
+                .build();
+
+            // Two turns of stun is one turn missed: the countdown ticks on the
+            // caster's free turn as well, so it is spent by the time the target
+            // would have moved again.
+            SkipTurnEffect stun = SkipTurnEffect.builder()
+                .id("eff-stun")
+                .description("Costs the target their next turn.")
+                .duration(2)
+                .build();
+
+            effectRepository.saveAll(List.of(strike1, strike3, strike4, burn, bind, stun));
 
             // Abilities
-
-            Ability riptideLash = Ability.builder()
-                .id("atk-riptidelash")
-                .name("Riptide Lash")
-                .description("Strikes the opponent with a sudden, forceful current of water.")
-                .effects(List.of(dmg))
-                .build();
-
-            Ability staticSnap = Ability.builder()
-                .id("atk-staticsnap")
-                .name("Static Snap")
-                .description("Bites down with jaws of raw, concentrated electricity.")
-                .effects(List.of(dmg))
-                .build();
-
-            Ability gearGrind = Ability.builder()
-                .id("atk-geargrind")
-                .name("Gear Grind")
-                .description("Launches a series of sharpened, spinning gears at the opponent.")
-                .effects(List.of(dmg))
-                .build();
 
             Ability cinderLash = Ability.builder()
                 .id("atk-cinderlash")
                 .name("Cinder Lash")
                 .description("Strikes the foe with a superheated whip of fire and embers.")
-                .effects(List.of(dmg))
+                .effects(List.of(strike4))
+                .build();
+
+            Ability ashenBrand = Ability.builder()
+                .id("atk-ashenbrand")
+                .name("Ashen Brand")
+                .description("Marks the foe with a searing brand that keeps burning long after the blow.")
+                .effects(List.of(strike1, burn))
                 .build();
 
             Ability rootJab = Ability.builder()
                 .id("atk-rootjab")
                 .name("Root Jab")
                 .description("Thrusts a hardened, sharp root from the ground at the foe.")
-                .effects(List.of(dmg))
+                .effects(List.of(strike3))
                 .build();
 
-            Ability noxiousFumes = Ability.builder()
-                .id("eff-noxiousfumes")
-                .name("Noxious Fumes")
-                .description("Releases a cloud of sickening gas that clings to the opponent.")
-                .effects(List.of(dot))
+            Ability brambleSnare = Ability.builder()
+                .id("atk-bramblesnare")
+                .name("Bramble Snare")
+                .description("Binds the foe in creeping thorns that draw tighter with every turn.")
+                .effects(List.of(bind))
                 .build();
 
-            Ability corrosiveBite = Ability.builder()
-                .id("atk-corrosivebite")
-                .name("Corrosive Bite")
-                .description("A vicious bite that sizzles with acidic venom.")
-                .effects(List.of(dmg))
+            Ability riptideLash = Ability.builder()
+                .id("atk-riptidelash")
+                .name("Riptide Lash")
+                .description("Strikes the opponent with a sudden, forceful current of water.")
+                .effects(List.of(strike3))
                 .build();
 
-            Ability concussionWave = Ability.builder()
-                .id("eff-concussionwave")
-                .name("Concussion Wave")
-                .description("Unleashes a disorienting shockwave that temporarily stuns the opponent.")
-                .effects(List.of(skipTurn))
-                .build();
-
-            Ability impactPunch = Ability.builder()
-                .id("atk-impactpunch")
-                .name("Impact Punch")
-                .description("Delivers a straightforward but incredibly forceful punch.")
-                .effects(List.of(dmg))
+            Ability undertow = Ability.builder()
+                .id("atk-undertow")
+                .name("Undertow")
+                .description("Drags the foe under a pulling current, leaving them fighting the water instead of you.")
+                .effects(List.of(strike1, stun))
                 .build();
 
             abilityRepository.saveAll(List.of(
-                riptideLash, staticSnap, gearGrind, cinderLash, rootJab,
-                noxiousFumes, corrosiveBite, concussionWave, impactPunch
+                cinderLash, ashenBrand, rootJab, brambleSnare, riptideLash, undertow
             ));
 
             // Critters
 
-            Critter aqualing = Critter.builder()
-                .id("water-aqualing")
-                .name("Aqualing")
-                .description("A shy, capricious spirit born from pure mountain springs, its body is a shimmering, ever-shifting form of water that is difficult to strike directly.")
-                .type(CritterType.WATER)
-                .baseStats(BaseStats.builder().health(5).attack(3).defense(4).build())
-                .abilities(List.of(riptideLash))
-                .build();
-            Critter voltHound = Critter.builder()
-                .id("electric-volthound")
-                .name("Volthound")
-                .description("A being of pure, chaotic energy, the Volthound is a relentless hunter that crackles with untamed power. Its form constantly sparks and shifts, making it a dangerously unpredictable foe.")
-                .type(CritterType.ELECTRIC)
-                .baseStats(BaseStats.builder().health(4).attack(6).defense(2).build())
-                .abilities(List.of(staticSnap))
-                .build();
-            Critter cogling = Critter.builder()
-                .id("metal-cogling")
-                .name("Cogling")
-                .description("A small, intricate creature assembled from discarded clockwork and enchanted metals. It whirs and clicks with meticulous purpose, constantly seeking to add to its own complex mechanisms.")
-                .type(CritterType.METAL)
-                .baseStats(BaseStats.builder().health(4).attack(3).defense(5).build())
-                .abilities(List.of(gearGrind))
-                .build();
             Critter searfiend = Critter.builder()
                 .id("fire-searfiend")
                 .name("Searfiend")
-                .description("A malevolent creature born from the heart of a volcano, its body is a jagged shell of cooling magma animated by an insatiable inner flame. It seeks only to turn the world to ash.")
+                .description("Born in the heart of a volcano, its shell of cooling magma is held together by the flame inside it. It burns hottest and shortest: nothing it faces outlasts it, so nothing it faces is given the time to.")
                 .type(CritterType.FIRE)
-                .baseStats(BaseStats.builder().health(5).attack(5).defense(2).build())
-                .abilities(List.of(cinderLash))
+                .baseStats(BaseStats.builder().health(11).attack(7).defense(5).build())
+                .abilities(List.of(cinderLash, ashenBrand))
                 .build();
+
             Critter sylvanSentinel = Critter.builder()
                 .id("grass-sylvansentinel")
                 .name("Sylvan Sentinel")
-                .description("An ancient guardian of the deep woods, its body is composed of hardened bark and living vines. It moves with slow, deliberate purpose, defending the natural order.")
+                .description("An old guardian of the deep woods, bark over living vine. It does not hurry and it does not strike hard. It puts roots into whatever stands in front of it and waits for the forest to finish the work.")
                 .type(CritterType.GRASS)
-                .baseStats(BaseStats.builder().health(6).attack(2).defense(4).build())
-                .abilities(List.of(rootJab))
-                .build();
-            Critter miasmite = Critter.builder()
-                .id("toxic-miasmite")
-                .name("Miasmite")
-                .description("A creature born from polluted swamps, Miasmite's gelatinous body constantly leaks a foul-smelling, corrosive ooze. It seeks to corrupt everything it touches, leaving a trail of decay in its wake.")
-                .type(CritterType.TOXIC)
-                .baseStats(BaseStats.builder().health(5).attack(3).defense(4).build())
-                .abilities(List.of(noxiousFumes, corrosiveBite))
-                .build();
-            Critter strikon = Critter.builder()
-                .id("kinetic-strikon")
-                .name("Strikon")
-                .description("A heavily-built Critter that channels raw kinetic energy into its powerful limbs. It overwhelms opponents not with elemental power, but with pure, concussive force.")
-                .type(CritterType.KINETIC)
-                .baseStats(BaseStats.builder().health(5).attack(5).defense(2).build())
-                .abilities(List.of(concussionWave, impactPunch))
+                .baseStats(BaseStats.builder().health(16).attack(5).defense(6).build())
+                .abilities(List.of(rootJab, brambleSnare))
                 .build();
 
-            critterRepository.saveAll(List.of(
-                aqualing, voltHound, cogling, searfiend, sylvanSentinel, miasmite, strikon
-            ));
+            Critter aqualing = Critter.builder()
+                .id("water-aqualing")
+                .name("Aqualing")
+                .description("A spring spirit that has never held one shape for long. It gives ground, takes the current with it, and picks the moment a heavier opponent is off balance.")
+                .type(CritterType.WATER)
+                .baseStats(BaseStats.builder().health(13).attack(6).defense(5).build())
+                .abilities(List.of(riptideLash, undertow))
+                .build();
 
-            // Demo accounts, created once and never overwritten.
+            critterRepository.saveAll(List.of(searfiend, sylvanSentinel, aqualing));
 
-            if (playerRepository.findById("p1").isEmpty()) {
-                playerRepository.save(Player.builder()
+            // Demo accounts. Both hold the whole triangle, so a battle can reach
+            // every matchup and neither side is ahead on the draw.
+            //
+            // On a closed loop every fixed lead pairing is either a mirror or a
+            // 1.5x, so the only even opening is a mirror. It leads with the wall
+            // rather than the aggressor: a Searfiend mirror is two hits, and
+            // player one always moves first, so that opening would be decided by
+            // the coin toss. A Sylvan Sentinel mirror takes six, which leaves
+            // room for the first real decision, which is who switches.
+            List<Critter> demoRoster = List.of(sylvanSentinel, searfiend, aqualing);
+
+            playerRepository.save(playerRepository.findById("p1")
+                .map(existing -> { existing.setRoster(demoRoster); return existing; })
+                .orElseGet(() -> Player.builder()
                     .id("p1")
                     .username("BlueOak")
                     .password(PasswordUtil.hashPassword("password1"))
                     .stats(PlayerStats.builder().build())
-                    .roster(List.of(aqualing, cogling, sylvanSentinel, strikon))
-                    .build());
-            }
+                    .roster(demoRoster)
+                    .build()));
 
-            if (playerRepository.findById("p2").isEmpty()) {
-                playerRepository.save(Player.builder()
+            playerRepository.save(playerRepository.findById("p2")
+                .map(existing -> { existing.setRoster(demoRoster); return existing; })
+                .orElseGet(() -> Player.builder()
                     .id("p2")
                     .username("RedAsh")
                     .password(PasswordUtil.hashPassword("password2"))
                     .stats(PlayerStats.builder().build())
-                    .roster(List.of(voltHound, searfiend, miasmite))
-                    .build());
-            }
+                    .roster(demoRoster)
+                    .build()));
         };
     }
 }
