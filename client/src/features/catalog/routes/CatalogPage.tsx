@@ -14,8 +14,9 @@ function CatalogPage() {
       health: Math.max(highest.health, critter.baseStats?.health ?? 0),
       attack: Math.max(highest.attack, critter.baseStats?.attack ?? 0),
       defense: Math.max(highest.defense, critter.baseStats?.defense ?? 0),
+      speed: Math.max(highest.speed, critter.baseStats?.speed ?? 0),
     }),
-    { health: 0, attack: 0, defense: 0 },
+    { health: 0, attack: 0, defense: 0, speed: 0 },
   );
 
   const catalogTypes = [...new Set(critters.map((critter) => critter.type).filter((type) => type !== null && type !== undefined))];

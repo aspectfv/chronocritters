@@ -170,7 +170,7 @@ public class DatabaseSeeder {
                 .name("Searfiend")
                 .description("Born in the heart of a volcano, its shell of cooling magma is held together by the flame inside it. It burns hottest and shortest: nothing it faces outlasts it, so nothing it faces is given the time to.")
                 .type(CritterType.FIRE)
-                .baseStats(BaseStats.builder().health(11).attack(7).defense(5).build())
+                .baseStats(BaseStats.builder().health(11).attack(7).defense(5).speed(8).build())
                 .abilities(List.of(cinderLash, ashenBrand))
                 .build();
 
@@ -179,7 +179,7 @@ public class DatabaseSeeder {
                 .name("Sylvan Sentinel")
                 .description("An old guardian of the deep woods, bark over living vine. It does not hurry and it does not strike hard. It puts roots into whatever stands in front of it and waits for the forest to finish the work.")
                 .type(CritterType.GRASS)
-                .baseStats(BaseStats.builder().health(16).attack(5).defense(6).build())
+                .baseStats(BaseStats.builder().health(16).attack(5).defense(6).speed(4).build())
                 .abilities(List.of(rootJab, brambleSnare))
                 .build();
 
@@ -188,7 +188,7 @@ public class DatabaseSeeder {
                 .name("Aqualing")
                 .description("A spring spirit that has never held one shape for long. It gives ground, takes the current with it, and picks the moment a heavier opponent is off balance.")
                 .type(CritterType.WATER)
-                .baseStats(BaseStats.builder().health(13).attack(6).defense(5).build())
+                .baseStats(BaseStats.builder().health(13).attack(6).defense(5).speed(7).build())
                 .abilities(List.of(riptideLash, undertow))
                 .build();
 
@@ -209,10 +209,10 @@ public class DatabaseSeeder {
             //
             // On a closed loop every fixed lead pairing is either a mirror or a
             // 1.5x, so the only even opening is a mirror. It leads with the wall
-            // rather than the aggressor: a Searfiend mirror is two hits, and
-            // player one always moves first, so that opening would be decided by
-            // the coin toss. A Sylvan Sentinel mirror takes six, which leaves
-            // room for the first real decision, which is who switches.
+            // rather than the aggressor: a Searfiend mirror is two hits, and a
+            // mirror ties on speed, so the coin toss that breaks the tie would
+            // decide that opening. A Sylvan Sentinel mirror takes six, which
+            // leaves room for the first real decision, which is who switches.
             List<Critter> demoRoster = List.of(sylvanSentinel, searfiend, aqualing);
 
             seedDemoAccount(playerRepository, "p1", "BlueOak", demoRoster);

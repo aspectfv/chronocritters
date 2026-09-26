@@ -21,6 +21,9 @@ public class BaseStats {
     @Min(value = 0, message = "Defense must not be negative")
     private int defense;
 
+    @Min(value = 0, message = "Speed must not be negative")
+    private int speed;
+
     @Default
     private int level = 1;
 

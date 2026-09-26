@@ -49,6 +49,7 @@ type BaseStats {
     health: Int
     attack: Int
     defense: Int
+    speed: Int
 }
 
 type TypeMatchup {

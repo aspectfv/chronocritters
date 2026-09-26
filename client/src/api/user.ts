@@ -106,6 +106,7 @@ const GET_MY_CRITTERS_QUERY = gql(`
           health
           attack
           defense
+          speed
         }
         abilities {
           id
@@ -155,6 +156,7 @@ const GET_CRITTER_CATALOG_QUERY = gql(`
         health
         attack
         defense
+        speed
       }
       abilities {
         id

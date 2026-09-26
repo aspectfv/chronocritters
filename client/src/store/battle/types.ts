@@ -32,6 +32,7 @@ export interface CurrentStats {
   currentHp: number;
   currentAtk: number;
   currentDef: number;
+  currentSpd: number;
 }
 
 export interface CritterState {

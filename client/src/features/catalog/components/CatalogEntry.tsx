@@ -69,6 +69,7 @@ export function CatalogEntry({ critter, ceilings }: CatalogEntryProps) {
               <StatMeter label="HP" value={stats.health ?? 0} ceiling={ceilings.health} fill="bg-vital" />
               <StatMeter label="Attack" value={stats.attack ?? 0} ceiling={ceilings.attack} fill="bg-ruby" />
               <StatMeter label="Defence" value={stats.defense ?? 0} ceiling={ceilings.defense} fill="bg-blued" />
+              <StatMeter label="Speed" value={stats.speed ?? 0} ceiling={ceilings.speed} fill="bg-brass" />
             </div>
           )}
         </div>

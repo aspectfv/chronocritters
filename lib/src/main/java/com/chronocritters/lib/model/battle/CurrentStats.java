@@ -14,4 +14,5 @@ public class CurrentStats {
     private int currentHp;
     private int currentAtk;
     private int currentDef;
+    private int currentSpd;
 }

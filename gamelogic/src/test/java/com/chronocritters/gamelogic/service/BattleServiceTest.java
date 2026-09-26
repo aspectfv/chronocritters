@@ -11,7 +11,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -77,7 +79,7 @@ class BattleServiceTest {
                 .thenReturn(BattleRewardsResponse.getDefaultInstance());
     }
 
-    private Critter critter(String id, CritterType type, int health, int attack, int defense) {
+    private Critter critter(String id, CritterType type, int health, int attack, int defense, int speed) {
         Ability ability = Ability.builder()
                 .id(ABILITY_ID)
                 .name("Test Strike")
@@ -90,7 +92,7 @@ class BattleServiceTest {
                 .name(id)
                 .description(id)
                 .type(type)
-                .baseStats(BaseStats.builder().health(health).attack(attack).defense(defense).build())
+                .baseStats(BaseStats.builder().health(health).attack(attack).defense(defense).speed(speed).build())
                 .abilities(List.of(ability))
                 .build();
     }
@@ -105,22 +107,22 @@ class BattleServiceTest {
 
     /** Player one can knock out player two's single critter in one hit. */
     private BattleState oneHitBattle() {
-        stubPlayer(PLAYER_ONE_ID, critter("striker", CritterType.FIRE, 20, 6, 3));
-        stubPlayer(PLAYER_TWO_ID, critter("fodder", CritterType.FIRE, 3, 1, 3));
+        stubPlayer(PLAYER_ONE_ID, critter("striker", CritterType.FIRE, 20, 6, 3, 5));
+        stubPlayer(PLAYER_TWO_ID, critter("fodder", CritterType.FIRE, 3, 1, 3, 1));
         return battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
     }
 
     private BattleState twoRoundBattle() {
         stubPlayer(PLAYER_ONE_ID,
-                critter("one-lead", CritterType.FIRE, 40, 3, 3),
-                critter("one-bench", CritterType.WATER, 40, 3, 3));
-        stubPlayer(PLAYER_TWO_ID, critter("two-lead", CritterType.FIRE, 40, 3, 3));
+                critter("one-lead", CritterType.FIRE, 40, 3, 3, 5),
+                critter("one-bench", CritterType.WATER, 40, 3, 3, 5));
+        stubPlayer(PLAYER_TWO_ID, critter("two-lead", CritterType.FIRE, 40, 3, 3, 1));
         return battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
     }
 
     @Test
-    @DisplayName("starts the battle with player one to move and both rosters at full health")
-    void createsBattleWithPlayerOneToMove() {
+    @DisplayName("starts the battle with the faster lead to move and both rosters at full health")
+    void createsBattleWithTheFasterLeadToMove() {
         BattleState battleState = twoRoundBattle();
 
         assertThat(battleState).as("returned so the lobby needs no second call").isSameAs(battleService.getBattleState(BATTLE_ID));
@@ -129,7 +131,55 @@ class BattleServiceTest {
         assertThat(battleState.getPlayerOne().getHasTurn()).isTrue();
         assertThat(battleState.getPlayerTwo().getHasTurn()).isFalse();
         assertThat(battleState.getBattleOutcome()).isEqualTo(BattleOutcome.CONTINUE);
-        assertThat(battleState.getActionLogHistory()).hasSize(1);
+        assertThat(battleState.getActionLogHistory()).as("the battle opens, then says who is faster").hasSize(2);
+    }
+
+    @Test
+    @DisplayName("gives the opening turn to the faster lead, whichever seat holds it")
+    void startsWithTheFasterLeadToMove() {
+        stubPlayer(PLAYER_ONE_ID, critter("slow-lead", CritterType.FIRE, 40, 3, 3, 2));
+        stubPlayer(PLAYER_TWO_ID, critter("quick-lead", CritterType.FIRE, 40, 3, 3, 9));
+
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_TWO_ID);
+        assertThat(battleState.getPlayerTwo().getHasTurn()).isTrue();
+        assertThat(battleState.getPlayerOne().getHasTurn()).isFalse();
+        assertThat(battleState.getActionLogHistory()).last().asString().contains("quick-lead is faster");
+    }
+
+    @Test
+    @DisplayName("decides a speed tie by coin toss, so neither seat is the better one to hold")
+    void breaksASpeedTieWithoutFavouringASeat() {
+        stubPlayer(PLAYER_ONE_ID, critter("mirror-one", CritterType.FIRE, 40, 3, 3, 5));
+        stubPlayer(PLAYER_TWO_ID, critter("mirror-two", CritterType.FIRE, 40, 3, 3, 5));
+
+        Set<String> openers = new HashSet<>();
+        for (int battle = 0; battle < 200; battle++) {
+            BattleState tied = battleService.createBattle("tie-" + battle, PLAYER_ONE_ID, PLAYER_TWO_ID);
+            openers.add(tied.getActivePlayerId());
+            assertThat(tied.getActionLogHistory()).last().asString().contains("wins the toss");
+        }
+
+        assertThat(openers).containsExactlyInAnyOrder(PLAYER_ONE_ID, PLAYER_TWO_ID);
+    }
+
+    @Test
+    @DisplayName("takes a critter's level into the battle, so a levelled critter hits harder")
+    void scalesBattleStatsByLevel() {
+        Critter levelled = critter("levelled", CritterType.FIRE, 40, 10, 10, 5);
+        levelled.getBaseStats().setLevel(11);
+        stubPlayer(PLAYER_ONE_ID, levelled);
+        stubPlayer(PLAYER_TWO_ID, critter("level-one", CritterType.FIRE, 40, 10, 10, 1));
+
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+
+        CritterState scaled = battleState.getPlayerOne().getActiveCritter();
+        CritterState unscaled = battleState.getPlayerTwo().getActiveCritter();
+
+        assertThat(scaled.getStats().getCurrentAtk()).isGreaterThan(unscaled.getStats().getCurrentAtk());
+        assertThat(scaled.getStats().getMaxHp()).isGreaterThan(unscaled.getStats().getMaxHp());
+        assertThat(scaled.getStats().getCurrentHp()).isEqualTo(scaled.getStats().getMaxHp());
     }
 
     @Test
@@ -246,11 +296,11 @@ class BattleServiceTest {
     /** Both actives fall on the same turn: the hit takes one, the burn the other. */
     private BattleState doubleFaintBattle() {
         stubPlayer(PLAYER_ONE_ID,
-                critter("one-lead", CritterType.FIRE, 40, 3, 3),
-                critter("one-bench", CritterType.WATER, 40, 3, 3));
+                critter("one-lead", CritterType.FIRE, 40, 3, 3, 5),
+                critter("one-bench", CritterType.WATER, 40, 3, 3, 5));
         stubPlayer(PLAYER_TWO_ID,
-                critter("two-lead", CritterType.FIRE, 40, 3, 3),
-                critter("two-bench", CritterType.WATER, 40, 3, 3));
+                critter("two-lead", CritterType.FIRE, 40, 3, 3, 1),
+                critter("two-bench", CritterType.WATER, 40, 3, 3, 5));
         BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
 
         battleState.getPlayerTwo().getActiveCritter().getStats().setCurrentHp(1);

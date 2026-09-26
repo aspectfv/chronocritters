@@ -31,7 +31,7 @@ const defaultEmptyCritter: CritterState = {
   id: '',
   name: '',
   type: CritterType.Unknown,
-  stats: { maxHp: 100, currentHp: 100, currentAtk: 0, currentDef: 0 },
+  stats: { maxHp: 100, currentHp: 100, currentAtk: 0, currentDef: 0, currentSpd: 0 },
   abilities: [],
   activeStatusEffects: [],
   fainted: false,

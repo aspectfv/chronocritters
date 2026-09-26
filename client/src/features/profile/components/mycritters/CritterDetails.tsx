@@ -85,6 +85,7 @@ export const CritterDetails = ({ critter }: { critter: CritterData | null }) => 
         <StatMeter label="HP" value={stats?.health ?? 0} fill="bg-vital" />
         <StatMeter label="Attack" value={stats?.attack ?? 0} fill="bg-ruby" />
         <StatMeter label="Defence" value={stats?.defense ?? 0} fill="bg-blued" />
+        <StatMeter label="Speed" value={stats?.speed ?? 0} fill="bg-brass" />
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">

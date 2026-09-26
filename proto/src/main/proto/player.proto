@@ -45,6 +45,11 @@ message BaseStatsProto {
   int32 health = 1;
   int32 attack = 2;
   int32 defense = 3;
+  int32 speed = 4;
+
+  // Battle stats are scaled by level, so gamelogic needs it. Levelling used to
+  // change nothing in a battle because this never crossed the wire.
+  int32 level = 5;
 }
 
 message AbilityProto {

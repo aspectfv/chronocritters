@@ -12,6 +12,13 @@ import com.chronocritters.proto.player.PlayerProto.CritterTypeProto;
 import java.util.stream.Collectors;
 
 public final class CritterMapper {
+    /**
+     * How much of its base stats a critter gains per level. Eight percent keeps
+     * a level gap readable without letting it decide a battle on its own: ten
+     * levels is a little under double.
+     */
+    private static final double GROWTH_PER_LEVEL = 0.08;
+
     private CritterMapper() {}
 
     public static Critter toModel(CritterProto proto) {
@@ -66,6 +73,8 @@ public final class CritterMapper {
             .health(proto.getHealth())
             .attack(proto.getAttack())
             .defense(proto.getDefense())
+            .speed(proto.getSpeed())
+            .level(proto.getLevel())
             .build();
     }
 
@@ -74,17 +83,32 @@ public final class CritterMapper {
             .setHealth(model.getHealth())
             .setAttack(model.getAttack())
             .setDefense(model.getDefense())
+            .setSpeed(model.getSpeed())
+            .setLevel(model.getLevel())
             .build();
     }
 
     private static CurrentStats toCurrentStats(BaseStats baseStats) {
         if (baseStats.getHealth() < 1) throw new IllegalArgumentException("BaseStats health must be at least 1");
+
+        int maxHp = atLevel(baseStats.getHealth(), baseStats.getLevel());
+
         return CurrentStats.builder()
-            .maxHp(baseStats.getHealth())
-            .currentHp(baseStats.getHealth())
-            .currentAtk(baseStats.getAttack())
-            .currentDef(baseStats.getDefense())
+            .maxHp(maxHp)
+            .currentHp(maxHp)
+            .currentAtk(atLevel(baseStats.getAttack(), baseStats.getLevel()))
+            .currentDef(atLevel(baseStats.getDefense(), baseStats.getLevel()))
+            .currentSpd(atLevel(baseStats.getSpeed(), baseStats.getLevel()))
             .build();
+    }
+
+    /**
+     * A level below one means the document was written before levels crossed
+     * the wire, so it is read as level one rather than scaled downwards.
+     */
+    private static int atLevel(int baseStat, int level) {
+        int levelsGained = Math.max(1, level) - 1;
+        return (int) Math.round(baseStat * (1 + GROWTH_PER_LEVEL * levelsGained));
     }
 
     private static CritterType toModel(CritterTypeProto proto) {
