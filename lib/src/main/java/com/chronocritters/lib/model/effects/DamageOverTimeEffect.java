@@ -72,15 +72,15 @@ public class DamageOverTimeEffect extends Effect implements IPersistentEffect {
 
     @Override
     public boolean onTick(BattleState battleState, CritterState target) {
-        target.getStats().setCurrentHp(Math.max(0, target.getStats().getCurrentHp() - this.damagePerTurn));
+        int damage = target.takeDamage(this.damagePerTurn);
 
         BattleStats battleStats = battleState.getBattleStats();
         battleStats.getPlayersDamageDealt().put(this.casterId,
-            battleStats.getPlayersDamageDealt().getOrDefault(this.casterId, 0) + this.damagePerTurn);
+            battleStats.getPlayersDamageDealt().getOrDefault(this.casterId, 0) + damage);
 
         this.duration--;
 
-        String actionLog = String.format("%s takes %d damage! %d Turns remaining.", target.getName(), this.damagePerTurn, this.duration);
+        String actionLog = String.format("%s takes %d damage! %d Turns remaining.", target.getName(), damage, this.duration);
         battleState.getActionLogHistory().add(actionLog);
 
         if (this.duration <= 0) {

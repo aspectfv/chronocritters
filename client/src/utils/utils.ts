@@ -1,6 +1,6 @@
 import { ConnectionStatus } from "@store/lobby/types";
 import type { BattleEffect } from "@store/battle/types";
-import { CritterType, type EffectUnion } from "@/gql/graphql";
+import { CritterType, Stat, type EffectUnion } from "@/gql/graphql";
 
 const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.Fire]: '🔥',
@@ -83,7 +83,7 @@ export const formatTimestamp = (timestamp: string | null | undefined): string =>
 };
 
 /**
- * The same three effects arrive under two discriminants: the battle socket
+ * The same effects arrive under two discriminants: the battle socket
  * sends `_type`, GraphQL sends `__typename`. The values are identical, so the
  * helpers below read whichever one is there rather than the catalogue carrying
  * a second copy of every table.
@@ -99,16 +99,31 @@ const battleEffectMeta: Record<BattleEffect['_type'], { label: string; icon: str
   DamageEffect: { label: 'Struck', icon: '💥', style: 'bg-danger-soft text-danger-ink border-danger/35' },
   DamageOverTimeEffect: { label: 'Wounded', icon: '☠️', style: 'bg-purple-100 text-purple-800 border-purple-300' },
   SkipTurnEffect: { label: 'Stunned', icon: '💫', style: 'bg-blue-100 text-blue-800 border-blue-300' },
+  StatModifierEffect: { label: 'Shifted', icon: '📊', style: 'bg-amber-100 text-amber-800 border-amber-300' },
+  HealEffect: { label: 'Mended', icon: '💚', style: 'bg-green-100 text-green-800 border-green-300' },
+  LifestealEffect: { label: 'Drained', icon: '🩸', style: 'bg-rose-100 text-rose-800 border-rose-300' },
+  ShieldEffect: { label: 'Warded', icon: '🛡️', style: 'bg-slate-100 text-slate-800 border-slate-300' },
+  CleanseEffect: { label: 'Cleansed', icon: '✨', style: 'bg-cyan-100 text-cyan-800 border-cyan-300' },
 };
+
+const statLabels: Record<Stat, string> = {
+  [Stat.Attack]: 'ATK',
+  [Stat.Defense]: 'DEF',
+  [Stat.Speed]: 'SPD',
+};
+
+export function getStatLabel(stat: Stat): string {
+  return statLabels[stat];
+}
 
 export function getBattleEffectMeta(effect: AnyEffect) {
   const kind = effectKind(effect);
   return kind ? battleEffectMeta[kind] : battleEffectMeta.DamageEffect;
 }
 
-/** Persistent effects carry a countdown; an instant hit does not. */
+/** Persistent effects carry a countdown; an instant one does not. */
 export function getBattleEffectDuration(effect: AnyEffect): number | null {
-  return effectKind(effect) === 'DamageEffect' ? null : 'duration' in effect ? effect.duration : null;
+  return 'duration' in effect ? effect.duration : null;
 }
 
 /**
@@ -117,12 +132,29 @@ export function getBattleEffectDuration(effect: AnyEffect): number | null {
  * usually the reason to pick it.
  */
 export function describeBattleEffect(effect: AnyEffect): string {
-  const kind = effectKind(effect);
-  if (kind === 'DamageEffect' && 'damage' in effect) return `${effect.damage} damage`;
-  if (kind === 'DamageOverTimeEffect' && 'damagePerTurn' in effect) {
-    return `${effect.damagePerTurn} a turn for ${effect.duration}`;
+  switch (effectKind(effect)) {
+    case 'DamageEffect':
+      return 'damage' in effect ? `${effect.damage} damage` : '';
+    case 'DamageOverTimeEffect':
+      return 'damagePerTurn' in effect ? `${effect.damagePerTurn} a turn for ${effect.duration}` : '';
+    case 'SkipTurnEffect':
+      return 'costs a turn';
+    case 'StatModifierEffect':
+      if (!('stages' in effect)) return '';
+      return effect.stages > 0
+        ? `own ${getStatLabel(effect.stat)} +${effect.stages}`
+        : `foe ${getStatLabel(effect.stat)} ${effect.stages}`;
+    case 'HealEffect':
+      return 'healPercent' in effect ? `heals ${effect.healPercent}%` : '';
+    case 'LifestealEffect':
+      return 'drainPercent' in effect ? `${effect.damage} damage, drains ${effect.drainPercent}%` : '';
+    case 'ShieldEffect':
+      return 'amount' in effect ? `wards ${effect.amount} for ${effect.duration}` : '';
+    case 'CleanseEffect':
+      return 'clears ailments';
+    default:
+      return '';
   }
-  return 'costs a turn';
 }
 
 export function getHealthTone(healthPercentage: number): string {

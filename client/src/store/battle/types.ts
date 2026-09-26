@@ -1,4 +1,4 @@
-import type { CritterType } from "src/gql/graphql";
+import type { CritterType, Stat } from "src/gql/graphql";
 
 // The battle payload comes over REST from gamelogic, which discriminates effect
 // subtypes with `_type`. The GraphQL schema uses `__typename` for the same
@@ -6,7 +6,12 @@ import type { CritterType } from "src/gql/graphql";
 export type BattleEffect =
   | { _type: 'DamageEffect'; id: string; description: string; damage: number }
   | { _type: 'DamageOverTimeEffect'; id: string; description: string; damagePerTurn: number; duration: number }
-  | { _type: 'SkipTurnEffect'; id: string; description: string; duration: number };
+  | { _type: 'SkipTurnEffect'; id: string; description: string; duration: number }
+  | { _type: 'StatModifierEffect'; id: string; description: string; stat: Stat; stages: number }
+  | { _type: 'HealEffect'; id: string; description: string; healPercent: number }
+  | { _type: 'LifestealEffect'; id: string; description: string; damage: number; drainPercent: number }
+  | { _type: 'ShieldEffect'; id: string; description: string; amount: number; duration: number }
+  | { _type: 'CleanseEffect'; id: string; description: string };
 
 export interface BattleAbility {
   id: string;
@@ -31,6 +36,12 @@ export enum BattleOutcome {
 export interface CurrentStats {
   maxHp: number;
   currentHp: number;
+  attack: number;
+  defense: number;
+  speed: number;
+  /** Stage shifts by stat, -6 to +6. A stat at stage zero is absent. */
+  stages: Partial<Record<Stat, number>>;
+  /** The base stats read through their stages. */
   currentAtk: number;
   currentDef: number;
   currentSpd: number;

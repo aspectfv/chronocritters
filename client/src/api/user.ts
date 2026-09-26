@@ -130,6 +130,33 @@ const GET_MY_CRITTERS_QUERY = gql(`
               description
               duration
             }
+            ... on StatModifierEffect {
+              id
+              description
+              stat
+              stages
+            }
+            ... on HealEffect {
+              id
+              description
+              healPercent
+            }
+            ... on LifestealEffect {
+              id
+              description
+              damage
+              drainPercent
+            }
+            ... on ShieldEffect {
+              id
+              description
+              amount
+              duration
+            }
+            ... on CleanseEffect {
+              id
+              description
+            }
           }
         }
       }
@@ -180,6 +207,33 @@ const GET_CRITTER_CATALOG_QUERY = gql(`
             id
             description
             duration
+          }
+          ... on StatModifierEffect {
+            id
+            description
+            stat
+            stages
+          }
+          ... on HealEffect {
+            id
+            description
+            healPercent
+          }
+          ... on LifestealEffect {
+            id
+            description
+            damage
+            drainPercent
+          }
+          ... on ShieldEffect {
+            id
+            description
+            amount
+            duration
+          }
+          ... on CleanseEffect {
+            id
+            description
           }
         }
       }

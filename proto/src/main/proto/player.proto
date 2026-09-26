@@ -67,6 +67,11 @@ message EffectProto {
     DamageEffectProto damage_effect = 3;
     DamageOverTimeEffectProto damage_over_time_effect = 4;
     SkipTurnEffectProto skip_turn_effect = 5;
+    StatModifierEffectProto stat_modifier_effect = 6;
+    HealEffectProto heal_effect = 7;
+    LifestealEffectProto lifesteal_effect = 8;
+    ShieldEffectProto shield_effect = 9;
+    CleanseEffectProto cleanse_effect = 10;
   }
 }
 
@@ -81,6 +86,35 @@ message DamageOverTimeEffectProto {
 
 message SkipTurnEffectProto {
   int32 duration = 1;
+}
+
+enum StatProto {
+  STAT_UNSPECIFIED = 0;
+  ATTACK = 1;
+  DEFENSE = 2;
+  SPEED = 3;
+}
+
+message StatModifierEffectProto {
+  StatProto stat = 1;
+  int32 stages = 2;
+}
+
+message HealEffectProto {
+  int32 heal_percent = 1;
+}
+
+message LifestealEffectProto {
+  int32 damage = 1;
+  int32 drain_percent = 2;
+}
+
+message ShieldEffectProto {
+  int32 amount = 1;
+  int32 duration = 2;
+}
+
+message CleanseEffectProto {
 }
 
 message MatchHistoryRequest {

@@ -44,13 +44,16 @@ public class DamageEffect extends Effect implements IInstantEffect {
 
         finalDamage = Math.max(0, finalDamage);
 
-        int newHealth = Math.max(0, target.getStats().getCurrentHp() - finalDamage);
-        target.getStats().setCurrentHp(newHealth);
+        // What reached health is what counts: for the damage tally, for the
+        // number thrown over the critter and for anything that drains from it.
+        int dealt = target.takeDamage(finalDamage);
+        int absorbed = finalDamage - dealt;
+        int newHealth = target.getStats().getCurrentHp();
 
         BattleStats battleStats = battleState.getBattleStats();
 
         battleStats.getPlayersDamageDealt().put(player.getId(),
-            battleStats.getPlayersDamageDealt().getOrDefault(player.getId(), 0) + finalDamage);
+            battleStats.getPlayersDamageDealt().getOrDefault(player.getId(), 0) + dealt);
 
         String turnActionLog = String.format("%s used %s - %s damage",
             caster.getName(), ability.getName(), finalDamage);
@@ -74,12 +77,15 @@ public class DamageEffect extends Effect implements IInstantEffect {
         }
 
         battleState.getActionLogHistory().add(actionLog);
+        if (absorbed > 0) {
+            battleState.getActionLogHistory().add(String.format("%s's ward absorbs %d of it!", target.getName(), absorbed));
+        }
 
         battleState.setLastTurnResult(TurnResult.builder()
                 .turn(battleStats.getTurnCount())
                 .casterCritterId(caster.getId())
                 .targetCritterId(target.getId())
-                .damage(finalDamage)
+                .damage(dealt)
                 .effectiveness(typeMultiplier)
                 .build());
     }

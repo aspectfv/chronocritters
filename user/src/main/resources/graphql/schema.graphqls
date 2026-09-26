@@ -9,7 +9,45 @@ enum CritterType {
     UNKNOWN
 }
 
-union EffectUnion = DamageEffect | DamageOverTimeEffect | SkipTurnEffect
+union EffectUnion = DamageEffect | DamageOverTimeEffect | SkipTurnEffect | StatModifierEffect | HealEffect | LifestealEffect | ShieldEffect | CleanseEffect
+
+enum Stat {
+    ATTACK
+    DEFENSE
+    SPEED
+}
+
+type StatModifierEffect implements Effect {
+  id: ID!
+  description: String!
+  stat: Stat!
+  stages: Int!
+}
+
+type HealEffect implements Effect {
+  id: ID!
+  description: String!
+  healPercent: Int!
+}
+
+type LifestealEffect implements Effect {
+  id: ID!
+  description: String!
+  damage: Int!
+  drainPercent: Int!
+}
+
+type ShieldEffect implements Effect {
+  id: ID!
+  description: String!
+  amount: Int!
+  duration: Int!
+}
+
+type CleanseEffect implements Effect {
+  id: ID!
+  description: String!
+}
 
 type SkipTurnEffect implements Effect {
   id: ID!

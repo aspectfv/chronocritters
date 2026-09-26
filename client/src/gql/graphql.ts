@@ -34,6 +34,12 @@ export type BaseStats = {
   speed?: Maybe<Scalars['Int']['output']>;
 };
 
+export type CleanseEffect = Effect & {
+  __typename?: 'CleanseEffect';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+};
+
 export type Critter = {
   __typename?: 'Critter';
   abilities?: Maybe<Array<Maybe<Ability>>>;
@@ -81,7 +87,22 @@ export type Effect = {
   id: Scalars['ID']['output'];
 };
 
-export type EffectUnion = DamageEffect | DamageOverTimeEffect | SkipTurnEffect;
+export type EffectUnion = CleanseEffect | DamageEffect | DamageOverTimeEffect | HealEffect | LifestealEffect | ShieldEffect | SkipTurnEffect | StatModifierEffect;
+
+export type HealEffect = Effect & {
+  __typename?: 'HealEffect';
+  description: Scalars['String']['output'];
+  healPercent: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+};
+
+export type LifestealEffect = Effect & {
+  __typename?: 'LifestealEffect';
+  damage: Scalars['Int']['output'];
+  description: Scalars['String']['output'];
+  drainPercent: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+};
 
 export type LoginResponse = {
   __typename?: 'LoginResponse';
@@ -160,11 +181,33 @@ export type QueryGetPlayerArgs = {
   id: Scalars['ID']['input'];
 };
 
+export type ShieldEffect = Effect & {
+  __typename?: 'ShieldEffect';
+  amount: Scalars['Int']['output'];
+  description: Scalars['String']['output'];
+  duration: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+};
+
 export type SkipTurnEffect = Effect & {
   __typename?: 'SkipTurnEffect';
   description: Scalars['String']['output'];
   duration: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+};
+
+export enum Stat {
+  Attack = 'ATTACK',
+  Defense = 'DEFENSE',
+  Speed = 'SPEED'
+}
+
+export type StatModifierEffect = Effect & {
+  __typename?: 'StatModifierEffect';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  stages: Scalars['Int']['output'];
+  stat: Stat;
 };
 
 export type TurnActionEntry = {
@@ -217,18 +260,28 @@ export type GetMyCrittersQueryVariables = Exact<{
 
 
 export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null, experience?: number | null, expToNextLevel?: number | null, health?: number | null, attack?: number | null, defense?: number | null, speed?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, cooldownTurns?: number | null, effects?: Array<
+          | { __typename?: 'CleanseEffect', id: string, description: string }
           | { __typename?: 'DamageEffect', id: string, description: string, damage: number }
           | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
+          | { __typename?: 'HealEffect', id: string, description: string, healPercent: number }
+          | { __typename?: 'LifestealEffect', id: string, description: string, damage: number, drainPercent: number }
+          | { __typename?: 'ShieldEffect', id: string, description: string, amount: number, duration: number }
           | { __typename?: 'SkipTurnEffect', id: string, description: string, duration: number }
+          | { __typename?: 'StatModifierEffect', id: string, description: string, stat: Stat, stages: number }
          | null> | null } | null> | null } | null> | null } | null };
 
 export type GetCritterCatalogQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetCritterCatalogQuery = { __typename?: 'Query', critters: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', health?: number | null, attack?: number | null, defense?: number | null, speed?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, cooldownTurns?: number | null, effects?: Array<
+        | { __typename?: 'CleanseEffect', id: string, description: string }
         | { __typename?: 'DamageEffect', id: string, description: string, damage: number }
         | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
+        | { __typename?: 'HealEffect', id: string, description: string, healPercent: number }
+        | { __typename?: 'LifestealEffect', id: string, description: string, damage: number, drainPercent: number }
+        | { __typename?: 'ShieldEffect', id: string, description: string, amount: number, duration: number }
         | { __typename?: 'SkipTurnEffect', id: string, description: string, duration: number }
+        | { __typename?: 'StatModifierEffect', id: string, description: string, stat: Stat, stages: number }
        | null> | null } | null> | null }>, typeAdvantages: Array<{ __typename?: 'TypeMatchup', attacker: CritterType, defender: CritterType, multiplier: number }> };
 
 export type GetPlayerResultsQueryVariables = Exact<{

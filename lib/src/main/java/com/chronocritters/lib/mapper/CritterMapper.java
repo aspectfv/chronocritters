@@ -96,9 +96,9 @@ public final class CritterMapper {
         return CurrentStats.builder()
             .maxHp(maxHp)
             .currentHp(maxHp)
-            .currentAtk(atLevel(baseStats.getAttack(), baseStats.getLevel()))
-            .currentDef(atLevel(baseStats.getDefense(), baseStats.getLevel()))
-            .currentSpd(atLevel(baseStats.getSpeed(), baseStats.getLevel()))
+            .attack(atLevel(baseStats.getAttack(), baseStats.getLevel()))
+            .defense(atLevel(baseStats.getDefense(), baseStats.getLevel()))
+            .speed(atLevel(baseStats.getSpeed(), baseStats.getLevel()))
             .build();
     }
 

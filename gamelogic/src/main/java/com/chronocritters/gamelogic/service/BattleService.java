@@ -213,10 +213,12 @@ public class BattleService {
         battleState.getActionLogHistory().add(String.format("%s switched from %s to %s", player.getUsername(),
                 player.getActiveCritter().getName(), targetCritter.getName()));
 
-        // Cooldowns are kept by the critter that is on the field, so a critter
-        // coming off it stops counting and comes back ready. Refreshing a move
-        // this way costs the turn the switch itself costs.
+        // Cooldowns and stat stages are kept by the critter that is on the
+        // field, so a critter coming off it stops counting and comes back
+        // ready and unshifted. Refreshing a move or shaking off a debuff this
+        // way costs the turn the switch itself costs.
         player.getActiveCritter().getAbilityCooldowns().clear();
+        player.getActiveCritter().getStats().getStages().clear();
 
         player.setActiveCritterIndex(targetCritterIndex);
     }

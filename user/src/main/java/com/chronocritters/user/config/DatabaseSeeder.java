@@ -15,9 +15,15 @@ import com.chronocritters.lib.model.domain.Critter;
 import com.chronocritters.lib.model.domain.Effect;
 import com.chronocritters.lib.model.domain.Player;
 import com.chronocritters.lib.model.domain.PlayerStats;
+import com.chronocritters.lib.model.effects.CleanseEffect;
 import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
+import com.chronocritters.lib.model.effects.HealEffect;
+import com.chronocritters.lib.model.effects.LifestealEffect;
+import com.chronocritters.lib.model.effects.ShieldEffect;
 import com.chronocritters.lib.model.effects.SkipTurnEffect;
+import com.chronocritters.lib.model.effects.StatModifierEffect;
+import com.chronocritters.lib.model.enums.Stat;
 import com.chronocritters.lib.model.enums.CritterType;
 import com.chronocritters.lib.util.PasswordUtil;
 import com.chronocritters.user.player.repository.AbilityRepository;
@@ -59,6 +65,11 @@ import com.chronocritters.user.player.repository.PlayerRepository;
  *   <li>Aqualing takes the opponent's turn away, which is worth most when the
  *       opponent hits harder than it does.</li>
  * </ul>
+ *
+ * The third and fourth abilities are each critter's way of not racing to zero.
+ * Searfiend stacks attack and drains; Sylvan Sentinel wards and heals, which is
+ * what lets the wall outlast a hit it could not have traded with; Aqualing
+ * erodes the opponent's guard and washes off what has been put on it.
  */
 @Configuration
 public class DatabaseSeeder {
@@ -113,7 +124,59 @@ public class DatabaseSeeder {
                 .duration(2)
                 .build();
 
-            effectRepository.saveAll(List.of(strike1, strike3, strike4, burn, bind, stun));
+            // A stage is a step on the Pokemon table: +1 is one and a half
+            // times the stat, -1 is two thirds. Stages hold until the critter
+            // leaves the field.
+            StatModifierEffect kindle = StatModifierEffect.builder()
+                .id("eff-attack-up-1")
+                .description("Raises the user's attack by one stage.")
+                .stat(Stat.ATTACK)
+                .stages(1)
+                .build();
+
+            StatModifierEffect erode = StatModifierEffect.builder()
+                .id("eff-defense-down-1")
+                .description("Lowers the target's defense by one stage.")
+                .stat(Stat.DEFENSE)
+                .stages(-1)
+                .build();
+
+            HealEffect mend40 = HealEffect.builder()
+                .id("eff-mend-40")
+                .description("Restores 40% of the user's maximum health.")
+                .healPercent(40)
+                .build();
+
+            HealEffect mend20 = HealEffect.builder()
+                .id("eff-mend-20")
+                .description("Restores 20% of the user's maximum health.")
+                .healPercent(20)
+                .build();
+
+            LifestealEffect drain3 = LifestealEffect.builder()
+                .id("eff-drain-3")
+                .description("Deals 3 damage and restores half of it to the user.")
+                .damage(3)
+                .drainPercent(50)
+                .build();
+
+            // Five turns of ward is two enemy attacks: it ticks on every turn
+            // in the battle, the caster's included, and is spent before the
+            // third one lands.
+            ShieldEffect ward5 = ShieldEffect.builder()
+                .id("eff-ward-5")
+                .description("Absorbs the next 5 damage taken over the next two enemy turns.")
+                .amount(5)
+                .duration(5)
+                .build();
+
+            CleanseEffect cleanse = CleanseEffect.builder()
+                .id("eff-cleanse")
+                .description("Clears every ailment on the user.")
+                .build();
+
+            effectRepository.saveAll(List.of(strike1, strike3, strike4, burn, bind, stun,
+                kindle, erode, mend40, mend20, drain3, ward5, cleanse));
 
             // Abilities. Every critter keeps one move with no cooldown, so a
             // player always has something to do. The status moves are the ones
@@ -139,6 +202,22 @@ public class DatabaseSeeder {
                 .cooldownTurns(3)
                 .build();
 
+            Ability kindling = Ability.builder()
+                .id("atk-kindling")
+                .name("Kindling")
+                .description("Stokes the flame inside until the next blow lands harder, and the one after it.")
+                .effects(List.of(kindle))
+                .cooldownTurns(3)
+                .build();
+
+            Ability emberDrain = Ability.builder()
+                .id("atk-emberdrain")
+                .name("Ember Drain")
+                .description("Pulls the heat out of the foe and takes it in.")
+                .effects(List.of(drain3))
+                .cooldownTurns(3)
+                .build();
+
             Ability rootJab = Ability.builder()
                 .id("atk-rootjab")
                 .name("Root Jab")
@@ -151,6 +230,22 @@ public class DatabaseSeeder {
                 .name("Bramble Snare")
                 .description("Binds the foe in creeping thorns that draw tighter with every turn.")
                 .effects(List.of(bind))
+                .cooldownTurns(4)
+                .build();
+
+            Ability barkWard = Ability.builder()
+                .id("atk-barkward")
+                .name("Bark Ward")
+                .description("Grows a layer of hardened bark that takes the next blows in its place.")
+                .effects(List.of(ward5))
+                .cooldownTurns(5)
+                .build();
+
+            Ability regrowth = Ability.builder()
+                .id("atk-regrowth")
+                .name("Regrowth")
+                .description("Puts roots down and lets the forest close its wounds.")
+                .effects(List.of(mend40))
                 .cooldownTurns(4)
                 .build();
 
@@ -169,8 +264,26 @@ public class DatabaseSeeder {
                 .cooldownTurns(4)
                 .build();
 
+            Ability erosion = Ability.builder()
+                .id("atk-erosion")
+                .name("Erosion")
+                .description("Wears at the foe's guard until it no longer holds.")
+                .effects(List.of(erode))
+                .cooldownTurns(3)
+                .build();
+
+            Ability clearWater = Ability.builder()
+                .id("atk-clearwater")
+                .name("Clear Water")
+                .description("Washes off whatever clings, and closes a little of what it left behind.")
+                .effects(List.of(cleanse, mend20))
+                .cooldownTurns(4)
+                .build();
+
             abilityRepository.saveAll(List.of(
-                cinderLash, ashenBrand, rootJab, brambleSnare, riptideLash, undertow
+                cinderLash, ashenBrand, kindling, emberDrain,
+                rootJab, brambleSnare, barkWard, regrowth,
+                riptideLash, undertow, erosion, clearWater
             ));
 
             // Critters
@@ -181,7 +294,7 @@ public class DatabaseSeeder {
                 .description("Born in the heart of a volcano, its shell of cooling magma is held together by the flame inside it. It burns hottest and shortest: nothing it faces outlasts it, so nothing it faces is given the time to.")
                 .type(CritterType.FIRE)
                 .baseStats(BaseStats.builder().health(11).attack(7).defense(5).speed(8).build())
-                .abilities(List.of(cinderLash, ashenBrand))
+                .abilities(List.of(cinderLash, ashenBrand, kindling, emberDrain))
                 .build();
 
             Critter sylvanSentinel = Critter.builder()
@@ -190,7 +303,7 @@ public class DatabaseSeeder {
                 .description("An old guardian of the deep woods, bark over living vine. It does not hurry and it does not strike hard. It puts roots into whatever stands in front of it and waits for the forest to finish the work.")
                 .type(CritterType.GRASS)
                 .baseStats(BaseStats.builder().health(16).attack(5).defense(6).speed(4).build())
-                .abilities(List.of(rootJab, brambleSnare))
+                .abilities(List.of(rootJab, brambleSnare, barkWard, regrowth))
                 .build();
 
             Critter aqualing = Critter.builder()
@@ -199,7 +312,7 @@ public class DatabaseSeeder {
                 .description("A spring spirit that has never held one shape for long. It gives ground, takes the current with it, and picks the moment a heavier opponent is off balance.")
                 .type(CritterType.WATER)
                 .baseStats(BaseStats.builder().health(13).attack(6).defense(5).speed(7).build())
-                .abilities(List.of(riptideLash, undertow))
+                .abilities(List.of(riptideLash, undertow, erosion, clearWater))
                 .build();
 
             critterRepository.saveAll(List.of(searfiend, sylvanSentinel, aqualing));
@@ -208,9 +321,12 @@ public class DatabaseSeeder {
             // collections hold the seed and nothing else. Listing retired ids by
             // hand missed documents written under an id scheme this seeder no
             // longer uses, which is how a retired critter stayed in the game.
-            pruneTo(effectRepository::deleteByIdNotIn, strike1, strike3, strike4, burn, bind, stun);
+            pruneTo(effectRepository::deleteByIdNotIn, strike1, strike3, strike4, burn, bind, stun,
+                    kindle, erode, mend40, mend20, drain3, ward5, cleanse);
             pruneTo(abilityRepository::deleteByIdNotIn,
-                    cinderLash, ashenBrand, rootJab, brambleSnare, riptideLash, undertow);
+                    cinderLash, ashenBrand, kindling, emberDrain,
+                    rootJab, brambleSnare, barkWard, regrowth,
+                    riptideLash, undertow, erosion, clearWater);
             critterRepository.deleteByIdNotIn(
                     List.of(searfiend.getId(), sylvanSentinel.getId(), aqualing.getId()));
 

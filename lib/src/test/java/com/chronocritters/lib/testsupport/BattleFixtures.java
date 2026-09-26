@@ -29,7 +29,7 @@ public final class BattleFixtures {
                 .id(id)
                 .name(id)
                 .type(type)
-                .stats(CurrentStats.builder().maxHp(hp).currentHp(hp).currentAtk(attack).currentDef(defense).build())
+                .stats(CurrentStats.builder().maxHp(hp).currentHp(hp).attack(attack).defense(defense).build())
                 .abilities(new ArrayList<>(Arrays.asList(abilities)))
                 .activeStatusEffects(new ArrayList<>())
                 .build();

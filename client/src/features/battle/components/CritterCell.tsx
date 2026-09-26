@@ -7,7 +7,9 @@ import {
   getCritterTypeIcon,
   getEffectivenessLabel,
   getHealthTone,
+  getStatLabel,
 } from '@utils/utils';
+import type { Stat } from '@/gql/graphql';
 
 const HIT_ANIMATION_MS = 1100;
 
@@ -100,7 +102,19 @@ export function CritterCell({
 
         <div className="mt-1.5 flex items-center justify-between gap-2">
           <span className="truncate text-[11px] text-arena-ink-muted">{playerName}</span>
-          <StatusEffectChips effects={critter.activeStatusEffects} compact />
+          <div className="flex items-center gap-1.5">
+            {/* Stages sit beside the ailments: a raised stat is as much a
+                reason to switch as a burn is. */}
+            {Object.entries(critter.stats.stages).map(([stat, stages]) => (
+              <span
+                key={stat}
+                className={`numeral text-[11px] font-black leading-none ${stages > 0 ? 'text-vital' : 'text-ruby'}`}
+              >
+                {getStatLabel(stat as Stat)} {stages > 0 ? `▲${stages}` : `▼${-stages}`}
+              </span>
+            ))}
+            <StatusEffectChips effects={critter.activeStatusEffects} compact />
+          </div>
         </div>
       </div>
 

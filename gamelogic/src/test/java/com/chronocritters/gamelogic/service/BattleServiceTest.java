@@ -38,6 +38,7 @@ import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.enums.BattleOutcome;
 import com.chronocritters.lib.model.enums.CritterType;
+import com.chronocritters.lib.model.enums.Stat;
 import com.chronocritters.lib.mapper.CritterMapper;
 import com.chronocritters.lib.model.domain.Ability;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
@@ -282,6 +283,25 @@ class BattleServiceTest {
         battleService.switchCritter(BATTLE_ID, PLAYER_ONE_ID, 1);
 
         assertThat(lead.getAbilityCooldowns()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("sends a critter back out with its stat stages reset, so a debuff is escaped by switching")
+    void resetsStagesWhenACritterLeavesTheField() {
+        stubPlayer(PLAYER_ONE_ID,
+                critter("one-lead", CritterType.FIRE, 40, 3, 3, 5),
+                critter("one-bench", CritterType.WATER, 40, 3, 3, 1));
+        stubPlayer(PLAYER_TWO_ID, critter("two-lead", CritterType.FIRE, 40, 3, 3, 1));
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+
+        CritterState lead = battleState.getPlayerOne().getActiveCritter();
+        lead.getStats().shiftStage(Stat.DEFENSE, -2);
+        assertThat(lead.getStats().getCurrentDef()).isEqualTo(2);
+
+        battleService.switchCritter(BATTLE_ID, PLAYER_ONE_ID, 1);
+
+        assertThat(lead.getStats().getStages()).isEmpty();
+        assertThat(lead.getStats().getCurrentDef()).isEqualTo(3);
     }
 
     @Test
