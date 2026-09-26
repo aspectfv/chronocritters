@@ -38,7 +38,7 @@ function BattlePage() {
     timeRemaining,
     turnDuration,
     lastTurnResult,
-    awaitingSwitchPlayerId,
+    awaitingSwitchPlayerIds,
     disconnectedPlayerId,
     reconnectSecondsRemaining,
     battleId: storeBattleId,
@@ -47,6 +47,11 @@ function BattlePage() {
 
   const [actionError, setActionError] = useState<string | null>(null);
   const [isActionPending, setIsActionPending] = useState(false);
+
+  // Both actives can fall on the same turn, so the board stays frozen until
+  // every owed replacement is on the field, not only this player's.
+  const mustReplaceFaintedCritter = Boolean(user?.id && awaitingSwitchPlayerIds.includes(user.id));
+  const isAwaitingReplacement = awaitingSwitchPlayerIds.length > 0;
 
   useEffect(() => {
     if (initialBattleState && user?.id && storeBattleId !== battleId) {
@@ -121,9 +126,7 @@ function BattlePage() {
   }, [battleId, isActionPending]);
 
   const handleSwitchCritter = useCallback(async (targetCritterIndex: number) => {
-    const isReplacingAFaintedCritter = awaitingSwitchPlayerId === user?.id;
-
-    if ((!player.hasTurn && !isReplacingAFaintedCritter) || !battleId || isActionPending) {
+    if ((!player.hasTurn && !mustReplaceFaintedCritter) || !battleId || isActionPending) {
       return;
     }
 
@@ -137,7 +140,7 @@ function BattlePage() {
       setActionError(errorMessage(error, 'That critter could not be sent out. Please try again.'));
       setIsActionPending(false);
     }
-  }, [battleId, player.hasTurn, isActionPending, awaitingSwitchPlayerId, user?.id]);
+  }, [battleId, player.hasTurn, isActionPending, mustReplaceFaintedCritter]);
 
   const handleForfeit = useCallback(() => {
     if (!battleId || !window.confirm('Forfeit this battle? Your opponent will be awarded the win.')) {
@@ -146,8 +149,7 @@ function BattlePage() {
     publish(`/app/battle/${battleId}/forfeit`, {});
   }, [battleId, publish]);
 
-  const mustReplaceFaintedCritter = awaitingSwitchPlayerId === user?.id;
-  const canAct = player.hasTurn && !isActionPending && !mustReplaceFaintedCritter;
+  const canAct = player.hasTurn && !isActionPending && !isAwaitingReplacement;
   const isOpponentReconnecting = Boolean(disconnectedPlayerId) && disconnectedPlayerId !== user?.id;
 
   const playerHit = lastTurnResult?.targetCritterId === player.activeCritter.id ? lastTurnResult : undefined;
@@ -156,7 +158,7 @@ function BattlePage() {
   return (
     <main className="min-h-screen bg-arena text-arena-ink">
       <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col gap-3 p-3 sm:p-5">
-        <BattleHeader isPlayerTurn={player.hasTurn} onForfeit={handleForfeit} />
+        <BattleHeader isPlayerTurn={player.hasTurn && !isAwaitingReplacement} onForfeit={handleForfeit} />
 
         {isOpponentReconnecting && (
           <OpponentStatusBanner opponentName={opponent.username} secondsRemaining={reconnectSecondsRemaining ?? 0} />

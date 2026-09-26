@@ -24,6 +24,7 @@ class FaintingServiceTest {
 
     private BattleState battleState;
     private PlayerState owner;
+    private PlayerState rival;
 
     @BeforeEach
     void setUp() {
@@ -31,13 +32,21 @@ class FaintingServiceTest {
                 critter("lead", CritterType.FIRE, 5, 3, 3),
                 critter("bench", CritterType.WATER, 5, 3, 3));
 
-        battleState = battle(owner, player(PLAYER_TWO_ID, critter("rival", CritterType.GRASS, 5, 3, 3)));
+        rival = player(PLAYER_TWO_ID,
+                critter("rival-lead", CritterType.GRASS, 5, 3, 3),
+                critter("rival-bench", CritterType.FIRE, 5, 3, 3));
+
+        battleState = battle(owner, rival);
+    }
+
+    private void faint(PlayerState player, CritterState critter) {
+        critter.getStats().setCurrentHp(0);
+        critter.setFainted(true);
+        faintingService.onCritterFainted(new CritterFaintedEvent(this, battleState, player, critter));
     }
 
     private void faint(CritterState critter) {
-        critter.getStats().setCurrentHp(0);
-        critter.setFainted(true);
-        faintingService.onCritterFainted(new CritterFaintedEvent(this, battleState, owner, critter));
+        faint(owner, critter);
     }
 
     @Test
@@ -45,7 +54,7 @@ class FaintingServiceTest {
     void asksTheOwnerForAReplacement() {
         faint(owner.getActiveCritter());
 
-        assertThat(battleState.getAwaitingSwitchPlayerId()).isEqualTo(PLAYER_ONE_ID);
+        assertThat(battleState.getAwaitingSwitchPlayerIds()).containsExactly(PLAYER_ONE_ID);
         assertThat(owner.getActiveCritterIndex()).as("nothing is sent out until they choose").isZero();
         assertThat(lastLog(battleState)).contains("must send out another critter");
     }
@@ -55,7 +64,7 @@ class FaintingServiceTest {
     void ignoresABenchedCritterFainting() {
         faint(owner.getCritterByIndex(1));
 
-        assertThat(battleState.getAwaitingSwitchPlayerId()).isNull();
+        assertThat(battleState.getAwaitingSwitchPlayerIds()).isEmpty();
         assertThat(owner.getActiveCritterIndex()).isZero();
         assertThat(owner.getActiveCritter().getName()).isEqualTo("lead");
     }
@@ -68,8 +77,19 @@ class FaintingServiceTest {
 
         faint(owner.getActiveCritter());
 
-        assertThat(battleState.getAwaitingSwitchPlayerId()).isNull();
+        assertThat(battleState.getAwaitingSwitchPlayerIds()).isEmpty();
         assertThat(lastLog(battleState)).isEqualTo("lead fainted!");
+    }
+
+    @Test
+    @DisplayName("asks both owners when the two actives fall on the same turn")
+    void asksBothOwnersOnADoubleFaint() {
+        faint(owner.getActiveCritter());
+        faint(rival, rival.getActiveCritter());
+
+        // Holding one player at a time left the second fainted critter on the
+        // field, where the opponent could keep hitting it.
+        assertThat(battleState.getAwaitingSwitchPlayerIds()).containsExactlyInAnyOrder(PLAYER_ONE_ID, PLAYER_TWO_ID);
     }
 
     @Test

@@ -115,9 +115,12 @@ public class BattleService {
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
         BattleState currentBattle = requireActiveTurn(battleId, playerId);
 
-        String owedBy = currentBattle.getAwaitingSwitchPlayerId();
-        if (owedBy != null) {
-            throw new IllegalStateException(playerId.equals(owedBy)
+        // The board is frozen until every fainted active has been replaced.
+        // Playing on top of one resolves the move against a critter that is
+        // already down: a stun landing on a corpse, damage credited to a critter
+        // on its way off the field.
+        if (currentBattle.isAwaitingSwitch()) {
+            throw new IllegalStateException(currentBattle.awaitsSwitchFrom(playerId)
                     ? "Send out a replacement critter first"
                     : "Waiting for a replacement critter");
         }
@@ -144,9 +147,10 @@ public class BattleService {
      */
     public BattleState switchCritter(String battleId, String playerId, int targetCritterIndex) {
         BattleState currentBattle = requireBattle(battleId);
-        boolean isReplacingAFaintedCritter = playerId.equals(currentBattle.getAwaitingSwitchPlayerId());
+        boolean isReplacingAFaintedCritter = currentBattle.awaitsSwitchFrom(playerId);
 
         if (!isReplacingAFaintedCritter) {
+            if (currentBattle.isAwaitingSwitch()) throw new IllegalStateException("Waiting for a replacement critter");
             requireActiveTurn(battleId, playerId);
         }
 
@@ -157,7 +161,14 @@ public class BattleService {
         sendOut(currentBattle, player, targetCritterIndex);
 
         if (isReplacingAFaintedCritter) {
-            currentBattle.setAwaitingSwitchPlayerId(null);
+            currentBattle.getAwaitingSwitchPlayerIds().remove(playerId);
+
+            // The choice is free, so the player whose turn it is gets a whole
+            // one once the last replacement is on the field.
+            if (!currentBattle.isAwaitingSwitch()) {
+                currentBattle.setTimeRemaining(currentBattle.getTurnDuration());
+            }
+
             finalizeTurn(currentBattle);
             return currentBattle;
         }
@@ -195,9 +206,8 @@ public class BattleService {
 
         currentBattle.setLastTurnResult(null);
 
-        String owedBy = currentBattle.getAwaitingSwitchPlayerId();
-        if (owedBy != null) {
-            sendOutFirstLivingCritter(currentBattle, currentBattle.getPlayerById(owedBy));
+        if (currentBattle.isAwaitingSwitch()) {
+            sendOutFirstLivingCritters(currentBattle);
             return;
         }
 
@@ -248,18 +258,20 @@ public class BattleService {
     }
 
     /** The clock ran out on a replacement choice, so the roster order decides it. */
-    private void sendOutFirstLivingCritter(BattleState battleState, PlayerState player) {
-        int replacementIndex = FaintingService.firstLivingCritterIndex(player);
-        battleState.setAwaitingSwitchPlayerId(null);
+    private void sendOutFirstLivingCritters(BattleState battleState) {
+        for (String playerId : List.copyOf(battleState.getAwaitingSwitchPlayerIds())) {
+            PlayerState player = battleState.getPlayerById(playerId);
+            int replacementIndex = FaintingService.firstLivingCritterIndex(player);
 
-        if (replacementIndex < 0) {
-            finalizeTurn(battleState);
-            return;
+            if (replacementIndex < 0) continue;
+
+            battleState.getActionLogHistory().add(String.format("%s took too long, so %s is sent out.",
+                    player.getUsername(), player.getCritterByIndex(replacementIndex).getName()));
+            player.setActiveCritterIndex(replacementIndex);
         }
 
-        battleState.getActionLogHistory().add(String.format("%s took too long, so %s is sent out.",
-                player.getUsername(), player.getCritterByIndex(replacementIndex).getName()));
-        player.setActiveCritterIndex(replacementIndex);
+        battleState.getAwaitingSwitchPlayerIds().clear();
+        battleState.setTimeRemaining(battleState.getTurnDuration());
 
         finalizeTurn(battleState);
     }

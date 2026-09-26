@@ -29,9 +29,11 @@ import com.chronocritters.gamelogic.event.CritterFaintedEvent;
 import com.chronocritters.gamelogic.exception.BattleNotFoundException;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
 import com.chronocritters.lib.model.battle.BattleState;
+import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.domain.BaseStats;
 import com.chronocritters.lib.model.domain.Critter;
 import com.chronocritters.lib.model.effects.DamageEffect;
+import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.enums.BattleOutcome;
 import com.chronocritters.lib.model.enums.CritterType;
 import com.chronocritters.lib.mapper.CritterMapper;
@@ -193,7 +195,7 @@ class BattleServiceTest {
     void waitsForTheOwnerToChooseAReplacement() {
         BattleState battleState = battleAwaitingReplacement();
 
-        assertThat(battleState.getAwaitingSwitchPlayerId()).isEqualTo(PLAYER_ONE_ID);
+        assertThat(battleState.getAwaitingSwitchPlayerIds()).containsExactly(PLAYER_ONE_ID);
         assertThat(battleState.getPlayerOne().getActiveCritterIndex()).as("nobody is sent out for them").isZero();
     }
 
@@ -204,7 +206,7 @@ class BattleServiceTest {
 
         BattleState battleState = battleService.switchCritter(BATTLE_ID, PLAYER_ONE_ID, 1);
 
-        assertThat(battleState.getAwaitingSwitchPlayerId()).isNull();
+        assertThat(battleState.getAwaitingSwitchPlayerIds()).isEmpty();
         assertThat(battleState.getPlayerOne().getActiveCritterIndex()).isEqualTo(1);
         assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_ONE_ID);
     }
@@ -237,8 +239,77 @@ class BattleServiceTest {
 
         battleService.handleTurnTimeout(BATTLE_ID);
 
-        assertThat(battleState.getAwaitingSwitchPlayerId()).isNull();
+        assertThat(battleState.getAwaitingSwitchPlayerIds()).isEmpty();
         assertThat(battleState.getPlayerOne().getActiveCritterIndex()).isEqualTo(1);
+    }
+
+    /** Both actives fall on the same turn: the hit takes one, the burn the other. */
+    private BattleState doubleFaintBattle() {
+        stubPlayer(PLAYER_ONE_ID,
+                critter("one-lead", CritterType.FIRE, 40, 3, 3),
+                critter("one-bench", CritterType.WATER, 40, 3, 3));
+        stubPlayer(PLAYER_TWO_ID,
+                critter("two-lead", CritterType.FIRE, 40, 3, 3),
+                critter("two-bench", CritterType.WATER, 40, 3, 3));
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+
+        battleState.getPlayerTwo().getActiveCritter().getStats().setCurrentHp(1);
+
+        CritterState burningLead = battleState.getPlayerOne().getActiveCritter();
+        burningLead.getStats().setCurrentHp(1);
+        burningLead.getActiveStatusEffects().add(DamageOverTimeEffect.builder()
+                .id("eff-burn").description("burns").casterId("two-lead").damagePerTurn(2).duration(2).build());
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, ABILITY_ID);
+        return battleState;
+    }
+
+    @Test
+    @DisplayName("asks both players for a replacement when the two actives fall on the same turn")
+    void asksBothPlayersForAReplacementOnADoubleFaint() {
+        BattleState battleState = doubleFaintBattle();
+
+        assertThat(battleState.getAwaitingSwitchPlayerIds()).containsExactlyInAnyOrder(PLAYER_ONE_ID, PLAYER_TWO_ID);
+    }
+
+    @Test
+    @DisplayName("holds every move until both replacements are on the field, then passes the turn on")
+    void holdsTheBoardUntilBothReplacementsAreSentOut() {
+        BattleState battleState = doubleFaintBattle();
+
+        assertThatThrownBy(() -> battleService.executeAbility(BATTLE_ID, PLAYER_TWO_ID, ABILITY_ID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("replacement critter first");
+
+        battleService.switchCritter(BATTLE_ID, PLAYER_TWO_ID, 1);
+
+        assertThatThrownBy(() -> battleService.executeAbility(BATTLE_ID, PLAYER_TWO_ID, ABILITY_ID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Waiting for a replacement critter");
+
+        battleService.switchCritter(BATTLE_ID, PLAYER_ONE_ID, 1);
+
+        assertThat(battleState.getAwaitingSwitchPlayerIds()).isEmpty();
+        assertThat(battleState.getActivePlayerId()).as("the free replacement costs player one no turn and wins them none")
+                .isEqualTo(PLAYER_TWO_ID);
+        assertThat(battleState.getTimeRemaining()).isEqualTo(battleState.getTurnDuration());
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_TWO_ID, ABILITY_ID);
+
+        assertThat(battleState.getPlayerOne().getActiveCritter().getStats().getCurrentHp()).isLessThan(40);
+    }
+
+    @Test
+    @DisplayName("the clock running out on a double faint sends out both replacements")
+    void timingOutOnADoubleFaintSendsOutBothReplacements() {
+        BattleState battleState = doubleFaintBattle();
+
+        battleService.handleTurnTimeout(BATTLE_ID);
+
+        assertThat(battleState.getAwaitingSwitchPlayerIds()).isEmpty();
+        assertThat(battleState.getPlayerOne().getActiveCritterIndex()).isEqualTo(1);
+        assertThat(battleState.getPlayerTwo().getActiveCritterIndex()).isEqualTo(1);
+        assertThat(battleState.getTimeRemaining()).isEqualTo(battleState.getTurnDuration());
     }
 
     @Test

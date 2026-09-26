@@ -32,17 +32,10 @@ message PlayerResponse {
   repeated CritterProto roster = 4;
 }
 
-message PlayerStatsProto {
-  int32 wins = 1;
-  int32 losses = 2;
-}
-
 message CritterProto {
   string id = 1;
   string name = 2;
   string description = 3;
-  int32 level = 4;
-  int64 experience = 5;
   CritterTypeProto type = 6;
   BaseStatsProto base_stats = 7;
   repeated AbilityProto abilities = 8;
@@ -108,10 +101,7 @@ message BattleStatsProto {
   repeated TurnActionEntryProto turn_action_history = 5;
 }
 
-message MatchHistoryResponse {
-  bool success = 1;
-  string message = 2;
-}
+message MatchHistoryResponse {}
 
 message BattleRewardsRequest {
   string winner_id = 1;

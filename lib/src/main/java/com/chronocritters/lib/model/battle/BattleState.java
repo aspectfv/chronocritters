@@ -1,6 +1,8 @@
 package com.chronocritters.lib.model.battle;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.chronocritters.lib.model.enums.BattleOutcome;
 
@@ -32,10 +34,14 @@ public class BattleState {
     private TurnResult lastTurnResult;
 
     /**
-     * Set to the player who has lost their active critter and owes a
-     * replacement. They choose it themselves, and the choice is free.
+     * The players who have lost their active critter and owe a replacement.
+     * They choose it themselves, and the choice is free. Both actives can fall
+     * on the same turn, so this holds a player each rather than one player:
+     * leaving the second one out left a fainted critter on the field to be hit
+     * again and again. Nobody may act until it is empty.
      */
-    private String awaitingSwitchPlayerId;
+    @Default
+    private Set<String> awaitingSwitchPlayerIds = new LinkedHashSet<>();
 
     private BattleStats battleStats;
 
@@ -44,6 +50,14 @@ public class BattleState {
     
     private String winnerId;
     private BattleRewards battleRewards;
+
+    public boolean isAwaitingSwitch() {
+        return !awaitingSwitchPlayerIds.isEmpty();
+    }
+
+    public boolean awaitsSwitchFrom(String playerId) {
+        return awaitingSwitchPlayerIds.contains(playerId);
+    }
 
     public PlayerState getPlayer() {
         if (playerOne != null && playerOne.getId().equals(activePlayerId)) {

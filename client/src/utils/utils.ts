@@ -2,7 +2,7 @@ import { ConnectionStatus } from "@store/lobby/types";
 import type { BattleEffect } from "@store/battle/types";
 import { CritterType, type EffectUnion } from "@/gql/graphql";
 
-export const critterTypeIcons: Record<CritterType, string> = {
+const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.Fire]: '🔥',
   [CritterType.Water]: '💧',
   [CritterType.Electric]: '⚡',
@@ -13,7 +13,7 @@ export const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.Unknown]: '❓',
 };
 
-export const critterTypeStyles: Record<CritterType, string> = {
+const critterTypeStyles: Record<CritterType, string> = {
   [CritterType.Fire]: 'bg-type-fire/15 text-type-fire border-type-fire/35',
   [CritterType.Water]: 'bg-type-water/15 text-type-water border-type-water/35',
   [CritterType.Grass]: 'bg-type-grass/15 text-type-grass border-type-grass/35',
@@ -57,20 +57,6 @@ export const getCritterImageUrl = (critterName: string | null | undefined): stri
 
   const formattedName = toTitleCase(critterName ?? 'Unknown').replace(/\s/g, '');
   return `/critters/${formattedName}.jpeg`;
-};
-
-const effectTypeStyles: Record<string, string> = {
-  DamageEffect: 'bg-danger-soft text-danger-ink border-danger/35',
-  DamageOverTimeEffect: 'bg-purple-100 text-purple-800 border-purple-300',
-  SkipTurnEffect: 'bg-blue-100 text-blue-800 border-blue-300',
-  BuffEffect: 'bg-accent-soft text-accent-ink border-accent/40',
-  DebuffEffect: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  UnknownEffect: 'bg-surface-sunk text-ink border-line-strong',
-};
-
-export const getEffectStyle = (effect: EffectUnion | null | undefined): string => {
-  if (!effect || !effect.__typename) return effectTypeStyles.UnknownEffect;
-  return effectTypeStyles[effect.__typename] ?? effectTypeStyles.UnknownEffect;
 };
 
 const connectionStatusStyleMap: Record<ConnectionStatus, { text: string; color: string }> = {
@@ -139,14 +125,6 @@ export function describeBattleEffect(effect: AnyEffect): string {
   return 'costs a turn';
 }
 
-export function getAbilityPower(effect: AnyEffect | undefined): number | null {
-  if (!effect) return null;
-  const kind = effectKind(effect);
-  if (kind === 'DamageEffect' && 'damage' in effect) return effect.damage;
-  if (kind === 'DamageOverTimeEffect' && 'damagePerTurn' in effect) return effect.damagePerTurn;
-  return null;
-}
-
 export function getHealthTone(healthPercentage: number): string {
   if (healthPercentage > 50) return 'bg-vital';
   if (healthPercentage > 20) return 'bg-warn';
@@ -161,14 +139,6 @@ export function getEffectivenessLabel(effectiveness: number): string | null {
 
 export type BattleLogTone = 'damage' | 'faint' | 'switch' | 'status' | 'system';
 
-const battleLogToneStyles: Record<BattleLogTone, string> = {
-  damage: 'bg-danger-soft border-l-4 border-danger/35 text-ink',
-  faint: 'bg-ink text-surface',
-  switch: 'bg-accent-soft border-l-4 border-accent/40 text-ink',
-  status: 'bg-purple-50 border-l-4 border-purple-300 text-ink',
-  system: 'bg-surface-sunk text-ink',
-};
-
 /**
  * The log arrives as prose, so the styling is matched off the phrases gamelogic
  * writes. Anything unrecognised falls back to the plain system row.
@@ -181,6 +151,3 @@ export function classifyBattleLog(message: string): BattleLogTone {
   return 'system';
 }
 
-export function getBattleLogStyle(message: string): string {
-  return battleLogToneStyles[classifyBattleLog(message)];
-}

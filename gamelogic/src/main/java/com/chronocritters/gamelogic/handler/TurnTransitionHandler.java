@@ -20,20 +20,14 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
 
     @Override
     public void handle(BattleState battleState) {
-        String owedBy = battleState.getAwaitingSwitchPlayerId();
-
-        // The battle pauses on a replacement choice. Handing the turn on lets the
-        // other player act, and their move resolves against the critter that has
-        // already fainted: a stun landing on a corpse, damage credited to a
-        // critter on its way off the field.
-        if (owedBy != null) {
-            giveTurnTo(battleState, battleState.getPlayerById(owedBy));
-            battleState.setTimeRemaining(battleState.getTurnDuration());
-            return;
-        }
-
         for (int skips = 0; skips < MAX_CONSECUTIVE_SKIPS; skips++) {
             if (!advanceTurn(battleState)) return;
+
+            // A player who owes a replacement is still holding the critter that
+            // just fainted, and a stun on it is not a stun on whoever they send
+            // out. Reading it as one handed the turn back to their attacker,
+            // who then played another move into the empty slot.
+            if (battleState.awaitsSwitchFrom(battleState.getActivePlayerId())) break;
 
             if (!isStunned(battleState.getPlayer())) break;
         }
