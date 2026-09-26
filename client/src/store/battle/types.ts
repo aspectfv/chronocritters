@@ -12,6 +12,7 @@ export interface BattleAbility {
   id: string;
   name: string;
   description: string;
+  cooldownTurns: number;
   effects: BattleEffect[];
 }
 
@@ -43,6 +44,9 @@ export interface CritterState {
   abilities: BattleAbility[];
   activeStatusEffects: BattleEffect[];
   fainted: boolean;
+
+  /** Turns left on each ability that is cooling down, keyed by ability id. */
+  abilityCooldowns: Record<string, number>;
 }
 
 export interface PlayerState {

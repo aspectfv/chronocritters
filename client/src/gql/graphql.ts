@@ -16,6 +16,7 @@ export type Scalars = {
 
 export type Ability = {
   __typename?: 'Ability';
+  cooldownTurns?: Maybe<Scalars['Int']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   effects?: Maybe<Array<Maybe<EffectUnion>>>;
   id?: Maybe<Scalars['ID']['output']>;
@@ -215,7 +216,7 @@ export type GetMyCrittersQueryVariables = Exact<{
 }>;
 
 
-export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null, experience?: number | null, expToNextLevel?: number | null, health?: number | null, attack?: number | null, defense?: number | null, speed?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, effects?: Array<
+export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', roster?: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', level?: number | null, experience?: number | null, expToNextLevel?: number | null, health?: number | null, attack?: number | null, defense?: number | null, speed?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, cooldownTurns?: number | null, effects?: Array<
           | { __typename?: 'DamageEffect', id: string, description: string, damage: number }
           | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
           | { __typename?: 'SkipTurnEffect', id: string, description: string, duration: number }
@@ -224,7 +225,7 @@ export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typenam
 export type GetCritterCatalogQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCritterCatalogQuery = { __typename?: 'Query', critters: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', health?: number | null, attack?: number | null, defense?: number | null, speed?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, effects?: Array<
+export type GetCritterCatalogQuery = { __typename?: 'Query', critters: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', health?: number | null, attack?: number | null, defense?: number | null, speed?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, cooldownTurns?: number | null, effects?: Array<
         | { __typename?: 'DamageEffect', id: string, description: string, damage: number }
         | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
         | { __typename?: 'SkipTurnEffect', id: string, description: string, duration: number }

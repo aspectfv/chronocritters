@@ -112,6 +112,7 @@ const GET_MY_CRITTERS_QUERY = gql(`
           id
           name
           description
+          cooldownTurns
           effects {
             ... on DamageEffect {
               id
@@ -162,6 +163,7 @@ const GET_CRITTER_CATALOG_QUERY = gql(`
         id
         name
         description
+        cooldownTurns
         effects {
           ... on DamageEffect {
             id

@@ -1,7 +1,9 @@
 package com.chronocritters.lib.model.battle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.chronocritters.lib.model.domain.Ability;
 import com.chronocritters.lib.model.domain.Effect;
@@ -27,8 +29,19 @@ public class CritterState {
     @Default
     private List<Effect> activeStatusEffects = new ArrayList<>();
 
+    /**
+     * Turns left on each ability that is cooling down, by ability id. An ability
+     * that is ready is absent rather than held at zero.
+     */
+    @Default
+    private Map<String, Integer> abilityCooldowns = new HashMap<>();
+
     @Default
     private boolean fainted = false;
+
+    public boolean isCoolingDown(String abilityId) {
+        return abilityCooldowns.containsKey(abilityId);
+    }
 
     public Ability getAbilityById(String abilityId) {
         return abilities.stream()

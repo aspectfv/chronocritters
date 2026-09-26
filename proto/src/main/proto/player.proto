@@ -57,6 +57,7 @@ message AbilityProto {
   string name = 2;
   string description = 3;
   repeated EffectProto effects = 4;
+  int32 cooldown_turns = 5;
 }
 
 message EffectProto {

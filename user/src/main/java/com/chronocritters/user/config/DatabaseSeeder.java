@@ -115,7 +115,14 @@ public class DatabaseSeeder {
 
             effectRepository.saveAll(List.of(strike1, strike3, strike4, burn, bind, stun));
 
-            // Abilities
+            // Abilities. Every critter keeps one move with no cooldown, so a
+            // player always has something to do. The status moves are the ones
+            // that carry a cooldown, because refreshing a burn, a bind or a stun
+            // every turn was the whole of the old best play.
+            //
+            // A cooldown ticks down as the turn comes back to its owner, so it
+            // has lost one by the time they could use it again: 3 costs them two
+            // of their own turns, 4 costs them three.
 
             Ability cinderLash = Ability.builder()
                 .id("atk-cinderlash")
@@ -129,6 +136,7 @@ public class DatabaseSeeder {
                 .name("Ashen Brand")
                 .description("Marks the foe with a searing brand that keeps burning long after the blow.")
                 .effects(List.of(strike1, burn))
+                .cooldownTurns(3)
                 .build();
 
             Ability rootJab = Ability.builder()
@@ -143,6 +151,7 @@ public class DatabaseSeeder {
                 .name("Bramble Snare")
                 .description("Binds the foe in creeping thorns that draw tighter with every turn.")
                 .effects(List.of(bind))
+                .cooldownTurns(4)
                 .build();
 
             Ability riptideLash = Ability.builder()
@@ -157,6 +166,7 @@ public class DatabaseSeeder {
                 .name("Undertow")
                 .description("Drags the foe under a pulling current, leaving them fighting the water instead of you.")
                 .effects(List.of(strike1, stun))
+                .cooldownTurns(4)
                 .build();
 
             abilityRepository.saveAll(List.of(

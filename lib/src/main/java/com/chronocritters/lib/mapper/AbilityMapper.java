@@ -20,6 +20,7 @@ public final class AbilityMapper {
             .effects(proto.getEffectsList().stream()
                 .map(EffectMapper::toModel)
                 .collect(Collectors.toList()))
+            .cooldownTurns(proto.getCooldownTurns())
             .build();
     }
 
@@ -32,7 +33,8 @@ public final class AbilityMapper {
         AbilityProto.Builder builder = AbilityProto.newBuilder()
             .setId(model.getId())
             .setName(model.getName())
-            .setDescription(model.getDescription());
+            .setDescription(model.getDescription())
+            .setCooldownTurns(model.getCooldownTurns());
 
         model.getEffects().stream()
             .map(EffectMapper::toProto)

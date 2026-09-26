@@ -35,6 +35,7 @@ const defaultEmptyCritter: CritterState = {
   abilities: [],
   activeStatusEffects: [],
   fainted: false,
+  abilityCooldowns: {},
 };
 
 const defaultEmptyBattlePlayer: PlayerState = {

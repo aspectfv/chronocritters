@@ -53,6 +53,7 @@ class BattleServiceTest {
     private static final String PLAYER_ONE_ID = "p1";
     private static final String PLAYER_TWO_ID = "p2";
     private static final String ABILITY_ID = "atk-test";
+    private static final String COOLING_ABILITY_ID = "atk-cooling";
 
     @Mock private PlayerGrpcClient playerGrpcClient;
     @Mock private LobbyWebClient lobbyWebClient;
@@ -95,6 +96,21 @@ class BattleServiceTest {
                 .baseStats(BaseStats.builder().health(health).attack(attack).defense(defense).speed(speed).build())
                 .abilities(List.of(ability))
                 .build();
+    }
+
+    /** A critter with a free move and a second one that has to be waited out. */
+    private Critter critterWithACoolingMove(String id, CritterType type) {
+        Critter model = critter(id, type, 40, 3, 3, 5);
+        Ability cooling = Ability.builder()
+                .id(COOLING_ABILITY_ID)
+                .name("Slow Burn")
+                .description("worth the wait")
+                .effects(List.of(DamageEffect.builder().id("eff-cooling").description("hurts a little").damage(1).build()))
+                .cooldownTurns(3)
+                .build();
+
+        model.setAbilities(List.of(model.getAbilities().get(0), cooling));
+        return model;
     }
 
     private void stubPlayer(String playerId, Critter... roster) {
@@ -180,6 +196,92 @@ class BattleServiceTest {
         assertThat(scaled.getStats().getCurrentAtk()).isGreaterThan(unscaled.getStats().getCurrentAtk());
         assertThat(scaled.getStats().getMaxHp()).isGreaterThan(unscaled.getStats().getMaxHp());
         assertThat(scaled.getStats().getCurrentHp()).isEqualTo(scaled.getStats().getMaxHp());
+    }
+
+    private BattleState coolingMoveBattle() {
+        stubPlayer(PLAYER_ONE_ID,
+                critterWithACoolingMove("one-lead", CritterType.FIRE),
+                critter("one-bench", CritterType.WATER, 40, 3, 3, 1));
+        stubPlayer(PLAYER_TWO_ID, critterWithACoolingMove("two-lead", CritterType.FIRE));
+        return battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+    }
+
+    /** Hands the turn back to player one, who opens on the speed tie or loses it. */
+    private void playARound(BattleState battleState) {
+        battleService.executeAbility(BATTLE_ID, battleState.getActivePlayerId(), ABILITY_ID);
+        battleService.executeAbility(BATTLE_ID, battleState.getActivePlayerId(), ABILITY_ID);
+    }
+
+    @Test
+    @DisplayName("refuses a move that is still cooling down, and says how long is left")
+    void refusesACoolingMove() {
+        BattleState battleState = coolingMoveBattle();
+        String opener = battleState.getActivePlayerId();
+        String other = battleState.getPlayerOne().getId().equals(opener) ? PLAYER_TWO_ID : PLAYER_ONE_ID;
+
+        battleService.executeAbility(BATTLE_ID, opener, COOLING_ABILITY_ID);
+        battleService.executeAbility(BATTLE_ID, other, ABILITY_ID);
+
+        assertThatThrownBy(() -> battleService.executeAbility(BATTLE_ID, opener, COOLING_ABILITY_ID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Slow Burn is still cooling down");
+    }
+
+    @Test
+    @DisplayName("frees the move again once its owner has taken the turns it costs")
+    void freesTheMoveOnceTheOwnerHasWaited() {
+        BattleState battleState = coolingMoveBattle();
+        String opener = battleState.getActivePlayerId();
+        String other = battleState.getPlayerOne().getId().equals(opener) ? PLAYER_TWO_ID : PLAYER_ONE_ID;
+
+        battleService.executeAbility(BATTLE_ID, opener, COOLING_ABILITY_ID);
+        battleService.executeAbility(BATTLE_ID, other, ABILITY_ID);
+
+        // A stored 3 costs its owner two of their own turns, so they spend both
+        // on the free move before the cooling one comes back.
+        playARound(battleState);
+        playARound(battleState);
+
+        assertThat(battleState.getPlayerById(opener).getActiveCritter().isCoolingDown(COOLING_ABILITY_ID)).isFalse();
+        battleService.executeAbility(BATTLE_ID, opener, COOLING_ABILITY_ID);
+
+        assertThat(battleState.getPlayerById(opener).getActiveCritter().getAbilityCooldowns())
+                .containsEntry(COOLING_ABILITY_ID, 2);
+    }
+
+    @Test
+    @DisplayName("counts the cooldown down on its owner's turns, not on every turn in the battle")
+    void countsTheCooldownOnTheOwnersTurns() {
+        BattleState battleState = coolingMoveBattle();
+        String opener = battleState.getActivePlayerId();
+        String other = battleState.getPlayerOne().getId().equals(opener) ? PLAYER_TWO_ID : PLAYER_ONE_ID;
+
+        battleService.executeAbility(BATTLE_ID, opener, COOLING_ABILITY_ID);
+        assertThat(battleState.getPlayerById(opener).getActiveCritter().getAbilityCooldowns())
+                .as("one turn is spent by using it").containsEntry(COOLING_ABILITY_ID, 2);
+
+        battleService.executeAbility(BATTLE_ID, other, ABILITY_ID);
+        assertThat(battleState.getPlayerById(opener).getActiveCritter().getAbilityCooldowns())
+                .as("the opponent's turn is not the owner's").containsEntry(COOLING_ABILITY_ID, 2);
+    }
+
+    @Test
+    @DisplayName("sends a critter back out with its cooldowns cleared, since the switch cost a turn")
+    void clearsCooldownsWhenACritterLeavesTheField() {
+        stubPlayer(PLAYER_ONE_ID,
+                critterWithACoolingMove("one-lead", CritterType.FIRE),
+                critter("one-bench", CritterType.WATER, 40, 3, 3, 1));
+        stubPlayer(PLAYER_TWO_ID, critter("two-lead", CritterType.FIRE, 40, 3, 3, 1));
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+
+        CritterState lead = battleState.getPlayerOne().getActiveCritter();
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, COOLING_ABILITY_ID);
+        assertThat(lead.getAbilityCooldowns()).isNotEmpty();
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_TWO_ID, ABILITY_ID);
+        battleService.switchCritter(BATTLE_ID, PLAYER_ONE_ID, 1);
+
+        assertThat(lead.getAbilityCooldowns()).isEmpty();
     }
 
     @Test

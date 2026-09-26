@@ -39,6 +39,7 @@ type Ability {
     id: ID
     name: String
     description: String
+    cooldownTurns: Int
     effects: [EffectUnion]
 }
 

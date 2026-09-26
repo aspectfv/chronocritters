@@ -2,6 +2,7 @@ package com.chronocritters.gamelogic.handler;
 
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.BattleStats;
+import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.battle.PlayerState;
 import com.chronocritters.lib.model.effects.SkipTurnEffect;
 
@@ -44,6 +45,7 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
         BattleStats battleStats = battleState.getBattleStats();
         battleStats.setTurnCount(battleStats.getTurnCount() + 1);
 
+        tickCooldowns(currentPlayer.getActiveCritter());
         giveTurnTo(battleState, nextPlayer);
 
         return true;
@@ -55,6 +57,19 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
         battleState.getPlayerOne().setHasTurn(player == battleState.getPlayerOne());
         battleState.getPlayerTwo().setHasTurn(player == battleState.getPlayerTwo());
         battleState.setActivePlayerId(player.getId());
+    }
+
+    /**
+     * Cooldowns belong to the critter on the field, and they run down at the end
+     * of its own turn rather than on every turn in the battle. Counting on the
+     * way out means the number a player is shown is the number of their own turns
+     * they still have to wait.
+     */
+    private void tickCooldowns(CritterState critter) {
+        if (critter == null) return;
+
+        critter.getAbilityCooldowns().replaceAll((abilityId, turnsLeft) -> turnsLeft - 1);
+        critter.getAbilityCooldowns().values().removeIf(turnsLeft -> turnsLeft <= 0);
     }
 
     private boolean isStunned(PlayerState player) {
