@@ -70,7 +70,7 @@ public class StatusEffect extends Effect implements IPersistentEffect {
                 opponent.getUsername(), target.getName(), condition.adjective(), ability.getName());
         } else {
             this.casterId = caster.getId();
-            target.setStatus(this.createInstance());
+            target.setStatus(this.copy());
             landed = true;
             actionLog = String.format("%s's %s is afflicted with %s from %s's %s and is now %s!",
                 opponent.getUsername(), target.getName(), ability.getName(), player.getUsername(), caster.getName(),
@@ -137,13 +137,18 @@ public class StatusEffect extends Effect implements IPersistentEffect {
         return true;
     }
 
-    private StatusEffect createInstance() {
+    /**
+     * An independent copy, so the one on a critter never shares its countdown
+     * with the ability it came from or with a snapshot taken of it.
+     */
+    public StatusEffect copy() {
         return StatusEffect.builder()
                 .id(this.id)
                 .description(this.description)
                 .condition(this.condition)
                 .duration(this.duration)
                 .potency(this.potency)
+                .turnsHeld(this.turnsHeld)
                 .casterId(this.casterId)
                 .build();
     }

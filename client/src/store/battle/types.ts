@@ -73,6 +73,8 @@ export interface PlayerState {
   hasTurn: boolean;
   activeCritterIndex: number;
   roster: CritterState[];
+  /** A rewind is once per battle. */
+  rewindUsed: boolean;
 
   // client specific props
   activeCritter: CritterState;

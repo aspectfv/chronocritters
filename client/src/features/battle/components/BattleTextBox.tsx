@@ -7,6 +7,7 @@ const tones: Record<string, string> = {
   faint: 'text-brass-ink',
   switch: 'text-type-grass',
   status: 'text-type-toxic',
+  rewind: 'text-brass-ink',
   system: 'text-arena-ink-muted',
 };
 

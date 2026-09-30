@@ -48,7 +48,7 @@ function MoveButton({ ability, casterType, turnsLeft, onClick, disabled }: {
   );
 }
 
-export function MoveGrid({ abilities, casterType, cooldowns, onAbilityClick, isPlayerTurn, isResolving }: MoveGridProps) {
+export function MoveGrid({ abilities, casterType, cooldowns, onAbilityClick, isPlayerTurn, isResolving, rewindUsed, canRewind, onRewind }: MoveGridProps) {
   const heading = isResolving
     ? 'Resolving your move...'
     : isPlayerTurn ? 'Choose a move' : 'Waiting for your opponent';
@@ -57,10 +57,23 @@ export function MoveGrid({ abilities, casterType, cooldowns, onAbilityClick, isP
     <div className="panel rounded-lg bg-arena-deep p-3">
       <div className="mb-2.5 flex items-center justify-between px-0.5">
         <span className="text-sm font-bold text-arena-ink">{heading}</span>
-        <span className={`flex items-center gap-1 rounded-full border-2 border-outline px-2 py-0.5 text-[11px] font-black text-white ${getCritterTypeFill(casterType)}`}>
-          <span aria-hidden="true">{getCritterTypeIcon(casterType)}</span>
-          {casterType}
-        </span>
+        <div className="flex items-center gap-2">
+          {/* Beside the moves rather than among them: it costs no turn, so it
+              is something done before picking one. */}
+          <button
+            type="button"
+            onClick={onRewind}
+            disabled={!canRewind}
+            title="Once per battle, and free: your critter goes back to how it stood two turns ago, then you still pick a move."
+            className="key rounded-full bg-brass px-2.5 py-0.5 text-[11px] font-black text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60"
+          >
+            <span aria-hidden="true">⟲</span> {rewindUsed ? 'Rewind spent' : 'Rewind 2 turns'}
+          </button>
+          <span className={`flex items-center gap-1 rounded-full border-2 border-outline px-2 py-0.5 text-[11px] font-black text-white ${getCritterTypeFill(casterType)}`}>
+            <span aria-hidden="true">{getCritterTypeIcon(casterType)}</span>
+            {casterType}
+          </span>
+        </div>
       </div>
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         {abilities.map((ability) => (

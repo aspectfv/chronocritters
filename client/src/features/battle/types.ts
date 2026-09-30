@@ -38,6 +38,8 @@ export interface CritterCellProps {
   critter: CritterState;
   side: 'player' | 'opponent';
   showNumericHp?: boolean;
+  /** Whether this side can still rewind, shown as a charge on the plaque. */
+  rewindCharged: boolean;
   /** Changes whenever a fresh hit lands here, which replays the animation. */
   hitTurn?: number;
   hitDamage?: number;
@@ -57,6 +59,10 @@ export interface MoveGridProps {
   onAbilityClick: (abilityId: string) => void;
   isPlayerTurn: boolean;
   isResolving: boolean;
+  rewindUsed: boolean;
+  /** A rewind needs the player's turn, an unspent charge and two turns behind it. */
+  canRewind: boolean;
+  onRewind: () => void;
 }
 
 export interface TeamRailProps {

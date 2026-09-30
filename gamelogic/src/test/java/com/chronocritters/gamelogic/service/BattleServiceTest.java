@@ -326,6 +326,82 @@ class BattleServiceTest {
         assertThat(battleState.getActionLogHistory()).contains("striker is faster and moves again!");
     }
 
+    /**
+     * Player one opens on a move with a cooldown, player two answers with one of
+     * its own, and it is player one's turn again: two turns after the start.
+     */
+    private BattleState battleReadyToRewind() {
+        Critter slower = critterWithACoolingMove("two-lead", CritterType.FIRE);
+        slower.getBaseStats().setSpeed(1);
+        stubPlayer(PLAYER_ONE_ID, critterWithACoolingMove("one-lead", CritterType.FIRE));
+        stubPlayer(PLAYER_TWO_ID, slower);
+        BattleState battleState = startBattle(BATTLE_ID);
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, COOLING_ABILITY_ID);
+        battleService.executeAbility(BATTLE_ID, PLAYER_TWO_ID, COOLING_ABILITY_ID);
+        return battleState;
+    }
+
+    @Test
+    @DisplayName("a rewind undoes the damage and status taken since two turns ago, and not the opponent's cooldowns")
+    void rewindUndoesDamageAndStatusButNotTheOpponentsCooldowns() {
+        BattleState battleState = battleReadyToRewind();
+        CritterState rewinder = battleState.getPlayerOne().getActiveCritter();
+        rewinder.setStatus(StatusEffect.builder().id("eff-burn").description("burns")
+                .condition(StatusCondition.BURN).duration(3).potency(1).build());
+        assertThat(rewinder.getStats().getCurrentHp()).isLessThan(40);
+
+        battleService.rewind(BATTLE_ID, PLAYER_ONE_ID);
+
+        assertThat(rewinder.getStats().getCurrentHp()).isEqualTo(40);
+        assertThat(rewinder.getStatus()).isNull();
+        assertThat(rewinder.getAbilityCooldowns()).as("its own move is back").isEmpty();
+        assertThat(battleState.getPlayerTwo().getActiveCritter().getAbilityCooldowns()).containsKey(COOLING_ABILITY_ID);
+    }
+
+    @Test
+    @DisplayName("a rewind costs no turn, and the log says what came back")
+    void rewindIsFreeAndExplainsItself() {
+        BattleState battleState = battleReadyToRewind();
+
+        battleService.rewind(BATTLE_ID, PLAYER_ONE_ID);
+
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_ONE_ID);
+        assertThat(battleState.getPlayerOne().isRewindUsed()).isTrue();
+        assertThat(battleState.getActionLogHistory()).containsSubsequence(
+                "p1-trainer rewinds one-lead 2 turns!",
+                "one-lead's health flows back from 39 to 40.",
+                "Slow Burn is ready again.");
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, COOLING_ABILITY_ID);
+    }
+
+    @Test
+    @DisplayName("a rewind is once per battle")
+    void rewindIsOncePerBattle() {
+        battleReadyToRewind();
+        battleService.rewind(BATTLE_ID, PLAYER_ONE_ID);
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, ABILITY_ID);
+        battleService.executeAbility(BATTLE_ID, PLAYER_TWO_ID, ABILITY_ID);
+
+        assertThatThrownBy(() -> battleService.rewind(BATTLE_ID, PLAYER_ONE_ID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("once a battle");
+    }
+
+    @Test
+    @DisplayName("a rewind is refused before there are two turns to go back, and on the opponent's turn")
+    void rewindNeedsTwoTurnsAndTheTurn() {
+        twoRoundBattle();
+
+        assertThatThrownBy(() -> battleService.rewind(BATTLE_ID, PLAYER_ONE_ID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("not two turns");
+        assertThatThrownBy(() -> battleService.rewind(BATTLE_ID, PLAYER_TWO_ID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("not the player's turn");
+    }
+
     private BattleState coolingMoveBattle() {
         stubPlayer(PLAYER_ONE_ID,
                 critterWithACoolingMove("one-lead", CritterType.FIRE),

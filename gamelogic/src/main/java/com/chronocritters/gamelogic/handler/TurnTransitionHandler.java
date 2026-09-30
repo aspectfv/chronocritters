@@ -127,6 +127,9 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
      *
      * A player who owes a replacement is still holding the critter that just
      * fainted, and a sleep on it is not a sleep on whoever they send out.
+     *
+     * The turn that is finally reached is recorded, since it is one a rewind
+     * may later be asked to go back to.
      */
     private static void skipSleepers(BattleState battleState) {
         while (!battleState.isRoundPending()
@@ -137,6 +140,7 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
         }
 
         battleState.setTimeRemaining(battleState.getTurnDuration());
+        battleState.recordTurn();
     }
 
     private static void giveTurnTo(BattleState battleState, PlayerState player) {

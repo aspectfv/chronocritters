@@ -22,6 +22,7 @@ import com.chronocritters.gamelogic.exception.BattleNotFoundException;
 import com.chronocritters.gamelogic.grpc.PlayerGrpcClient;
 import com.chronocritters.gamelogic.handler.ExecuteAbilityHandler;
 import com.chronocritters.gamelogic.handler.FaintingHandler;
+import com.chronocritters.gamelogic.handler.RewindHandler;
 import com.chronocritters.gamelogic.handler.TurnEffectsHandler;
 import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
 import com.chronocritters.lib.dto.BattleRequest;
@@ -30,6 +31,7 @@ import com.chronocritters.lib.mapper.BattleRewardsMapper;
 import com.chronocritters.lib.mapper.PlayerMapper;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.BattleStats;
+import com.chronocritters.lib.model.battle.CritterSnapshot;
 import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.battle.PlayerState;
 import com.chronocritters.lib.model.enums.BattleOutcome;
@@ -110,6 +112,7 @@ public class BattleService {
         // An exact tie is decided by a coin toss rather than by who joined the
         // queue first, so neither seat is the better one to hold.
         TurnTransitionHandler.startRound(battleState);
+        battleState.recordTurn();
 
         boolean speedTie = playerOne.getActiveCritter().effectiveSpeed() == playerTwo.getActiveCritter().effectiveSpeed();
         String opener = battleState.getPlayer().getActiveCritter().getName();
@@ -175,6 +178,30 @@ public class BattleService {
             .setNext(new TurnTransitionHandler());
 
         turnChain.handle(currentBattle);
+
+        finalizeTurn(currentBattle);
+        return currentBattle;
+    }
+
+    /**
+     * Puts the player's active critter back the way it stood two turns ago.
+     * Once per battle, and only on the player's own turn. It costs no turn: the
+     * player rewinds and then still picks a move, which is what makes the
+     * timing of it the decision.
+     */
+    public BattleState rewind(String battleId, String playerId) {
+        BattleState currentBattle = requireBattle(battleId);
+        if (currentBattle.isAwaitingSwitch()) throw new IllegalStateException("Waiting for a replacement critter");
+        requireActiveTurn(battleId, playerId);
+
+        PlayerState player = currentBattle.getPlayer();
+        if (player.isRewindUsed()) throw new IllegalStateException("A rewind can only be used once a battle");
+
+        Map<String, CritterSnapshot> target = currentBattle.rewindTarget();
+        if (target == null) throw new IllegalStateException("There are not two turns to rewind yet");
+
+        player.setConsecutiveTimeouts(0);
+        new RewindHandler(target.get(player.getActiveCritter().getId())).handle(currentBattle);
 
         finalizeTurn(currentBattle);
         return currentBattle;
