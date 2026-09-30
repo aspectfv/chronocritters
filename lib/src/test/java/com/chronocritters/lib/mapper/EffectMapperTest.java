@@ -16,6 +16,7 @@ import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.effects.HealEffect;
 import com.chronocritters.lib.model.effects.LifestealEffect;
+import com.chronocritters.lib.model.effects.PriorityEffect;
 import com.chronocritters.lib.model.effects.ShieldEffect;
 import com.chronocritters.lib.model.effects.StatModifierEffect;
 import com.chronocritters.lib.model.effects.StatusEffect;
@@ -38,7 +39,8 @@ class EffectMapperTest {
                 HealEffect.builder().id("eff-mend").description("mends").healPercent(40).build(),
                 LifestealEffect.builder().id("eff-drain").description("drains").damage(3).drainPercent(50).build(),
                 ShieldEffect.builder().id("eff-ward").description("wards").amount(5).duration(3).build(),
-                CleanseEffect.builder().id("eff-cleanse").description("cleanses").build());
+                CleanseEffect.builder().id("eff-cleanse").description("cleanses").build(),
+                PriorityEffect.builder().id("eff-priority").description("moves first").build());
     }
 
     @ParameterizedTest

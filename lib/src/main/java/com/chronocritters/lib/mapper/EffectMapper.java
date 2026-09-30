@@ -6,6 +6,7 @@ import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.effects.HealEffect;
 import com.chronocritters.lib.model.effects.LifestealEffect;
+import com.chronocritters.lib.model.effects.PriorityEffect;
 import com.chronocritters.lib.model.effects.ShieldEffect;
 import com.chronocritters.lib.model.effects.StatModifierEffect;
 import com.chronocritters.lib.model.effects.StatusEffect;
@@ -17,6 +18,7 @@ import com.chronocritters.proto.player.PlayerProto.DamageOverTimeEffectProto;
 import com.chronocritters.proto.player.PlayerProto.EffectProto;
 import com.chronocritters.proto.player.PlayerProto.HealEffectProto;
 import com.chronocritters.proto.player.PlayerProto.LifestealEffectProto;
+import com.chronocritters.proto.player.PlayerProto.PriorityEffectProto;
 import com.chronocritters.proto.player.PlayerProto.ShieldEffectProto;
 import com.chronocritters.proto.player.PlayerProto.StatModifierEffectProto;
 import com.chronocritters.proto.player.PlayerProto.StatProto;
@@ -92,6 +94,10 @@ public final class EffectMapper {
                     .id(proto.getId())
                     .description(proto.getDescription())
                     .build();
+            case PRIORITY_EFFECT -> PriorityEffect.builder()
+                    .id(proto.getId())
+                    .description(proto.getDescription())
+                    .build();
             case STATUS_EFFECT -> {
                 if (proto.getStatusEffect().getDuration() < 1) throw new IllegalArgumentException("Duration in StatusEffect must be at least 1");
                 if (proto.getStatusEffect().getPotency() < 0) throw new IllegalArgumentException("Potency in StatusEffect cannot be negative");
@@ -158,6 +164,7 @@ public final class EffectMapper {
                 builder.setShieldEffect(proto);
             }
             case CleanseEffect cleanseEffect -> builder.setCleanseEffect(CleanseEffectProto.getDefaultInstance());
+            case PriorityEffect priorityEffect -> builder.setPriorityEffect(PriorityEffectProto.getDefaultInstance());
             case StatusEffect statusEffect -> {
                 StatusEffectProto proto = StatusEffectProto.newBuilder()
                     .setCondition(toProto(statusEffect.getCondition()))

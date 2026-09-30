@@ -152,6 +152,10 @@ const GET_MY_CRITTERS_QUERY = gql(`
               id
               description
             }
+            ... on PriorityEffect {
+              id
+              description
+            }
             ... on StatusEffect {
               id
               description
@@ -229,6 +233,10 @@ const GET_CRITTER_CATALOG_QUERY = gql(`
             duration
           }
           ... on CleanseEffect {
+            id
+            description
+          }
+          ... on PriorityEffect {
             id
             description
           }

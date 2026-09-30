@@ -32,7 +32,7 @@ class StarterRosterServiceTest {
     }
 
     @Test
-    @DisplayName("hands out the three seeded starter critters")
+    @DisplayName("hands out every seeded critter")
     void returnsTheSeededStarters() {
         List<Critter> seeded = StarterRosterService.STARTER_CRITTER_IDS.stream().map(this::critter).toList();
         when(critterRepository.findAllById(StarterRosterService.STARTER_CRITTER_IDS)).thenReturn(seeded);

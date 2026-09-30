@@ -7,6 +7,7 @@ import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.effects.HealEffect;
 import com.chronocritters.lib.model.effects.LifestealEffect;
+import com.chronocritters.lib.model.effects.PriorityEffect;
 import com.chronocritters.lib.model.effects.ShieldEffect;
 import com.chronocritters.lib.model.effects.StatModifierEffect;
 import com.chronocritters.lib.model.effects.StatusEffect;
@@ -38,6 +39,7 @@ import lombok.AllArgsConstructor;
   @JsonSubTypes.Type(value = ShieldEffect.class, name = "ShieldEffect"),
   @JsonSubTypes.Type(value = CleanseEffect.class, name = "CleanseEffect"),
   @JsonSubTypes.Type(value = StatusEffect.class, name = "StatusEffect"),
+  @JsonSubTypes.Type(value = PriorityEffect.class, name = "PriorityEffect"),
 })
 public abstract class Effect {
     @NotBlank(message = "Effect ID cannot be blank")

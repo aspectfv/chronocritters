@@ -20,6 +20,7 @@ import com.chronocritters.lib.model.effects.CleanseEffect;
 import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.HealEffect;
 import com.chronocritters.lib.model.effects.LifestealEffect;
+import com.chronocritters.lib.model.effects.PriorityEffect;
 import com.chronocritters.lib.model.effects.ShieldEffect;
 import com.chronocritters.lib.model.effects.StatModifierEffect;
 import com.chronocritters.lib.model.effects.StatusEffect;
@@ -74,8 +75,9 @@ import com.chronocritters.user.player.repository.PlayerRepository;
  *       stays in, and carries one heavy blow on a cooldown.</li>
  *   <li>Miasmite poisons, drains and weakens. It wins by making the opponent's
  *       hits smaller than its own.</li>
- *   <li>Strikon carries the heaviest single hit, and a blow that slows the
- *       target so it can land it first.</li>
+ *   <li>Strikon carries the heaviest single hit, and two ways to land it
+ *       first: a blow that slows the target, and a feint that takes the next
+ *       round whatever the speeds.</li>
  * </ul>
  */
 @Configuration
@@ -248,9 +250,14 @@ public class DatabaseSeeder {
                 .healPercent(30)
                 .build();
 
+            PriorityEffect feint = PriorityEffect.builder()
+                .id("eff-priority")
+                .description("The user moves first next round, whatever its speed.")
+                .build();
+
             List<Effect> effects = List.of(strike1, strike2, strike3, strike4, strike5, strike6,
                 burn, poison, sleep, paralysis, kindle, quicken, harden, erode, weaken, slow,
-                mend20, mend30, mend40, drain3, ward5, cleanse);
+                mend20, mend30, mend40, drain3, ward5, cleanse, feint);
             effectRepository.saveAll(effects);
 
             // Abilities. Every critter keeps one move with no cooldown, so a
@@ -463,12 +470,12 @@ public class DatabaseSeeder {
                 .cooldownTurns(3)
                 .build();
 
-            Ability brace = Ability.builder()
-                .id("atk-brace")
-                .name("Brace")
-                .description("Sets its feet, steadies its breathing and shrugs off the last blow.")
-                .effects(List.of(harden, mend20))
-                .cooldownTurns(4)
+            Ability feintStep = Ability.builder()
+                .id("atk-feintstep")
+                .name("Feint Step")
+                .description("Jabs once to draw a flinch, and is already moving by the time the foe recovers.")
+                .effects(List.of(strike1, feint))
+                .cooldownTurns(3)
                 .build();
 
             Ability haymaker = Ability.builder()
@@ -486,7 +493,7 @@ public class DatabaseSeeder {
                 staticSnap, joltLock, overcharge, thunderclap,
                 gearGrind, ironPlating, pistonSlam, mainspring,
                 corrosiveBite, noxiousFumes, enfeeble, leechOoze,
-                impactPunch, concussionWave, brace, haymaker
+                impactPunch, concussionWave, feintStep, haymaker
             );
             abilityRepository.saveAll(abilities);
 
@@ -552,7 +559,7 @@ public class DatabaseSeeder {
                 .description("Heavily built, and channels raw force into its limbs instead of any element. It throws the biggest punch in the game, and spends most of a fight setting it up.")
                 .type(CritterType.KINETIC)
                 .baseStats(BaseStats.builder().health(12).attack(8).defense(5).speed(6).build())
-                .abilities(List.of(impactPunch, concussionWave, brace, haymaker))
+                .abilities(List.of(impactPunch, concussionWave, feintStep, haymaker))
                 .build();
 
             List<Critter> critters = List.of(searfiend, sylvanSentinel, aqualing, volthound, cogling, miasmite, strikon);
@@ -575,19 +582,11 @@ public class DatabaseSeeder {
                 refreshRosterAbilities(mongoTemplate, critter);
             }
 
-            // Demo accounts. Both hold the whole triangle, so a battle can reach
-            // every matchup and neither side is ahead on the draw.
-            //
-            // On a closed loop every fixed lead pairing is either a mirror or a
-            // 1.5x, so the only even opening is a mirror. It leads with the wall
-            // rather than the aggressor: a Searfiend mirror is two hits, and a
-            // mirror ties on speed, so the coin toss that breaks the tie would
-            // decide that opening. A Sylvan Sentinel mirror takes six, which
-            // leaves room for the first real decision, which is who switches.
-            List<Critter> demoRoster = List.of(sylvanSentinel, searfiend, aqualing);
-
-            seedDemoAccount(playerRepository, "p1", "BlueOak", demoRoster);
-            seedDemoAccount(playerRepository, "p2", "RedAsh", demoRoster);
+            // Demo accounts. Both hold every critter, the same as a new
+            // trainer, so the team each one brings is a choice made before the
+            // battle rather than a fixture.
+            seedDemoAccount(playerRepository, "p1", "BlueOak", critters);
+            seedDemoAccount(playerRepository, "p2", "RedAsh", critters);
         };
     }
 

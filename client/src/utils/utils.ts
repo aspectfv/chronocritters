@@ -105,6 +105,7 @@ const battleEffectMeta: Record<Exclude<BattleEffect['_type'], 'StatusEffect'>, E
   LifestealEffect: { label: 'Drained', icon: '🩸', style: 'bg-rose-100 text-rose-800 border-rose-300' },
   ShieldEffect: { label: 'Warded', icon: '🛡️', style: 'bg-slate-100 text-slate-800 border-slate-300' },
   CleanseEffect: { label: 'Cleansed', icon: '✨', style: 'bg-cyan-100 text-cyan-800 border-cyan-300' },
+  PriorityEffect: { label: 'Swift', icon: '⏩', style: 'bg-sky-100 text-sky-800 border-sky-300' },
 };
 
 /** A status reads by its condition, since that is what the player has to answer. */
@@ -160,6 +161,8 @@ export function describeBattleEffect(effect: AnyEffect): string {
       return 'amount' in effect ? `wards ${effect.amount} for ${effect.duration}` : '';
     case 'CleanseEffect':
       return 'clears ailments';
+    case 'PriorityEffect':
+      return 'moves first next round';
     case 'StatusEffect':
       return 'condition' in effect ? describeStatus(effect.condition, effect.duration, effect.potency) : '';
     default:

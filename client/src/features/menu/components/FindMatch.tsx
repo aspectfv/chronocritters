@@ -4,7 +4,7 @@ import { Swords } from 'lucide-react';
 import { useAuthStore } from '@store/auth/useAuthStore';
 import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import { ConnectionStatus } from '@store/lobby/types';
-import { MatchMakingStatus, type MatchResponse } from '@features/menu/types';
+import { MatchMakingStatus, type FindMatchProps, type MatchResponse } from '@features/menu/types';
 
 /**
  * The one thing the menu exists for, sized accordingly.
@@ -12,7 +12,7 @@ import { MatchMakingStatus, type MatchResponse } from '@features/menu/types';
  * It was a button inside a card the same size as the two cards beside it, so
  * nothing on the page said what to do first.
  */
-export function FindMatch() {
+export function FindMatch({ team, isTeamReady }: FindMatchProps) {
   const [matchmakingStatus, setMatchmakingStatus] = useState<MatchMakingStatus>(MatchMakingStatus.IDLE);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -49,20 +49,21 @@ export function FindMatch() {
     }
   }, [isConnected]);
 
-  // Arriving from the results screen's "Battle again" queues straight away.
+  // Arriving from the results screen's "Battle again" queues straight away,
+  // with the team the player last picked.
   useEffect(() => {
-    if (searchParams.get('queue') !== '1' || !isConnected || isSearching) return;
+    if (searchParams.get('queue') !== '1' || !isConnected || isSearching || !isTeamReady) return;
     setSearchParams({}, { replace: true });
     setError(null);
     setMatchmakingStatus(MatchMakingStatus.SEARCHING);
-    publish('/app/matchmaking/join', {});
-  }, [searchParams, isConnected, isSearching, setSearchParams, publish]);
+    publish('/app/matchmaking/join', { team });
+  }, [searchParams, isConnected, isSearching, isTeamReady, team, setSearchParams, publish]);
 
   const handleFindMatch = () => {
-    if (!isConnected) return;
+    if (!isConnected || !isTeamReady) return;
     setError(null);
     setMatchmakingStatus(MatchMakingStatus.SEARCHING);
-    publish('/app/matchmaking/join', {});
+    publish('/app/matchmaking/join', { team });
   };
 
   const handleCancelSearch = () => {
@@ -95,11 +96,11 @@ export function FindMatch() {
         <button
           type="button"
           onClick={handleFindMatch}
-          disabled={!isConnected}
+          disabled={!isConnected || !isTeamReady}
           className="key flex items-center justify-center gap-3 rounded-lg bg-brass px-4 py-5 text-xl font-black tracking-tight text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60"
         >
           <Swords className="h-6 w-6" aria-hidden="true" />
-          {isConnected ? 'Find a match' : 'Connecting to the lobby'}
+          {!isConnected ? 'Connecting to the lobby' : isTeamReady ? 'Find a match' : 'Pick your team first'}
         </button>
       )}
 

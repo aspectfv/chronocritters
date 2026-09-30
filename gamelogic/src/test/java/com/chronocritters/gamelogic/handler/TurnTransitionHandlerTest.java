@@ -4,6 +4,7 @@ import static com.chronocritters.lib.testsupport.BattleFixtures.PLAYER_ONE_ID;
 import static com.chronocritters.lib.testsupport.BattleFixtures.PLAYER_TWO_ID;
 import static com.chronocritters.lib.testsupport.BattleFixtures.battle;
 import static com.chronocritters.lib.testsupport.BattleFixtures.critter;
+import static com.chronocritters.lib.testsupport.BattleFixtures.lastLog;
 import static com.chronocritters.lib.testsupport.BattleFixtures.player;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,17 +60,20 @@ class TurnTransitionHandlerTest {
     }
 
     @Test
-    @DisplayName("a sleep on the fainted critter does not hand the turn back to its attacker")
-    void aSleepOnTheFaintedCritterDoesNotSkipTheReplacement() {
+    @DisplayName("a round that comes due during a replacement waits for it, and a sleep on the fainted critter is not spent")
+    void aRoundWaitsForTheReplacement() {
         // The knocked-out critter keeps the sleep that was on it. Reading that
         // as "this player is asleep, skip them" handed the turn straight back to
         // the attacker, who then played another move into the empty slot.
-        sleep(battleState.getPlayerTwo().getActiveCritter(), 2);
+        CritterState fainted = battleState.getPlayerTwo().getActiveCritter();
+        sleep(fainted, 2);
         battleState.getAwaitingSwitchPlayerIds().add(PLAYER_TWO_ID);
 
         handler.handle(battleState);
 
-        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_TWO_ID);
+        assertThat(battleState.isRoundPending()).isTrue();
+        assertThat(battleState.getNextInRound()).isNull();
+        assertThat(fainted.getStatus().getDuration()).isEqualTo(2);
     }
 
     @Test
@@ -121,6 +125,108 @@ class TurnTransitionHandlerTest {
         assertThat(two.getStatus().getDuration()).isEqualTo(1);
         assertThat(battleState.getBattleStats().getTurnCount()).isEqualTo(before + 1 + 3 + 4);
         assertThat(battleState.getTimeRemaining()).isEqualTo(30);
+    }
+
+    @Test
+    @DisplayName("the faster critter opens the next round, so the last to move in one round can move first in the next")
+    void theFasterCritterMovesTwiceAcrossARoundBoundary() {
+        battleState.getPlayerOne().getActiveCritter().getStats().setSpeed(8);
+        battleState.getPlayerTwo().getActiveCritter().getStats().setSpeed(2);
+
+        handler.handle(battleState);
+
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_ONE_ID);
+        assertThat(battleState.getNextInRound()).isEqualTo(PLAYER_TWO_ID);
+        assertThat(lastLog(battleState)).isEqualTo("one is faster and moves again!");
+    }
+
+    @Test
+    @DisplayName("within a round the turn goes to the player who has not acted yet, whatever the speeds")
+    void finishesTheRoundBeforeOrderingTheNext() {
+        battleState.getPlayerOne().getActiveCritter().getStats().setSpeed(8);
+        battleState.getPlayerTwo().getActiveCritter().getStats().setSpeed(2);
+        battleState.setNextInRound(PLAYER_TWO_ID);
+
+        handler.handle(battleState);
+
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_TWO_ID);
+        assertThat(battleState.getNextInRound()).isNull();
+    }
+
+    @Test
+    @DisplayName("paralysis halves speed, which can hand the next round to the other side")
+    void paralysisCanCostTheInitiative() {
+        CritterState paralyzed = battleState.getPlayerTwo().getActiveCritter();
+        battleState.getPlayerOne().getActiveCritter().getStats().setSpeed(4);
+        paralyzed.getStats().setSpeed(6);
+        paralyzed.setStatus(StatusEffect.builder().id("eff-paralysis").description("paralyzes")
+                .condition(StatusCondition.PARALYSIS).duration(4).build());
+
+        handler.handle(battleState);
+
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_ONE_ID);
+    }
+
+    @Test
+    @DisplayName("a priority move puts a slower critter first in the next round, once")
+    void priorityBeatsSpeedForOneRound() {
+        CritterState quick = battleState.getPlayerTwo().getActiveCritter();
+        CritterState slow = battleState.getPlayerOne().getActiveCritter();
+        quick.getStats().setSpeed(8);
+        slow.getStats().setSpeed(2);
+        slow.setPriority(true);
+
+        handler.handle(battleState);
+
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_ONE_ID);
+        assertThat(lastLog(battleState)).isEqualTo("one seized the initiative and moves again!");
+        assertThat(slow.isPriority()).as("spent on the round it claimed").isFalse();
+
+        handler.handle(battleState);
+        handler.handle(battleState);
+
+        assertThat(battleState.getActivePlayerId()).as("speed decides again the round after").isEqualTo(PLAYER_TWO_ID);
+    }
+
+    @Test
+    @DisplayName("a critter that faints before it acts loses its place in the round")
+    void aFaintedCritterLosesItsPlaceInTheRound() {
+        battleState.setNextInRound(PLAYER_TWO_ID);
+        battleState.getAwaitingSwitchPlayerIds().add(PLAYER_TWO_ID);
+
+        handler.handle(battleState);
+
+        assertThat(battleState.getNextInRound()).isNull();
+        assertThat(battleState.isRoundPending()).isTrue();
+    }
+
+    @Test
+    @DisplayName("a round held for a replacement is ordered by the replacement's speed")
+    void aHeldRoundIsOrderedByTheReplacement() {
+        battleState.getPlayerOne().getActiveCritter().getStats().setSpeed(5);
+        battleState.getAwaitingSwitchPlayerIds().add(PLAYER_TWO_ID);
+        handler.handle(battleState);
+
+        CritterState replacement = critter("replacement", CritterType.GRASS, 10, 3, 3);
+        replacement.getStats().setSpeed(9);
+        battleState.getPlayerTwo().getRoster().add(replacement);
+        battleState.getPlayerTwo().setActiveCritterIndex(1);
+        battleState.getAwaitingSwitchPlayerIds().clear();
+
+        TurnTransitionHandler.resumeRound(battleState);
+
+        assertThat(battleState.isRoundPending()).isFalse();
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_TWO_ID);
+        assertThat(battleState.getNextInRound()).isEqualTo(PLAYER_ONE_ID);
+    }
+
+    @Test
+    @DisplayName("resuming does nothing when no round is being held")
+    void resumingWithoutAHeldRoundDoesNothing() {
+        TurnTransitionHandler.resumeRound(battleState);
+
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_ONE_ID);
+        assertThat(battleState.getNextInRound()).isNull();
     }
 
     @Test
