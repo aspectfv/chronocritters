@@ -113,7 +113,7 @@ export function CritterCell({
                 {getStatLabel(stat as Stat)} {stages > 0 ? `▲${stages}` : `▼${-stages}`}
               </span>
             ))}
-            <StatusEffectChips effects={critter.activeStatusEffects} compact />
+            <StatusEffectChips effects={critter.status ? [critter.status, ...critter.activeStatusEffects] : critter.activeStatusEffects} compact />
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ import com.chronocritters.lib.model.battle.TurnResult;
 import com.chronocritters.lib.model.domain.Ability;
 import com.chronocritters.lib.model.domain.Effect;
 import com.chronocritters.lib.model.domain.TurnActionEntry;
+import com.chronocritters.lib.model.enums.StatusCondition;
 import com.chronocritters.lib.util.TypeAdvantageUtil;
 
 import jakarta.validation.constraints.Min;
@@ -34,7 +35,7 @@ public class DamageEffect extends Effect implements IInstantEffect {
         CritterState target = opponent.getActiveCritter();
         Ability ability = player.getActiveCritter().getAbilityById(player.getLastSelectedAbilityId());
 
-        int atk = caster.getStats().getCurrentAtk();
+        int atk = caster.effectiveAttack();
         int def = target.getStats().getCurrentDef();
         double typeMultiplier = TypeAdvantageUtil.getMultiplier(caster.getType(), target.getType());
 
@@ -79,6 +80,12 @@ public class DamageEffect extends Effect implements IInstantEffect {
         battleState.getActionLogHistory().add(actionLog);
         if (absorbed > 0) {
             battleState.getActionLogHistory().add(String.format("%s's ward absorbs %d of it!", target.getName(), absorbed));
+        }
+
+        // A hit wakes a sleeper even when a ward takes all of it.
+        if (target.hasStatus(StatusCondition.SLEEP)) {
+            target.endStatus();
+            battleState.getActionLogHistory().add(String.format("%s is no longer asleep!", target.getName()));
         }
 
         battleState.setLastTurnResult(TurnResult.builder()

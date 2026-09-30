@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.enums.CritterType;
+import com.chronocritters.lib.model.enums.StatusCondition;
 
 class CleanseEffectTest {
 
@@ -38,15 +39,17 @@ class CleanseEffectTest {
     }
 
     @Test
-    @DisplayName("clears the caster's ailments and keeps its ward")
+    @DisplayName("clears the caster's ailments and status, keeps its ward, and leaves no immunity behind")
     void clearsAilmentsKeepsWard() {
-        caster.getActiveStatusEffects().add(DamageOverTimeEffect.builder().id("eff-burn").damagePerTurn(2).duration(2).build());
-        caster.getActiveStatusEffects().add(SkipTurnEffect.builder().id("eff-stun").duration(2).build());
+        caster.getActiveStatusEffects().add(DamageOverTimeEffect.builder().id("eff-bind").damagePerTurn(2).duration(2).build());
         caster.getActiveStatusEffects().add(ShieldEffect.builder().id("eff-ward").amount(5).duration(3).build());
+        caster.setStatus(StatusEffect.builder().id("eff-burn").condition(StatusCondition.BURN).duration(2).potency(1).build());
 
         cleanse().apply(battleState);
 
         assertThat(caster.getActiveStatusEffects()).singleElement().isInstanceOf(ShieldEffect.class);
+        assertThat(caster.getStatus()).isNull();
+        assertThat(caster.getStatusImmunity()).isNull();
         assertThat(lastLog(battleState)).contains("shook off every ailment");
     }
 

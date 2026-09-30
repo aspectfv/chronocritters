@@ -9,7 +9,9 @@ import java.util.Map;
 import com.chronocritters.lib.model.domain.Ability;
 import com.chronocritters.lib.model.domain.Effect;
 import com.chronocritters.lib.model.effects.ShieldEffect;
+import com.chronocritters.lib.model.effects.StatusEffect;
 import com.chronocritters.lib.model.enums.CritterType;
+import com.chronocritters.lib.model.enums.StatusCondition;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +32,19 @@ public class CritterState {
 
     @Default
     private List<Effect> activeStatusEffects = new ArrayList<>();
+
+    /**
+     * The one status condition the critter holds, if any. It sits apart from
+     * the effect list because a second condition fails rather than stacking.
+     */
+    private StatusEffect status;
+
+    /**
+     * The condition that has just ended. It cannot land on this critter again
+     * until the next turn's effects have ticked, so an opponent cannot put it
+     * straight back.
+     */
+    private StatusCondition statusImmunity;
 
     /**
      * Turns left on each ability that is cooling down, by ability id. An ability
@@ -67,6 +82,28 @@ public class CritterState {
         int healed = Math.min(amount, stats.getMaxHp() - stats.getCurrentHp());
         stats.setCurrentHp(stats.getCurrentHp() + healed);
         return healed;
+    }
+
+    public boolean hasStatus(StatusCondition condition) {
+        return status != null && status.getCondition() == condition;
+    }
+
+    /** Clears the status and leaves the critter immune to that same condition for a turn. */
+    public void endStatus() {
+        statusImmunity = status.getCondition();
+        status = null;
+    }
+
+    /** Attack as a hit reads it: the staged stat, halved while burned. */
+    public int effectiveAttack() {
+        int attack = stats.getCurrentAtk();
+        return hasStatus(StatusCondition.BURN) ? Math.max(1, attack / 2) : attack;
+    }
+
+    /** Speed as turn order reads it: the staged stat, halved while paralyzed. */
+    public int effectiveSpeed() {
+        int speed = stats.getCurrentSpd();
+        return hasStatus(StatusCondition.PARALYSIS) ? Math.max(1, speed / 2) : speed;
     }
 
     public Ability getAbilityById(String abilityId) {

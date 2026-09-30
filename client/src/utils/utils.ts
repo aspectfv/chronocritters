@@ -1,6 +1,6 @@
 import { ConnectionStatus } from "@store/lobby/types";
 import type { BattleEffect } from "@store/battle/types";
-import { CritterType, Stat, type EffectUnion } from "@/gql/graphql";
+import { CritterType, Stat, StatusCondition, type EffectUnion } from "@/gql/graphql";
 
 const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.Fire]: '🔥',
@@ -95,15 +95,24 @@ function effectKind(effect: AnyEffect): BattleEffect['_type'] | null {
   return kind ?? null;
 }
 
-const battleEffectMeta: Record<BattleEffect['_type'], { label: string; icon: string; style: string }> = {
+type EffectMeta = { label: string; icon: string; style: string };
+
+const battleEffectMeta: Record<Exclude<BattleEffect['_type'], 'StatusEffect'>, EffectMeta> = {
   DamageEffect: { label: 'Struck', icon: '💥', style: 'bg-danger-soft text-danger-ink border-danger/35' },
-  DamageOverTimeEffect: { label: 'Wounded', icon: '☠️', style: 'bg-purple-100 text-purple-800 border-purple-300' },
-  SkipTurnEffect: { label: 'Stunned', icon: '💫', style: 'bg-blue-100 text-blue-800 border-blue-300' },
+  DamageOverTimeEffect: { label: 'Wounded', icon: '🩹', style: 'bg-purple-100 text-purple-800 border-purple-300' },
   StatModifierEffect: { label: 'Shifted', icon: '📊', style: 'bg-amber-100 text-amber-800 border-amber-300' },
   HealEffect: { label: 'Mended', icon: '💚', style: 'bg-green-100 text-green-800 border-green-300' },
   LifestealEffect: { label: 'Drained', icon: '🩸', style: 'bg-rose-100 text-rose-800 border-rose-300' },
   ShieldEffect: { label: 'Warded', icon: '🛡️', style: 'bg-slate-100 text-slate-800 border-slate-300' },
   CleanseEffect: { label: 'Cleansed', icon: '✨', style: 'bg-cyan-100 text-cyan-800 border-cyan-300' },
+};
+
+/** A status reads by its condition, since that is what the player has to answer. */
+const statusMeta: Record<StatusCondition, EffectMeta> = {
+  [StatusCondition.Burn]: { label: 'Burned', icon: '🔥', style: 'bg-orange-100 text-orange-800 border-orange-300' },
+  [StatusCondition.Poison]: { label: 'Poisoned', icon: '☠️', style: 'bg-purple-100 text-purple-800 border-purple-300' },
+  [StatusCondition.Paralysis]: { label: 'Paralyzed', icon: '⚡', style: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+  [StatusCondition.Sleep]: { label: 'Asleep', icon: '💤', style: 'bg-blue-100 text-blue-800 border-blue-300' },
 };
 
 const statLabels: Record<Stat, string> = {
@@ -116,8 +125,9 @@ export function getStatLabel(stat: Stat): string {
   return statLabels[stat];
 }
 
-export function getBattleEffectMeta(effect: AnyEffect) {
+export function getBattleEffectMeta(effect: AnyEffect): EffectMeta {
   const kind = effectKind(effect);
+  if (kind === 'StatusEffect') return 'condition' in effect ? statusMeta[effect.condition] : battleEffectMeta.DamageEffect;
   return kind ? battleEffectMeta[kind] : battleEffectMeta.DamageEffect;
 }
 
@@ -137,8 +147,6 @@ export function describeBattleEffect(effect: AnyEffect): string {
       return 'damage' in effect ? `${effect.damage} damage` : '';
     case 'DamageOverTimeEffect':
       return 'damagePerTurn' in effect ? `${effect.damagePerTurn} a turn for ${effect.duration}` : '';
-    case 'SkipTurnEffect':
-      return 'costs a turn';
     case 'StatModifierEffect':
       if (!('stages' in effect)) return '';
       return effect.stages > 0
@@ -152,8 +160,23 @@ export function describeBattleEffect(effect: AnyEffect): string {
       return 'amount' in effect ? `wards ${effect.amount} for ${effect.duration}` : '';
     case 'CleanseEffect':
       return 'clears ailments';
+    case 'StatusEffect':
+      return 'condition' in effect ? describeStatus(effect.condition, effect.duration, effect.potency) : '';
     default:
       return '';
+  }
+}
+
+function describeStatus(condition: StatusCondition, duration: number, potency: number): string {
+  switch (condition) {
+    case StatusCondition.Burn:
+      return `burns ${potency} a turn for ${duration}, halves ATK`;
+    case StatusCondition.Poison:
+      return `poisons ${potency} more each turn for ${duration}`;
+    case StatusCondition.Paralysis:
+      return `paralyzes for ${duration}, halves SPD`;
+    case StatusCondition.Sleep:
+      return `sleeps ${duration} turn${duration === 1 ? '' : 's'}`;
   }
 }
 
@@ -178,7 +201,7 @@ export type BattleLogTone = 'damage' | 'faint' | 'switch' | 'status' | 'system';
 export function classifyBattleLog(message: string): BattleLogTone {
   if (message.includes('fainted!') || message.includes('wins the battle!') || message.includes('forfeited')) return 'faint';
   if (message.includes('switched from') || message.includes('is sent out!')) return 'switch';
-  if (message.includes('afflicted with') || message.includes('no longer affected') || message.includes('skipping')) return 'status';
+  if (message.includes('afflicted with') || message.includes('no longer') || message.includes('fast asleep') || message.includes('has no effect')) return 'status';
   if (message.includes('damage')) return 'damage';
   return 'system';
 }

@@ -83,8 +83,8 @@ public class BattleService {
         PlayerState playerOne = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerOneId));
         PlayerState playerTwo = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerTwoId));
 
-        int speedGap = playerOne.getActiveCritter().getStats().getCurrentSpd()
-                - playerTwo.getActiveCritter().getStats().getCurrentSpd();
+        int speedGap = playerOne.getActiveCritter().effectiveSpeed()
+                - playerTwo.getActiveCritter().effectiveSpeed();
         PlayerState opener = opener(playerOne, playerTwo, speedGap);
         playerOne.setHasTurn(opener == playerOne);
         playerTwo.setHasTurn(opener == playerTwo);

@@ -36,9 +36,11 @@ import com.chronocritters.lib.model.domain.BaseStats;
 import com.chronocritters.lib.model.domain.Critter;
 import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
+import com.chronocritters.lib.model.effects.StatusEffect;
 import com.chronocritters.lib.model.enums.BattleOutcome;
 import com.chronocritters.lib.model.enums.CritterType;
 import com.chronocritters.lib.model.enums.Stat;
+import com.chronocritters.lib.model.enums.StatusCondition;
 import com.chronocritters.lib.mapper.CritterMapper;
 import com.chronocritters.lib.model.domain.Ability;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
@@ -55,6 +57,7 @@ class BattleServiceTest {
     private static final String PLAYER_TWO_ID = "p2";
     private static final String ABILITY_ID = "atk-test";
     private static final String COOLING_ABILITY_ID = "atk-cooling";
+    private static final String SLEEP_ABILITY_ID = "atk-lullaby";
 
     @Mock private PlayerGrpcClient playerGrpcClient;
     @Mock private LobbyWebClient lobbyWebClient;
@@ -111,6 +114,21 @@ class BattleServiceTest {
                 .build();
 
         model.setAbilities(List.of(model.getAbilities().get(0), cooling));
+        return model;
+    }
+
+    /** A critter whose second move puts the target to sleep and never cools down. */
+    private Critter critterWithASleepMove(String id, CritterType type) {
+        Critter model = critter(id, type, 40, 3, 3, 5);
+        Ability lullaby = Ability.builder()
+                .id(SLEEP_ABILITY_ID)
+                .name("Lullaby")
+                .description("puts the foe to sleep")
+                .effects(List.of(StatusEffect.builder().id("eff-sleep").description("sleeps")
+                        .condition(StatusCondition.SLEEP).duration(1).build()))
+                .build();
+
+        model.setAbilities(List.of(model.getAbilities().get(0), lullaby));
         return model;
     }
 
@@ -302,6 +320,23 @@ class BattleServiceTest {
 
         assertThat(lead.getStats().getStages()).isEmpty();
         assertThat(lead.getStats().getCurrentDef()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("a sleep move used back to back cannot keep the target from moving")
+    void sleepCannotLockATargetOut() {
+        stubPlayer(PLAYER_ONE_ID, critterWithASleepMove("sleeper", CritterType.FIRE));
+        stubPlayer(PLAYER_TWO_ID, critter("target", CritterType.FIRE, 40, 3, 3, 1));
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+        CritterState target = battleState.getPlayerTwo().getActiveCritter();
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, SLEEP_ABILITY_ID);
+        assertThat(battleState.getActivePlayerId()).as("the target sleeps through its turn").isEqualTo(PLAYER_ONE_ID);
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, SLEEP_ABILITY_ID);
+
+        assertThat(target.getStatus()).as("it has only just woken, so it cannot be put back").isNull();
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_TWO_ID);
     }
 
     @Test

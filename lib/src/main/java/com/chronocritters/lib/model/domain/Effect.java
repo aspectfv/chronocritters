@@ -8,8 +8,8 @@ import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.effects.HealEffect;
 import com.chronocritters.lib.model.effects.LifestealEffect;
 import com.chronocritters.lib.model.effects.ShieldEffect;
-import com.chronocritters.lib.model.effects.SkipTurnEffect;
 import com.chronocritters.lib.model.effects.StatModifierEffect;
+import com.chronocritters.lib.model.effects.StatusEffect;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -32,12 +32,12 @@ import lombok.AllArgsConstructor;
 @JsonSubTypes({
   @JsonSubTypes.Type(value = DamageEffect.class, name = "DamageEffect"),
   @JsonSubTypes.Type(value = DamageOverTimeEffect.class, name = "DamageOverTimeEffect"),
-  @JsonSubTypes.Type(value = SkipTurnEffect.class, name = "SkipTurnEffect"),
   @JsonSubTypes.Type(value = StatModifierEffect.class, name = "StatModifierEffect"),
   @JsonSubTypes.Type(value = HealEffect.class, name = "HealEffect"),
   @JsonSubTypes.Type(value = LifestealEffect.class, name = "LifestealEffect"),
   @JsonSubTypes.Type(value = ShieldEffect.class, name = "ShieldEffect"),
   @JsonSubTypes.Type(value = CleanseEffect.class, name = "CleanseEffect"),
+  @JsonSubTypes.Type(value = StatusEffect.class, name = "StatusEffect"),
 })
 public abstract class Effect {
     @NotBlank(message = "Effect ID cannot be blank")

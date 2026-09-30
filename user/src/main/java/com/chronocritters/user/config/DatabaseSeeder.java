@@ -8,6 +8,10 @@ import java.util.function.Consumer;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import com.chronocritters.lib.model.domain.Ability;
 import com.chronocritters.lib.model.domain.BaseStats;
@@ -17,13 +21,13 @@ import com.chronocritters.lib.model.domain.Player;
 import com.chronocritters.lib.model.domain.PlayerStats;
 import com.chronocritters.lib.model.effects.CleanseEffect;
 import com.chronocritters.lib.model.effects.DamageEffect;
-import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
 import com.chronocritters.lib.model.effects.HealEffect;
 import com.chronocritters.lib.model.effects.LifestealEffect;
 import com.chronocritters.lib.model.effects.ShieldEffect;
-import com.chronocritters.lib.model.effects.SkipTurnEffect;
 import com.chronocritters.lib.model.effects.StatModifierEffect;
+import com.chronocritters.lib.model.effects.StatusEffect;
 import com.chronocritters.lib.model.enums.Stat;
+import com.chronocritters.lib.model.enums.StatusCondition;
 import com.chronocritters.lib.model.enums.CritterType;
 import com.chronocritters.lib.util.PasswordUtil;
 import com.chronocritters.user.player.repository.AbilityRepository;
@@ -58,12 +62,13 @@ import com.chronocritters.user.player.repository.PlayerRepository;
  * answer to a bad matchup rather than a strictly better opening move:
  *
  * <ul>
- *   <li>Searfiend trades its biggest hit for a burn it can land on anyone.</li>
- *   <li>Sylvan Sentinel spends a turn on a four-turn bind, which is worth more
- *       than four of its own weak jabs and is how the wall wins a race it is
- *       losing.</li>
- *   <li>Aqualing takes the opponent's turn away, which is worth most when the
- *       opponent hits harder than it does.</li>
+ *   <li>Searfiend trades its biggest hit for a burn it can land on anyone,
+ *       which also halves the attack of whatever it burns.</li>
+ *   <li>Sylvan Sentinel spends a turn on a poison that grows every turn, which
+ *       is worth more than four of its own weak jabs and is how the wall wins a
+ *       race it is losing.</li>
+ *   <li>Aqualing puts the opponent to sleep for a turn, which is worth most
+ *       when the opponent hits harder than it does.</li>
  * </ul>
  *
  * The third and fourth abilities are each critter's way of not racing to zero.
@@ -78,7 +83,7 @@ public class DatabaseSeeder {
     private static final String DEMO_PASSWORD = "password";
 
     @Bean
-    public CommandLineRunner seedDatabase(AbilityRepository abilityRepository, CritterRepository critterRepository, PlayerRepository playerRepository, EffectRepository effectRepository) {
+    public CommandLineRunner seedDatabase(AbilityRepository abilityRepository, CritterRepository critterRepository, PlayerRepository playerRepository, EffectRepository effectRepository, MongoTemplate mongoTemplate) {
         return args -> {
             // Effects. Each carries its numbers in its id, so an ability's
             // strength is readable where the ability is declared.
@@ -101,27 +106,34 @@ public class DatabaseSeeder {
                 .damage(4)
                 .build();
 
-            DamageOverTimeEffect burn = DamageOverTimeEffect.builder()
+            // Status conditions. A critter holds one at a time, so each of
+            // these fails on a target that already has one.
+            //
+            // Burn and poison tick on every turn in the battle, the caster's
+            // included, so four ticks cover two of the target's own turns.
+            StatusEffect burn = StatusEffect.builder()
                 .id("eff-burn")
-                .description("Burns for 2 damage a turn over 2 turns.")
-                .damagePerTurn(2)
-                .duration(2)
-                .build();
-
-            DamageOverTimeEffect bind = DamageOverTimeEffect.builder()
-                .id("eff-bind")
-                .description("Binds for 2 damage a turn over 4 turns.")
-                .damagePerTurn(2)
+                .description("Burns the target for 1 damage a turn over 4 turns, halving its attack while it lasts.")
+                .condition(StatusCondition.BURN)
+                .potency(1)
                 .duration(4)
                 .build();
 
-            // Two turns of stun is one turn missed: the countdown ticks on the
-            // caster's free turn as well, so it is spent by the time the target
-            // would have moved again.
-            SkipTurnEffect stun = SkipTurnEffect.builder()
-                .id("eff-stun")
-                .description("Costs the target their next turn.")
-                .duration(2)
+            StatusEffect poison = StatusEffect.builder()
+                .id("eff-poison")
+                .description("Poisons the target for 4 turns, dealing 1 more damage each turn than the last.")
+                .condition(StatusCondition.POISON)
+                .potency(1)
+                .duration(4)
+                .build();
+
+            // Sleep counts the target's own turns rather than ticks, so one is
+            // one turn missed. A hit wakes it early.
+            StatusEffect sleep = StatusEffect.builder()
+                .id("eff-sleep")
+                .description("Puts the target to sleep for its next turn, or until it is hit.")
+                .condition(StatusCondition.SLEEP)
+                .duration(1)
                 .build();
 
             // A stage is a step on the Pokemon table: +1 is one and a half
@@ -175,13 +187,13 @@ public class DatabaseSeeder {
                 .description("Clears every ailment on the user.")
                 .build();
 
-            effectRepository.saveAll(List.of(strike1, strike3, strike4, burn, bind, stun,
+            effectRepository.saveAll(List.of(strike1, strike3, strike4, burn, poison, sleep,
                 kindle, erode, mend40, mend20, drain3, ward5, cleanse));
 
             // Abilities. Every critter keeps one move with no cooldown, so a
             // player always has something to do. The status moves are the ones
-            // that carry a cooldown, because refreshing a burn, a bind or a stun
-            // every turn was the whole of the old best play.
+            // that carry a cooldown, because refreshing a status every turn was
+            // the whole of the old best play.
             //
             // A cooldown ticks down as the turn comes back to its owner, so it
             // has lost one by the time they could use it again: 3 costs them two
@@ -229,7 +241,7 @@ public class DatabaseSeeder {
                 .id("atk-bramblesnare")
                 .name("Bramble Snare")
                 .description("Binds the foe in creeping thorns that draw tighter with every turn.")
-                .effects(List.of(bind))
+                .effects(List.of(poison))
                 .cooldownTurns(4)
                 .build();
 
@@ -259,8 +271,8 @@ public class DatabaseSeeder {
             Ability undertow = Ability.builder()
                 .id("atk-undertow")
                 .name("Undertow")
-                .description("Drags the foe under a pulling current, leaving them fighting the water instead of you.")
-                .effects(List.of(strike1, stun))
+                .description("Drags the foe under a slow, heavy current until it drifts off.")
+                .effects(List.of(strike1, sleep))
                 .cooldownTurns(4)
                 .build();
 
@@ -321,7 +333,7 @@ public class DatabaseSeeder {
             // collections hold the seed and nothing else. Listing retired ids by
             // hand missed documents written under an id scheme this seeder no
             // longer uses, which is how a retired critter stayed in the game.
-            pruneTo(effectRepository::deleteByIdNotIn, strike1, strike3, strike4, burn, bind, stun,
+            pruneTo(effectRepository::deleteByIdNotIn, strike1, strike3, strike4, burn, poison, sleep,
                     kindle, erode, mend40, mend20, drain3, ward5, cleanse);
             pruneTo(abilityRepository::deleteByIdNotIn,
                     cinderLash, ashenBrand, kindling, emberDrain,
@@ -329,6 +341,15 @@ public class DatabaseSeeder {
                     riptideLash, undertow, erosion, clearWater);
             critterRepository.deleteByIdNotIn(
                     List.of(searfiend.getId(), sylvanSentinel.getId(), aqualing.getId()));
+
+            // A roster embeds a copy of each critter, abilities included, so a
+            // player keeps whatever moves existed when they registered. Moves
+            // are reference data, so every copy is brought up to the seed. It
+            // runs before any player is read, because a copy that names an
+            // effect class no longer in the game cannot be read at all.
+            for (Critter critter : List.of(searfiend, sylvanSentinel, aqualing)) {
+                refreshRosterAbilities(mongoTemplate, critter);
+            }
 
             // Demo accounts. Both hold the whole triangle, so a battle can reach
             // every matchup and neither side is ahead on the draw.
@@ -361,6 +382,15 @@ public class DatabaseSeeder {
      * always matches what is seeded beside it. Stats and match history are left
      * alone: they are the only part of a demo account worth accumulating.
      */
+    /** Replaces the embedded abilities of this critter in every roster that holds it. */
+    private void refreshRosterAbilities(MongoTemplate mongoTemplate, Critter critter) {
+        mongoTemplate.updateMulti(
+                Query.query(Criteria.where("roster._id").is(critter.getId())),
+                new Update().set("roster.$[held].abilities", critter.getAbilities())
+                        .filterArray(Criteria.where("held._id").is(critter.getId())),
+                Player.class);
+    }
+
     private void seedDemoAccount(PlayerRepository playerRepository, String id, String username, List<Critter> roster) {
         Player player = playerRepository.findById(id).orElseGet(() -> Player.builder()
                 .id(id)

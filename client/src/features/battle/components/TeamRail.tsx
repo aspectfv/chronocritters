@@ -51,7 +51,7 @@ export function TeamRail({ title, team, activeCritterId, align, canSwitch = fals
                     {critter.stats.currentHp}/{critter.stats.maxHp}
                   </span>
                 </span>
-                <StatusEffectChips effects={critter.activeStatusEffects} compact />
+                <StatusEffectChips effects={critter.status ? [critter.status, ...critter.activeStatusEffects] : critter.activeStatusEffects} compact />
               </span>
             </>
           );

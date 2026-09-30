@@ -15,8 +15,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Clears every ailment on the caster. A ward is the caster's own doing and is
- * the one thing left standing.
+ * Clears every ailment on the caster, its status condition included. A ward is
+ * the caster's own doing and is the one thing left standing. A status cleared
+ * this way leaves no immunity behind, because it did not run its course.
  */
 @Data
 @NoArgsConstructor
@@ -30,7 +31,9 @@ public class CleanseEffect extends Effect implements IInstantEffect {
         CritterState caster = player.getActiveCritter();
         Ability ability = caster.getAbilityById(player.getLastSelectedAbilityId());
 
-        boolean cleared = caster.getActiveStatusEffects().removeIf(effect -> !(effect instanceof ShieldEffect));
+        boolean cleared = caster.getActiveStatusEffects().removeIf(effect -> !(effect instanceof ShieldEffect))
+            | caster.getStatus() != null;
+        caster.setStatus(null);
 
         BattleStats battleStats = battleState.getBattleStats();
 

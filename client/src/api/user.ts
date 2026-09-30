@@ -125,11 +125,6 @@ const GET_MY_CRITTERS_QUERY = gql(`
               damagePerTurn
               duration
             }
-            ... on SkipTurnEffect {
-              id
-              description
-              duration
-            }
             ... on StatModifierEffect {
               id
               description
@@ -156,6 +151,13 @@ const GET_MY_CRITTERS_QUERY = gql(`
             ... on CleanseEffect {
               id
               description
+            }
+            ... on StatusEffect {
+              id
+              description
+              condition
+              duration
+              potency
             }
           }
         }
@@ -203,11 +205,6 @@ const GET_CRITTER_CATALOG_QUERY = gql(`
             damagePerTurn
             duration
           }
-          ... on SkipTurnEffect {
-            id
-            description
-            duration
-          }
           ... on StatModifierEffect {
             id
             description
@@ -234,6 +231,13 @@ const GET_CRITTER_CATALOG_QUERY = gql(`
           ... on CleanseEffect {
             id
             description
+          }
+          ... on StatusEffect {
+            id
+            description
+            condition
+            duration
+            potency
           }
         }
       }

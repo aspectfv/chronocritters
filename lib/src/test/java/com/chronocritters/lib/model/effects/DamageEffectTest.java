@@ -16,6 +16,7 @@ import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.domain.Ability;
 import com.chronocritters.lib.model.enums.CritterType;
+import com.chronocritters.lib.model.enums.StatusCondition;
 
 class DamageEffectTest {
 
@@ -34,6 +35,33 @@ class DamageEffectTest {
 
     private DamageEffect effectOf(BattleState battleState) {
         return (DamageEffect) battleState.getPlayer().getActiveCritter().getAbilityById(ABILITY_ID).getEffects().get(0);
+    }
+
+    @Test
+    @DisplayName("a burned attacker hits with half its attack")
+    void burnHalvesAttack() {
+        // 4 damage * (2 attack / 2 defence) = 4, neutral types
+        BattleState battleState = battleWith(CritterType.FIRE, 4, CritterType.FIRE, 20, 2, 4);
+        battleState.getPlayer().getActiveCritter().setStatus(
+                StatusEffect.builder().id("eff-burn").condition(StatusCondition.BURN).duration(2).potency(1).build());
+
+        effectOf(battleState).apply(battleState);
+
+        assertThat(battleState.getOpponent().getActiveCritter().getStats().getCurrentHp()).isEqualTo(16);
+    }
+
+    @Test
+    @DisplayName("a hit wakes a sleeping target and leaves it immune to sleep for a turn")
+    void hitWakesTheSleeper() {
+        BattleState battleState = battleWith(CritterType.FIRE, 4, CritterType.FIRE, 20, 2, 4);
+        CritterState defender = battleState.getOpponent().getActiveCritter();
+        defender.setStatus(StatusEffect.builder().id("eff-sleep").condition(StatusCondition.SLEEP).duration(3).build());
+
+        effectOf(battleState).apply(battleState);
+
+        assertThat(defender.getStatus()).isNull();
+        assertThat(defender.getStatusImmunity()).isEqualTo(StatusCondition.SLEEP);
+        assertThat(lastLog(battleState)).isEqualTo("defender is no longer asleep!");
     }
 
     @Test
