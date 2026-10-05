@@ -52,6 +52,8 @@ export interface ChronoDialProps {
 export interface MoveGridProps {
   abilities: BattleAbility[];
   casterType: CritterType;
+  /** Turns left on each ability that is cooling down, keyed by ability id. */
+  cooldowns: Record<string, number>;
   onAbilityClick: (abilityId: string) => void;
   isPlayerTurn: boolean;
   isResolving: boolean;

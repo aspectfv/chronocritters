@@ -1,13 +1,27 @@
 package com.chronocritters.lib.mapper;
 
 import com.chronocritters.lib.model.domain.Effect;
+import com.chronocritters.lib.model.effects.CleanseEffect;
 import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
-import com.chronocritters.lib.model.effects.SkipTurnEffect;
+import com.chronocritters.lib.model.effects.HealEffect;
+import com.chronocritters.lib.model.effects.LifestealEffect;
+import com.chronocritters.lib.model.effects.ShieldEffect;
+import com.chronocritters.lib.model.effects.StatModifierEffect;
+import com.chronocritters.lib.model.effects.StatusEffect;
+import com.chronocritters.lib.model.enums.Stat;
+import com.chronocritters.lib.model.enums.StatusCondition;
+import com.chronocritters.proto.player.PlayerProto.CleanseEffectProto;
 import com.chronocritters.proto.player.PlayerProto.DamageEffectProto;
 import com.chronocritters.proto.player.PlayerProto.DamageOverTimeEffectProto;
 import com.chronocritters.proto.player.PlayerProto.EffectProto;
-import com.chronocritters.proto.player.PlayerProto.SkipTurnEffectProto;
+import com.chronocritters.proto.player.PlayerProto.HealEffectProto;
+import com.chronocritters.proto.player.PlayerProto.LifestealEffectProto;
+import com.chronocritters.proto.player.PlayerProto.ShieldEffectProto;
+import com.chronocritters.proto.player.PlayerProto.StatModifierEffectProto;
+import com.chronocritters.proto.player.PlayerProto.StatProto;
+import com.chronocritters.proto.player.PlayerProto.StatusConditionProto;
+import com.chronocritters.proto.player.PlayerProto.StatusEffectProto;
 
 public final class EffectMapper {
     private EffectMapper() {}
@@ -35,12 +49,58 @@ public final class EffectMapper {
                         .duration(proto.getDamageOverTimeEffect().getDuration())
                         .build();
             }
-            case SKIP_TURN_EFFECT -> {
-                if (proto.getSkipTurnEffect().getDuration() < 1) throw new IllegalArgumentException("Duration in SkipTurnEffect must be at least 1");
-                yield SkipTurnEffect.builder()
+            case STAT_MODIFIER_EFFECT -> {
+                if (proto.getStatModifierEffect().getStages() == 0) throw new IllegalArgumentException("Stages in StatModifierEffect cannot be zero");
+                yield StatModifierEffect.builder()
                         .id(proto.getId())
                         .description(proto.getDescription())
-                        .duration(proto.getSkipTurnEffect().getDuration())
+                        .stat(toModel(proto.getStatModifierEffect().getStat()))
+                        .stages(proto.getStatModifierEffect().getStages())
+                        .build();
+            }
+            case HEAL_EFFECT -> {
+                int healPercent = proto.getHealEffect().getHealPercent();
+                if (healPercent < 1 || healPercent > 100) throw new IllegalArgumentException("Heal percent in HealEffect must be between 1 and 100");
+                yield HealEffect.builder()
+                        .id(proto.getId())
+                        .description(proto.getDescription())
+                        .healPercent(healPercent)
+                        .build();
+            }
+            case LIFESTEAL_EFFECT -> {
+                int drainPercent = proto.getLifestealEffect().getDrainPercent();
+                if (proto.getLifestealEffect().getDamage() < 0) throw new IllegalArgumentException("Damage in LifestealEffect cannot be negative");
+                if (drainPercent < 1 || drainPercent > 100) throw new IllegalArgumentException("Drain percent in LifestealEffect must be between 1 and 100");
+                yield LifestealEffect.builder()
+                        .id(proto.getId())
+                        .description(proto.getDescription())
+                        .damage(proto.getLifestealEffect().getDamage())
+                        .drainPercent(drainPercent)
+                        .build();
+            }
+            case SHIELD_EFFECT -> {
+                if (proto.getShieldEffect().getAmount() < 1) throw new IllegalArgumentException("Amount in ShieldEffect must be at least 1");
+                if (proto.getShieldEffect().getDuration() < 1) throw new IllegalArgumentException("Duration in ShieldEffect must be at least 1");
+                yield ShieldEffect.builder()
+                        .id(proto.getId())
+                        .description(proto.getDescription())
+                        .amount(proto.getShieldEffect().getAmount())
+                        .duration(proto.getShieldEffect().getDuration())
+                        .build();
+            }
+            case CLEANSE_EFFECT -> CleanseEffect.builder()
+                    .id(proto.getId())
+                    .description(proto.getDescription())
+                    .build();
+            case STATUS_EFFECT -> {
+                if (proto.getStatusEffect().getDuration() < 1) throw new IllegalArgumentException("Duration in StatusEffect must be at least 1");
+                if (proto.getStatusEffect().getPotency() < 0) throw new IllegalArgumentException("Potency in StatusEffect cannot be negative");
+                yield StatusEffect.builder()
+                        .id(proto.getId())
+                        .description(proto.getDescription())
+                        .condition(toModel(proto.getStatusEffect().getCondition()))
+                        .duration(proto.getStatusEffect().getDuration())
+                        .potency(proto.getStatusEffect().getPotency())
                         .build();
             }
             case EFFECTDATA_NOT_SET -> throw new IllegalArgumentException("Unknown or unset effect type in EffectProto");
@@ -57,6 +117,13 @@ public final class EffectMapper {
             .setDescription(model.getDescription());
 
         switch (model) {
+            case LifestealEffect lifestealEffect -> {
+                LifestealEffectProto proto = LifestealEffectProto.newBuilder()
+                    .setDamage(lifestealEffect.getDamage())
+                    .setDrainPercent(lifestealEffect.getDrainPercent())
+                    .build();
+                builder.setLifestealEffect(proto);
+            }
             case DamageEffect damageEffect -> {
                 DamageEffectProto proto = DamageEffectProto.newBuilder()
                     .setDamage(damageEffect.getDamage())
@@ -70,14 +137,73 @@ public final class EffectMapper {
                     .build();
                 builder.setDamageOverTimeEffect(proto);
             }
-            case SkipTurnEffect skipTurnEffect -> {
-                SkipTurnEffectProto proto = SkipTurnEffectProto.newBuilder()
-                    .setDuration(skipTurnEffect.getDuration())
+            case StatModifierEffect statModifierEffect -> {
+                StatModifierEffectProto proto = StatModifierEffectProto.newBuilder()
+                    .setStat(toProto(statModifierEffect.getStat()))
+                    .setStages(statModifierEffect.getStages())
                     .build();
-                builder.setSkipTurnEffect(proto);
+                builder.setStatModifierEffect(proto);
+            }
+            case HealEffect healEffect -> {
+                HealEffectProto proto = HealEffectProto.newBuilder()
+                    .setHealPercent(healEffect.getHealPercent())
+                    .build();
+                builder.setHealEffect(proto);
+            }
+            case ShieldEffect shieldEffect -> {
+                ShieldEffectProto proto = ShieldEffectProto.newBuilder()
+                    .setAmount(shieldEffect.getAmount())
+                    .setDuration(shieldEffect.getDuration())
+                    .build();
+                builder.setShieldEffect(proto);
+            }
+            case CleanseEffect cleanseEffect -> builder.setCleanseEffect(CleanseEffectProto.getDefaultInstance());
+            case StatusEffect statusEffect -> {
+                StatusEffectProto proto = StatusEffectProto.newBuilder()
+                    .setCondition(toProto(statusEffect.getCondition()))
+                    .setDuration(statusEffect.getDuration())
+                    .setPotency(statusEffect.getPotency())
+                    .build();
+                builder.setStatusEffect(proto);
             }
             default -> throw new IllegalArgumentException("Unknown effect type: " + model.getClass().getName());
         }
         return builder.build();
+    }
+
+    private static Stat toModel(StatProto proto) {
+        return switch (proto) {
+            case ATTACK -> Stat.ATTACK;
+            case DEFENSE -> Stat.DEFENSE;
+            case SPEED -> Stat.SPEED;
+            default -> throw new IllegalArgumentException("Unknown or unset stat in StatModifierEffectProto");
+        };
+    }
+
+    private static StatusCondition toModel(StatusConditionProto proto) {
+        return switch (proto) {
+            case BURN -> StatusCondition.BURN;
+            case POISON -> StatusCondition.POISON;
+            case PARALYSIS -> StatusCondition.PARALYSIS;
+            case SLEEP -> StatusCondition.SLEEP;
+            default -> throw new IllegalArgumentException("Unknown or unset condition in StatusEffectProto");
+        };
+    }
+
+    private static StatusConditionProto toProto(StatusCondition model) {
+        return switch (model) {
+            case BURN -> StatusConditionProto.BURN;
+            case POISON -> StatusConditionProto.POISON;
+            case PARALYSIS -> StatusConditionProto.PARALYSIS;
+            case SLEEP -> StatusConditionProto.SLEEP;
+        };
+    }
+
+    private static StatProto toProto(Stat model) {
+        return switch (model) {
+            case ATTACK -> StatProto.ATTACK;
+            case DEFENSE -> StatProto.DEFENSE;
+            case SPEED -> StatProto.SPEED;
+        };
     }
 }

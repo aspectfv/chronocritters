@@ -236,6 +236,7 @@ function BattlePage() {
           <MoveGrid
             abilities={player.activeCritter.abilities}
             casterType={player.activeCritter.type}
+            cooldowns={player.activeCritter.abilityCooldowns}
             onAbilityClick={handleAbilityClick}
             isPlayerTurn={canAct}
             isResolving={isActionPending}

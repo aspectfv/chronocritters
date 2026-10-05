@@ -20,9 +20,17 @@ public class ExecuteAbilityHandler extends AbstractTurnActionHandler {
         if (ability == null) {
             throw new IllegalArgumentException("Invalid ability ID: " + abilityId);
         }
+        if (activeCritter.isCoolingDown(abilityId)) {
+            throw new IllegalStateException(String.format("%s is still cooling down for %d more turns",
+                    ability.getName(), activeCritter.getAbilityCooldowns().get(abilityId)));
+        }
         player.setLastSelectedAbilityId(abilityId);
 
         ability.execute(battleState);
+
+        if (ability.getCooldownTurns() > 0) {
+            activeCritter.getAbilityCooldowns().put(abilityId, ability.getCooldownTurns());
+        }
 
         handleNext(battleState);
     }

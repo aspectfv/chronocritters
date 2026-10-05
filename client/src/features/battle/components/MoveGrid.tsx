@@ -3,23 +3,33 @@ import type { MoveGridProps } from '@features/battle/types';
 import { describeBattleEffect, getBattleEffectMeta, getCritterTypeFill, getCritterTypeIcon } from '@utils/utils';
 import type { CritterType } from '@/gql/graphql';
 
-function MoveButton({ ability, casterType, onClick, disabled }: {
+function MoveButton({ ability, casterType, turnsLeft, onClick, disabled }: {
   ability: BattleAbility;
   casterType: CritterType;
+  turnsLeft: number;
   onClick: () => void;
   disabled: boolean;
 }) {
+  const cooling = turnsLeft > 0;
+
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled}
-      title={ability.description}
-      className={`key group relative rounded-md p-3 text-left text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60 ${getCritterTypeFill(casterType)}`}
+      disabled={disabled || cooling}
+      title={cooling ? `${ability.name} is cooling down` : ability.description}
+      className={`key group relative rounded-md p-3 text-left text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60 ${getCritterTypeFill(casterType)} ${cooling ? 'grayscale' : ''}`}
     >
-      <p className="truncate text-[15px] font-black tracking-tight drop-shadow-[0_1px_0_rgba(0,0,0,0.35)]">
-        {ability.name}
-      </p>
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="truncate text-[15px] font-black tracking-tight drop-shadow-[0_1px_0_rgba(0,0,0,0.35)]">
+          {ability.name}
+        </p>
+        {(cooling || ability.cooldownTurns > 0) && (
+          <span className="numeral shrink-0 rounded border-2 border-outline bg-outline/80 px-1.5 py-0.5 text-[11px] leading-tight text-white">
+            {cooling ? `${turnsLeft} turn${turnsLeft === 1 ? '' : 's'}` : 'ready'}
+          </span>
+        )}
+      </div>
 
       {/* Every effect, not just the first. A move that hits and then burns is
           picked for the burn, and reading only effects[0] hid it. */}
@@ -38,7 +48,7 @@ function MoveButton({ ability, casterType, onClick, disabled }: {
   );
 }
 
-export function MoveGrid({ abilities, casterType, onAbilityClick, isPlayerTurn, isResolving }: MoveGridProps) {
+export function MoveGrid({ abilities, casterType, cooldowns, onAbilityClick, isPlayerTurn, isResolving }: MoveGridProps) {
   const heading = isResolving
     ? 'Resolving your move...'
     : isPlayerTurn ? 'Choose a move' : 'Waiting for your opponent';
@@ -58,6 +68,7 @@ export function MoveGrid({ abilities, casterType, onAbilityClick, isPlayerTurn, 
             key={ability.id}
             ability={ability}
             casterType={casterType}
+            turnsLeft={cooldowns[ability.id] ?? 0}
             onClick={() => onAbilityClick(ability.id)}
             disabled={!isPlayerTurn}
           />

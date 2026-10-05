@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -82,12 +83,18 @@ public class BattleService {
         PlayerState playerOne = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerOneId));
         PlayerState playerTwo = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerTwoId));
 
-        playerOne.setHasTurn(true);
-        playerTwo.setHasTurn(false);
+        int speedGap = playerOne.getActiveCritter().effectiveSpeed()
+                - playerTwo.getActiveCritter().effectiveSpeed();
+        PlayerState opener = opener(playerOne, playerTwo, speedGap);
+        playerOne.setHasTurn(opener == playerOne);
+        playerTwo.setHasTurn(opener == playerTwo);
 
         String initialLog = "Battle started between " + playerOne.getUsername() + " and " + playerTwo.getUsername();
         List<String> logHistory = new ArrayList<>();
         logHistory.add(initialLog);
+        logHistory.add(speedGap == 0
+                ? opener.getActiveCritter().getName() + " wins the toss and moves first!"
+                : opener.getActiveCritter().getName() + " is faster and moves first!");
 
         Map<String, Integer> initialDamageDealt = new HashMap<>();
         initialDamageDealt.put(playerOneId, 0);
@@ -100,7 +107,7 @@ public class BattleService {
 
         BattleState battleState = BattleState.builder()
                 .battleId(battleId)
-                .activePlayerId(playerOneId)
+                .activePlayerId(opener.getId())
                 .playerOne(playerOne)
                 .playerTwo(playerTwo)
                 .actionLogHistory(logHistory)
@@ -110,6 +117,18 @@ public class BattleService {
 
         activeBattles.put(battleId, battleState);
         return battleState;
+    }
+
+    /**
+     * The faster lead opens the battle. An exact tie is decided by a coin toss
+     * rather than by who joined the queue first: on a closed type triangle the
+     * even openings are the mirrors, and handing those to player one every time
+     * makes one seat better than the other.
+     */
+    private PlayerState opener(PlayerState playerOne, PlayerState playerTwo, int speedGap) {
+        if (speedGap != 0) return speedGap > 0 ? playerOne : playerTwo;
+
+        return ThreadLocalRandom.current().nextBoolean() ? playerOne : playerTwo;
     }
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
@@ -193,6 +212,13 @@ public class BattleService {
 
         battleState.getActionLogHistory().add(String.format("%s switched from %s to %s", player.getUsername(),
                 player.getActiveCritter().getName(), targetCritter.getName()));
+
+        // Cooldowns and stat stages are kept by the critter that is on the
+        // field, so a critter coming off it stops counting and comes back
+        // ready and unshifted. Refreshing a move or shaking off a debuff this
+        // way costs the turn the switch itself costs.
+        player.getActiveCritter().getAbilityCooldowns().clear();
+        player.getActiveCritter().getStats().getStages().clear();
 
         player.setActiveCritterIndex(targetCritterIndex);
     }

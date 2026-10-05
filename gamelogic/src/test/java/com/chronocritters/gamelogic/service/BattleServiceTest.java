@@ -11,7 +11,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,8 +36,11 @@ import com.chronocritters.lib.model.domain.BaseStats;
 import com.chronocritters.lib.model.domain.Critter;
 import com.chronocritters.lib.model.effects.DamageEffect;
 import com.chronocritters.lib.model.effects.DamageOverTimeEffect;
+import com.chronocritters.lib.model.effects.StatusEffect;
 import com.chronocritters.lib.model.enums.BattleOutcome;
 import com.chronocritters.lib.model.enums.CritterType;
+import com.chronocritters.lib.model.enums.Stat;
+import com.chronocritters.lib.model.enums.StatusCondition;
 import com.chronocritters.lib.mapper.CritterMapper;
 import com.chronocritters.lib.model.domain.Ability;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
@@ -51,6 +56,8 @@ class BattleServiceTest {
     private static final String PLAYER_ONE_ID = "p1";
     private static final String PLAYER_TWO_ID = "p2";
     private static final String ABILITY_ID = "atk-test";
+    private static final String COOLING_ABILITY_ID = "atk-cooling";
+    private static final String SLEEP_ABILITY_ID = "atk-lullaby";
 
     @Mock private PlayerGrpcClient playerGrpcClient;
     @Mock private LobbyWebClient lobbyWebClient;
@@ -77,7 +84,7 @@ class BattleServiceTest {
                 .thenReturn(BattleRewardsResponse.getDefaultInstance());
     }
 
-    private Critter critter(String id, CritterType type, int health, int attack, int defense) {
+    private Critter critter(String id, CritterType type, int health, int attack, int defense, int speed) {
         Ability ability = Ability.builder()
                 .id(ABILITY_ID)
                 .name("Test Strike")
@@ -90,9 +97,39 @@ class BattleServiceTest {
                 .name(id)
                 .description(id)
                 .type(type)
-                .baseStats(BaseStats.builder().health(health).attack(attack).defense(defense).build())
+                .baseStats(BaseStats.builder().health(health).attack(attack).defense(defense).speed(speed).build())
                 .abilities(List.of(ability))
                 .build();
+    }
+
+    /** A critter with a free move and a second one that has to be waited out. */
+    private Critter critterWithACoolingMove(String id, CritterType type) {
+        Critter model = critter(id, type, 40, 3, 3, 5);
+        Ability cooling = Ability.builder()
+                .id(COOLING_ABILITY_ID)
+                .name("Slow Burn")
+                .description("worth the wait")
+                .effects(List.of(DamageEffect.builder().id("eff-cooling").description("hurts a little").damage(1).build()))
+                .cooldownTurns(3)
+                .build();
+
+        model.setAbilities(List.of(model.getAbilities().get(0), cooling));
+        return model;
+    }
+
+    /** A critter whose second move puts the target to sleep and never cools down. */
+    private Critter critterWithASleepMove(String id, CritterType type) {
+        Critter model = critter(id, type, 40, 3, 3, 5);
+        Ability lullaby = Ability.builder()
+                .id(SLEEP_ABILITY_ID)
+                .name("Lullaby")
+                .description("puts the foe to sleep")
+                .effects(List.of(StatusEffect.builder().id("eff-sleep").description("sleeps")
+                        .condition(StatusCondition.SLEEP).duration(1).build()))
+                .build();
+
+        model.setAbilities(List.of(model.getAbilities().get(0), lullaby));
+        return model;
     }
 
     private void stubPlayer(String playerId, Critter... roster) {
@@ -105,22 +142,22 @@ class BattleServiceTest {
 
     /** Player one can knock out player two's single critter in one hit. */
     private BattleState oneHitBattle() {
-        stubPlayer(PLAYER_ONE_ID, critter("striker", CritterType.FIRE, 20, 6, 3));
-        stubPlayer(PLAYER_TWO_ID, critter("fodder", CritterType.FIRE, 3, 1, 3));
+        stubPlayer(PLAYER_ONE_ID, critter("striker", CritterType.FIRE, 20, 6, 3, 5));
+        stubPlayer(PLAYER_TWO_ID, critter("fodder", CritterType.FIRE, 3, 1, 3, 1));
         return battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
     }
 
     private BattleState twoRoundBattle() {
         stubPlayer(PLAYER_ONE_ID,
-                critter("one-lead", CritterType.FIRE, 40, 3, 3),
-                critter("one-bench", CritterType.WATER, 40, 3, 3));
-        stubPlayer(PLAYER_TWO_ID, critter("two-lead", CritterType.FIRE, 40, 3, 3));
+                critter("one-lead", CritterType.FIRE, 40, 3, 3, 5),
+                critter("one-bench", CritterType.WATER, 40, 3, 3, 5));
+        stubPlayer(PLAYER_TWO_ID, critter("two-lead", CritterType.FIRE, 40, 3, 3, 1));
         return battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
     }
 
     @Test
-    @DisplayName("starts the battle with player one to move and both rosters at full health")
-    void createsBattleWithPlayerOneToMove() {
+    @DisplayName("starts the battle with the faster lead to move and both rosters at full health")
+    void createsBattleWithTheFasterLeadToMove() {
         BattleState battleState = twoRoundBattle();
 
         assertThat(battleState).as("returned so the lobby needs no second call").isSameAs(battleService.getBattleState(BATTLE_ID));
@@ -129,7 +166,177 @@ class BattleServiceTest {
         assertThat(battleState.getPlayerOne().getHasTurn()).isTrue();
         assertThat(battleState.getPlayerTwo().getHasTurn()).isFalse();
         assertThat(battleState.getBattleOutcome()).isEqualTo(BattleOutcome.CONTINUE);
-        assertThat(battleState.getActionLogHistory()).hasSize(1);
+        assertThat(battleState.getActionLogHistory()).as("the battle opens, then says who is faster").hasSize(2);
+    }
+
+    @Test
+    @DisplayName("gives the opening turn to the faster lead, whichever seat holds it")
+    void startsWithTheFasterLeadToMove() {
+        stubPlayer(PLAYER_ONE_ID, critter("slow-lead", CritterType.FIRE, 40, 3, 3, 2));
+        stubPlayer(PLAYER_TWO_ID, critter("quick-lead", CritterType.FIRE, 40, 3, 3, 9));
+
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_TWO_ID);
+        assertThat(battleState.getPlayerTwo().getHasTurn()).isTrue();
+        assertThat(battleState.getPlayerOne().getHasTurn()).isFalse();
+        assertThat(battleState.getActionLogHistory()).last().asString().contains("quick-lead is faster");
+    }
+
+    @Test
+    @DisplayName("decides a speed tie by coin toss, so neither seat is the better one to hold")
+    void breaksASpeedTieWithoutFavouringASeat() {
+        stubPlayer(PLAYER_ONE_ID, critter("mirror-one", CritterType.FIRE, 40, 3, 3, 5));
+        stubPlayer(PLAYER_TWO_ID, critter("mirror-two", CritterType.FIRE, 40, 3, 3, 5));
+
+        Set<String> openers = new HashSet<>();
+        for (int battle = 0; battle < 200; battle++) {
+            BattleState tied = battleService.createBattle("tie-" + battle, PLAYER_ONE_ID, PLAYER_TWO_ID);
+            openers.add(tied.getActivePlayerId());
+            assertThat(tied.getActionLogHistory()).last().asString().contains("wins the toss");
+        }
+
+        assertThat(openers).containsExactlyInAnyOrder(PLAYER_ONE_ID, PLAYER_TWO_ID);
+    }
+
+    @Test
+    @DisplayName("takes a critter's level into the battle, so a levelled critter hits harder")
+    void scalesBattleStatsByLevel() {
+        Critter levelled = critter("levelled", CritterType.FIRE, 40, 10, 10, 5);
+        levelled.getBaseStats().setLevel(11);
+        stubPlayer(PLAYER_ONE_ID, levelled);
+        stubPlayer(PLAYER_TWO_ID, critter("level-one", CritterType.FIRE, 40, 10, 10, 1));
+
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+
+        CritterState scaled = battleState.getPlayerOne().getActiveCritter();
+        CritterState unscaled = battleState.getPlayerTwo().getActiveCritter();
+
+        assertThat(scaled.getStats().getCurrentAtk()).isGreaterThan(unscaled.getStats().getCurrentAtk());
+        assertThat(scaled.getStats().getMaxHp()).isGreaterThan(unscaled.getStats().getMaxHp());
+        assertThat(scaled.getStats().getCurrentHp()).isEqualTo(scaled.getStats().getMaxHp());
+    }
+
+    private BattleState coolingMoveBattle() {
+        stubPlayer(PLAYER_ONE_ID,
+                critterWithACoolingMove("one-lead", CritterType.FIRE),
+                critter("one-bench", CritterType.WATER, 40, 3, 3, 1));
+        stubPlayer(PLAYER_TWO_ID, critterWithACoolingMove("two-lead", CritterType.FIRE));
+        return battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+    }
+
+    /** Hands the turn back to player one, who opens on the speed tie or loses it. */
+    private void playARound(BattleState battleState) {
+        battleService.executeAbility(BATTLE_ID, battleState.getActivePlayerId(), ABILITY_ID);
+        battleService.executeAbility(BATTLE_ID, battleState.getActivePlayerId(), ABILITY_ID);
+    }
+
+    @Test
+    @DisplayName("refuses a move that is still cooling down, and says how long is left")
+    void refusesACoolingMove() {
+        BattleState battleState = coolingMoveBattle();
+        String opener = battleState.getActivePlayerId();
+        String other = battleState.getPlayerOne().getId().equals(opener) ? PLAYER_TWO_ID : PLAYER_ONE_ID;
+
+        battleService.executeAbility(BATTLE_ID, opener, COOLING_ABILITY_ID);
+        battleService.executeAbility(BATTLE_ID, other, ABILITY_ID);
+
+        assertThatThrownBy(() -> battleService.executeAbility(BATTLE_ID, opener, COOLING_ABILITY_ID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Slow Burn is still cooling down");
+    }
+
+    @Test
+    @DisplayName("frees the move again once its owner has taken the turns it costs")
+    void freesTheMoveOnceTheOwnerHasWaited() {
+        BattleState battleState = coolingMoveBattle();
+        String opener = battleState.getActivePlayerId();
+        String other = battleState.getPlayerOne().getId().equals(opener) ? PLAYER_TWO_ID : PLAYER_ONE_ID;
+
+        battleService.executeAbility(BATTLE_ID, opener, COOLING_ABILITY_ID);
+        battleService.executeAbility(BATTLE_ID, other, ABILITY_ID);
+
+        // A stored 3 costs its owner two of their own turns, so they spend both
+        // on the free move before the cooling one comes back.
+        playARound(battleState);
+        playARound(battleState);
+
+        assertThat(battleState.getPlayerById(opener).getActiveCritter().isCoolingDown(COOLING_ABILITY_ID)).isFalse();
+        battleService.executeAbility(BATTLE_ID, opener, COOLING_ABILITY_ID);
+
+        assertThat(battleState.getPlayerById(opener).getActiveCritter().getAbilityCooldowns())
+                .containsEntry(COOLING_ABILITY_ID, 2);
+    }
+
+    @Test
+    @DisplayName("counts the cooldown down on its owner's turns, not on every turn in the battle")
+    void countsTheCooldownOnTheOwnersTurns() {
+        BattleState battleState = coolingMoveBattle();
+        String opener = battleState.getActivePlayerId();
+        String other = battleState.getPlayerOne().getId().equals(opener) ? PLAYER_TWO_ID : PLAYER_ONE_ID;
+
+        battleService.executeAbility(BATTLE_ID, opener, COOLING_ABILITY_ID);
+        assertThat(battleState.getPlayerById(opener).getActiveCritter().getAbilityCooldowns())
+                .as("one turn is spent by using it").containsEntry(COOLING_ABILITY_ID, 2);
+
+        battleService.executeAbility(BATTLE_ID, other, ABILITY_ID);
+        assertThat(battleState.getPlayerById(opener).getActiveCritter().getAbilityCooldowns())
+                .as("the opponent's turn is not the owner's").containsEntry(COOLING_ABILITY_ID, 2);
+    }
+
+    @Test
+    @DisplayName("sends a critter back out with its cooldowns cleared, since the switch cost a turn")
+    void clearsCooldownsWhenACritterLeavesTheField() {
+        stubPlayer(PLAYER_ONE_ID,
+                critterWithACoolingMove("one-lead", CritterType.FIRE),
+                critter("one-bench", CritterType.WATER, 40, 3, 3, 1));
+        stubPlayer(PLAYER_TWO_ID, critter("two-lead", CritterType.FIRE, 40, 3, 3, 1));
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+
+        CritterState lead = battleState.getPlayerOne().getActiveCritter();
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, COOLING_ABILITY_ID);
+        assertThat(lead.getAbilityCooldowns()).isNotEmpty();
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_TWO_ID, ABILITY_ID);
+        battleService.switchCritter(BATTLE_ID, PLAYER_ONE_ID, 1);
+
+        assertThat(lead.getAbilityCooldowns()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("sends a critter back out with its stat stages reset, so a debuff is escaped by switching")
+    void resetsStagesWhenACritterLeavesTheField() {
+        stubPlayer(PLAYER_ONE_ID,
+                critter("one-lead", CritterType.FIRE, 40, 3, 3, 5),
+                critter("one-bench", CritterType.WATER, 40, 3, 3, 1));
+        stubPlayer(PLAYER_TWO_ID, critter("two-lead", CritterType.FIRE, 40, 3, 3, 1));
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+
+        CritterState lead = battleState.getPlayerOne().getActiveCritter();
+        lead.getStats().shiftStage(Stat.DEFENSE, -2);
+        assertThat(lead.getStats().getCurrentDef()).isEqualTo(2);
+
+        battleService.switchCritter(BATTLE_ID, PLAYER_ONE_ID, 1);
+
+        assertThat(lead.getStats().getStages()).isEmpty();
+        assertThat(lead.getStats().getCurrentDef()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("a sleep move used back to back cannot keep the target from moving")
+    void sleepCannotLockATargetOut() {
+        stubPlayer(PLAYER_ONE_ID, critterWithASleepMove("sleeper", CritterType.FIRE));
+        stubPlayer(PLAYER_TWO_ID, critter("target", CritterType.FIRE, 40, 3, 3, 1));
+        BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
+        CritterState target = battleState.getPlayerTwo().getActiveCritter();
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, SLEEP_ABILITY_ID);
+        assertThat(battleState.getActivePlayerId()).as("the target sleeps through its turn").isEqualTo(PLAYER_ONE_ID);
+
+        battleService.executeAbility(BATTLE_ID, PLAYER_ONE_ID, SLEEP_ABILITY_ID);
+
+        assertThat(target.getStatus()).as("it has only just woken, so it cannot be put back").isNull();
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_TWO_ID);
     }
 
     @Test
@@ -246,11 +453,11 @@ class BattleServiceTest {
     /** Both actives fall on the same turn: the hit takes one, the burn the other. */
     private BattleState doubleFaintBattle() {
         stubPlayer(PLAYER_ONE_ID,
-                critter("one-lead", CritterType.FIRE, 40, 3, 3),
-                critter("one-bench", CritterType.WATER, 40, 3, 3));
+                critter("one-lead", CritterType.FIRE, 40, 3, 3, 5),
+                critter("one-bench", CritterType.WATER, 40, 3, 3, 5));
         stubPlayer(PLAYER_TWO_ID,
-                critter("two-lead", CritterType.FIRE, 40, 3, 3),
-                critter("two-bench", CritterType.WATER, 40, 3, 3));
+                critter("two-lead", CritterType.FIRE, 40, 3, 3, 1),
+                critter("two-bench", CritterType.WATER, 40, 3, 3, 5));
         BattleState battleState = battleService.createBattle(BATTLE_ID, PLAYER_ONE_ID, PLAYER_TWO_ID);
 
         battleState.getPlayerTwo().getActiveCritter().getStats().setCurrentHp(1);

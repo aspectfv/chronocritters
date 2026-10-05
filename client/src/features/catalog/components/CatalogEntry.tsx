@@ -69,6 +69,7 @@ export function CatalogEntry({ critter, ceilings }: CatalogEntryProps) {
               <StatMeter label="HP" value={stats.health ?? 0} ceiling={ceilings.health} fill="bg-vital" />
               <StatMeter label="Attack" value={stats.attack ?? 0} ceiling={ceilings.attack} fill="bg-ruby" />
               <StatMeter label="Defence" value={stats.defense ?? 0} ceiling={ceilings.defense} fill="bg-blued" />
+              <StatMeter label="Speed" value={stats.speed ?? 0} ceiling={ceilings.speed} fill="bg-brass" />
             </div>
           )}
         </div>
@@ -86,6 +87,12 @@ export function CatalogEntry({ critter, ceilings }: CatalogEntryProps) {
             <p className="mt-0.5 text-xs font-medium text-white/85">{ability.description}</p>
 
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {ability.cooldownTurns ? (
+                <span className="numeral inline-flex items-center gap-1 rounded border-2 border-outline bg-outline/80 px-1.5 py-0.5 text-[11px] leading-tight text-white">
+                  <span aria-hidden="true">⏱</span>
+                  {ability.cooldownTurns - 1} turn cooldown
+                </span>
+              ) : null}
               {(ability.effects ?? [])
                 .filter((effect): effect is NonNullable<typeof effect> => effect !== null)
                 .map((effect) => (

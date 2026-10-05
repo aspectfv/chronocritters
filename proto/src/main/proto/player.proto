@@ -45,6 +45,11 @@ message BaseStatsProto {
   int32 health = 1;
   int32 attack = 2;
   int32 defense = 3;
+  int32 speed = 4;
+
+  // Battle stats are scaled by level, so gamelogic needs it. Levelling used to
+  // change nothing in a battle because this never crossed the wire.
+  int32 level = 5;
 }
 
 message AbilityProto {
@@ -52,15 +57,24 @@ message AbilityProto {
   string name = 2;
   string description = 3;
   repeated EffectProto effects = 4;
+  int32 cooldown_turns = 5;
 }
 
 message EffectProto {
+  reserved 5;
+  reserved "skip_turn_effect";
+
   string id = 1;
   string description = 2;
   oneof effect_data {
     DamageEffectProto damage_effect = 3;
     DamageOverTimeEffectProto damage_over_time_effect = 4;
-    SkipTurnEffectProto skip_turn_effect = 5;
+    StatModifierEffectProto stat_modifier_effect = 6;
+    HealEffectProto heal_effect = 7;
+    LifestealEffectProto lifesteal_effect = 8;
+    ShieldEffectProto shield_effect = 9;
+    CleanseEffectProto cleanse_effect = 10;
+    StatusEffectProto status_effect = 11;
   }
 }
 
@@ -73,8 +87,47 @@ message DamageOverTimeEffectProto {
   int32 duration = 2;
 }
 
-message SkipTurnEffectProto {
-  int32 duration = 1;
+enum StatProto {
+  STAT_UNSPECIFIED = 0;
+  ATTACK = 1;
+  DEFENSE = 2;
+  SPEED = 3;
+}
+
+message StatModifierEffectProto {
+  StatProto stat = 1;
+  int32 stages = 2;
+}
+
+message HealEffectProto {
+  int32 heal_percent = 1;
+}
+
+message LifestealEffectProto {
+  int32 damage = 1;
+  int32 drain_percent = 2;
+}
+
+message ShieldEffectProto {
+  int32 amount = 1;
+  int32 duration = 2;
+}
+
+message CleanseEffectProto {
+}
+
+enum StatusConditionProto {
+  STATUS_CONDITION_UNSPECIFIED = 0;
+  BURN = 1;
+  POISON = 2;
+  PARALYSIS = 3;
+  SLEEP = 4;
+}
+
+message StatusEffectProto {
+  StatusConditionProto condition = 1;
+  int32 duration = 2;
+  int32 potency = 3;
 }
 
 message MatchHistoryRequest {

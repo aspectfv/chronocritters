@@ -13,8 +13,9 @@ import org.junit.jupiter.api.Test;
 
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.CritterState;
-import com.chronocritters.lib.model.effects.SkipTurnEffect;
+import com.chronocritters.lib.model.effects.StatusEffect;
 import com.chronocritters.lib.model.enums.CritterType;
+import com.chronocritters.lib.model.enums.StatusCondition;
 
 class TurnTransitionHandlerTest {
 
@@ -29,9 +30,9 @@ class TurnTransitionHandlerTest {
         handler = new TurnTransitionHandler();
     }
 
-    private void stun(CritterState critter) {
-        critter.getActiveStatusEffects().add(
-                SkipTurnEffect.builder().id("eff-skipturn").description("stuns").duration(2).build());
+    private void sleep(CritterState critter, int turns) {
+        critter.setStatus(StatusEffect.builder().id("eff-sleep").description("sleeps")
+                .condition(StatusCondition.SLEEP).duration(turns).build());
     }
 
     @Test
@@ -58,12 +59,12 @@ class TurnTransitionHandlerTest {
     }
 
     @Test
-    @DisplayName("a stun on the fainted critter does not hand the turn back to its attacker")
-    void aStunOnTheFaintedCritterDoesNotSkipTheReplacement() {
-        // The knocked-out critter keeps the stun that was on it. Reading that as
-        // "this player is stunned, skip them" handed the turn straight back to
+    @DisplayName("a sleep on the fainted critter does not hand the turn back to its attacker")
+    void aSleepOnTheFaintedCritterDoesNotSkipTheReplacement() {
+        // The knocked-out critter keeps the sleep that was on it. Reading that
+        // as "this player is asleep, skip them" handed the turn straight back to
         // the attacker, who then played another move into the empty slot.
-        stun(battleState.getPlayerTwo().getActiveCritter());
+        sleep(battleState.getPlayerTwo().getActiveCritter(), 2);
         battleState.getAwaitingSwitchPlayerIds().add(PLAYER_TWO_ID);
 
         handler.handle(battleState);
@@ -72,29 +73,53 @@ class TurnTransitionHandlerTest {
     }
 
     @Test
-    @DisplayName("skips a stunned player so the turn returns to their opponent")
-    void skipsAStunnedPlayer() {
-        stun(battleState.getPlayerTwo().getActiveCritter());
+    @DisplayName("skips a sleeping player, spending one turn of the sleep, so the turn returns to their opponent")
+    void skipsASleepingPlayer() {
+        CritterState sleeper = battleState.getPlayerTwo().getActiveCritter();
+        sleep(sleeper, 2);
 
         handler.handle(battleState);
 
         assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_ONE_ID);
         assertThat(battleState.getPlayerOne().getHasTurn()).isTrue();
+        assertThat(sleeper.getStatus().getDuration()).isEqualTo(1);
     }
 
     @Test
-    @DisplayName("terminates when both actives are stunned instead of recursing forever")
-    void terminatesWhenBothPlayersAreStunned() {
-        stun(battleState.getPlayerOne().getActiveCritter());
-        stun(battleState.getPlayerTwo().getActiveCritter());
+    @DisplayName("a sleep skips exactly as many of its owner's turns as its duration, then wakes them immune")
+    void sleepSkipsItsDurationThenWakes() {
+        CritterState sleeper = battleState.getPlayerTwo().getActiveCritter();
+        sleep(sleeper, 2);
+
+        handler.handle(battleState);
+        handler.handle(battleState);
+
+        assertThat(sleeper.getStatus()).isNull();
+        assertThat(sleeper.getStatusImmunity()).isEqualTo(StatusCondition.SLEEP);
+        assertThat(battleState.getActivePlayerId()).as("the opponent moves while the sleeper wakes").isEqualTo(PLAYER_ONE_ID);
+
+        handler.handle(battleState);
+
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_TWO_ID);
+    }
+
+    @Test
+    @DisplayName("two sleeping actives pass turns between them until one wakes, with no cap on the loop")
+    void terminatesWhenBothActivesAreAsleep() {
+        CritterState one = battleState.getPlayerOne().getActiveCritter();
+        CritterState two = battleState.getPlayerTwo().getActiveCritter();
+        sleep(one, 3);
+        sleep(two, 5);
         int before = battleState.getBattleStats().getTurnCount();
 
         handler.handle(battleState);
 
-        // Both are stunned, so the turn lands anyway and the clock runs; the
-        // stuns tick down and the standoff resolves on a later turn.
-        assertThat(battleState.getActivePlayerId()).isNotNull();
-        assertThat(battleState.getBattleStats().getTurnCount()).isLessThanOrEqualTo(before + 2);
+        // Two skips each round until player one's three are spent on its third
+        // skip; player two then skips a fourth time and player one moves.
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_ONE_ID);
+        assertThat(one.getStatus()).isNull();
+        assertThat(two.getStatus().getDuration()).isEqualTo(1);
+        assertThat(battleState.getBattleStats().getTurnCount()).isEqualTo(before + 1 + 3 + 4);
         assertThat(battleState.getTimeRemaining()).isEqualTo(30);
     }
 

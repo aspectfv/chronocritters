@@ -5,6 +5,7 @@ import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lib.model.battle.CritterState;
 import com.chronocritters.lib.model.battle.PlayerState;
 import com.chronocritters.lib.model.domain.Effect;
+import com.chronocritters.lib.model.effects.StatusEffect;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +29,16 @@ public class TurnEffectsHandler extends AbstractTurnActionHandler {
     }
 
     private void applyCritterStatusEffects(BattleState battleState, CritterState critter) {
+        // An immunity lasts until the effects tick after the turn it was
+        // earned, which is long enough that the opponent's next move cannot
+        // put the same condition straight back.
+        critter.setStatusImmunity(null);
+
+        StatusEffect status = critter.getStatus();
+        if (status != null && status.onTick(battleState, critter)) {
+            critter.endStatus();
+        }
+
         Iterator<Effect> iterator = critter.getActiveStatusEffects().iterator();
         while (iterator.hasNext()) {
             Effect effect = iterator.next();
