@@ -1,9 +1,6 @@
 package com.chronocritters.user.config;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -46,10 +43,11 @@ import com.chronocritters.user.player.repository.PlayerRepository;
  *
  * <h2>The roster</h2>
  *
- * Three critters on a closed type triangle: fire burns grass, grass drinks
- * water, water quenches fire. Every pairing therefore resolves at 1.5x or 0.5x
- * and there is no neutral matchup to hide in, which is what makes the choice of
- * who to send out the decision the battle turns on.
+ * Seven critters, one of each type. The type chart gives every type two
+ * advantages and two weaknesses, so no critter is the safe pick and a team of
+ * three is chosen for what it covers. Every critter spends the same stat
+ * budget of 31 across health, attack, defense and speed, and differs in where
+ * it puts it.
  *
  * Damage is {@code round(base * min(3, atk/def) * type)}, so a type multiplier
  * and a stat ratio compound. Defence is kept in a narrow 5-6 band for that
@@ -58,23 +56,27 @@ import com.chronocritters.user.player.repository.PlayerRepository;
  * resisted one takes five to eight, which is the gap each critter's second
  * ability exists to close.
  *
- * Status damage ignores the type chart entirely, so the second ability is the
- * answer to a bad matchup rather than a strictly better opening move:
+ * Each critter carries four moves: a plain attack with no cooldown, so a
+ * player always has something to do, and three that each answer a different
+ * problem. Status damage ignores the type chart, so the status moves are the
+ * answer to a bad matchup rather than a strictly better opening move.
  *
  * <ul>
- *   <li>Searfiend trades its biggest hit for a burn it can land on anyone,
- *       which also halves the attack of whatever it burns.</li>
- *   <li>Sylvan Sentinel spends a turn on a poison that grows every turn, which
- *       is worth more than four of its own weak jabs and is how the wall wins a
- *       race it is losing.</li>
- *   <li>Aqualing puts the opponent to sleep for a turn, which is worth most
- *       when the opponent hits harder than it does.</li>
+ *   <li>Searfiend burns, stacks attack and drains. It burns hot and
+ *       short.</li>
+ *   <li>Sylvan Sentinel poisons, wards and heals, which is how a slow wall
+ *       wins a race it is losing.</li>
+ *   <li>Aqualing puts the opponent to sleep, erodes its guard and washes off
+ *       whatever has been put on it.</li>
+ *   <li>Volthound is the fastest thing in the game and the most fragile. It
+ *       paralyzes whatever might outpace it, and charges one big hit.</li>
+ *   <li>Cogling plates itself and grinds. It gets harder to hurt the longer it
+ *       stays in, and carries one heavy blow on a cooldown.</li>
+ *   <li>Miasmite poisons, drains and weakens. It wins by making the opponent's
+ *       hits smaller than its own.</li>
+ *   <li>Strikon carries the heaviest single hit, and a blow that slows the
+ *       target so it can land it first.</li>
  * </ul>
- *
- * The third and fourth abilities are each critter's way of not racing to zero.
- * Searfiend stacks attack and drains; Sylvan Sentinel wards and heals, which is
- * what lets the wall outlast a hit it could not have traded with; Aqualing
- * erodes the opponent's guard and washes off what has been put on it.
  */
 @Configuration
 public class DatabaseSeeder {
@@ -187,8 +189,69 @@ public class DatabaseSeeder {
                 .description("Clears every ailment on the user.")
                 .build();
 
-            effectRepository.saveAll(List.of(strike1, strike3, strike4, burn, poison, sleep,
-                kindle, erode, mend40, mend20, drain3, ward5, cleanse));
+            DamageEffect strike2 = DamageEffect.builder()
+                .id("eff-strike-2")
+                .description("Deals 2 damage.")
+                .damage(2)
+                .build();
+
+            DamageEffect strike5 = DamageEffect.builder()
+                .id("eff-strike-5")
+                .description("Deals 5 damage.")
+                .damage(5)
+                .build();
+
+            DamageEffect strike6 = DamageEffect.builder()
+                .id("eff-strike-6")
+                .description("Deals 6 damage.")
+                .damage(6)
+                .build();
+
+            StatusEffect paralysis = StatusEffect.builder()
+                .id("eff-paralysis")
+                .description("Paralyzes the target for 4 turns, halving its speed while it lasts.")
+                .condition(StatusCondition.PARALYSIS)
+                .duration(4)
+                .build();
+
+            StatModifierEffect quicken = StatModifierEffect.builder()
+                .id("eff-speed-up-1")
+                .description("Raises the user's speed by one stage.")
+                .stat(Stat.SPEED)
+                .stages(1)
+                .build();
+
+            StatModifierEffect harden = StatModifierEffect.builder()
+                .id("eff-defense-up-1")
+                .description("Raises the user's defense by one stage.")
+                .stat(Stat.DEFENSE)
+                .stages(1)
+                .build();
+
+            StatModifierEffect weaken = StatModifierEffect.builder()
+                .id("eff-attack-down-1")
+                .description("Lowers the target's attack by one stage.")
+                .stat(Stat.ATTACK)
+                .stages(-1)
+                .build();
+
+            StatModifierEffect slow = StatModifierEffect.builder()
+                .id("eff-speed-down-1")
+                .description("Lowers the target's speed by one stage.")
+                .stat(Stat.SPEED)
+                .stages(-1)
+                .build();
+
+            HealEffect mend30 = HealEffect.builder()
+                .id("eff-mend-30")
+                .description("Restores 30% of the user's maximum health.")
+                .healPercent(30)
+                .build();
+
+            List<Effect> effects = List.of(strike1, strike2, strike3, strike4, strike5, strike6,
+                burn, poison, sleep, paralysis, kindle, quicken, harden, erode, weaken, slow,
+                mend20, mend30, mend40, drain3, ward5, cleanse);
+            effectRepository.saveAll(effects);
 
             // Abilities. Every critter keeps one move with no cooldown, so a
             // player always has something to do. The status moves are the ones
@@ -292,11 +355,140 @@ public class DatabaseSeeder {
                 .cooldownTurns(4)
                 .build();
 
-            abilityRepository.saveAll(List.of(
+            Ability staticSnap = Ability.builder()
+                .id("atk-staticsnap")
+                .name("Static Snap")
+                .description("Bites down with jaws that spark on contact.")
+                .effects(List.of(strike3))
+                .build();
+
+            Ability joltLock = Ability.builder()
+                .id("atk-joltlock")
+                .name("Jolt Lock")
+                .description("Sends a current through the foe that leaves its limbs slow to answer.")
+                .effects(List.of(strike1, paralysis))
+                .cooldownTurns(3)
+                .build();
+
+            Ability overcharge = Ability.builder()
+                .id("atk-overcharge")
+                .name("Overcharge")
+                .description("Pulls in more current than its body should hold, and moves on the surge.")
+                .effects(List.of(kindle, quicken))
+                .cooldownTurns(4)
+                .build();
+
+            Ability thunderclap = Ability.builder()
+                .id("atk-thunderclap")
+                .name("Thunderclap")
+                .description("Releases everything it has stored in one deafening strike.")
+                .effects(List.of(strike5))
+                .cooldownTurns(3)
+                .build();
+
+            Ability gearGrind = Ability.builder()
+                .id("atk-geargrind")
+                .name("Gear Grind")
+                .description("Catches the foe between turning cogs.")
+                .effects(List.of(strike3))
+                .build();
+
+            Ability ironPlating = Ability.builder()
+                .id("atk-ironplating")
+                .name("Iron Plating")
+                .description("Bolts another layer of scrap over its casing.")
+                .effects(List.of(harden))
+                .cooldownTurns(3)
+                .build();
+
+            Ability pistonSlam = Ability.builder()
+                .id("atk-pistonslam")
+                .name("Piston Slam")
+                .description("Winds a spring all the way back and lets it go.")
+                .effects(List.of(strike5))
+                .cooldownTurns(3)
+                .build();
+
+            Ability mainspring = Ability.builder()
+                .id("atk-mainspring")
+                .name("Mainspring")
+                .description("Rewinds its own works and sets the bent parts straight.")
+                .effects(List.of(mend30))
+                .cooldownTurns(4)
+                .build();
+
+            Ability corrosiveBite = Ability.builder()
+                .id("atk-corrosivebite")
+                .name("Corrosive Bite")
+                .description("Sinks dripping fangs into the foe.")
+                .effects(List.of(strike3))
+                .build();
+
+            Ability noxiousFumes = Ability.builder()
+                .id("atk-noxiousfumes")
+                .name("Noxious Fumes")
+                .description("Breathes a sour cloud that the foe keeps breathing long after.")
+                .effects(List.of(strike1, poison))
+                .cooldownTurns(4)
+                .build();
+
+            Ability enfeeble = Ability.builder()
+                .id("atk-enfeeble")
+                .name("Enfeeble")
+                .description("Coats the foe in an ooze that saps the strength from its blows.")
+                .effects(List.of(weaken))
+                .cooldownTurns(3)
+                .build();
+
+            Ability leechOoze = Ability.builder()
+                .id("atk-leechooze")
+                .name("Leech Ooze")
+                .description("Clings to the foe and feeds on what it takes.")
+                .effects(List.of(drain3))
+                .cooldownTurns(3)
+                .build();
+
+            Ability impactPunch = Ability.builder()
+                .id("atk-impactpunch")
+                .name("Impact Punch")
+                .description("A short, straight punch with the whole body behind it.")
+                .effects(List.of(strike3))
+                .build();
+
+            Ability concussionWave = Ability.builder()
+                .id("atk-concussionwave")
+                .name("Concussion Wave")
+                .description("Stamps the ground hard enough to leave the foe staggering.")
+                .effects(List.of(strike2, slow))
+                .cooldownTurns(3)
+                .build();
+
+            Ability brace = Ability.builder()
+                .id("atk-brace")
+                .name("Brace")
+                .description("Sets its feet, steadies its breathing and shrugs off the last blow.")
+                .effects(List.of(harden, mend20))
+                .cooldownTurns(4)
+                .build();
+
+            Ability haymaker = Ability.builder()
+                .id("atk-haymaker")
+                .name("Haymaker")
+                .description("A wild, looping swing that leaves it wide open if it misses the moment.")
+                .effects(List.of(strike6))
+                .cooldownTurns(4)
+                .build();
+
+            List<Ability> abilities = List.of(
                 cinderLash, ashenBrand, kindling, emberDrain,
                 rootJab, brambleSnare, barkWard, regrowth,
-                riptideLash, undertow, erosion, clearWater
-            ));
+                riptideLash, undertow, erosion, clearWater,
+                staticSnap, joltLock, overcharge, thunderclap,
+                gearGrind, ironPlating, pistonSlam, mainspring,
+                corrosiveBite, noxiousFumes, enfeeble, leechOoze,
+                impactPunch, concussionWave, brace, haymaker
+            );
+            abilityRepository.saveAll(abilities);
 
             // Critters
 
@@ -327,27 +519,59 @@ public class DatabaseSeeder {
                 .abilities(List.of(riptideLash, undertow, erosion, clearWater))
                 .build();
 
-            critterRepository.saveAll(List.of(searfiend, sylvanSentinel, aqualing));
+            Critter volthound = Critter.builder()
+                .id("electric-volthound")
+                .name("Volthound")
+                .description("A hunter made of loose current, never quite the same shape twice. It is on its prey before the prey has turned, and it has to be, because it cannot take much of a hit back.")
+                .type(CritterType.ELECTRIC)
+                .baseStats(BaseStats.builder().health(10).attack(7).defense(5).speed(9).build())
+                .abilities(List.of(staticSnap, joltLock, overcharge, thunderclap))
+                .build();
+
+            Critter cogling = Critter.builder()
+                .id("metal-cogling")
+                .name("Cogling")
+                .description("A small, fussy creature of discarded clockwork. It adds a plate for every blow it takes, and a Cogling that has been left alone long enough stops being worth hitting at all.")
+                .type(CritterType.METAL)
+                .baseStats(BaseStats.builder().health(14).attack(6).defense(6).speed(5).build())
+                .abilities(List.of(gearGrind, ironPlating, pistonSlam, mainspring))
+                .build();
+
+            Critter miasmite = Critter.builder()
+                .id("toxic-miasmite")
+                .name("Miasmite")
+                .description("Born in a polluted swamp, its body leaks a corrosive ooze. It does not beat anything quickly. It makes everything near it weaker and sicker, and waits.")
+                .type(CritterType.TOXIC)
+                .baseStats(BaseStats.builder().health(14).attack(5).defense(5).speed(7).build())
+                .abilities(List.of(corrosiveBite, noxiousFumes, enfeeble, leechOoze))
+                .build();
+
+            Critter strikon = Critter.builder()
+                .id("kinetic-strikon")
+                .name("Strikon")
+                .description("Heavily built, and channels raw force into its limbs instead of any element. It throws the biggest punch in the game, and spends most of a fight setting it up.")
+                .type(CritterType.KINETIC)
+                .baseStats(BaseStats.builder().health(12).attack(8).defense(5).speed(6).build())
+                .abilities(List.of(impactPunch, concussionWave, brace, haymaker))
+                .build();
+
+            List<Critter> critters = List.of(searfiend, sylvanSentinel, aqualing, volthound, cogling, miasmite, strikon);
+            critterRepository.saveAll(critters);
 
             // Whatever is no longer declared above is dropped, so the reference
             // collections hold the seed and nothing else. Listing retired ids by
             // hand missed documents written under an id scheme this seeder no
             // longer uses, which is how a retired critter stayed in the game.
-            pruneTo(effectRepository::deleteByIdNotIn, strike1, strike3, strike4, burn, poison, sleep,
-                    kindle, erode, mend40, mend20, drain3, ward5, cleanse);
-            pruneTo(abilityRepository::deleteByIdNotIn,
-                    cinderLash, ashenBrand, kindling, emberDrain,
-                    rootJab, brambleSnare, barkWard, regrowth,
-                    riptideLash, undertow, erosion, clearWater);
-            critterRepository.deleteByIdNotIn(
-                    List.of(searfiend.getId(), sylvanSentinel.getId(), aqualing.getId()));
+            effectRepository.deleteByIdNotIn(effects.stream().map(Effect::getId).toList());
+            abilityRepository.deleteByIdNotIn(abilities.stream().map(Ability::getId).toList());
+            critterRepository.deleteByIdNotIn(critters.stream().map(Critter::getId).toList());
 
             // A roster embeds a copy of each critter, abilities included, so a
             // player keeps whatever moves existed when they registered. Moves
             // are reference data, so every copy is brought up to the seed. It
             // runs before any player is read, because a copy that names an
             // effect class no longer in the game cannot be read at all.
-            for (Critter critter : List.of(searfiend, sylvanSentinel, aqualing)) {
+            for (Critter critter : critters) {
                 refreshRosterAbilities(mongoTemplate, critter);
             }
 
@@ -367,21 +591,6 @@ public class DatabaseSeeder {
         };
     }
 
-    /** Keeps only the documents just written, identified by their own ids. */
-    private void pruneTo(Consumer<Collection<String>> deleteByIdNotIn, Effect... kept) {
-        deleteByIdNotIn.accept(Arrays.stream(kept).map(Effect::getId).toList());
-    }
-
-    /** Keeps only the abilities just written, identified by their own ids. */
-    private void pruneTo(Consumer<Collection<String>> deleteByIdNotIn, Ability... kept) {
-        deleteByIdNotIn.accept(Arrays.stream(kept).map(Ability::getId).toList());
-    }
-
-    /**
-     * The roster and the password are reset on every startup, so the fixture
-     * always matches what is seeded beside it. Stats and match history are left
-     * alone: they are the only part of a demo account worth accumulating.
-     */
     /** Replaces the embedded abilities of this critter in every roster that holds it. */
     private void refreshRosterAbilities(MongoTemplate mongoTemplate, Critter critter) {
         mongoTemplate.updateMulti(
@@ -391,6 +600,11 @@ public class DatabaseSeeder {
                 Player.class);
     }
 
+    /**
+     * The roster and the password are reset on every startup, so the fixture
+     * always matches what is seeded beside it. Stats and match history are left
+     * alone: they are the only part of a demo account worth accumulating.
+     */
     private void seedDemoAccount(PlayerRepository playerRepository, String id, String username, List<Critter> roster) {
         Player player = playerRepository.findById(id).orElseGet(() -> Player.builder()
                 .id(id)
