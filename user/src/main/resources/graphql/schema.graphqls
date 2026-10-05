@@ -51,6 +51,12 @@ type BaseStats {
     defense: Int
 }
 
+type TypeMatchup {
+    attacker: CritterType!
+    defender: CritterType!
+    multiplier: Float!
+}
+
 type Critter {
     id: ID
     name: String
@@ -116,6 +122,8 @@ type LoginResponse {
 type Query {
     getPlayer(id: ID!): Player
     getMatchHistoryEntry(playerId: String!, battleId: String!): MatchHistoryEntry
+    critters: [Critter!]!
+    typeAdvantages: [TypeMatchup!]!
 }
 
 type Mutation {

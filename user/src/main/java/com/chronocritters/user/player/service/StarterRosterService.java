@@ -10,13 +10,14 @@ import com.chronocritters.user.player.repository.CritterRepository;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Every new trainer starts with the same three critters, chosen so that no
- * starter has a type advantage over another.
+ * Every new trainer starts with the whole roster. The three critters sit on a
+ * closed type triangle, so no starter holds an advantage over the others and
+ * the opening choice is about how you want to play rather than what you drew.
  */
 @Service
 @RequiredArgsConstructor
 public class StarterRosterService {
-    static final List<String> STARTER_CRITTER_IDS = List.of("water-aqualing", "fire-searfiend", "metal-cogling");
+    static final List<String> STARTER_CRITTER_IDS = List.of("grass-sylvansentinel", "fire-searfiend", "water-aqualing");
 
     private final CritterRepository critterRepository;
 

@@ -1,111 +1,108 @@
 import type { GetBattleHistoryEntryQuery } from '@/gql/graphql';
+import { ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '@store/auth/useAuthStore';
 import { formatDuration, formatTimestamp } from '@utils/utils';
 import { Link, useLoaderData } from 'react-router-dom';
 
-const ActionItem = ({ turn, actor, description }: { turn: number, actor: string, description: string }) => (
-    <div className="flex items-stretch gap-4">
-        <div className="w-16 flex items-center justify-center">
-            <span className="text-sm font-medium text-gray-500">Turn {turn}</span>
-        </div>
-        <div className="flex-1 bg-white p-3 rounded-lg border border-gray-200">
-            <p className="font-bold text-gray-800 mb-1">{actor}</p>
-            <p className="text-sm text-gray-600">{description}</p>
-        </div>
-    </div>
+const BackToHistory = () => (
+  <Link
+    to="/profile/history"
+    className="key inline-flex items-center gap-1.5 rounded-lg bg-arena-deep px-3 py-2 text-sm font-black text-arena-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brass/60"
+  >
+    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+    All battles
+  </Link>
+);
+
+const Figure = ({ value, label, tone }: { value: string | number; label: string; tone: string }) => (
+  <div className="plaque px-3 py-2.5 text-center">
+    <p className={`numeral text-2xl ${tone}`}>{value}</p>
+    <p className="text-xs font-bold text-arena-ink-muted">{label}</p>
+  </div>
 );
 
 export function BattleHistoryDetails() {
-    const user = useAuthStore((store) => store.user);
-    const loaderData = useLoaderData() as GetBattleHistoryEntryQuery;
-    const battle = loaderData?.getMatchHistoryEntry;
+  const user = useAuthStore((store) => store.user);
+  const loaderData = useLoaderData() as GetBattleHistoryEntryQuery;
+  const battle = loaderData?.getMatchHistoryEntry;
 
-    if (!battle) {
-        return (
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center space-y-4">
-                <p className="text-gray-500">This battle could not be found.</p>
-                <Link to="/profile/history" className="inline-block text-sm bg-gray-100 px-3 py-2 rounded-lg hover:bg-gray-200 font-semibold text-gray-700">
-                    &larr; Back to History
-                </Link>
-            </div>
-        );
-    }
-
-    const isVictory = battle.winnerId === user?.id;
-    const actorName = (playerId: string | null | undefined) =>
-        playerId === user?.id ? (user?.username ?? 'You') : (battle.opponentUsername ?? 'Opponent');
-
+  if (!battle) {
     return (
-        <div className="space-y-6">
-            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-green-800">
-                        Battle Details: vs {battle.opponentUsername}
-                    </h2>
-                    <Link to="/profile/history" className="text-sm bg-gray-100 px-3 py-2 rounded-lg hover:bg-gray-200 font-semibold text-gray-700 flex items-center gap-1">
-                        &larr; Back to History
-                    </Link>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="space-y-4">
-                        <div className={`text-white text-lg font-bold text-center py-2 px-4 rounded-lg ${isVictory ? 'bg-green-500' : 'bg-red-500'}`}>
-                            {isVictory ? 'Victory' : 'Defeat'}
-                        </div>
-                        <div>
-                            <p className="text-sm font-semibold text-gray-500">Date</p>
-                            <p className="font-medium text-gray-800">{formatTimestamp(battle.timestamp)}</p>
-                        </div>
-                        <div>
-                            <p className="text-sm font-semibold text-gray-500">Duration</p>
-                            <p className="font-medium text-gray-800 flex items-center gap-1">
-                                <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                {formatDuration(battle.duration ?? 0)}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-sm font-semibold text-gray-500">Total Turns</p>
-                            <p className="font-medium text-gray-800">{battle.turnCount}</p>
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                         <h3 className="text-md font-bold text-green-800">Critters</h3>
-                         <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                             <p className="text-sm font-semibold">Your Critters</p>
-                             <p>{battle.usedCrittersNames?.join(', ') ?? 'None'}</p>
-                         </div>
-                         <div className="bg-gray-100 p-3 rounded-lg border border-gray-200">
-                             <p className="text-sm font-semibold">Opponent's Critters</p>
-                             <p>{battle.opponentCrittersNames?.join(', ') ?? 'None'}</p>
-                         </div>
-                    </div>
-                    <div className="space-y-3">
-                        <h3 className="text-md font-bold text-green-800">Damage Summary</h3>
-                        <div className="bg-green-100 p-4 rounded-lg border border-green-200">
-                            <p className="text-sm font-semibold text-green-900">Damage Dealt</p>
-                            <p className="text-3xl font-bold text-green-700">{battle.damageDealt}</p>
-                        </div>
-                         <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                            <p className="text-sm font-semibold text-red-900">Damage Received</p>
-                            <p className="text-3xl font-bold text-red-700">{battle.damageReceived}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-gray-50/50 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 className="text-xl font-bold text-green-800 mb-4">Turn-by-Turn Actions</h3>
-                <div className="space-y-3">
-                    {battle.turnActionHistory?.map((item, index) => (
-                        <ActionItem
-                            key={index}
-                            turn={item?.turn ?? 0}
-                            actor={actorName(item?.playerId)}
-                            description={item?.turnActionLog ?? ''}
-                        />
-                    ))}
-                </div>
-            </div>
+      <div className="panel rounded-lg bg-arena-deep p-6 text-center">
+        <p className="display text-lg text-arena-ink">That battle is not on record</p>
+        <p className="mt-1 text-sm text-arena-ink-muted">The link may be out of date.</p>
+        <div className="mt-4 flex justify-center">
+          <BackToHistory />
         </div>
+      </div>
     );
+  }
+
+  const isVictory = battle.winnerId === user?.id;
+  const actorName = (playerId: string | null | undefined) =>
+    playerId === user?.id ? (user?.username ?? 'You') : (battle.opponentUsername ?? 'Opponent');
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="panel rounded-lg bg-arena-deep p-4">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className={`rounded-full border-2 border-outline px-3 py-1 text-xs font-black text-white ${isVictory ? 'bg-vital' : 'bg-ruby'}`}>
+              {isVictory ? 'Won' : 'Lost'}
+            </span>
+            <h2 className="display text-xl text-arena-ink">vs {battle.opponentUsername}</h2>
+          </div>
+          <BackToHistory />
+        </div>
+
+        <dl className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+          <Figure value={formatDuration(battle.duration ?? 0)} label="Duration" tone="text-arena-ink" />
+          <Figure value={battle.turnCount ?? 0} label="Turns" tone="text-arena-ink" />
+          <Figure value={battle.damageDealt ?? 0} label="Damage dealt" tone="text-vital" />
+          <Figure value={battle.damageReceived ?? 0} label="Damage taken" tone="text-ruby" />
+        </dl>
+
+        <p className="mt-3 text-xs text-arena-ink-muted">{formatTimestamp(battle.timestamp)}</p>
+
+        <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          <div className="well rounded-sm px-3 py-2.5">
+            <p className="text-xs font-bold text-arena-ink">You sent out</p>
+            <p className="mt-0.5 text-sm text-arena-ink-muted">
+              {battle.usedCrittersNames?.length ? battle.usedCrittersNames.join(', ') : 'No critters recorded'}
+            </p>
+          </div>
+          <div className="well rounded-sm px-3 py-2.5">
+            <p className="text-xs font-bold text-arena-ink">They sent out</p>
+            <p className="mt-0.5 text-sm text-arena-ink-muted">
+              {battle.opponentCrittersNames?.length ? battle.opponentCrittersNames.join(', ') : 'No critters recorded'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="panel rounded-lg bg-arena-deep p-4">
+        <h3 className="mb-3 text-sm font-bold text-arena-ink">How the battle ran</h3>
+
+        {battle.turnActionHistory?.length ? (
+          <ol className="flex flex-col gap-2">
+            {battle.turnActionHistory.map((item, index) => (
+              <li key={index} className="flex items-stretch gap-2.5">
+                <span className="plaque flex w-14 shrink-0 items-center justify-center px-2">
+                  <span className="numeral text-sm text-brass-ink">{item?.turn ?? 0}</span>
+                </span>
+                <span className="well flex-1 rounded-sm px-3 py-2">
+                  <span className="block text-sm font-bold text-arena-ink">{actorName(item?.playerId)}</span>
+                  <span className="block text-sm text-arena-ink-muted">{item?.turnActionLog ?? ''}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="well rounded-sm px-3 py-2 text-sm text-arena-ink-muted">
+            No turns were recorded for this battle.
+          </p>
+        )}
+      </div>
+    </div>
+  );
 }

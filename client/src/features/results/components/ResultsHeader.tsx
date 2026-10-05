@@ -1,49 +1,47 @@
-import type { ResultsHeaderProps } from "@features/results/types";
+import { Trophy, Flag } from 'lucide-react';
+import type { ResultsHeaderProps } from '@features/results/types';
 
-export const ResultsHeader = ({ result, opponentName }: ResultsHeaderProps) => {
+/**
+ * The most loaded moment in the app. It stands on the arena's own ground, and
+ * the outcome is carried by the plate behind the word rather than by the word
+ * being tinted a different colour.
+ */
+export function ResultsHeader({ result, opponentName }: ResultsHeaderProps) {
   const isVictory = result === 'victory';
-
-  const headerConfig = {
-    victory: {
-      title: 'Victory!',
-      message: `You defeated ${opponentName}`,
-      styles: 'bg-green-50 border-green-200 text-green-800',
-      iconColor: 'text-green-600',
-      badge: 'Winner',
-      badgeStyles: 'bg-green-600 text-white',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM4 21h4a2 2 0 002-2v-7a2 2 0 00-2-2H4a2 2 0 00-2 2v7a2 2 0 002 2z" />
-        </svg>
-      )
-    },
-    defeat: {
-      title: 'Defeat!',
-      message: `You were defeated by ${opponentName}`,
-      styles: 'bg-gray-50 border-gray-200 text-gray-800',
-      iconColor: 'text-gray-500',
-      badge: 'Defeated',
-      badgeStyles: 'bg-gray-500 text-white',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14.25l-4.25-4.25M5.75 14.25L10 10" />
-        </svg>
-      )
-    }
-  };
-
-  const config = isVictory ? headerConfig.victory : headerConfig.defeat;
+  const Icon = isVictory ? Trophy : Flag;
 
   return (
-    <div className={`p-8 text-center rounded-lg ${config.styles}`}>
-      <div className={`flex justify-center items-center mb-4 ${config.iconColor}`}>
-        {config.icon}
-      </div>
-      <h1 className="text-4xl font-bold">{config.title}</h1>
-      <p className="text-gray-600 mt-2">{config.message}</p>
-      <div className={`inline-block font-bold px-6 py-2 rounded-full mt-4 text-sm ${config.badgeStyles}`}>
-        {config.badge}
+    <div className="arena-plate animate-turn-claim relative overflow-hidden rounded-2xl px-6 py-10 text-center">
+      <div className="arena-floor pointer-events-none absolute inset-0" aria-hidden="true" />
+
+      {/* A win is lit from behind the trophy, so the two outcomes are told
+          apart before either word is read. */}
+      {isVictory && (
+        <div
+          className="pointer-events-none absolute inset-0"
+          aria-hidden="true"
+          style={{
+            background:
+              'radial-gradient(55% 55% at 50% 32%, color-mix(in oklab, var(--color-brass) 38%, transparent) 0%, transparent 70%)',
+          }}
+        />
+      )}
+
+      <div className="relative">
+        <span className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full border-[3px] border-outline shadow-[0_5px_0_0_var(--color-outline)] ${
+          isVictory ? 'bg-brass text-white' : 'bg-arena-glass text-arena-ink-muted'
+        }`}>
+          <Icon className="h-10 w-10" aria-hidden="true" strokeWidth={2} />
+        </span>
+
+        <h1 className={`display struck mt-4 text-6xl text-white ${isVictory ? '' : 'opacity-90'}`}>
+          {isVictory ? 'Victory' : 'Defeat'}
+        </h1>
+
+        <p className="mt-2 break-words font-bold text-arena-ink">
+          {isVictory ? `You beat ${opponentName}` : `${opponentName} beat you`}
+        </p>
       </div>
     </div>
   );
-};
+}

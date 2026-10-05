@@ -23,6 +23,12 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
         for (int skips = 0; skips < MAX_CONSECUTIVE_SKIPS; skips++) {
             if (!advanceTurn(battleState)) return;
 
+            // A player who owes a replacement is still holding the critter that
+            // just fainted, and a stun on it is not a stun on whoever they send
+            // out. Reading it as one handed the turn back to their attacker,
+            // who then played another move into the empty slot.
+            if (battleState.awaitsSwitchFrom(battleState.getActivePlayerId())) break;
+
             if (!isStunned(battleState.getPlayer())) break;
         }
 
@@ -38,11 +44,17 @@ public class TurnTransitionHandler extends AbstractTurnActionHandler {
         BattleStats battleStats = battleState.getBattleStats();
         battleStats.setTurnCount(battleStats.getTurnCount() + 1);
 
-        currentPlayer.setHasTurn(false);
-        nextPlayer.setHasTurn(true);
-        battleState.setActivePlayerId(nextPlayer.getId());
+        giveTurnTo(battleState, nextPlayer);
 
         return true;
+    }
+
+    private void giveTurnTo(BattleState battleState, PlayerState player) {
+        if (player == null) return;
+
+        battleState.getPlayerOne().setHasTurn(player == battleState.getPlayerOne());
+        battleState.getPlayerTwo().setHasTurn(player == battleState.getPlayerTwo());
+        battleState.setActivePlayerId(player.getId());
     }
 
     private boolean isStunned(PlayerState player) {

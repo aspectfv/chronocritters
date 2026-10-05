@@ -1,7 +1,67 @@
 @import "tailwindcss";
 
+/* Declared as a theme token rather than only on body, so Tailwind's font-sans
+   utility resolves to the same face the page actually uses. The fallbacks are
+   unquoted: ui-sans-serif and system-ui are CSS keywords, and quoting them made
+   the browser hunt for families by those literal names and fail. */
+@theme {
+  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+
+  /* Ink, shared by every page. Surfaces are named for the arena below,
+     because the whole interface now stands on it. */
+  --color-ink: oklch(0.309 0.046 264);
+  --color-ink-muted: oklch(0.494 0.034 264);
+
+  --color-warn: oklch(0.716 0.142 67);
+
+  /* The seven critter types, saturated enough to carry information. Each is
+     paired with a glyph in utils.ts so nothing depends on hue alone. */
+  --color-type-fire: oklch(0.606 0.207 28);
+  --color-type-water: oklch(0.546 0.176 253);
+  --color-type-grass: oklch(0.567 0.158 145);
+  --color-type-electric: oklch(0.746 0.167 78);
+  --color-type-metal: oklch(0.551 0.035 250);
+  --color-type-toxic: oklch(0.526 0.204 305);
+  --color-type-kinetic: oklch(0.551 0.201 328);
+  --color-type-unknown: oklch(0.551 0.019 258);
+
+  /* Taken from watchmaking rather than from "brass" in general: an enamel dial
+     face, engine-turned ground, aged case fittings, heat-blued steel hands, and
+     ruby for the jewel bearings, which is the only place red appears. */
+  --color-arena: oklch(0.849 0.026 92);
+  --color-arena-deep: oklch(0.976 0.013 90);
+  /* Three levels, so nothing disappears into what it sits on: the room, the
+     plate the critters stand on, and the plaques that sit on the plate. */
+  --color-plate: oklch(0.928 0.022 90);
+  --color-sky: oklch(0.899 0.046 242);
+  --color-haze: oklch(0.961 0.016 200);
+  --color-floor: oklch(0.858 0.053 78);
+
+  /* One dark line draws every edge in the arena. Five brass borders at five
+     opacities was the whole border vocabulary before, which is why the panels
+     read as a form kit rather than as game furniture. */
+  --color-outline: oklch(0.268 0.044 264);
+  --color-arena-glass: oklch(0.902 0.028 88);
+  --color-brass: oklch(0.598 0.108 71);
+  --color-brass-dim: oklch(0.503 0.091 68);
+  --color-brass-ink: oklch(0.392 0.071 64);
+  --color-arena-ink: oklch(0.309 0.046 264);
+  --color-arena-ink-muted: oklch(0.494 0.034 264);
+  --color-blued: oklch(0.377 0.077 267);
+  --color-ruby: oklch(0.438 0.148 19);
+  --color-vital: oklch(0.594 0.132 152);
+
+  --radius-control: 0.5rem;
+
+  /* The only blurred shadow left, and only because an overlay has to read as
+     lifted off the page rather than struck into it. */
+  --shadow-overlay: 0 20px 40px -12px rgb(0 0 0 / 0.3);
+}
+
 body {
-  font-family: 'Exo 2', 'ui-sans-serif', 'system-ui', sans-serif;
+  font-family: var(--font-sans);
+  background-color: var(--color-arena);
+  color: var(--color-ink);
 }
 
 @keyframes critter-hit {
@@ -34,11 +94,17 @@ body {
 .animate-log-enter { animation: log-enter 220ms ease-out; }
 .animate-turn-claim { animation: turn-claim 320ms ease-out; }
 
+/* Covers every animation and transition, including Tailwind's own utilities and
+   animate-spin. Naming only the custom keyframes left the matchmaking spinner
+   and every transition-* running. */
 @media (prefers-reduced-motion: reduce) {
-  .animate-critter-hit,
-  .animate-log-enter,
-  .animate-turn-claim {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 
   /* The floating number only exists as motion, so it is dropped rather than
@@ -47,3 +113,332 @@ body {
     display: none;
   }
 }
+
+/* The battlefield is a movement plate: an enamel panel with engine-turning
+   struck into it and the turn clock at dead centre. The pattern is masked well
+   inside the plate's own edges, so it never reaches the panels around it. An
+   earlier pass let a full-bleed circle radiate across the whole page, which
+   read as noise over every other element rather than as a ground. */
+.arena-plate {
+  /* A horizon, not a flat fill: pale blued air above, warm sand underfoot, and
+     the seam between them sitting behind the clock. One flat cream panel was
+     the thing that read as bland. */
+  background-image:
+    linear-gradient(
+      to bottom,
+      var(--color-sky) 0%,
+      color-mix(in oklab, var(--color-sky) 55%, var(--color-haze)) 34%,
+      var(--color-haze) 48%,
+      color-mix(in oklab, var(--color-floor) 70%, var(--color-haze)) 56%,
+      var(--color-floor) 100%
+    );
+  border: 3px solid var(--color-outline);
+  box-shadow:
+    inset 0 2px 0 color-mix(in oklab, white 55%, transparent),
+    inset 0 -60px 80px -70px color-mix(in oklab, var(--color-outline) 75%, transparent),
+    0 4px 0 0 var(--color-outline),
+    0 7px 0 0 color-mix(in oklab, var(--color-outline) 30%, transparent);
+}
+
+/* Floor. Lines running back to the clock, so the lower half reads as ground
+   receding rather than as more panel. Masked to below the horizon and faded
+   with distance, which is what keeps it from becoming a web over the page.
+   Drawn as its own element rather than a pseudo-element: generated content
+   paints above the absolutely positioned children, and the fan was showing
+   through the plaques. */
+.arena-floor {
+  background-image:
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      color-mix(in oklab, var(--color-brass-ink) 13%, transparent) 0deg 0.35deg,
+      transparent 0.35deg 4deg
+    );
+  mask-image: linear-gradient(to bottom, transparent 0 50%, #000 62%, color-mix(in srgb, #000 55%, transparent) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0 50%, #000 62%, color-mix(in srgb, #000 55%, transparent) 100%);
+}
+
+/* The horizon itself, struck as a hairline so the two halves meet at an edge
+   rather than blurring into each other. */
+.arena-horizon {
+  background-image: linear-gradient(
+    to right,
+    transparent 0%,
+    color-mix(in oklab, var(--color-brass) 45%, transparent) 18%,
+    color-mix(in oklab, var(--color-brass) 70%, transparent) 50%,
+    color-mix(in oklab, var(--color-brass) 45%, transparent) 82%,
+    transparent 100%
+  );
+}
+
+/* Engine-turning, held to a disc around the clock. Letting it run the full
+   width of the plate turned it into a web over every other element. */
+.chrono-guilloche {
+  background-image:
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      color-mix(in oklab, var(--color-brass) 22%, transparent) 0deg 0.6deg,
+      transparent 0.6deg 5deg
+    ),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      color-mix(in oklab, var(--color-brass) 16%, transparent) 0 1px,
+      transparent 1px 16px
+    ),
+    radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--color-haze) 85%, transparent) 0 38%, transparent 62%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 0 30%, color-mix(in srgb, #000 24%, transparent) 62%, transparent 86%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0 30%, color-mix(in srgb, #000 24%, transparent) 62%, transparent 86%);
+}
+
+/* The pad a critter stands on, which is what makes it stand on the floor
+   rather than float over it. */
+.critter-pad {
+  background-image: radial-gradient(
+    ellipse 50% 50% at 50% 50%,
+    color-mix(in oklab, var(--color-brass-ink) 30%, transparent) 0%,
+    color-mix(in oklab, var(--color-brass-ink) 13%, transparent) 55%,
+    transparent 78%
+  );
+}
+
+/* The chapter ring: minute ticks struck round the clock, as a real dial is laid
+   out. Sized relative to the clock rather than the plate, so it stays a legible
+   ring instead of a rim of moire at the far edge of the page. */
+.chrono-chapter {
+  background-image:
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      color-mix(in oklab, var(--color-brass) 62%, transparent) 0deg 0.45deg,
+      transparent 0.45deg 6deg
+    );
+  mask-image: radial-gradient(circle at 50% 50%, transparent 0 43%, #000 43% 46.5%, transparent 46.5%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 0 43%, #000 43% 46.5%, transparent 46.5%);
+}
+
+/* Engraved rather than raised: recessed wells get an inner shadow, the way a
+   milled pocket in a movement plate reads. */
+.engraved {
+  box-shadow: inset 0 1px 2px color-mix(in oklab, var(--color-brass-ink) 22%, transparent);
+}
+
+/* Archivo carries a width axis, so one family covers both roles. Numerals are
+   pushed wide and heavy: in a battler the figures are the drama, and HP, damage
+   and the clock should read as struck rather than typed. */
+.numeral {
+  font-variation-settings: 'wdth' 118, 'wght' 800;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: -0.015em;
+}
+
+.display {
+  font-variation-settings: 'wdth' 112, 'wght' 800;
+  letter-spacing: -0.02em;
+}
+
+/* Game furniture, not form controls. Edges are a hard dark outline with a
+   light top bevel and a solid unblurred drop, the way a moulded plastic panel
+   catches light. Nothing here uses a blurred shadow: blur is what made the
+   previous surfaces read as cards on a website. */
+.panel {
+  border: 2px solid var(--color-outline);
+  box-shadow:
+    inset 0 2px 0 color-mix(in oklab, white 80%, transparent),
+    inset 0 -3px 0 color-mix(in oklab, var(--color-outline) 10%, transparent),
+    0 3px 0 0 var(--color-outline),
+    0 5px 0 0 color-mix(in oklab, var(--color-outline) 28%, transparent);
+}
+
+/* Recessed: HP tracks and the log's history well. The bevel runs the other
+   way, so a well never reads as a raised panel. */
+.well {
+  border: 2px solid var(--color-outline);
+  background-color: color-mix(in oklab, var(--color-outline) 16%, white);
+  box-shadow: inset 0 2px 0 color-mix(in oklab, var(--color-outline) 40%, transparent);
+}
+
+/* A key you press. It sits on its own edge and drops onto it when held, which
+   is the whole of the tactile feedback a turn-based game gets. */
+.key {
+  border: 2px solid var(--color-outline);
+  box-shadow:
+    inset 0 2px 0 color-mix(in oklab, white 42%, transparent),
+    inset 0 -4px 0 color-mix(in oklab, black 16%, transparent),
+    0 4px 0 0 var(--color-outline);
+  transition: transform 90ms ease-out, box-shadow 90ms ease-out, filter 120ms ease-out;
+}
+
+.key:hover:not(:disabled) {
+  filter: brightness(1.07);
+}
+
+.key:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 2px 0 color-mix(in oklab, white 30%, transparent),
+    inset 0 -2px 0 color-mix(in oklab, black 18%, transparent),
+    0 0 0 0 var(--color-outline);
+}
+
+.key:disabled {
+  filter: grayscale(0.55);
+  opacity: 0.62;
+  box-shadow:
+    inset 0 -2px 0 color-mix(in oklab, black 12%, transparent),
+    0 2px 0 0 color-mix(in oklab, var(--color-outline) 55%, transparent);
+}
+
+/* Health reads as a meter, not a progress bar: glossed fill over a dark well,
+   struck through with ticks so a glance gives a quantity and not just a
+   length. */
+.hp-fill {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, white 48%, transparent) 0 42%,
+    transparent 42%,
+    color-mix(in oklab, black 16%, transparent) 100%
+  );
+}
+
+.hp-ticks {
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in oklab, var(--color-outline) 34%, transparent) 0 1px,
+    transparent 1px 10px
+  );
+}
+
+/* A chamfered name plate. The corner cut is drawn as an outline layer under an
+   inset fill layer, because a clip-path crops a border away and leaves the cut
+   edges bare. */
+.plaque {
+  position: relative;
+  background-color: var(--color-outline);
+  clip-path: polygon(
+    0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px,
+    100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px)
+  );
+  filter: drop-shadow(0 3px 0 color-mix(in oklab, var(--color-outline) 45%, transparent));
+}
+
+.plaque::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background-color: var(--color-arena-deep);
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, white 70%, transparent) 0 40%,
+    transparent 100%
+  );
+  clip-path: polygon(
+    0 9px, 9px 0, calc(100% - 9px) 0, 100% 9px,
+    100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px)
+  );
+}
+
+.plaque > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes advance-blink {
+  0%, 55% { opacity: 1; transform: translateY(0); }
+  56%, 100% { opacity: 0.15; transform: translateY(2px); }
+}
+
+.animate-advance { animation: advance-blink 900ms steps(1, end) infinite; }
+
+/* The volume slider, built as a machined control rather than left native. The
+   browser default is a grey capsule that belongs to no part of this interface. */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 0.75rem;
+  border-radius: 0.2rem;
+  border: 2px solid var(--color-outline);
+  background-image: linear-gradient(
+    to right,
+    var(--color-brass) 0 var(--fill, 50%),
+    color-mix(in oklab, var(--color-outline) 18%, white) var(--fill, 50%) 100%
+  );
+  box-shadow: inset 0 2px 0 color-mix(in oklab, var(--color-outline) 38%, transparent);
+}
+
+.slider::-moz-range-track {
+  height: 0.75rem;
+  border-radius: 0.2rem;
+  border: 2px solid var(--color-outline);
+  background-image: linear-gradient(
+    to right,
+    var(--color-brass) 0 var(--fill, 50%),
+    color-mix(in oklab, var(--color-outline) 18%, white) var(--fill, 50%) 100%
+  );
+  box-shadow: inset 0 2px 0 color-mix(in oklab, var(--color-outline) 38%, transparent);
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1.15rem;
+  width: 0.7rem;
+  margin-top: -0.28rem;
+  border: 2px solid var(--color-outline);
+  border-radius: 0.15rem;
+  background-image: linear-gradient(to bottom, white 0 45%, var(--color-brass) 100%);
+  box-shadow: 0 2px 0 0 var(--color-outline);
+}
+
+.slider::-moz-range-thumb {
+  height: 1.15rem;
+  width: 0.7rem;
+  border: 2px solid var(--color-outline);
+  border-radius: 0.15rem;
+  background-image: linear-gradient(to bottom, white 0 45%, var(--color-brass) 100%);
+  box-shadow: 0 2px 0 0 var(--color-outline);
+}
+
+.slider:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.7);
+  opacity: 0.55;
+}
+
+.slider:focus-visible::-webkit-slider-thumb {
+  outline: 3px solid color-mix(in oklab, var(--color-brass) 70%, transparent);
+  outline-offset: 2px;
+}
+
+/* Figures that have to carry across the battlefield: a damage number thrown
+   over a critter reads against whatever art is under it only if it is drawn
+   with its own outline. */
+.struck {
+  -webkit-text-stroke: 3px var(--color-outline);
+  paint-order: stroke fill;
+}
+
+@keyframes impact-flash {
+  0% { opacity: 0; transform: scale(0.6); }
+  25% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.25); }
+}
+
+@keyframes impact-banner {
+  0% { opacity: 0; transform: translate(-50%, 6px) scale(0.8) rotate(-3deg); }
+  20% { opacity: 1; transform: translate(-50%, 0) scale(1.08) rotate(-3deg); }
+  32% { transform: translate(-50%, 0) scale(1) rotate(-3deg); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -10px) scale(1) rotate(-3deg); }
+}
+
+@keyframes waiting-dot {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+.animate-impact-flash { animation: impact-flash 600ms ease-out forwards; }
+.animate-impact-banner { animation: impact-banner 1100ms ease-out forwards; }
+.animate-waiting-dot { animation: waiting-dot 1200ms ease-in-out infinite; }

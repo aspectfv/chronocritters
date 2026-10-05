@@ -58,6 +58,20 @@ class TurnTransitionHandlerTest {
     }
 
     @Test
+    @DisplayName("a stun on the fainted critter does not hand the turn back to its attacker")
+    void aStunOnTheFaintedCritterDoesNotSkipTheReplacement() {
+        // The knocked-out critter keeps the stun that was on it. Reading that as
+        // "this player is stunned, skip them" handed the turn straight back to
+        // the attacker, who then played another move into the empty slot.
+        stun(battleState.getPlayerTwo().getActiveCritter());
+        battleState.getAwaitingSwitchPlayerIds().add(PLAYER_TWO_ID);
+
+        handler.handle(battleState);
+
+        assertThat(battleState.getActivePlayerId()).isEqualTo(PLAYER_TWO_ID);
+    }
+
+    @Test
     @DisplayName("skips a stunned player so the turn returns to their opponent")
     void skipsAStunnedPlayer() {
         stun(battleState.getPlayerTwo().getActiveCritter());

@@ -60,7 +60,7 @@ public class SkipTurnEffect extends Effect implements IPersistentEffect {
         battleStats.getTurnActionHistory().add(turnAction);
 
         String actionLog = String.format("%s's %s is afflicted with %s for %d turns!",
-            player.getUsername(), target.getName(), ability.getName(), this.duration);
+            opponent.getUsername(), target.getName(), ability.getName(), this.duration);
 
         battleState.getActionLogHistory().add(actionLog);
     }

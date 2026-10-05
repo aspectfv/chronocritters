@@ -6,11 +6,6 @@ type ArrayElement<ArrayType extends readonly unknown[]> =
 export type CritterData = NonNullable<ArrayElement<NonNullable<NonNullable<GetMyCrittersQuery['getPlayer']>['roster']>>>;
 export type PlayerOverviewData = NonNullable<GetPlayerOverviewQuery['getPlayer']>;
 
-export interface CritterCardProps {
-  name: string;
-  level: number;
-}
-
 export interface CritterListProps {
   roster: CritterData[];
   selectedCritter: CritterData | null;
@@ -30,10 +25,4 @@ export interface BattleStatisticsProps {
 
 export interface CritterTeamOverviewProps {
   roster: PlayerOverviewData['roster'];
-}
-
-export interface BattleHistoryEntryLoaderParams {
-  params: {
-    battleId?: string;
-  };
 }

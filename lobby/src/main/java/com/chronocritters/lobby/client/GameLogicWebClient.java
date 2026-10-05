@@ -3,6 +3,7 @@ package com.chronocritters.lobby.client;
 import com.chronocritters.lib.dto.BattleRequest;
 import com.chronocritters.lib.dto.ForfeitRequest;
 import com.chronocritters.lib.util.ServiceAuth;
+import com.chronocritters.lib.util.ServiceRetry;
 import com.chronocritters.lib.model.battle.BattleState;
 
 import org.slf4j.Logger;
@@ -11,13 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
-
-import java.time.Duration;
 
 @Service
 public class GameLogicWebClient {
@@ -34,11 +31,7 @@ public class GameLogicWebClient {
                 .defaultHeader(ServiceAuth.HEADER, internalToken)
                 .build();
 
-        this.defaultRetrySpec = Retry.backoff(3, Duration.ofMillis(500))
-                .filter(this::isRetryableException)
-                .doBeforeRetry(retrySignal -> logger.warn("Retrying request after failure: attempt #{}, error: {}",
-                        retrySignal.totalRetries() + 1,
-                        retrySignal.failure().getMessage()));
+        this.defaultRetrySpec = ServiceRetry.backoff("the gamelogic service");
     }
 
     public Mono<BattleState> createBattle(String battleId, String playerOneId, String playerTwoId) {
@@ -76,10 +69,8 @@ public class GameLogicWebClient {
         return webClient.post()
                 .uri("/battle/{battleId}/timeout", battleId)
                 .retrieve()
-                .onStatus(status -> status.equals(HttpStatus.NOT_FOUND),
-                        response -> Mono.error(new IllegalArgumentException("Battle not found: " + battleId)))
-                .onStatus(status -> status.is4xxClientError() && status != HttpStatus.NOT_FOUND,
-                        response -> Mono.error(new IllegalArgumentException("Invalid turn timeout request")))
+                // Mapped off the retryable exceptions on purpose: replaying a
+                // timeout would advance the turn a second time.
                 .onStatus(status -> status.is5xxServerError(),
                         response -> Mono.error(new IllegalStateException("Server error while handling turn timeout")))
                 .bodyToMono(Void.class)
@@ -102,11 +93,5 @@ public class GameLogicWebClient {
                             battleId, playerId, error.getMessage());
                     return Mono.empty();
                 });
-    }
-
-    private boolean isRetryableException(Throwable throwable) {
-        return throwable instanceof WebClientRequestException ||
-               (throwable instanceof WebClientResponseException && 
-                ((WebClientResponseException) throwable).getStatusCode().is5xxServerError());
     }
 }

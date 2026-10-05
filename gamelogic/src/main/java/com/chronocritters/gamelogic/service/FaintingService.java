@@ -28,7 +28,7 @@ public class FaintingService {
         boolean hasOtherCritters = owner.getRoster().stream().anyMatch(critter -> critter.getStats().getCurrentHp() > 0);
 
         if (isActiveCritterFainted && hasOtherCritters) {
-            battleState.setAwaitingSwitchPlayerId(owner.getId());
+            battleState.getAwaitingSwitchPlayerIds().add(owner.getId());
             battleState.getActionLogHistory().add(String.format("%s must send out another critter!", owner.getUsername()));
         }
     }

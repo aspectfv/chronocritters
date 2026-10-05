@@ -1,27 +1,33 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import { Suspense } from 'react';
 import { loginAction, registerAction } from '@features/auth/actions';
 import { loginLoader } from '@features/auth/loaders';
-import AuthPage from '@features/auth/routes/AuthPage';
-import LoginForm from '@features/auth/components/LoginForm';
-import RegisterForm from '@features/auth/components/RegisterForm';
-import MenuPage from '@features/menu/routes/MenuPage';
-import ProfilePage from '@features/profile/routes/ProfilePage';
-import BattlePage from '@features/battle/routes/BattlePage';
-import ResultsPage from '@features/results/routes/ResultsPage';
 import { ProtectedRoute } from '@components/auth/ProtectedRoute';
-import { BattleHistoryTab } from '@features/profile/routes/BattleHistoryTab';
-import { MyCrittersTab } from '@features/profile/routes/MyCrittersTab';
-import { OverviewTab } from '@features/profile/routes/OverviewTab';
+import { RouteError } from '@components/RouteError';
+import { RouteFallback } from '@components/RouteFallback';
+
+const AuthPage = lazy(() => import('@features/auth/routes/AuthPage'));
+const LoginForm = lazy(() => import('@features/auth/components/LoginForm'));
+const RegisterForm = lazy(() => import('@features/auth/components/RegisterForm'));
+const MenuPage = lazy(() => import('@features/menu/routes/MenuPage'));
+const ProfilePage = lazy(() => import('@features/profile/routes/ProfilePage'));
+const BattlePage = lazy(() => import('@features/battle/routes/BattlePage'));
+const ResultsPage = lazy(() => import('@features/results/routes/ResultsPage'));
+const CatalogPage = lazy(() => import('@features/catalog/routes/CatalogPage'));
+const BattleHistoryTab = lazy(() => import('@features/profile/routes/BattleHistoryTab').then((m) => ({ default: m.BattleHistoryTab })));
+const MyCrittersTab = lazy(() => import('@features/profile/routes/MyCrittersTab').then((m) => ({ default: m.MyCrittersTab })));
+const OverviewTab = lazy(() => import('@features/profile/routes/OverviewTab').then((m) => ({ default: m.OverviewTab })));
+const BattleHistoryDetails = lazy(() => import('@features/profile/routes/BattleHistoryDetails').then((m) => ({ default: m.BattleHistoryDetails })));
 import { menuLoader } from '@features/menu/loaders';
 import { battleHistoryEntryLoader, battleHistoryLoader, myCrittersLoader, overviewLoader } from '@features/profile/loaders';
-import { BattleHistoryDetails } from '@features/profile/routes/BattleHistoryDetails';
 import { resultsLoader } from '@features/results/loaders';
 import { battleLoader } from '@features/battle/loaders';
+import { catalogLoader } from '@features/catalog/loaders';
 
 const router = createBrowserRouter([
   {
     path: '/',
+    errorElement: <RouteError />,
     children: [
       {
         index: true,
@@ -76,6 +82,11 @@ const router = createBrowserRouter([
         ],
       },
       {
+        path: 'catalog',
+        element: <ProtectedRoute><CatalogPage /></ProtectedRoute>,
+        loader: catalogLoader
+      },
+      {
         path: 'battle/:battleId',
         element: <ProtectedRoute><BattlePage /></ProtectedRoute>,
         loader: battleLoader
@@ -90,7 +101,7 @@ const router = createBrowserRouter([
 ]);
 
 export const AppRouter = () => (
-  <Suspense fallback={<div>Loading...</div>}>
+  <Suspense fallback={<RouteFallback />}>
     <RouterProvider router={router} />
   </Suspense>
 );

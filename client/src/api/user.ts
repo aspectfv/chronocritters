@@ -4,11 +4,11 @@ import { gql } from '@apollo/client';
 
 import type { 
   GetBattleHistoryEntryQuery,
+  GetCritterCatalogQuery,
   GetBattleHistoryQuery,
   GetMyCrittersQuery, 
   GetPlayerOverviewQuery, 
   GetPlayerResultsQuery, 
-  GetPlayerStatsQuery, 
   LoginMutation, 
   RegisterMutation 
 } from '@/gql/graphql';
@@ -55,26 +55,6 @@ export const register = (credentials: RegisterCredentials) => {
       password: credentials.password,
     },
   });
-};
-
-const GET_PLAYER_STATS_QUERY = gql(`
-  query GetPlayerStats($id: ID!) {
-    getPlayer(id: $id) {
-      stats {
-        wins
-        losses
-      }
-    }
-  }
-`);
-
-export const getPlayerStats = async (userId: string) => {
-  const response = await client.query<GetPlayerStatsQuery>({
-    query: GET_PLAYER_STATS_QUERY,
-    variables: { id: userId },
-    fetchPolicy: 'network-only'
-  });
-  return response.data;
 };
 
 const GET_PLAYER_OVERVIEW_QUERY = gql(`
@@ -160,6 +140,57 @@ export const getMyCritters = async (userId: string) => {
     query: GET_MY_CRITTERS_QUERY,
     variables: { id: userId },
     fetchPolicy: 'network-only'
+  });
+  return response.data;
+};
+
+const GET_CRITTER_CATALOG_QUERY = gql(`
+  query GetCritterCatalog {
+    critters {
+      id
+      name
+      description
+      type
+      baseStats {
+        health
+        attack
+        defense
+      }
+      abilities {
+        id
+        name
+        description
+        effects {
+          ... on DamageEffect {
+            id
+            description
+            damage
+          }
+          ... on DamageOverTimeEffect {
+            id
+            description
+            damagePerTurn
+            duration
+          }
+          ... on SkipTurnEffect {
+            id
+            description
+            duration
+          }
+        }
+      }
+    }
+    typeAdvantages {
+      attacker
+      defender
+      multiplier
+    }
+  }
+`);
+
+export const getCritterCatalog = async () => {
+  const response = await client.query<GetCritterCatalogQuery>({
+    query: GET_CRITTER_CATALOG_QUERY,
   });
   return response.data;
 };

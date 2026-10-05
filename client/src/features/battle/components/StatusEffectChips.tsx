@@ -14,7 +14,7 @@ export function StatusEffectChips({ effects, compact = false }: StatusEffectChip
 
         if (compact) {
           return (
-            <span key={effect.id} title={`${label}${duration ? ` (${duration})` : ''}`} className="text-xs leading-none">
+            <span key={effect.id} title={`${label}${duration ? ` (${duration})` : ''} — ${effect.description}`} className="text-xs leading-none">
               {icon}
             </span>
           );

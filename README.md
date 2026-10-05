@@ -239,8 +239,8 @@ Two demo accounts are also seeded if you would rather not register:
 
 | Username | Password |
 | --- | --- |
-| `BlueOak` | `password1` |
-| `RedAsh` | `password2` |
+| `BlueOak` | `password` |
+| `RedAsh` | `password` |
 
 ---
 

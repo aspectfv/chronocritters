@@ -37,6 +37,23 @@ class TypeAdvantageUtilTest {
         assertThat(TypeAdvantageUtil.getMultiplier(attacker, defender)).isEqualTo(expectedMultiplier);
     }
 
+    /**
+     * The seeded roster stands on this loop, so it is pinned here rather than
+     * left as a property of three separate chart entries that could each be
+     * edited on their own.
+     */
+    @ParameterizedTest(name = "{0} beats {1}, and {1} does not beat {0}")
+    @CsvSource({
+        "FIRE, GRASS",
+        "GRASS, WATER",
+        "WATER, FIRE"
+    })
+    @DisplayName("the seeded roster's three types form a closed loop")
+    void seededRosterTypesFormAClosedLoop(CritterType attacker, CritterType defender) {
+        assertThat(TypeAdvantageUtil.getMultiplier(attacker, defender)).isGreaterThan(1.0);
+        assertThat(TypeAdvantageUtil.getMultiplier(defender, attacker)).isLessThan(1.0);
+    }
+
     // Test a representative sample of neutral matchups
     @ParameterizedTest(name = "{0} vs {1} -> 1.0")
     @CsvSource({

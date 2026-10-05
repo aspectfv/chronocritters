@@ -1,81 +1,114 @@
 import type { CritterData } from '@features/profile/types';
-import { getCritterImageUrl, getCritterTypeStyle, getEffectStyle } from '@utils/utils';
+import {
+  describeBattleEffect,
+  getBattleEffectMeta,
+  getCritterImageUrl,
+  getCritterTypeFill,
+  getCritterTypeIcon,
+} from '@utils/utils';
+
+function StatMeter({ label, value, fill }: { label: string; value: number; fill: string }) {
+  // Base stats sit in a single digit range, so the meter is read against ten
+  // rather than against the rest of the roster: a detail pane shows one critter.
+  const percentage = Math.min(100, (value / 20) * 100);
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="numeral w-14 shrink-0 text-[11px] text-brass-ink">{label}</span>
+      <span className="well block h-3.5 flex-1 overflow-hidden rounded-sm">
+        <span className={`hp-fill block h-full ${fill}`} style={{ width: `${percentage}%` }} />
+      </span>
+      <span className="numeral w-7 shrink-0 text-right text-sm text-arena-ink">{value}</span>
+    </div>
+  );
+}
 
 export const CritterDetails = ({ critter }: { critter: CritterData | null }) => {
   if (!critter) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full flex flex-col items-center justify-center text-center">
-        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
+      <div className="panel flex h-full items-center justify-center rounded-lg bg-arena-deep p-6 text-center">
+        <div>
+          <p className="display text-lg text-arena-ink">Pick a critter</p>
+          <p className="mt-1 text-sm text-arena-ink-muted">Choose one from the list to read its stats and moves.</p>
         </div>
-        <h3 className="font-semibold text-gray-800 text-xl">Select a Critter</h3>
-        <p className="text-gray-500">Select a critter from the list to view its details.</p>
       </div>
     );
   }
 
-  const xpPercentage = Math.min(100, ((critter.baseStats?.experience ?? 0) / (critter.baseStats?.expToNextLevel ?? 1)) * 100);
+  const stats = critter.baseStats;
+  const experience = stats?.experience ?? 0;
+  const expToNextLevel = stats?.expToNextLevel ?? 0;
+  const xpPercentage = expToNextLevel > 0 ? Math.min(100, (experience / expToNextLevel) * 100) : 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
-      <h3 className="font-semibold text-lg text-gray-800 mb-6">{critter.name} Details</h3>
-      
-      <div className="text-center mb-6">
-        <div className={`mx-auto flex items-center justify-center mb-4 w-28 h-28`}>
-          <img
-            src={getCritterImageUrl(critter.name ?? 'Unknown')}
-            alt={critter.name ?? 'Unknown Critter'}
-            className="w-28 h-28 object-cover rounded-full"
-            onError={e => {
-              const target = e.target as HTMLImageElement;
-              target.src = getCritterImageUrl('Unknown');
-            }}
-          />
-        </div>
-        <h3 className="font-bold text-2xl text-gray-800">{critter.name}</h3>
-        <span className={`${getCritterTypeStyle(critter.type)} text-black text-xs font-semibold px-3 py-1 rounded-full`}>{critter.type}</span>
-        {critter.description && (
-          <p className="mt-2 text-gray-600 text-sm">{critter.description}</p>
-        )}
-      </div>
+    <div className="panel h-full rounded-lg bg-arena-deep p-4">
+      <div className="flex items-start gap-4">
+        <span className="relative shrink-0 rounded-full border-[3px] border-outline bg-gradient-to-b from-brass via-brass-dim to-brass-ink p-[4px] shadow-[0_5px_0_0_var(--color-outline)]">
+          <span className="block overflow-hidden rounded-full border-2 border-outline">
+            <img
+              src={getCritterImageUrl(critter.name)}
+              alt=""
+              aria-hidden="true"
+              className="block h-24 w-24 object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = getCritterImageUrl('Unknown');
+              }}
+            />
+          </span>
+        </span>
 
-      <div className="mb-8">
-        <div className="flex justify-between text-sm mb-1">
-          <span className="font-semibold text-gray-700">Level {critter.baseStats?.level ?? 1}</span>
-          <span className="text-gray-500">{critter.baseStats?.experience ?? 0} / {critter.baseStats?.expToNextLevel ?? 0} XP</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div className="bg-green-600 h-2 rounded-full" style={{width: `${xpPercentage}%`}}></div>
-        </div>
-      </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="display truncate text-xl text-arena-ink">{critter.name}</h2>
+            <span className={`shrink-0 rounded-full border-2 border-outline px-2 py-0.5 text-[11px] font-black text-white ${getCritterTypeFill(critter.type)}`}>
+              <span aria-hidden="true">{getCritterTypeIcon(critter.type)}</span> {critter.type}
+            </span>
+          </div>
 
-      <h4 className="font-semibold text-gray-800 mb-4">Base Stats</h4>
-      <div className="grid grid-cols-3 gap-3 mb-8">
-        <div className="bg-blue-50/60 p-3 rounded-lg flex items-center gap-2 font-medium text-gray-700">
-          <span className="text-red-500">♡</span> HP: {critter.baseStats?.health ?? 0}
-        </div>
-        <div className="bg-blue-50/60 p-3 rounded-lg flex items-center gap-2 font-medium text-gray-700">
-          <span className="text-orange-500">⚔</span> ATK: {critter.baseStats?.attack ?? 0}
-        </div>
-        <div className="bg-blue-50/60 p-3 rounded-lg flex items-center gap-2 font-medium text-gray-700">
-          <span className="text-blue-500">🛡</span> DEF: {critter.baseStats?.defense ?? 0}
+          {critter.description && (
+            <p className="mt-1.5 text-sm leading-snug text-arena-ink-muted">{critter.description}</p>
+          )}
+
+          <div className="mt-3">
+            <div className="mb-1 flex items-baseline justify-between text-xs">
+              <span className="numeral text-brass-ink">Level {stats?.level ?? 1}</span>
+              <span className="numeral text-arena-ink-muted">{experience}/{expToNextLevel}</span>
+            </div>
+            <span className="well block h-3 w-full overflow-hidden rounded-sm">
+              <span className="hp-fill block h-full bg-brass" style={{ width: `${xpPercentage}%` }} />
+            </span>
+          </div>
         </div>
       </div>
 
-      <h4 className="font-semibold text-gray-800 mb-4">Abilities</h4>
-      <div className="space-y-3">
-        {critter.abilities?.map(ability => (
-          <div key={ability?.id} className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-            <p className="font-semibold text-gray-700">{ability?.name}</p>
-            {ability?.description && (
-              <p className="text-sm text-gray-600 mt-1">{ability.description}</p>
+      <div className="mt-4 space-y-1.5">
+        <StatMeter label="HP" value={stats?.health ?? 0} fill="bg-vital" />
+        <StatMeter label="Attack" value={stats?.attack ?? 0} fill="bg-ruby" />
+        <StatMeter label="Defence" value={stats?.defense ?? 0} fill="bg-blued" />
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        {critter.abilities?.filter((ability) => ability !== null).map((ability) => (
+          <div
+            key={ability.id}
+            className={`rounded-md border-2 border-outline p-3 text-white shadow-[0_3px_0_0_var(--color-outline)] ${getCritterTypeFill(critter.type)}`}
+          >
+            <p className="text-[15px] font-black tracking-tight drop-shadow-[0_1px_0_rgba(0,0,0,0.35)]">{ability.name}</p>
+            {ability.description && (
+              <p className="mt-0.5 text-xs font-medium text-white/85">{ability.description}</p>
             )}
-            <div className="flex flex-wrap gap-2 mt-2">
-              {ability?.effects?.map((effect, index) => (
-                <span key={index} className={`text-xs font-semibold px-2 py-1 rounded-full border ${getEffectStyle(effect)}`}>
-                  {effect?.description}
-                </span>
-              ))}
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {(ability.effects ?? [])
+                .filter((effect): effect is NonNullable<typeof effect> => effect !== null)
+                .map((effect) => (
+                  <span
+                    key={effect.id}
+                    className="numeral inline-flex items-center gap-1 rounded border-2 border-outline bg-outline/80 px-1.5 py-0.5 text-[11px] leading-tight text-white"
+                  >
+                    <span aria-hidden="true">{getBattleEffectMeta(effect).icon}</span>
+                    {describeBattleEffect(effect)}
+                  </span>
+                ))}
             </div>
           </div>
         ))}

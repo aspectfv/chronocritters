@@ -141,8 +141,10 @@ export type PlayerStats = {
 
 export type Query = {
   __typename?: 'Query';
+  critters: Array<Critter>;
   getMatchHistoryEntry?: Maybe<MatchHistoryEntry>;
   getPlayer?: Maybe<Player>;
+  typeAdvantages: Array<TypeMatchup>;
 };
 
 
@@ -169,6 +171,13 @@ export type TurnActionEntry = {
   playerId?: Maybe<Scalars['ID']['output']>;
   turn?: Maybe<Scalars['Int']['output']>;
   turnActionLog?: Maybe<Scalars['String']['output']>;
+};
+
+export type TypeMatchup = {
+  __typename?: 'TypeMatchup';
+  attacker: CritterType;
+  defender: CritterType;
+  multiplier: Scalars['Float']['output'];
 };
 
 export type User = {
@@ -217,6 +226,15 @@ export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typenam
           | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
           | { __typename?: 'SkipTurnEffect', id: string, description: string, duration: number }
          | null> | null } | null> | null } | null> | null } | null };
+
+export type GetCritterCatalogQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCritterCatalogQuery = { __typename?: 'Query', critters: Array<{ __typename?: 'Critter', id?: string | null, name?: string | null, description?: string | null, type?: CritterType | null, baseStats?: { __typename?: 'BaseStats', health?: number | null, attack?: number | null, defense?: number | null } | null, abilities?: Array<{ __typename?: 'Ability', id?: string | null, name?: string | null, description?: string | null, effects?: Array<
+        | { __typename?: 'DamageEffect', id: string, description: string, damage: number }
+        | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
+        | { __typename?: 'SkipTurnEffect', id: string, description: string, duration: number }
+       | null> | null } | null> | null }>, typeAdvantages: Array<{ __typename?: 'TypeMatchup', attacker: CritterType, defender: CritterType, multiplier: number }> };
 
 export type GetPlayerResultsQueryVariables = Exact<{
   id: Scalars['ID']['input'];

@@ -1,11 +1,9 @@
+import type { GetPlayerOverviewQuery } from '@/gql/graphql';
+
 export enum MatchMakingStatus {
   IDLE = 'idle',
   SEARCHING = 'searching',
   FOUND = 'found',
-}
-
-export interface MenuHeaderProps {
-  username?: string;
 }
 
 export interface MatchResponse {
@@ -14,7 +12,12 @@ export interface MatchResponse {
   battleId: string;
 }
 
-export interface TrainerProfileProps {
-  wins: number;
-  losses: number;
+export type MenuPlayer = NonNullable<GetPlayerOverviewQuery['getPlayer']>;
+
+export interface TrainerCardProps {
+  player: MenuPlayer;
+}
+
+export interface PartyRailProps {
+  roster: MenuPlayer['roster'];
 }

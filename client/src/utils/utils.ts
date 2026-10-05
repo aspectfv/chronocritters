@@ -2,7 +2,7 @@ import { ConnectionStatus } from "@store/lobby/types";
 import type { BattleEffect } from "@store/battle/types";
 import { CritterType, type EffectUnion } from "@/gql/graphql";
 
-export const critterTypeIcons: Record<CritterType, string> = {
+const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.Fire]: '🔥',
   [CritterType.Water]: '💧',
   [CritterType.Electric]: '⚡',
@@ -13,16 +13,33 @@ export const critterTypeIcons: Record<CritterType, string> = {
   [CritterType.Unknown]: '❓',
 };
 
-export const critterTypeStyles: Record<CritterType, string> = {
-  [CritterType.Fire]: 'bg-red-100 text-red-800',
-  [CritterType.Water]: 'bg-blue-100 text-blue-800',
-  [CritterType.Grass]: 'bg-green-100 text-green-800',
-  [CritterType.Electric]: 'bg-yellow-100 text-yellow-800',
-  [CritterType.Metal]: 'bg-gray-100 text-gray-800',
-  [CritterType.Toxic]: 'bg-purple-100 text-gray-800',
-  [CritterType.Kinetic]: 'bg-indigo-100 text-indigo-800',
-  [CritterType.Unknown]: 'bg-gray-100 text-gray-800',
+const critterTypeStyles: Record<CritterType, string> = {
+  [CritterType.Fire]: 'bg-type-fire/15 text-type-fire border-type-fire/35',
+  [CritterType.Water]: 'bg-type-water/15 text-type-water border-type-water/35',
+  [CritterType.Grass]: 'bg-type-grass/15 text-type-grass border-type-grass/35',
+  [CritterType.Electric]: 'bg-type-electric/20 text-type-electric border-type-electric/40',
+  [CritterType.Metal]: 'bg-type-metal/15 text-type-metal border-type-metal/35',
+  [CritterType.Toxic]: 'bg-type-toxic/15 text-type-toxic border-type-toxic/35',
+  [CritterType.Kinetic]: 'bg-type-kinetic/15 text-type-kinetic border-type-kinetic/35',
+  [CritterType.Unknown]: 'bg-type-unknown/15 text-type-unknown border-type-unknown/35',
 };
+
+/** Solid fills, for the move grid and cell rims where the type must read at a glance. */
+const critterTypeFills: Record<CritterType, string> = {
+  [CritterType.Fire]: 'bg-type-fire',
+  [CritterType.Water]: 'bg-type-water',
+  [CritterType.Grass]: 'bg-type-grass',
+  [CritterType.Electric]: 'bg-type-electric',
+  [CritterType.Metal]: 'bg-type-metal',
+  [CritterType.Toxic]: 'bg-type-toxic',
+  [CritterType.Kinetic]: 'bg-type-kinetic',
+  [CritterType.Unknown]: 'bg-type-unknown',
+};
+
+export function getCritterTypeFill(type: CritterType | null | undefined): string {
+  return critterTypeFills[type ?? CritterType.Unknown];
+}
+
 
 export function getCritterTypeIcon(type: CritterType | null | undefined): string {
   return critterTypeIcons[type ?? CritterType.Unknown];
@@ -40,20 +57,6 @@ export const getCritterImageUrl = (critterName: string | null | undefined): stri
 
   const formattedName = toTitleCase(critterName ?? 'Unknown').replace(/\s/g, '');
   return `/critters/${formattedName}.jpeg`;
-};
-
-const effectTypeStyles: Record<string, string> = {
-  DamageEffect: 'bg-red-100 text-red-800 border-red-300',
-  DamageOverTimeEffect: 'bg-purple-100 text-purple-800 border-purple-300',
-  SkipTurnEffect: 'bg-blue-100 text-blue-800 border-blue-300',
-  BuffEffect: 'bg-green-100 text-green-800 border-green-300',
-  DebuffEffect: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  UnknownEffect: 'bg-gray-100 text-gray-800 border-gray-300',
-};
-
-export const getEffectStyle = (effect: EffectUnion | null | undefined): string => {
-  if (!effect || !effect.__typename) return effectTypeStyles.UnknownEffect;
-  return effectTypeStyles[effect.__typename] ?? effectTypeStyles.UnknownEffect;
 };
 
 const connectionStatusStyleMap: Record<ConnectionStatus, { text: string; color: string }> = {
@@ -79,32 +82,53 @@ export const formatTimestamp = (timestamp: string | null | undefined): string =>
   return date.toLocaleString();
 };
 
+/**
+ * The same three effects arrive under two discriminants: the battle socket
+ * sends `_type`, GraphQL sends `__typename`. The values are identical, so the
+ * helpers below read whichever one is there rather than the catalogue carrying
+ * a second copy of every table.
+ */
+export type AnyEffect = BattleEffect | EffectUnion;
+
+function effectKind(effect: AnyEffect): BattleEffect['_type'] | null {
+  const kind = '_type' in effect ? effect._type : effect.__typename;
+  return kind ?? null;
+}
+
 const battleEffectMeta: Record<BattleEffect['_type'], { label: string; icon: string; style: string }> = {
-  DamageEffect: { label: 'Struck', icon: '💥', style: 'bg-red-100 text-red-800 border-red-300' },
-  DamageOverTimeEffect: { label: 'Poisoned', icon: '☠️', style: 'bg-purple-100 text-purple-800 border-purple-300' },
+  DamageEffect: { label: 'Struck', icon: '💥', style: 'bg-danger-soft text-danger-ink border-danger/35' },
+  DamageOverTimeEffect: { label: 'Wounded', icon: '☠️', style: 'bg-purple-100 text-purple-800 border-purple-300' },
   SkipTurnEffect: { label: 'Stunned', icon: '💫', style: 'bg-blue-100 text-blue-800 border-blue-300' },
 };
 
-export function getBattleEffectMeta(effect: BattleEffect) {
-  return battleEffectMeta[effect._type];
+export function getBattleEffectMeta(effect: AnyEffect) {
+  const kind = effectKind(effect);
+  return kind ? battleEffectMeta[kind] : battleEffectMeta.DamageEffect;
 }
 
 /** Persistent effects carry a countdown; an instant hit does not. */
-export function getBattleEffectDuration(effect: BattleEffect): number | null {
-  return effect._type === 'DamageEffect' ? null : effect.duration;
+export function getBattleEffectDuration(effect: AnyEffect): number | null {
+  return effectKind(effect) === 'DamageEffect' ? null : 'duration' in effect ? effect.duration : null;
 }
 
-export function getAbilityPower(effect: BattleEffect | undefined): number | null {
-  if (!effect) return null;
-  if (effect._type === 'DamageEffect') return effect.damage;
-  if (effect._type === 'DamageOverTimeEffect') return effect.damagePerTurn;
-  return null;
+/**
+ * What an effect does, in the fewest words that still let a move be compared to
+ * the one beside it. An ability can carry more than one, and the second is
+ * usually the reason to pick it.
+ */
+export function describeBattleEffect(effect: AnyEffect): string {
+  const kind = effectKind(effect);
+  if (kind === 'DamageEffect' && 'damage' in effect) return `${effect.damage} damage`;
+  if (kind === 'DamageOverTimeEffect' && 'damagePerTurn' in effect) {
+    return `${effect.damagePerTurn} a turn for ${effect.duration}`;
+  }
+  return 'costs a turn';
 }
 
 export function getHealthTone(healthPercentage: number): string {
-  if (healthPercentage > 50) return 'bg-green-500';
-  if (healthPercentage > 20) return 'bg-amber-400';
-  return 'bg-red-500';
+  if (healthPercentage > 50) return 'bg-vital';
+  if (healthPercentage > 20) return 'bg-warn';
+  return 'bg-ruby';
 }
 
 export function getEffectivenessLabel(effectiveness: number): string | null {
@@ -114,14 +138,6 @@ export function getEffectivenessLabel(effectiveness: number): string | null {
 }
 
 export type BattleLogTone = 'damage' | 'faint' | 'switch' | 'status' | 'system';
-
-const battleLogToneStyles: Record<BattleLogTone, string> = {
-  damage: 'bg-red-50 border-l-4 border-red-300 text-gray-800',
-  faint: 'bg-gray-800 text-gray-100',
-  switch: 'bg-emerald-50 border-l-4 border-emerald-300 text-gray-800',
-  status: 'bg-purple-50 border-l-4 border-purple-300 text-gray-800',
-  system: 'bg-cyan-50/60 text-gray-800',
-};
 
 /**
  * The log arrives as prose, so the styling is matched off the phrases gamelogic
@@ -135,6 +151,3 @@ export function classifyBattleLog(message: string): BattleLogTone {
   return 'system';
 }
 
-export function getBattleLogStyle(message: string): string {
-  return battleLogToneStyles[classifyBattleLog(message)];
-}

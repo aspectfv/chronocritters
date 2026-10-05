@@ -9,7 +9,6 @@ import com.chronocritters.lib.model.battle.BattleStats;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsRequest;
 import com.chronocritters.proto.player.PlayerProto.BattleRewardsResponse;
 import com.chronocritters.proto.player.PlayerProto.MatchHistoryRequest;
-import com.chronocritters.proto.player.PlayerProto.MatchHistoryResponse;
 import com.chronocritters.proto.player.PlayerProto.PlayerRequest;
 import com.chronocritters.proto.player.PlayerProto.PlayerResponse;
 import com.chronocritters.proto.player.PlayerServiceGrpc.PlayerServiceBlockingStub;
@@ -30,7 +29,7 @@ public class PlayerGrpcClient {
         return playerServiceStub.getPlayer(request);
     }
 
-    public MatchHistoryResponse updateMatchHistory(String battleId, String winnerId, String loserId, BattleStats battleStats, List<String> winnerCritterIds, List<String> loserCrittersIds) {
+    public void updateMatchHistory(String battleId, String winnerId, String loserId, BattleStats battleStats, List<String> winnerCritterIds, List<String> loserCrittersIds) {
         MatchHistoryRequest request = MatchHistoryRequest.newBuilder()
             .setBattleId(battleId)
             .setWinnerId(winnerId)
@@ -40,7 +39,7 @@ public class PlayerGrpcClient {
             .addAllLoserCritterIds(loserCrittersIds)
             .build();
         
-        return playerServiceStub.updateMatchHistory(request);
+        playerServiceStub.updateMatchHistory(request);
     }
 
     public BattleRewardsResponse getBattleRewards(String winnerId, String loserId, List<String> winnerCrittersIds, List<String> loserCrittersIds) {
