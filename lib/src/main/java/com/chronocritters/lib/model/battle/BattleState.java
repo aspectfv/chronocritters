@@ -1,10 +1,15 @@
 package com.chronocritters.lib.model.battle;
 
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.TreeMap;
 
 import com.chronocritters.lib.model.enums.BattleOutcome;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +24,9 @@ import lombok.Builder.Default;
 public class BattleState {
     /** How long a player is given to act, in seconds. */
     public static final int TURN_DURATION_SECONDS = 30;
+
+    /** How far back a rewind reaches, in turns. */
+    public static final int REWIND_TURNS = 2;
 
     private String battleId;
     private String activePlayerId;
@@ -58,11 +66,43 @@ public class BattleState {
 
     private BattleStats battleStats;
 
+    /**
+     * Every critter on both teams at the start of each recent turn, by turn
+     * number and then critter id. Only what a rewind can still reach is kept.
+     * It stays on the server: the clients are shown what a rewind changed, not
+     * the numbers it could change back to.
+     */
+    @JsonIgnore
+    @Default
+    private NavigableMap<Integer, Map<String, CritterSnapshot>> history = new TreeMap<>();
+
     @Default
     private BattleOutcome battleOutcome = BattleOutcome.CONTINUE;
     
     private String winnerId;
     private BattleRewards battleRewards;
+
+    /** Records the turn that is starting, and forgets what a rewind can no longer reach. */
+    public void recordTurn() {
+        Map<String, CritterSnapshot> critters = new HashMap<>();
+        for (PlayerState player : List.of(playerOne, playerTwo)) {
+            player.getRoster().forEach(critter -> critters.put(critter.getId(), CritterSnapshot.of(critter)));
+        }
+
+        int turn = battleStats.getTurnCount();
+        history.put(turn, critters);
+
+        Integer oldestReachable = history.floorKey(turn - REWIND_TURNS);
+        if (oldestReachable != null) {
+            history.headMap(oldestReachable, false).clear();
+        }
+    }
+
+    /** The critters as they stood {@link #REWIND_TURNS} turns ago, or null this early in a battle. */
+    public Map<String, CritterSnapshot> rewindTarget() {
+        Map.Entry<Integer, Map<String, CritterSnapshot>> target = history.floorEntry(battleStats.getTurnCount() - REWIND_TURNS);
+        return target == null ? null : target.getValue();
+    }
 
     public boolean isAwaitingSwitch() {
         return !awaitingSwitchPlayerIds.isEmpty();

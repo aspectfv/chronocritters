@@ -195,7 +195,7 @@ export function getEffectivenessLabel(effectiveness: number): string | null {
   return null;
 }
 
-export type BattleLogTone = 'damage' | 'faint' | 'switch' | 'status' | 'system';
+export type BattleLogTone = 'damage' | 'faint' | 'switch' | 'status' | 'rewind' | 'system';
 
 /**
  * The log arrives as prose, so the styling is matched off the phrases gamelogic
@@ -205,6 +205,7 @@ export function classifyBattleLog(message: string): BattleLogTone {
   if (message.includes('fainted!') || message.includes('wins the battle!') || message.includes('forfeited')) return 'faint';
   if (message.includes('switched from') || message.includes('is sent out!')) return 'switch';
   if (message.includes('afflicted with') || message.includes('no longer') || message.includes('fast asleep') || message.includes('has no effect')) return 'status';
+  if (message.includes(' rewinds ') || message.includes('flows back') || message.includes('drains back') || message.includes('again.') || message.includes('had changed')) return 'rewind';
   if (message.includes('damage')) return 'damage';
   return 'system';
 }

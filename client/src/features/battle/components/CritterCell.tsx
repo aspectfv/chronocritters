@@ -54,6 +54,7 @@ export function CritterCell({
   critter,
   side,
   showNumericHp = false,
+  rewindCharged,
   hitTurn,
   hitDamage = 0,
   hitEffectiveness = 1,
@@ -101,7 +102,16 @@ export function CritterCell({
         </div>
 
         <div className="mt-1.5 flex items-center justify-between gap-2">
-          <span className="truncate text-[11px] text-arena-ink-muted">{playerName}</span>
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span className="truncate text-[11px] text-arena-ink-muted">{playerName}</span>
+            <span
+              className={`numeral shrink-0 rounded-full border border-outline px-1.5 text-[10px] leading-4 ${rewindCharged ? 'bg-brass text-white' : 'bg-arena-deep text-arena-ink-muted line-through'}`}
+              title={rewindCharged ? 'Rewind ready: once per battle' : 'Rewind spent'}
+            >
+              <span aria-hidden="true">⟲</span>
+              <span className="sr-only">{rewindCharged ? 'Rewind ready' : 'Rewind spent'}</span>
+            </span>
+          </span>
           <div className="flex items-center gap-1.5">
             {/* Stages sit beside the ailments: a raised stat is as much a
                 reason to switch as a burn is. */}

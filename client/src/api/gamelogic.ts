@@ -12,3 +12,4 @@ applyAuthTokenInterceptor(gamelogicClient);
 export const getBattleState = (battleId: string) => gamelogicClient.get<BattleData>(`/battle/${battleId}`);
 export const executeAbility = (battleId: string, abilityId: string) => gamelogicClient.post<BattleData>(`/battle/${battleId}/ability`, { abilityId });
 export const switchCritter = (battleId: string, targetCritterIndex: number) => gamelogicClient.post<BattleData>(`/battle/${battleId}/switch`, { targetCritterIndex });
+export const rewind = (battleId: string) => gamelogicClient.post<BattleData>(`/battle/${battleId}/rewind`);

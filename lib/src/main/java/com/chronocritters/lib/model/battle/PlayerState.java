@@ -22,6 +22,9 @@ public class PlayerState {
     /** Reset whenever this player acts; see BattleService for the forfeit threshold. */
     private int consecutiveTimeouts;
 
+    /** A rewind is once per battle. Sent to both clients, since the opponent's charge is worth knowing too. */
+    private boolean rewindUsed;
+
     public CritterState getActiveCritter() {
         return getCritterByIndex(activeCritterIndex);
     }

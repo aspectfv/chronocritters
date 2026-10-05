@@ -14,7 +14,7 @@ import { MoveGrid } from '@features/battle/components/MoveGrid';
 import { OpponentStatusBanner } from '@features/battle/components/OpponentStatusBanner';
 import { ForcedSwitchPanel } from '@features/battle/components/ForcedSwitchPanel';
 import { playBattleSound } from '@features/battle/sound';
-import { executeAbility, getBattleState, switchCritter } from '@api/gamelogic';
+import { executeAbility, getBattleState, rewind, switchCritter } from '@api/gamelogic';
 import { ConnectionStatus } from '@store/lobby/types';
 import type { BattleOutcomeSummary } from '@features/results/types';
 
@@ -38,6 +38,7 @@ function BattlePage() {
     timeRemaining,
     turnDuration,
     lastTurnResult,
+    battleStats,
     awaitingSwitchPlayerIds,
     disconnectedPlayerId,
     reconnectSecondsRemaining,
@@ -142,6 +143,23 @@ function BattlePage() {
     }
   }, [battleId, player.hasTurn, isActionPending, mustReplaceFaintedCritter]);
 
+  const handleRewind = useCallback(async () => {
+    if (!battleId || isActionPending) {
+      return;
+    }
+
+    setActionError(null);
+    setIsActionPending(true);
+    playBattleSound('select');
+
+    try {
+      await rewind(battleId);
+    } catch (error) {
+      setActionError(errorMessage(error, 'The rewind did not take. Please try again.'));
+      setIsActionPending(false);
+    }
+  }, [battleId, isActionPending]);
+
   const handleForfeit = useCallback(() => {
     if (!battleId || !window.confirm('Forfeit this battle? Your opponent will be awarded the win.')) {
       return;
@@ -150,6 +168,7 @@ function BattlePage() {
   }, [battleId, publish]);
 
   const canAct = player.hasTurn && !isActionPending && !isAwaitingReplacement;
+  const canRewind = canAct && !player.rewindUsed && battleStats.turnCount >= 2;
   const isOpponentReconnecting = Boolean(disconnectedPlayerId) && disconnectedPlayerId !== user?.id;
 
   const playerHit = lastTurnResult?.targetCritterId === player.activeCritter.id ? lastTurnResult : undefined;
@@ -186,6 +205,7 @@ function BattlePage() {
               playerName={opponent.username}
               critter={opponent.activeCritter}
               side="opponent"
+              rewindCharged={!opponent.rewindUsed}
               hitTurn={opponentHit?.turn}
               hitDamage={opponentHit?.damage}
               hitEffectiveness={opponentHit?.effectiveness}
@@ -216,6 +236,7 @@ function BattlePage() {
               critter={player.activeCritter}
               side="player"
               showNumericHp
+              rewindCharged={!player.rewindUsed}
               hitTurn={playerHit?.turn}
               hitDamage={playerHit?.damage}
               hitEffectiveness={playerHit?.effectiveness}
@@ -240,6 +261,9 @@ function BattlePage() {
             onAbilityClick={handleAbilityClick}
             isPlayerTurn={canAct}
             isResolving={isActionPending}
+            rewindUsed={player.rewindUsed}
+            canRewind={canRewind}
+            onRewind={handleRewind}
           />
         </div>
       </div>

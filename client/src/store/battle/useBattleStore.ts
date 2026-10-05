@@ -46,6 +46,7 @@ const defaultEmptyBattlePlayer: PlayerState = {
   hasTurn: false,
   activeCritterIndex: 0,
   roster: [defaultEmptyCritter],
+  rewindUsed: false,
   activeCritter: defaultEmptyCritter,
 };
 

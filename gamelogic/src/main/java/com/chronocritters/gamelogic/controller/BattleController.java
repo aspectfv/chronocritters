@@ -63,6 +63,11 @@ public class BattleController {
         return battleService.switchCritter(battleId, playerId, request.targetCritterIndex());
     }
 
+    @PostMapping("/battle/{battleId}/rewind")
+    public BattleState rewind(@PathVariable String battleId, @RequestAttribute(BattleAuthFilter.PLAYER_ID_ATTRIBUTE) String playerId) {
+        return battleService.rewind(battleId, playerId);
+    }
+
     @PostMapping("/battle/{battleId}/timeout")
     public ResponseEntity<Void> handleTimeout(@PathVariable String battleId) {
         battleService.handleTurnTimeout(battleId);
