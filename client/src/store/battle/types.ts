@@ -26,8 +26,7 @@ export interface BattleAbility {
 
 export interface TurnResult {
   turn: number;
-  casterCritterId: string;
-  targetCritterId: string;
+  targetPlayerId: string;
   damage: number;
   effectiveness: number;
 }

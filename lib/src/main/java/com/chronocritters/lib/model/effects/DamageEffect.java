@@ -90,8 +90,7 @@ public class DamageEffect extends Effect implements IInstantEffect {
 
         battleState.setLastTurnResult(TurnResult.builder()
                 .turn(battleStats.getTurnCount())
-                .casterCritterId(caster.getId())
-                .targetCritterId(target.getId())
+                .targetPlayerId(opponent.getId())
                 .damage(dealt)
                 .effectiveness(typeMultiplier)
                 .build());
