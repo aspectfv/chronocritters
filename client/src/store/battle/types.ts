@@ -11,6 +11,7 @@ export type BattleEffect =
   | { _type: 'LifestealEffect'; id: string; description: string; damage: number; drainPercent: number }
   | { _type: 'ShieldEffect'; id: string; description: string; amount: number; duration: number }
   | { _type: 'CleanseEffect'; id: string; description: string }
+  | { _type: 'PriorityEffect'; id: string; description: string }
   | { _type: 'StatusEffect'; id: string; description: string; condition: StatusCondition; duration: number; potency: number };
 
 export type BattleStatus = Extract<BattleEffect, { _type: 'StatusEffect' }>;

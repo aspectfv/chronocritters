@@ -6,13 +6,16 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.chronocritters.lib.model.battle.BattleState;
 import com.chronocritters.lobby.client.GameLogicWebClient;
+import com.chronocritters.lobby.dto.JoinRequest;
 import com.chronocritters.lobby.dto.Match;
+import com.chronocritters.lobby.dto.Pairing;
 import com.chronocritters.lobby.service.BattleSessionService;
 import com.chronocritters.lobby.service.BattleTimerService;
 import com.chronocritters.lobby.service.MatchmakingService;
@@ -32,20 +35,19 @@ public class MatchmakingController {
     private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/matchmaking/join")
-    public void joinMatchmaking(SimpMessageHeaderAccessor headerAccessor) {
+    public void joinMatchmaking(@Payload JoinRequest request, SimpMessageHeaderAccessor headerAccessor) {
         String userId = StompSession.requireUserId(headerAccessor);
 
-        Optional<Match> match = matchmakingService.join(userId);
-        if (match.isEmpty()) {
+        Optional<Pairing> pairing = matchmakingService.join(userId, request.team());
+        if (pairing.isEmpty()) {
             return;
         }
 
-        Match foundMatch = match.get();
+        Match foundMatch = pairing.get().match();
 
         BattleState battleState;
         try {
-            battleState = gameLogicWebClient.createBattle(
-                    foundMatch.battleId(), foundMatch.playerOneId(), foundMatch.playerTwoId()).block();
+            battleState = gameLogicWebClient.createBattle(foundMatch.battleId(), pairing.get().battleRequest()).block();
         } catch (RuntimeException e) {
             battleState = null;
             logger.warn("Battle creation failed for battleId '{}': {}", foundMatch.battleId(), e.getMessage());

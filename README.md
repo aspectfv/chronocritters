@@ -36,7 +36,7 @@ The services communicate through a combination of GraphQL, REST APIs, gRPC, and 
 **Application Flow:**
 1.  A user registers or logs in via the **Client**. The request is handled by the **User Service** (GraphQL), which returns a JWT upon success.
 2.  The **Client** establishes a WebSocket connection with the **Lobby Service** for real-time communication, authenticating with the JWT.
-3.  The user joins the matchmaking queue. The **Lobby Service** pairs two players and initiates a battle by sending an HTTP request to the **GameLogic Service**.
+3.  The user picks a team of three and joins the matchmaking queue with it. The **Lobby Service** pairs two players and initiates a battle by sending both teams to the **GameLogic Service** over HTTP.
 4.  The **GameLogic Service** fetches detailed player and critter data from the **User Service** using high-performance gRPC calls.
 5.  During the battle, player actions (like using an ability or switching a critter) are sent from the **Client** to the **GameLogic Service** via a REST API.
 6.  After each turn, the **GameLogic Service** processes the logic, updates the battle state, and sends the new state to the **Lobby Service**.
@@ -65,12 +65,14 @@ The project utilizes a diverse and modern technology stack:
 ## Features
 
 - **User Authentication**: Secure user registration and login system. Every new
-  trainer is given a starter team of three Critters so they can battle straight away.
-- **Real-time Matchmaking**: Players are placed in a queue and automatically matched
-  with an opponent, and can cancel a search at any time.
+  trainer is given all seven Critters so they can battle straight away.
+- **Team Selection and Matchmaking**: Players pick three Critters, the first of which
+  leads, and queue with that team. They are matched with an opponent automatically
+  and can cancel a search at any time.
 - **Turn-Based Battle System**: A dynamic battle arena with abilities, type advantages,
-  status effects, and a per-turn timer. Losing a critter lets you choose its
-  replacement, and the choice costs no turn.
+  status effects, and a per-turn timer. Each round the faster Critter moves first, so
+  speed, paralysis and priority moves decide who acts when. Losing a critter lets you
+  choose its replacement, and the choice costs no turn.
 - **Live Battle Updates**: Real-time synchronization of battle state between players
   using WebSockets, with animated damage, visible status effects and readable
   type-effectiveness feedback.
@@ -232,8 +234,8 @@ npm run dev
 *   The Vite development server will typically start on `http://localhost:5173`.
 
 You can now open two browser windows to `http://localhost:5173`, register two
-different users, and start a battle. Each new account is given a starter team of
-three Critters automatically.
+different users, pick a team of three on the menu, and start a battle. Each new
+account is given all seven Critters automatically.
 
 Two demo accounts are also seeded if you would rather not register:
 

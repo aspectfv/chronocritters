@@ -49,11 +49,7 @@ public class BattleController {
 
     @PostMapping("/battle/{battleId}")
     public ResponseEntity<BattleState> createBattle(@PathVariable String battleId, @Valid @RequestBody BattleRequest battleRequest) {
-        BattleState battleState = battleService.createBattle(
-                battleId,
-                battleRequest.playerOneId(),
-                battleRequest.playerTwoId()
-        );
+        BattleState battleState = battleService.createBattle(battleId, battleRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(battleState);
     }
 

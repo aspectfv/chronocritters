@@ -34,9 +34,7 @@ public class GameLogicWebClient {
         this.defaultRetrySpec = ServiceRetry.backoff("the gamelogic service");
     }
 
-    public Mono<BattleState> createBattle(String battleId, String playerOneId, String playerTwoId) {
-        BattleRequest battleRequest = new BattleRequest(playerOneId, playerTwoId);
-
+    public Mono<BattleState> createBattle(String battleId, BattleRequest battleRequest) {
         return webClient.post()
                 .uri("/battle/{battleId}", battleId)
                 .bodyValue(battleRequest)

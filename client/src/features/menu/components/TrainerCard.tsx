@@ -1,6 +1,6 @@
 import { useLobbyStore } from '@store/lobby/useLobbyStore';
 import type { TrainerCardProps } from '@features/menu/types';
-import { PartyRail } from '@features/menu/components/PartyRail';
+import { TeamPicker } from '@features/menu/components/TeamPicker';
 import { getConnectionStatusStyle } from '@utils/utils';
 
 /**
@@ -8,9 +8,9 @@ import { getConnectionStatusStyle } from '@utils/utils';
  *
  * The menu was three identical cards on a flat field, which said nothing about
  * whose save this is. Everything here is specific to the player: their record
- * struck as figures, how close that is to even, and the party they are carrying.
+ * struck as figures, how close that is to even, and the team they take into battle.
  */
-export function TrainerCard({ player }: TrainerCardProps) {
+export function TrainerCard({ player, team, teamSize, onToggle }: TrainerCardProps) {
   const connectionStatus = useLobbyStore((state) => state.connectionStatus);
   const connection = getConnectionStatusStyle(connectionStatus);
 
@@ -22,7 +22,7 @@ export function TrainerCard({ player }: TrainerCardProps) {
   return (
     <section className="arena-plate relative overflow-hidden rounded-2xl p-4 sm:p-6">
       {/* The ground, without the horizon rule the arena draws: here it lands
-          across the party labels rather than behind the critters. */}
+          across the team labels rather than behind the critters. */}
       <div className="arena-floor pointer-events-none absolute inset-0" aria-hidden="true" />
 
       <div className="relative flex flex-col gap-5">
@@ -55,8 +55,8 @@ export function TrainerCard({ player }: TrainerCardProps) {
         </div>
 
         <div>
-          <p className="mb-2 text-xs font-bold text-arena-ink">Your party</p>
-          <PartyRail roster={player.roster} />
+          <p className="mb-1 text-xs font-bold text-arena-ink">Your team</p>
+          <TeamPicker roster={player.roster} team={team} teamSize={teamSize} onToggle={onToggle} />
         </div>
       </div>
     </section>

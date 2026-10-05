@@ -56,6 +56,9 @@ public class CritterState {
     @Default
     private boolean fainted = false;
 
+    /** Set by a priority move: this critter opens the next round, whatever its speed. */
+    private boolean priority;
+
     public boolean isCoolingDown(String abilityId) {
         return abilityCooldowns.containsKey(abilityId);
     }

@@ -75,6 +75,7 @@ message EffectProto {
     ShieldEffectProto shield_effect = 9;
     CleanseEffectProto cleanse_effect = 10;
     StatusEffectProto status_effect = 11;
+    PriorityEffectProto priority_effect = 12;
   }
 }
 
@@ -114,6 +115,9 @@ message ShieldEffectProto {
 }
 
 message CleanseEffectProto {
+}
+
+message PriorityEffectProto {
 }
 
 enum StatusConditionProto {

@@ -43,6 +43,19 @@ public class BattleState {
     @Default
     private Set<String> awaitingSwitchPlayerIds = new LinkedHashSet<>();
 
+    /**
+     * The player still to act in the current round, after the one whose turn it
+     * is. Empty once both have acted, which is when the next round is ordered.
+     */
+    private String nextInRound;
+
+    /**
+     * A round came due while a fainted critter was still waiting to be
+     * replaced. The order is decided once the replacement is on the field,
+     * because it is the replacement's speed that counts.
+     */
+    private boolean roundPending;
+
     private BattleStats battleStats;
 
     @Default

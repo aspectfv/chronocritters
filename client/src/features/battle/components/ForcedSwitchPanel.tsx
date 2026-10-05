@@ -25,7 +25,7 @@ export function ForcedSwitchPanel({ open, team, onCritterClick, disabled }: Forc
       >
         <h2 className="text-center text-xl font-bold text-arena-ink">Your critter fainted</h2>
         <p className="mt-1 text-center text-sm text-arena-ink-muted">
-          Choose who goes out next. This one is free — you still get your turn.
+          Choose who goes out next. Sending it out is free, but speed decides who moves first next round.
         </p>
 
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">

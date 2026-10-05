@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ import com.chronocritters.gamelogic.handler.ExecuteAbilityHandler;
 import com.chronocritters.gamelogic.handler.FaintingHandler;
 import com.chronocritters.gamelogic.handler.TurnEffectsHandler;
 import com.chronocritters.gamelogic.handler.TurnTransitionHandler;
+import com.chronocritters.lib.dto.BattleRequest;
 import com.chronocritters.lib.interfaces.handler.ITurnActionHandler;
 import com.chronocritters.lib.mapper.BattleRewardsMapper;
 import com.chronocritters.lib.mapper.PlayerMapper;
@@ -79,26 +82,16 @@ public class BattleService {
         return battleState;
     }
 
-    public BattleState createBattle(String battleId, String playerOneId, String playerTwoId) {
-        PlayerState playerOne = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerOneId));
-        PlayerState playerTwo = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerTwoId));
+    public BattleState createBattle(String battleId, BattleRequest request) {
+        PlayerState playerOne = withTeam(request.playerOneId(), request.playerOneTeam());
+        PlayerState playerTwo = withTeam(request.playerTwoId(), request.playerTwoTeam());
 
-        int speedGap = playerOne.getActiveCritter().effectiveSpeed()
-                - playerTwo.getActiveCritter().effectiveSpeed();
-        PlayerState opener = opener(playerOne, playerTwo, speedGap);
-        playerOne.setHasTurn(opener == playerOne);
-        playerTwo.setHasTurn(opener == playerTwo);
-
-        String initialLog = "Battle started between " + playerOne.getUsername() + " and " + playerTwo.getUsername();
         List<String> logHistory = new ArrayList<>();
-        logHistory.add(initialLog);
-        logHistory.add(speedGap == 0
-                ? opener.getActiveCritter().getName() + " wins the toss and moves first!"
-                : opener.getActiveCritter().getName() + " is faster and moves first!");
+        logHistory.add("Battle started between " + playerOne.getUsername() + " and " + playerTwo.getUsername());
 
         Map<String, Integer> initialDamageDealt = new HashMap<>();
-        initialDamageDealt.put(playerOneId, 0);
-        initialDamageDealt.put(playerTwoId, 0);
+        initialDamageDealt.put(playerOne.getId(), 0);
+        initialDamageDealt.put(playerTwo.getId(), 0);
 
         BattleStats battleStats = BattleStats.builder()
                 .battleStartTime(System.currentTimeMillis())
@@ -107,7 +100,6 @@ public class BattleService {
 
         BattleState battleState = BattleState.builder()
                 .battleId(battleId)
-                .activePlayerId(opener.getId())
                 .playerOne(playerOne)
                 .playerTwo(playerTwo)
                 .actionLogHistory(logHistory)
@@ -115,34 +107,62 @@ public class BattleService {
                 .battleStats(battleStats)
                 .build();
 
+        // An exact tie is decided by a coin toss rather than by who joined the
+        // queue first, so neither seat is the better one to hold.
+        TurnTransitionHandler.startRound(battleState);
+
+        boolean speedTie = playerOne.getActiveCritter().effectiveSpeed() == playerTwo.getActiveCritter().effectiveSpeed();
+        String opener = battleState.getPlayer().getActiveCritter().getName();
+        logHistory.add(speedTie
+                ? opener + " wins the toss and moves first!"
+                : opener + " is faster and moves first!");
+
         activeBattles.put(battleId, battleState);
         return battleState;
     }
 
     /**
-     * The faster lead opens the battle. An exact tie is decided by a coin toss
-     * rather than by who joined the queue first: on a closed type triangle the
-     * even openings are the mirrors, and handing those to player one every time
-     * makes one seat better than the other.
+     * The player with only the critters they picked, in the order they picked
+     * them, so the first one leads. A player with fewer critters than a team
+     * holds brings all of them.
      */
-    private PlayerState opener(PlayerState playerOne, PlayerState playerTwo, int speedGap) {
-        if (speedGap != 0) return speedGap > 0 ? playerOne : playerTwo;
+    private PlayerState withTeam(String playerId, List<String> team) {
+        PlayerState player = PlayerMapper.toPlayerState(playerGrpcClient.getPlayer(playerId));
+        int teamSize = Math.min(BattleRequest.TEAM_SIZE, player.getRoster().size());
 
-        return ThreadLocalRandom.current().nextBoolean() ? playerOne : playerTwo;
+        if (team.size() != teamSize || Set.copyOf(team).size() != teamSize) {
+            throw new IllegalArgumentException("A team is " + teamSize + " different critters");
+        }
+
+        Map<String, CritterState> roster = player.getRoster().stream()
+                .collect(Collectors.toMap(CritterState::getId, Function.identity()));
+
+        List<CritterState> picked = new ArrayList<>();
+        for (String critterId : team) {
+            CritterState critter = roster.get(critterId);
+            if (critter == null) throw new IllegalArgumentException("Critter " + critterId + " is not in the player's roster");
+            picked.add(critter);
+        }
+
+        player.setRoster(picked);
+        return player;
     }
 
     public BattleState executeAbility(String battleId, String playerId, String abilityId) {
-        BattleState currentBattle = requireActiveTurn(battleId, playerId);
+        BattleState currentBattle = requireBattle(battleId);
 
         // The board is frozen until every fainted active has been replaced.
         // Playing on top of one resolves the move against a critter that is
         // already down: a stun landing on a corpse, damage credited to a critter
-        // on its way off the field.
+        // on its way off the field. It is checked before the turn, because
+        // whose turn comes next may not be decided until the replacement is in.
         if (currentBattle.isAwaitingSwitch()) {
             throw new IllegalStateException(currentBattle.awaitsSwitchFrom(playerId)
                     ? "Send out a replacement critter first"
                     : "Waiting for a replacement critter");
         }
+
+        requireActiveTurn(battleId, playerId);
 
         currentBattle.setLastTurnResult(null);
         currentBattle.getPlayer().setConsecutiveTimeouts(0);
@@ -183,9 +203,11 @@ public class BattleService {
             currentBattle.getAwaitingSwitchPlayerIds().remove(playerId);
 
             // The choice is free, so the player whose turn it is gets a whole
-            // one once the last replacement is on the field.
+            // one once the last replacement is on the field. If a round came
+            // due while it was missing, the replacement's speed orders it.
             if (!currentBattle.isAwaitingSwitch()) {
                 currentBattle.setTimeRemaining(currentBattle.getTurnDuration());
+                TurnTransitionHandler.resumeRound(currentBattle);
             }
 
             finalizeTurn(currentBattle);
@@ -213,12 +235,13 @@ public class BattleService {
         battleState.getActionLogHistory().add(String.format("%s switched from %s to %s", player.getUsername(),
                 player.getActiveCritter().getName(), targetCritter.getName()));
 
-        // Cooldowns and stat stages are kept by the critter that is on the
-        // field, so a critter coming off it stops counting and comes back
-        // ready and unshifted. Refreshing a move or shaking off a debuff this
+        // Cooldowns, stat stages and a claim on the next round are kept by the
+        // critter that is on the field, so a critter coming off it stops
+        // counting and comes back ready and unshifted. Refreshing a move or shaking off a debuff this
         // way costs the turn the switch itself costs.
         player.getActiveCritter().getAbilityCooldowns().clear();
         player.getActiveCritter().getStats().getStages().clear();
+        player.getActiveCritter().setPriority(false);
 
         player.setActiveCritterIndex(targetCritterIndex);
     }
@@ -298,6 +321,7 @@ public class BattleService {
 
         battleState.getAwaitingSwitchPlayerIds().clear();
         battleState.setTimeRemaining(battleState.getTurnDuration());
+        TurnTransitionHandler.resumeRound(battleState);
 
         finalizeTurn(battleState);
     }

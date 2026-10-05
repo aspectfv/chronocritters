@@ -87,7 +87,7 @@ export type Effect = {
   id: Scalars['ID']['output'];
 };
 
-export type EffectUnion = CleanseEffect | DamageEffect | DamageOverTimeEffect | HealEffect | LifestealEffect | ShieldEffect | StatModifierEffect | StatusEffect;
+export type EffectUnion = CleanseEffect | DamageEffect | DamageOverTimeEffect | HealEffect | LifestealEffect | PriorityEffect | ShieldEffect | StatModifierEffect | StatusEffect;
 
 export type HealEffect = Effect & {
   __typename?: 'HealEffect';
@@ -160,6 +160,12 @@ export type PlayerStats = {
   level?: Maybe<Scalars['Int']['output']>;
   losses?: Maybe<Scalars['Int']['output']>;
   wins?: Maybe<Scalars['Int']['output']>;
+};
+
+export type PriorityEffect = Effect & {
+  __typename?: 'PriorityEffect';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
 };
 
 export type Query = {
@@ -274,6 +280,7 @@ export type GetMyCrittersQuery = { __typename?: 'Query', getPlayer?: { __typenam
           | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
           | { __typename?: 'HealEffect', id: string, description: string, healPercent: number }
           | { __typename?: 'LifestealEffect', id: string, description: string, damage: number, drainPercent: number }
+          | { __typename?: 'PriorityEffect', id: string, description: string }
           | { __typename?: 'ShieldEffect', id: string, description: string, amount: number, duration: number }
           | { __typename?: 'StatModifierEffect', id: string, description: string, stat: Stat, stages: number }
           | { __typename?: 'StatusEffect', id: string, description: string, condition: StatusCondition, duration: number, potency: number }
@@ -288,6 +295,7 @@ export type GetCritterCatalogQuery = { __typename?: 'Query', critters: Array<{ _
         | { __typename?: 'DamageOverTimeEffect', id: string, description: string, damagePerTurn: number, duration: number }
         | { __typename?: 'HealEffect', id: string, description: string, healPercent: number }
         | { __typename?: 'LifestealEffect', id: string, description: string, damage: number, drainPercent: number }
+        | { __typename?: 'PriorityEffect', id: string, description: string }
         | { __typename?: 'ShieldEffect', id: string, description: string, amount: number, duration: number }
         | { __typename?: 'StatModifierEffect', id: string, description: string, stat: Stat, stages: number }
         | { __typename?: 'StatusEffect', id: string, description: string, condition: StatusCondition, duration: number, potency: number }
