@@ -171,8 +171,8 @@ function BattlePage() {
   const canRewind = canAct && !player.rewindUsed && battleStats.turnCount >= 2;
   const isOpponentReconnecting = Boolean(disconnectedPlayerId) && disconnectedPlayerId !== user?.id;
 
-  const playerHit = lastTurnResult?.targetCritterId === player.activeCritter.id ? lastTurnResult : undefined;
-  const opponentHit = lastTurnResult?.targetCritterId === opponent.activeCritter.id ? lastTurnResult : undefined;
+  const playerHit = lastTurnResult?.targetPlayerId === player.id ? lastTurnResult : undefined;
+  const opponentHit = lastTurnResult?.targetPlayerId === opponent.id ? lastTurnResult : undefined;
 
   return (
     <main className="min-h-screen bg-arena text-arena-ink">
